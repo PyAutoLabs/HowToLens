@@ -1,0 +1,47 @@
+# Per-script environment variable configuration for automated runs
+# (smoke tests, pre-release checks, CI).
+#
+# "defaults" are applied to every script on top of the inherited environment.
+# "overrides" selectively unset or replace vars for matching path patterns.
+#
+# Pattern convention (same as no_run.yaml):
+#   - Patterns containing '/' do a substring match against the file path
+#   - Patterns without '/' match the file stem exactly
+
+defaults:
+  PYAUTO_TEST_MODE: "2"                 # 0=normal, 1=reduced iterations, 2=skip sampler (fastest)
+  PYAUTO_SKIP_FIT_OUTPUT: "1"           # Skip pre/post-fit I/O, VRAM profiling, result text
+  PYAUTO_SKIP_VISUALIZATION: "1"        # Skip fit visualization and plotting
+  PYAUTO_SKIP_CHECKS: "1"              # Skip mesh validation, position checks, weight thresholds
+  PYAUTO_SMALL_DATASETS: "1"           # Cap grids/masks to 15x15, reduce MGE gaussians
+  PYAUTO_DISABLE_JAX: "1"              # Force use_jax=False, avoid JIT compilation overhead
+  PYAUTO_FAST_PLOTS: "1"               # Skip tight_layout() + critical curve/caustic overlays
+  JAX_ENABLE_X64: "True"               # Enable 64-bit precision in JAX
+  NUMBA_CACHE_DIR: "/tmp/numba_cache"   # Writable cache dir for numba
+  MPLCONFIGDIR: "/tmp/matplotlib"       # Writable config dir for matplotlib
+
+overrides:
+  # start_here scripts load real FITS data that breaks with small datasets
+  - pattern: "imaging/start_here"
+    unset: [PYAUTO_SMALL_DATASETS]
+  - pattern: "interferometer/start_here"
+    unset: [PYAUTO_SMALL_DATASETS]
+  - pattern: "group/start_here"
+    unset: [PYAUTO_SMALL_DATASETS]
+  - pattern: "multi/start_here"
+    unset: [PYAUTO_SMALL_DATASETS]
+  # Non-simulator scripts that load committed FITS data need full-size
+  # datasets to avoid shape mismatch with pre-existing 100x100 data.
+  # Simulators run first and regenerate data at the capped size, but
+  # scripts using the old `if not dataset_path.exists()` pattern skip
+  # re-simulation when data already exists.
+  - pattern: "howtolens/"
+    unset: [PYAUTO_SMALL_DATASETS]
+  - pattern: "guides/"
+    unset: [PYAUTO_SMALL_DATASETS]
+  # guides/results/start_here.py must produce real samples so the example
+  # scripts that read from `output/results_folder` afterwards
+  # (data_fitting, queries, models, samples_via_aggregator) find a
+  # non-empty aggregator. Covers all scripts under guides/results/.
+  - pattern: "guides/results/"
+    unset: [PYAUTO_TEST_MODE, PYAUTO_SKIP_FIT_OUTPUT]

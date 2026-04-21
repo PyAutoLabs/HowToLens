@@ -1,0 +1,60 @@
+# Scripts to skip during automated runs (smoke tests, pre-release checks, CI).
+# Each entry is matched against script paths:
+#   - Entries with '/' do a substring match against the file path
+#   - Entries without '/' match the file stem exactly
+# Add an inline # comment to document the reason for skipping.
+#
+# SLOW-skip convention:
+#   Entries tagged `# SLOW <YYYY-MM-DD> - <reason>` mark scripts that are
+#   skipped because they exceed the 60s per-script timeout cap. These are
+#   NOT permanent skips — every mega-run surfaces them with a loud warning
+#   banner. Fix the performance issue and remove the SLOW marker.
+#
+# NEEDS_FIX convention:
+#   Entries tagged `# NEEDS_FIX <YYYY-MM-DD> - <reason>` mark scripts that
+#   are broken and parked as a to-do list. Like SLOW-skips, these are NOT
+#   permanent skips — every mega-run surfaces them with a loud warning
+#   banner. Investigate the failure, fix the underlying bug, and remove
+#   the NEEDS_FIX marker.
+
+- tutorial_searches
+- guides/results/examples/samples # SLOW 2026-04-10 - exceeds 60s test timeout; unsets TEST_MODE for downstream examples
+- guides/results/examples/samples_via_aggregator # SLOW 2026-04-10 - exceeds 60s test timeout; unsets TEST_MODE for downstream examples
+- guides/results/examples/queries # SLOW 2026-04-10 - cascade from SLOW-skipped results/start_here.py; stub Model lacks sersic_index attribute
+- guides/results/database/start_here # SLOW 2026-04-10 - previously failed fast on a broken aggregator query; now runs the real aggregator and exceeds 60s
+- howtolens/chapter_4_pixelizations/tutorial_10_brightness_adaption # SLOW 2026-04-10 - pixelization tutorial exceeds 60s test timeout
+- tutorial_5_borders # Cant get right masks, need proper update.
+- tutorial_6_model_fit # InversionException due to test mode
+- gui/extra_galaxies_centres # GUI scripts cannot be run
+- gui/mask_extra_galaxies # GUI scripts cannot be run
+- gui/lens_light_centre # GUI scripts cannot be run
+- gui/mask # GUI scripts cannot be run
+- gui/positions # GUI scripts cannot be run
+- deflections # Output HDU not supported for VectorYX Detections.
+- deflections_source_snr # Output HDU not supported for VectorYX Detections.
+- fits_make # Test mode does not output .fits images.
+- png_make # Test mode does not output .png images.
+- time_delays # Test mode does not support cosmology ift
+- hpc/example_cpu # HPC paths dont exist locally.
+- examples/searches # Test mode breaks search visualization.
+- data_fitting # Test mode breaks .fits file output
+- cluster/modeling # Cluster modeling is not maintained and test mode breaks it.
+- cluster/start_here # Cluster analysis is not maintained and test mode breaks it.
+- mass_stellar_dark/modeling # Requires CSE to be JAX enabled.
+- mass_stellar_dark/slam # Requires CSE to be JAX enabled.
+- shapelets/modeling # Issue with JAX, claude remind me about this when you next look at build.
+- detect/database # Unsure but not a feature actively used currently.
+- imaging/features/advanced/subhalo/sensitivity/ # All sensitivity scripts need updating when visualization refactored.
+- plot/visuals # Bugged, but visuals being refactored soon.
+- point_source/features/double_einstein_cross/simulator # PointSolver finds 0 positions on small grid
+- dataset/imaging/slacs1430+4105 # Dataset folder contains data.py helper, not a runnable script
+- group/slam # NEEDS_FIX 2026-04-10 - PriorException: upper limit must be greater than lower limit in group SLaM pipeline
+- howtolens/chapter_1_introduction/tutorial_3_more_ray_tracing # NEEDS_FIX 2026-04-10 - ValueError: Axis limits cannot be NaN or Inf in plotting
+- howtolens/chapter_2_lens_modeling/tutorial_2_practicalities # NEEDS_FIX 2026-04-10 - NameError: 'af' not defined; tutorial missing ~80 lines of imports + setup boilerplate (compare tutorial_1)
+- howtolens/chapter_2_lens_modeling/tutorial_6_masking_and_positions # NEEDS_FIX 2026-04-10 - ValueError: zero-size array reduction, empty mask after pre-computed positions load
+- howtolens/chapter_4_pixelizations/tutorial_2_mappers # NEEDS_FIX 2026-04-10 - ValueError: zero-size array reduction, empty mapper array
+- imaging/data_preparation/manual/mask_irregular # NEEDS_FIX 2026-04-10 - silent failure, needs investigation
+- imaging/features/pixelization/delaunay # NEEDS_FIX 2026-04-10 - autofit.exc.FitException in Delaunay pixelization fit
+- imaging/features/pixelization/slam # NEEDS_FIX 2026-04-10 - autofit.exc.FitException in SLaM pixelization pipeline
+- interferometer/features/pixelization/delaunay # NEEDS_FIX 2026-04-10 - broadcast shape mismatch (2,2) vs (1032,1032) in Delaunay interferometer
+- multi/features/wavelength_dependence/modeling # NEEDS_FIX 2026-04-10 - autofit.exc.FitException in multi-wavelength modeling

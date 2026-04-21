@@ -1,0 +1,26 @@
+# HowToLens smoke test list — one path per line, relative to `scripts/`.
+# Consumed by `.github/scripts/run_smoke.py` (CI) and by the `/smoke-test` skill.
+#
+# Chapter 1 tutorials are fast and representative — they exercise core PyAutoLens
+# API (profiles, galaxies, tracers, imaging, fitting) without running non-linear
+# searches. Chapter 2+ modeling tutorials are heavier; add them here once we've
+# confirmed they run green under PYAUTO_TEST_MODE=2.
+#
+# tutorial_0_visualization.py and tutorial_7_fitting.py are intentionally
+# excluded — both depend on pre-simulated datasets inherited from
+# autolens_workspace conventions that HowToLens does not ship:
+#
+#   tutorial_0 → dataset/imaging/simple__no_lens_light (no auto-sim fallback)
+#   tutorial_7 → dataset/imaging/simple__no_lens_light__mass_sis (line ~615,
+#                no auto-sim fallback; the earlier `howtolens` dataset load
+#                does have one)
+#
+# Both need a content-alignment pass (auto-sim blocks or switched dataset paths)
+# before they can be included here. Tracked as a follow-up to the bootstrap PR.
+
+chapter_1_introduction/tutorial_1_grids_and_galaxies.py
+chapter_1_introduction/tutorial_2_ray_tracing.py
+chapter_1_introduction/tutorial_4_point_sources.py
+chapter_1_introduction/tutorial_5_lensing_formalism.py
+chapter_1_introduction/tutorial_6_data.py
+chapter_1_introduction/tutorial_8_summary.py

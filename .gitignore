@@ -1,0 +1,12 @@
+root.log
+.idea/
+
+__pycache__/
+*.pyc
+**/images/
+
+output/
+dataset/
+notebooks/plot/
+test_report.md
+test_results/
