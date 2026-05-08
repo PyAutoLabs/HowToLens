@@ -46,13 +46,13 @@ we can hope to achieve when adapting to the magnification.
 
 __Contents__
 
-**Initial Setup:** we'll use 3 sources whose `effective_radius` and `sersic_index` are changed such that each is more.
-**Mask:** Define the 2D mask applied to the dataset for the model-fit.
-**Simulator:** Now, lets simulate all 3 of our source's as to create `Imaging` data.
-**Fitting:** Fit the lens model to the dataset and inspect the results.
-**Fit Problems:** Lets fit our first source which was simulated using the flattest light profile.
-**Discussion:** Okay, so what did we learn?
-**Wrap Up:** Summary of the script and next steps.
+- **Initial Setup:** we'll use 3 sources whose `effective_radius` and `sersic_index` are changed such that each is more.
+- **Mask:** Define the 2D mask applied to the dataset for the model-fit.
+- **Simulator:** Now, lets simulate all 3 of our source's as to create `Imaging` data.
+- **Fitting:** Fit the lens model to the dataset and inspect the results.
+- **Fit Problems:** Lets fit our first source which was simulated using the flattest light profile.
+- **Discussion:** Okay, so what did we learn?
+- **Wrap Up:** Summary of the script and next steps.
 
 """
 

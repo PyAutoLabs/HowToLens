@@ -9,9 +9,9 @@ a source-plane pixelization.
 
 __Contents__
 
-**Initial Setup:** Lets setup a lensed source-plane grid, using a lens galaxy and tracer.
-**Mesh:** Next, lets set up a `Mesh` using the `mesh` module.
-**Wrap Up:** Summary of the script and next steps.
+- **Initial Setup:** Lets setup a lensed source-plane grid, using a lens galaxy and tracer.
+- **Mesh:** Next, lets set up a `Mesh` using the `mesh` module.
+- **Wrap Up:** Summary of the script and next steps.
 
 """
 

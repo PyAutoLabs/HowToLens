@@ -8,13 +8,13 @@ We'll also learn a neat trick to improve the speed and accuracy of a non-linear 
 
 __Contents__
 
-**Initial Setup:** we'll use the same strong lensing data as tutorials 1 & 2, where.
-**Mask:** Define the 2D mask applied to the dataset for the model-fit.
-**Run Time:** Profiling the expected run time of the model-fit.
-**Search:** Configure the non-linear search used to fit the model.
-**Discussion:** So, we can choose the mask we use in a model-fit.
-**Positions Thresholding:** We can manually specify a set of image-plane (y,x) coordinates corresponding to the multiple images.
-**Wrap Up:** Summary of the script and next steps.
+- **Initial Setup:** we'll use the same strong lensing data as tutorials 1 & 2, where.
+- **Mask:** Define the 2D mask applied to the dataset for the model-fit.
+- **Run Time:** Profiling the expected run time of the model-fit.
+- **Search:** Configure the non-linear search used to fit the model.
+- **Discussion:** So, we can choose the mask we use in a model-fit.
+- **Positions Thresholding:** We can manually specify a set of image-plane (y,x) coordinates corresponding to the multiple images.
+- **Wrap Up:** Summary of the script and next steps.
 
 """
 

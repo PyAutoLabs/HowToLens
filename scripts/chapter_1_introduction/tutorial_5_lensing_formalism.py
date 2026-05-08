@@ -12,7 +12,7 @@ Tutorial 8 summary is written and you should check that out instead!
 
 __Contents__
 
-**Wrap Up:** Summary of the script and next steps.
+- **Wrap Up:** Summary of the script and next steps.
 
 """
 

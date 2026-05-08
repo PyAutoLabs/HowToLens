@@ -12,11 +12,11 @@ of this tutorial, where the process of reconstructing the source's light on the 
 
 __Contents__
 
-**Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
-**Pixelization:** Finally, we can now use the `Mapper` to reconstruct the source via an `Inversion`.
-**Positive Only Solver:** Ensuring positive-only solutions for linear light profile intensities.
-**Wrap Up:** Summary of the script and next steps.
-**Detailed Explanation:** If you are interested in a more detailed description of how inversions work, then checkout the file.
+- **Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
+- **Pixelization:** Finally, we can now use the `Mapper` to reconstruct the source via an `Inversion`.
+- **Positive Only Solver:** Ensuring positive-only solutions for linear light profile intensities.
+- **Wrap Up:** Summary of the script and next steps.
+- **Detailed Explanation:** If you are interested in a more detailed description of how inversions work, then checkout the file.
 
 """
 

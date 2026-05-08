@@ -58,8 +58,8 @@ construct realistic lens and source galaxies.
 
 __Contents__
 
-**Grid:** In the previous tutorial, we created 2D grids of (y,x) coordinates and showed how shifting and.
-**Mass Profiles:** To perform lensing calculations, we use mass profiles available in the `mass_profile` module.
+- **Grid:** In the previous tutorial, we created 2D grids of (y,x) coordinates and showed how shifting and.
+- **Mass Profiles:** To perform lensing calculations, we use mass profiles available in the `mass_profile` module.
 
 """
 

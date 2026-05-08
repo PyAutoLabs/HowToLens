@@ -7,12 +7,12 @@ clearly in your Jupyter notebook and on your computer screen.
 
 __Contents__
 
-**Directories:** **PyAutoLens assumes** the working directory is `autolens_workspace` on your hard-disk.
-**Dataset:** Load and plot the strong lens dataset.
-**Subplots:** In addition to plotting individual figures, **PyAutoLens** can plot `subplots` which show multiple.
-**Plot Customization:** Does the figure display correctly on your computer screen?
-**Overlays:** Overlays such as critical curves and image positions are added using the `lines=` and `positions=`.
-**Wrap Up:** Summary of the script and next steps.
+- **Directories:** **PyAutoLens assumes** the working directory is `autolens_workspace` on your hard-disk.
+- **Dataset:** Load and plot the strong lens dataset.
+- **Subplots:** In addition to plotting individual figures, **PyAutoLens** can plot `subplots` which show multiple.
+- **Plot Customization:** Does the figure display correctly on your computer screen?
+- **Overlays:** Overlays such as critical curves and image positions are added using the `lines=` and `positions=`.
+- **Wrap Up:** Summary of the script and next steps.
 
 """
 

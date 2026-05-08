@@ -28,13 +28,13 @@ Here is an overview of what we'll cover in this tutorial:
 
 __Contents__
 
-**Initial Setup:** To create our simulated strong lens image, we first need a 2D grid.
-**Optics Blurring:** All images captured using CCDs (like those on the Hubble Space Telescope or Euclid) experience some.
-**Poisson Noise:** In addition to the blurring caused by telescope optics, we also need to consider Poisson noise when.
-**Background Sky:** The final effect we will consider when simulating imaging data is the background sky.
-**Simulator:** The `SimulatorImaging` object lets us create simulated imaging data while including the effects of.
-**Output:** We will now save these simulated data to `.fits` files, the standard format used by astronomers for.
-**Wrap Up:** Summary of the script and next steps.
+- **Initial Setup:** To create our simulated strong lens image, we first need a 2D grid.
+- **Optics Blurring:** All images captured using CCDs (like those on the Hubble Space Telescope or Euclid) experience some.
+- **Poisson Noise:** In addition to the blurring caused by telescope optics, we also need to consider Poisson noise when.
+- **Background Sky:** The final effect we will consider when simulating imaging data is the background sky.
+- **Simulator:** The `SimulatorImaging` object lets us create simulated imaging data while including the effects of.
+- **Output:** We will now save these simulated data to `.fits` files, the standard format used by astronomers for.
+- **Wrap Up:** Summary of the script and next steps.
 
 """
 

@@ -17,23 +17,23 @@ This tutorial will focus on these practical aspects of model-fitting, including:
 
 __Contents__
 
-**PyAutoFit:** Modeling uses the probabilistic programming language.
-**Initial Setup:** Lets first load the `Imaging` dataset we'll fit a model with using a non-linear search.
-**Mask:** Define the 2D mask applied to the dataset for the model-fit.
-**Model:** Compose the lens model fitted to the data.
-**Search:** Configure the non-linear search used to fit the model.
-**Search Settings:** Nautilus samples parameter space by placing "live points" representing different galaxy models.
-**Iterations Per Update:** Every N iterations, the non-linear search outputs the current results to the folder.
-**Analysis:** Create the Analysis object that defines how the model is fitted to the data.
-**VRAM Use:** When running AutoLens with JAX on a GPU, the analysis must fit within the GPU’s available VRAM.
-**Run Times:** Profiling the expected run time of the model-fit.
-**Result Info:** A concise readable summary of the results is given by printing its `info` attribute.
-**Output Folder:** Now checkout the `autolens_workspace/output` folder.
-**Unique Identifier:** In the output folder, you will note that results are in a folder which is a collection of random.
-**Output Folder Contents:** Now this is running you should checkout the `autolens_workspace/output` folder.
-**Result:** Overview of the results of the model-fit.
-**Other Practicalities:** The following are examples of other practicalities which I will document fully in this example.
-**Wrap Up:** Summary of the script and next steps.
+- **PyAutoFit:** Modeling uses the probabilistic programming language.
+- **Initial Setup:** Lets first load the `Imaging` dataset we'll fit a model with using a non-linear search.
+- **Mask:** Define the 2D mask applied to the dataset for the model-fit.
+- **Model:** Compose the lens model fitted to the data.
+- **Search:** Configure the non-linear search used to fit the model.
+- **Search Settings:** Nautilus samples parameter space by placing "live points" representing different galaxy models.
+- **Iterations Per Update:** Every N iterations, the non-linear search outputs the current results to the folder.
+- **Analysis:** Create the Analysis object that defines how the model is fitted to the data.
+- **VRAM Use:** When running AutoLens with JAX on a GPU, the analysis must fit within the GPU’s available VRAM.
+- **Run Times:** Profiling the expected run time of the model-fit.
+- **Result Info:** A concise readable summary of the results is given by printing its `info` attribute.
+- **Output Folder:** Now checkout the `autolens_workspace/output` folder.
+- **Unique Identifier:** In the output folder, you will note that results are in a folder which is a collection of random.
+- **Output Folder Contents:** Now this is running you should checkout the `autolens_workspace/output` folder.
+- **Result:** Overview of the results of the model-fit.
+- **Other Practicalities:** The following are examples of other practicalities which I will document fully in this example.
+- **Wrap Up:** Summary of the script and next steps.
 
 __Search Settings__
 

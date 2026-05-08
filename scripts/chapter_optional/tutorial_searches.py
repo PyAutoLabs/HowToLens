@@ -13,9 +13,9 @@ model-fitting techniques.
 
 __Contents__
 
-**Nested Sampling:** Lets first perform the model-fit using Nautilus, but look at different parameters that control how.
-**Optimizers:** There are a class of non-linear searches called optimizers, which seek to optimize the log likelihood.
-**MCMC:** For users familiar with Markov Chain Monte Carlo (MCMC) non-linear samplers, PyAutoFit supports the.
+- **Nested Sampling:** Lets first perform the model-fit using Nautilus, but look at different parameters that control how.
+- **Optimizers:** There are a class of non-linear searches called optimizers, which seek to optimize the log likelihood.
+- **MCMC:** For users familiar with Markov Chain Monte Carlo (MCMC) non-linear samplers, PyAutoFit supports the.
 
 """
 

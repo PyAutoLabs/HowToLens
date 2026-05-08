@@ -14,12 +14,12 @@ conceptually challenging!
 
 __Contents__
 
-**Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
-**Convenience Function:** we're going to perform a lot of fits using an `Inversion` this tutorial.
-**Pixelization:** Okay, so lets look at our fit from the previous tutorial in more detail.
-**Regularization:** The source reconstruction looks excellent!
-**Bayesian Evidence:** For inversions, we therefore need a different goodness-of-fit measure to choose the appropriate.
-**Detailed Description:** Below, I provide a more detailed discussion of the Bayesian evidence.
+- **Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
+- **Convenience Function:** we're going to perform a lot of fits using an `Inversion` this tutorial.
+- **Pixelization:** Okay, so lets look at our fit from the previous tutorial in more detail.
+- **Regularization:** The source reconstruction looks excellent!
+- **Bayesian Evidence:** For inversions, we therefore need a different goodness-of-fit measure to choose the appropriate.
+- **Detailed Description:** Below, I provide a more detailed discussion of the Bayesian evidence.
 
 """
 

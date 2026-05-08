@@ -12,10 +12,10 @@ model that we've begun calling the `adapt-image`.
 
 __Contents__
 
-**Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
-**Convenience Function:** We are going to fit the image using a magnification based grid.
-**Adaptive Regularization:** Lets now look at adaptive regularization in action, by setting up a adapt-image and using the.
-**Wrap Up:** Summary of the script and next steps.
+- **Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
+- **Convenience Function:** We are going to fit the image using a magnification based grid.
+- **Adaptive Regularization:** Lets now look at adaptive regularization in action, by setting up a adapt-image and using the.
+- **Wrap Up:** Summary of the script and next steps.
 
 """
 

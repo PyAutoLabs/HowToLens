@@ -20,12 +20,12 @@ global maxima solution is in indeed the global maxima.
 
 __Contents__
 
-**Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
-**Mask:** Define the 2D mask applied to the dataset for the model-fit.
-**Prior Tuning:** First, we will try to assist our non-linear search by tuning our priors.
-**Run Time:** Profiling the expected run time of the model-fit.
-**Result:** Overview of the results of the model-fit.
-**Discussion:** By tuning our priors to the specific lens model we are fitting, we increase the chances of finding.
+- **Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
+- **Mask:** Define the 2D mask applied to the dataset for the model-fit.
+- **Prior Tuning:** First, we will try to assist our non-linear search by tuning our priors.
+- **Run Time:** Profiling the expected run time of the model-fit.
+- **Result:** Overview of the results of the model-fit.
+- **Discussion:** By tuning our priors to the specific lens model we are fitting, we increase the chances of finding.
 
 """
 
