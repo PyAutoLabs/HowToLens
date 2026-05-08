@@ -38,9 +38,9 @@ Nautilus. We therefore recommend uses stick to `Nautilus`.
 
 __Contents__
 
-**Algorithmic Optimization:** Every operation **PyAutoLens** performs to fit strong lens data with a model takes time, for.
-**Data Quantity:** The final factor driving run-speed is the quantity of data that is fitted.
-**Wrap Up:** Summary of the script and next steps.
+- **Algorithmic Optimization:** Every operation **PyAutoLens** performs to fit strong lens data with a model takes time, for.
+- **Data Quantity:** The final factor driving run-speed is the quantity of data that is fitted.
+- **Wrap Up:** Summary of the script and next steps.
 
 __Algorithmic Optimization__
 

@@ -51,10 +51,10 @@ The imports below are required to run the HowToLens tutorials in a Jupiter noteb
 
 __Contents__
 
-**Grids:** A `Grid2D` is a set of two-dimensional $(y,x)$ coordinates that represent points in space where we.
-**Geometry:** The above grid is centered on the origin (0.0", 0.0").
-**Light Profiles:** Galaxies are collections of stars, gas, dust, and other astronomical objects that emit light.
-**One Dimension Projection:** We often want to calculative 1D quantities of a light profile, for example to plot how its light.
+- **Grids:** A `Grid2D` is a set of two-dimensional $(y,x)$ coordinates that represent points in space where we.
+- **Geometry:** The above grid is centered on the origin (0.0", 0.0").
+- **Light Profiles:** Galaxies are collections of stars, gas, dust, and other astronomical objects that emit light.
+- **One Dimension Projection:** We often want to calculative 1D quantities of a light profile, for example to plot how its light.
 
 """
 

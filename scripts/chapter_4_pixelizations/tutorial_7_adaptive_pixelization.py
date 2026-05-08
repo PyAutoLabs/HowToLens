@@ -11,11 +11,11 @@ So, why would we want to do that? Lets take another quick look at the rectangula
 
 __Contents__
 
-**Initial Setup:** We'll use the same strong lensing data as the previous tutorial, where.
-**Advantages and Disadvatanges:** Lets think about the rectangular pixelization.
-**Image Mesh:** The Delaunay mesh is an irregular grid of pixels (or triangles) in the source-plane.
-**Regularization:** On the rectangular grid, we regularized each source pixel with its 4 neighbors.
-**Wrap Up:** Summary of the script and next steps.
+- **Initial Setup:** We'll use the same strong lensing data as the previous tutorial, where.
+- **Advantages and Disadvatanges:** Lets think about the rectangular pixelization.
+- **Image Mesh:** The Delaunay mesh is an irregular grid of pixels (or triangles) in the source-plane.
+- **Regularization:** On the rectangular grid, we regularized each source pixel with its 4 neighbors.
+- **Wrap Up:** Summary of the script and next steps.
 
 """
 

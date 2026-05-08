@@ -14,11 +14,11 @@ parameters. If there are 4 components, or multiple galaxies, we are quickly ente
 
 __Contents__
 
-**Initial Setup:** we'll use new strong lensing data, where.
-**Paths:** All four searches will use the same `path_prefix`, so we write it here to avoid repetition.
-**Search Chaining Approach:** The source is clearly complex, with more than 4 peaks of light.
-**Run Times:** Profiling the expected run time of the model-fit.
-**Wrap Up:** Summary of the script and next steps.
+- **Initial Setup:** we'll use new strong lensing data, where.
+- **Paths:** All four searches will use the same `path_prefix`, so we write it here to avoid repetition.
+- **Search Chaining Approach:** The source is clearly complex, with more than 4 peaks of light.
+- **Run Times:** Profiling the expected run time of the model-fit.
+- **Wrap Up:** Summary of the script and next steps.
 
 """
 

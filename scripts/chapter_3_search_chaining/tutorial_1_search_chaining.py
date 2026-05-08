@@ -40,13 +40,13 @@ search, we can use its results to tune the priors of our second search. For exam
 
 __Contents__
 
-**Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
-**Model:** Compose the lens model fitted to the data.
-**Result:** Overview of the results of the model-fit.
-**Prior Passing:** Now all we need to do is look at the results of search 1 and pass the results as priors for search.
-**Run Time:** Profiling the expected run time of the model-fit.
-**Model Fit:** Perform the model-fit using the search and analysis.
-**Wrap Up:** Summary of the script and next steps.
+- **Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
+- **Model:** Compose the lens model fitted to the data.
+- **Result:** Overview of the results of the model-fit.
+- **Prior Passing:** Now all we need to do is look at the results of search 1 and pass the results as priors for search.
+- **Run Time:** Profiling the expected run time of the model-fit.
+- **Model Fit:** Perform the model-fit using the search and analysis.
+- **Wrap Up:** Summary of the script and next steps.
 
 """
 

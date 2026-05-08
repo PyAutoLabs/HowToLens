@@ -18,12 +18,12 @@ then be used an adapt image.
 
 __Contents__
 
-**Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
-**Adapt Image:** We can use this fit to set up our adapt image.
-**Adaption:** Now lets take a look at brightness based adaption in action.
-**Hilbert:** So how does the `adapt_image` adapt the pixelization to the source's brightness?
-**Weight Map:** We now have a sense of how our `Hilbert` image-mesh is computed, so lets look at how we create the.
-**Wrap Up:** Summary of the script and next steps.
+- **Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
+- **Adapt Image:** We can use this fit to set up our adapt image.
+- **Adaption:** Now lets take a look at brightness based adaption in action.
+- **Hilbert:** So how does the `adapt_image` adapt the pixelization to the source's brightness?
+- **Weight Map:** We now have a sense of how our `Hilbert` image-mesh is computed, so lets look at how we create the.
+- **Wrap Up:** Summary of the script and next steps.
 
 """
 

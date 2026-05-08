@@ -11,9 +11,9 @@ border.
 
 __Contents__
 
-**Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
-**Borders:** So, what is a border?
-**Wrap Up:** Summary of the script and next steps.
+- **Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
+- **Borders:** So, what is a border?
+- **Wrap Up:** Summary of the script and next steps.
 
 """
 

@@ -44,19 +44,19 @@ In this tutorial, we will use a non-linear search to fit a lens model to simulat
 
 __Contents__
 
-**Overview:** In this tutorial, we will use a non-linear search to fit a lens model to simulated imaging of.
-**Parameter Space:** In mathematics, a function is defined by its parameters, which map inputs to outputs.
-**Search Types:** There are different types of non-linear searches, each of which explores parameter space in a.
-**Deeper Background:** **The descriptions of how searches work in this example are simplfied and phoenomenological and do.
-**PyAutoFit:** Modeling uses the probabilistic programming language.
-**Initial Setup:** Let's first load the `Imaging` dataset, which we will use to fit a model with a non-linear search.
-**Mask:** Define the 2D mask applied to the dataset for the model-fit.
-**Model:** Compose the lens model fitted to the data.
-**Priors:** When we examine the `.info` of our model, we notice that each parameter (like `centre`.
-**Analysis:** Create the Analysis object that defines how the model is fitted to the data.
-**Searches:** To perform a non-linear search, we create an instance of a `NonLinearSearch` object.
-**Nested Sampling:** **Nested Sampling** is an advanced method for model-fitting that excels in handling complex models.
-**Wrap Up:** Summary of the script and next steps.
+- **Overview:** In this tutorial, we will use a non-linear search to fit a lens model to simulated imaging of.
+- **Parameter Space:** In mathematics, a function is defined by its parameters, which map inputs to outputs.
+- **Search Types:** There are different types of non-linear searches, each of which explores parameter space in a.
+- **Deeper Background:** **The descriptions of how searches work in this example are simplfied and phoenomenological and do.
+- **PyAutoFit:** Modeling uses the probabilistic programming language.
+- **Initial Setup:** Let's first load the `Imaging` dataset, which we will use to fit a model with a non-linear search.
+- **Mask:** Define the 2D mask applied to the dataset for the model-fit.
+- **Model:** Compose the lens model fitted to the data.
+- **Priors:** When we examine the `.info` of our model, we notice that each parameter (like `centre`.
+- **Analysis:** Create the Analysis object that defines how the model is fitted to the data.
+- **Searches:** To perform a non-linear search, we create an instance of a `NonLinearSearch` object.
+- **Nested Sampling:** **Nested Sampling** is an advanced method for model-fitting that excels in handling complex models.
+- **Wrap Up:** Summary of the script and next steps.
 
 __Parameter Space__
 
