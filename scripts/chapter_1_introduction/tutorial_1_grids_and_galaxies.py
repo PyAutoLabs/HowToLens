@@ -9,7 +9,7 @@ because multiple paths through the foreground galaxy's mass are taken by the sou
 
 Here is a schematic of a strong gravitational lens:
 
-![Schematic of Gravitational Lensing](https://raw.githubusercontent.com/Jammy2211/PyAutoLens/main/docs/overview/images/overview_1_lensing/schematic.jpg)
+![Schematic of Gravitational Lensing](https://raw.githubusercontent.com/PyAutoLabs/PyAutoLens/main/docs/overview/images/overview_1_lensing/schematic.jpg)
 **Credit: F. Courbin, S. G. Djorgovski, G. Meylan, et al., Caltech / EPFL / WMKO**
 https://www.astro.caltech.edu/~george/qsolens/
 
