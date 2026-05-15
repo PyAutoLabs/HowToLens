@@ -169,7 +169,7 @@ import autolens.plot as aplt
 __PyAutoFit__
 
 Modeling uses the probabilistic programming language
-[PyAutoFit](https://github.com/rhayes777/PyAutoFit), an open-source project that allows complex model
+[PyAutoFit](https://github.com/PyAutoLabs/PyAutoFit), an open-source project that allows complex model
 fitting techniques to be straightforwardly integrated into scientific modeling software. 
 
 **PyAutoFit** is actually a spin-off project of **PyAutoLen**. whereby we found that the statistic techniques and

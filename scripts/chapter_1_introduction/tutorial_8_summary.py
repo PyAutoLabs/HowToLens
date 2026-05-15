@@ -175,13 +175,13 @@ If you do enjoy code, variables, functions, and parameters, you may want to dig 
 code at some point in the future. Firstly, you should note that all of the code we discuss throughout the **HowToLens** 
 lectures is not contained in just one project (e.g. the **PyAutoLens** GitHub repository) but in fact four repositories:
 
-**PyAutoFit** - Everything required for lens modeling (the topic of chapter 2): https://github.com/rhayes777/PyAutoFit
+**PyAutoFit** - Everything required for lens modeling (the topic of chapter 2): https://github.com/PyAutoLabs/PyAutoFit
 
-**PyAutoArray** - Handles all data structures and Astronomy dataset objects: https://github.com/Jammy2211/PyAutoArray
+**PyAutoArray** - Handles all data structures and Astronomy dataset objects: https://github.com/PyAutoLabs/PyAutoArray
 
-**PyAutoGalaxy** - Contains the light profiles, mass profiles and galaxies: https://github.com/Jammy2211/PyAutoGalaxy
+**PyAutoGalaxy** - Contains the light profiles, mass profiles and galaxies: https://github.com/PyAutoLabs/PyAutoGalaxy
 
-**PyAutoLens** - Everything strong lensing: https://github.com/Jammy2211/PyAutoLens
+**PyAutoLens** - Everything strong lensing: https://github.com/PyAutoLabs/PyAutoLens
 
 Instructions on how to build these projects from source are provided here:
 
@@ -201,7 +201,7 @@ and it is the topic of chapter 2 of **HowToLens**.
 Finally, if you enjoyed doing the **HowToLens** tutorials please git us a star on the **PyAutoLens** GitHub
 repository: 
 
- https://github.com/Jammy2211/PyAutoLens
+ https://github.com/PyAutoLabs/PyAutoLens
 
 Even the smallest bit of exposure via a GitHub star can help our project grow!
 """
