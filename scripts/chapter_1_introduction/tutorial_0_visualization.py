@@ -38,6 +38,11 @@ directory `autolens_workspace/dataset/imaging/simple__no_lens_light`.
 There are many example simulated images of strong lenses in this directory that will be used throughout the
 **HowToLens** lectures.
 """
+from pathlib import Path
+
+import autolens as al
+import autolens.plot as aplt
+
 dataset_path = Path("dataset") / "imaging" / "simple__no_lens_light"
 
 """
