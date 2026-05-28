@@ -51,7 +51,7 @@ if not dataset_path.exists():
     import sys
 
     subprocess.run(
-        [sys.executable, "scripts/imaging/features/no_lens_light/simulator.py"],
+        [sys.executable, "scripts/simulator/no_lens_light.py"],
         check=True,
     )
 
