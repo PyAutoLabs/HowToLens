@@ -2,6 +2,21 @@
 
 This is the **HowToLens** tutorial lecture series for `PyAutoLens`, a Python library for strong gravitational lens modeling. Tutorials teach new users what strong lensing is and how to model it from first principles.
 
+## Scientific Context
+
+When a tutorial benefits from broader scientific framing — references to
+landmark surveys, named lenses, degeneracies, or the literature behind a
+mass model or source-reconstruction choice — pull from the lensing
+sub-wiki at
+[`PyAutoLabs/PyAutoPaper`](https://github.com/PyAutoLabs/PyAutoPaper),
+locally at `../PyAutoPaper/lensing_wiki/`. It has topical concept pages
+(`concepts/`), named-entity pages (`entities/`, including SLACS, H0liCOW,
+Euclid Q1, Abell 1201, the Cosmic Horseshoe), and a per-topic
+bibliography (`sources/`, ~190 papers — most stubs are `status: stub`
+until verified against the PDF). Start at
+`../PyAutoPaper/lensing_wiki/index.md`. Use it especially for the
+science-narrative tutorials that Opus authors.
+
 ## Repository Structure
 
 - `scripts/` — Runnable Python tutorial scripts
