@@ -74,6 +74,104 @@ output results and visualization frequently to hard-disk. If your fit is consist
 is outputting results, try increasing this value to ensure the model-fit runs efficiently.**
 """
 
+from autoconf import jax_wrapper  # Sets JAX environment before other imports
+
+# from autoconf import setup_notebook; setup_notebook()
+
+from pathlib import Path
+import autolens as al
+import autolens.plot as aplt
+
+"""
+__PyAutoFit__
+
+Modeling uses the probabilistic programming language
+[PyAutoFit](https://github.com/PyAutoLabs/PyAutoFit), an open-source project that allows complex model
+fitting techniques to be straightforwardly integrated into scientific modeling software.
+
+The majority of tools that make model-fitting practical are provided by PyAutoFit, for example it handles
+all output of the non-linear search to hard-disk, the visualization of results and the estimation of run-times.
+"""
+import autofit as af
+
+"""
+__Initial Setup__
+
+Lets first load the `Imaging` dataset we'll fit a model with using a non-linear search.
+
+This is the same dataset we fitted in the previous tutorial, and we'll repeat the same fit, as we simply want
+to illustrate the practicalities of model-fitting in this tutorial.
+"""
+dataset_name = "simple__no_lens_light__mass_sis"
+dataset_path = Path("dataset") / "imaging" / dataset_name
+
+"""
+__Dataset Auto-Simulation__
+
+If the dataset does not already exist on your system, it will be created by running the corresponding
+simulator script. This ensures that all example scripts can be run without manually simulating data first.
+"""
+if not dataset_path.exists():
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, "scripts/simulator/no_lens_light__mass_sis.py"],
+        check=True,
+    )
+
+dataset = al.Imaging.from_fits(
+    data_path=dataset_path / "data.fits",
+    noise_map_path=dataset_path / "noise_map.fits",
+    psf_path=dataset_path / "psf.fits",
+    pixel_scales=0.1,
+)
+
+aplt.subplot_imaging_dataset(dataset=dataset)
+
+"""
+__Mask__
+
+The non-linear fit also needs a `Mask2D`, lets use a 3.0" circle.
+"""
+mask_radius = 3.0
+
+mask = al.Mask2D.circular(
+    shape_native=dataset.shape_native,
+    pixel_scales=dataset.pixel_scales,
+    radius=mask_radius,
+)
+
+dataset = dataset.apply_mask(mask=mask)
+
+aplt.subplot_imaging_dataset(dataset=dataset)
+
+"""
+__Model__
+
+We compose the model using the same API as the previous tutorial.
+
+This model is the same as the previous tutorial, an `IsothermalSph` spherical mass profile representing the lens
+galaxy and a `ExponentialCoreSph` light profile representing the source galaxy.
+"""
+# Lens:
+
+mass = af.Model(al.mp.IsothermalSph)
+
+lens = af.Model(al.Galaxy, redshift=0.5, mass=mass)
+
+# Source:
+
+bulge = af.Model(al.lp_linear.ExponentialCoreSph)
+
+source = af.Model(al.Galaxy, redshift=1.0, bulge=bulge)
+
+# Overall Lens Model:
+
+model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
+
+print(model.info)
+
 search = af.Nautilus(
     path_prefix=Path("howtolens") / "chapter_2",
     name="tutorial_2_practicalities",
