@@ -40,6 +40,7 @@ from autoconf import jax_wrapper  # Sets JAX environment before other imports
 
 # from autoconf import setup_notebook; setup_notebook()
 
+import numpy as np
 import autolens as al
 import autolens.plot as aplt
 
@@ -147,8 +148,15 @@ radial_critical_curves_list = al.LensCalc.from_tracer(
 ).radial_critical_curve_list_from(grid=grid)
 
 
-aplt.plot_grid(grid=tracer.traced_grid_2d_list_from(grid=grid)[0], title="Plane 0 Grid")
-aplt.plot_grid(grid=tracer.traced_grid_2d_list_from(grid=grid)[1], title="Plane 1 Grid")
+traced_grid_list = tracer.traced_grid_2d_list_from(grid=grid)
+source_plane_grid = np.asarray(traced_grid_list[1])
+source_plane_grid = source_plane_grid[np.isfinite(source_plane_grid).all(axis=1)]
+
+aplt.plot_grid(grid=traced_grid_list[0], title="Plane 0 Grid")
+aplt.plot_grid(
+    grid=al.Grid2DIrregular(values=source_plane_grid),
+    title="Plane 1 Grid",
+)
 
 tangential_caustic_list = al.LensCalc.from_tracer(
     tracer=tracer

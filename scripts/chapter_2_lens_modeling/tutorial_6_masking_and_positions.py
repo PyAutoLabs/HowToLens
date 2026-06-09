@@ -69,12 +69,12 @@ plotting masks on the imaging data.
 
 Below, we use a 'circular_annular' mask, which unlike the 'circular' masks we have used previous includes an additional
 input parameter 'inner_radius' that removes the central regions of the image. Below, we use too large of a value of
-`inner_radius=1.4`, which cuts into the lensed source galaxy's light, clearly this isn't a good mask.
+`inner_radius=0.8`, which cuts into the lensed source galaxy's light, clearly this isn't a good mask.
 """
 mask = al.Mask2D.circular_annular(
     shape_native=dataset.shape_native,
     pixel_scales=dataset.pixel_scales,
-    inner_radius=1.4,
+    inner_radius=0.8,
     outer_radius=2.7,
 )
 
