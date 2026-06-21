@@ -1,0 +1,624 @@
+[
+  {
+    "contents": [
+      "Directories",
+      "Dataset",
+      "Subplots",
+      "Plot Customization",
+      "Overlays",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_1_introduction/tutorial_0_visualization.ipynb",
+    "path": "scripts/chapter_1_introduction/tutorial_0_visualization.py",
+    "summary": "In this tutorial, we quickly cover visualization in **PyAutoLens** and make sure images display clearly in your Jupyter notebook and on your computer screen.",
+    "title": "Tutorial 0: Visualization"
+  },
+  {
+    "contents": [
+      "Grids",
+      "Geometry",
+      "Light Profiles",
+      "One Dimension Projection"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_1_introduction/tutorial_1_grids_and_galaxies.ipynb",
+    "path": "scripts/chapter_1_introduction/tutorial_1_grids_and_galaxies.py",
+    "summary": "A strong gravitational lens is a system where two (or more) galaxies align perfectly down our line of sight from Earth such that the foreground galaxy's mass curves space-time in on itself, such that the light of a background source galaxy is deflected and magnified. This means we can see the background source galaxy multiple times, as multiple arcs or rings, because multiple paths through the foreground galaxy's mass are taken by the source's light.",
+    "title": "HowToLens: Introduction"
+  },
+  {
+    "contents": [
+      "Grid",
+      "Mass Profiles"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_1_introduction/tutorial_2_ray_tracing.ipynb",
+    "path": "scripts/chapter_1_introduction/tutorial_2_ray_tracing.py",
+    "summary": "Strong gravitational lensing occurs when the mass of a foreground galaxy (or galaxies) curves space-time around it, causing light rays from a background source to appear deflected.",
+    "title": "Tutorial 2: Ray Tracing"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Concise Code",
+      "Critical Curves",
+      "Caustics",
+      "Units",
+      "More Complexity",
+      "Multi Galaxy Ray Tracing",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_1_introduction/tutorial_3_more_ray_tracing.ipynb",
+    "path": "scripts/chapter_1_introduction/tutorial_3_more_ray_tracing.py",
+    "summary": "We'll now reinforce the ideas that we learnt about ray-tracing in the previous tutorial and introduce the following new concepts:",
+    "title": "Tutorial 5: More Ray Tracing"
+  },
+  {
+    "contents": [
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_1_introduction/tutorial_4_point_sources.ipynb",
+    "path": "scripts/chapter_1_introduction/tutorial_4_point_sources.py",
+    "summary": "This tutorial is not wrriten yet, but will explain how point source lensing works.",
+    "title": "Tutorial 4: Point Sources"
+  },
+  {
+    "contents": [
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_1_introduction/tutorial_5_lensing_formalism.ipynb",
+    "path": "scripts/chapter_1_introduction/tutorial_5_lensing_formalism.py",
+    "summary": "This tutorial is not wrriten yet, but will explain what all the different lens quantities are and give a more formal description of them.",
+    "title": "Tutorial 5: Lensing Formalism"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Optics Blurring",
+      "Poisson Noise",
+      "Background Sky",
+      "Simulator",
+      "Output",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_1_introduction/tutorial_6_data.ipynb",
+    "path": "scripts/chapter_1_introduction/tutorial_6_data.py",
+    "summary": "In the last tutorials, we use tracers to create images of strong lenses. However, those images don't accurately represent what we would observe through a telescope.",
+    "title": "Tutorial 6: Data"
+  },
+  {
+    "contents": [
+      "Dataset & Mask",
+      "Masked Grid",
+      "Fitting",
+      "Incorrect Fit",
+      "Model Fitting",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_1_introduction/tutorial_7_fitting.ipynb",
+    "path": "scripts/chapter_1_introduction/tutorial_7_fitting.py",
+    "summary": "In previous tutorials, we used light profiles to create simulated images of tracer and visualized how these images would appear when captured by a CCD detector on a telescope like the Hubble Space Telescope.",
+    "title": "Tutorial 7: Fitting"
+  },
+  {
+    "contents": [
+      "Start",
+      "Object Composition",
+      "Visualization",
+      "Code Design",
+      "Source Code",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_1_introduction/tutorial_8_summary.ipynb",
+    "path": "scripts/chapter_1_introduction/tutorial_8_summary.py",
+    "summary": "In this chapter, we have learnt that:",
+    "title": "Tutorial 9: Summary"
+  },
+  {
+    "contents": [
+      "Overview",
+      "Parameter Space",
+      "Search Types",
+      "Deeper Background",
+      "PyAutoFit",
+      "Initial Setup",
+      "Mask",
+      "Model",
+      "Priors",
+      "Analysis",
+      "Searches",
+      "Nested Sampling",
+      "Wrap Up"
+    ],
+    "cross_refs": [
+      "/imaging/log_likelihood_function/parametric.ipynb"
+    ],
+    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_1_non_linear_search.ipynb",
+    "path": "scripts/chapter_2_lens_modeling/tutorial_1_non_linear_search.py",
+    "summary": "The starting point for most scientific analysis conducted by an Astronomer is that they have observations of a strong lens using a telescope like the Hubble Space Telescope, and seek to learn about the lens galaxy, source galaxy and the Universe from these observations. With **PyAutoLen**, we seek to learn about the lenses may and ray-tracing, asking questions like how big is the lens galaxy and what does the unlensed source galaxy look like?",
+    "title": "Tutorial 1: Non-linear Search"
+  },
+  {
+    "contents": [
+      "PyAutoFit",
+      "Initial Setup",
+      "Mask",
+      "Model",
+      "Search",
+      "Search Settings",
+      "Iterations Per Update",
+      "Analysis",
+      "VRAM Use",
+      "Run Times",
+      "Result Info",
+      "Output Folder",
+      "Unique Identifier",
+      "Output Folder Contents",
+      "Result",
+      "Other Practicalities",
+      "Wrap Up"
+    ],
+    "cross_refs": [
+      "scripts/howtogalaxy/chapter_2_modeling/tutorial_2_practicalities.py"
+    ],
+    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_2_practicalities.ipynb",
+    "path": "scripts/chapter_2_lens_modeling/tutorial_2_practicalities.py",
+    "summary": "In the last tutorial, we introduced foundational statistical concepts essential for model-fitting, such as parameter spaces, likelihoods, priors, and non-linear searches. Understanding these statistical concepts is crucial for performing model fits effectively.",
+    "title": "Tutorial 2: Practicalities"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Mask",
+      "Model",
+      "Run Time",
+      "Result",
+      "Global and Local Maxima",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_3_realism_and_complexity.ipynb",
+    "path": "scripts/chapter_2_lens_modeling/tutorial_3_realism_and_complexity.py",
+    "summary": "In the previous two tutorials, we fitted a fairly crude and unrealistic model: the lens's mass was spherical, as was the source's light. Given most lens galaxies are literally called 'elliptical galaxies' we should probably model their mass as elliptical! Furthermore, we have completely omitted the lens galaxy's light, which in real observations outshines the source's light and therefore must be included in the lens model.",
+    "title": "Tutorial 3: Realism and Complexity"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Mask",
+      "Prior Tuning",
+      "Run Time",
+      "Result",
+      "Discussion"
+    ],
+    "cross_refs": [
+      "howtolens/chapter_optional/tutorial_searches.ipynb"
+    ],
+    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_4_dealing_with_failure.ipynb",
+    "path": "scripts/chapter_2_lens_modeling/tutorial_4_dealing_with_failure.py",
+    "summary": "In the previous tutorial we intentionally made our non-linear search infer a local maxima solution and therefore return a physically incorrect lens model. In this tutorial, we will pretend that we have modeled our lens and inferred a local maxima. We introduce three approaches one can take that changes how we fit the model, all of which have the aim of ensuring we infer the global maxima:",
+    "title": "Tutorial 4: Dealing With Failure"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Mask",
+      "Linear Light Profiles",
+      "Run Time",
+      "Result",
+      "Intensities",
+      "Visualization",
+      "Basis",
+      "Model Fit",
+      "Source MGE",
+      "Multi Gaussian Expansion Benefits",
+      "Disadvantage of Basis Functions",
+      "Positive Only Solver",
+      "Other Basis Functions",
+      "Wrap Up"
+    ],
+    "cross_refs": [
+      "/modeling/features/multi_gaussian_expansion.py",
+      "autolens_workspace/scripts/modeling/features/shapelets.py"
+    ],
+    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_5_linear_profiles.ipynb",
+    "path": "scripts/chapter_2_lens_modeling/tutorial_5_linear_profiles.py",
+    "summary": "In the previous tutorial we learned how to balance model complexity with our non-linear search in order to infer accurate lens model solutions and avoid failure. We saw how in order to fit a model accurately one may have to parameterize and fit a simpler model with fewer non-linear parameters, at the expense of fitting the data less accurately.",
+    "title": "Tutorial 5: Linear Profiles"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Mask",
+      "Run Time",
+      "Search",
+      "Discussion",
+      "Positions Thresholding",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_6_masking_and_positions.ipynb",
+    "path": "scripts/chapter_2_lens_modeling/tutorial_6_masking_and_positions.py",
+    "summary": "We have learnt everything we need to know about non-linear searches to model a strong lens and infer a good lens model solution. Now, lets consider masking in more detail, something we have not given much consideration previously. We'll also learn a neat trick to improve the speed and accuracy of a non-linear search.",
+    "title": "Tutorial 6: Masking and Positions"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Tracer & Fit",
+      "Samples",
+      "Workspace",
+      "Database",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_7_results.ipynb",
+    "path": "scripts/chapter_2_lens_modeling/tutorial_7_results.py",
+    "summary": "In the previous tutorials, each search returned a `Result` object, which we used to plot the maximum log likelihood fit each model-fit. In this tutorial, we'll take a look at the result object in a little more detail.",
+    "title": "Tutorial 7: Results"
+  },
+  {
+    "contents": [
+      "Algorithmic Optimization",
+      "Data Quantity",
+      "Wrap Up"
+    ],
+    "cross_refs": [
+      "//numba.py",
+      "chapter_optional/tutorial_searches.ipynb"
+    ],
+    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_8_need_for_speed.ipynb",
+    "path": "scripts/chapter_2_lens_modeling/tutorial_8_need_for_speed.py",
+    "summary": "In this chapter, we have learnt how to model strong lenses and how to balance complexity and realism to ensure that we infer a good lens model.",
+    "title": "Tutorial 8: Need For Speed"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Model",
+      "Result",
+      "Prior Passing",
+      "Run Time",
+      "Model Fit",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_3_search_chaining/tutorial_1_search_chaining.ipynb",
+    "path": "scripts/chapter_3_search_chaining/tutorial_1_search_chaining.py",
+    "summary": "In chapter 2, we learnt how to perform lens modeling using a non-linear search. In all of the tutorials, we fitted the data using just one non-linear search. In this chapter, we introduce a technique called 'non-linear search chaining', fits a lens model using a sequence of non-linear searches. The initial searches fit simpler lens models whose parameter spaces can be more accurately and efficiently sampled. The results of this search are then passed to later searches which fit lens models of gradually increasing complexity.",
+    "title": "Tutorial 1: Search Chaining"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Model",
+      "Search",
+      "Prior Passing",
+      "Result",
+      "Wrap Up",
+      "Detailed Explanation Of Prior Passing",
+      "EXAMPLE"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_3_search_chaining/tutorial_2_prior_passing.ipynb",
+    "path": "scripts/chapter_3_search_chaining/tutorial_2_prior_passing.py",
+    "summary": "In the previous tutorial, we used non-linear search chaining to break the model-fitting procedure down into two non-linear searches. This used an initial search to fit a simple lens model, whose results were used to tune and initialize the priors of a more complex lens model that was fitted by the second search.",
+    "title": "Tutorial 2: Prior Passing"
+  },
+  {
+    "contents": [
+      "Dated Tutorial",
+      "Initial Setup",
+      "Paths",
+      "Notes",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_3_search_chaining/tutorial_3_lens_and_source.ipynb",
+    "path": "scripts/chapter_3_search_chaining/tutorial_3_lens_and_source.py",
+    "summary": "In this tutorial, we demonstrate search chaining using three searches to fit strong lens `Imaging` which includes the lens galaxy's light.",
+    "title": "Tutorial 3: Lens and Source"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Mask",
+      "Paths",
+      "Search Chaining Approach",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_3_search_chaining/tutorial_4_x2_lens_galaxies.ipynb",
+    "path": "scripts/chapter_3_search_chaining/tutorial_4_x2_lens_galaxies.py",
+    "summary": "Up to now, all the images we've fitted had one lens galaxy. However, we saw in chapter 1 that our lens plane can consist of multiple galaxies which each contribute to the strong lensing. Multi-galaxy systems are challenging to model, because they add an extra 5-10 parameters to the non-linear search and, more problematically, the degeneracies between the parameters of the mass profiles of the two galaxies can be severe.",
+    "title": "Tutorial 4: Two Lens galaxies"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Paths",
+      "Search Chaining Approach",
+      "Run Times",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_3_search_chaining/tutorial_5_complex_source.ipynb",
+    "path": "scripts/chapter_3_search_chaining/tutorial_5_complex_source.py",
+    "summary": "Up to now, we've not paid much attention to the source galaxy's morphology. We've assumed its a single-component exponential profile, which is a fairly crude assumption. A quick look at any image of a real galaxy reveals a wealth of different structures that could be present: bulges, disks, bars, star-forming knots and so on. Furthermore, there could be more than one source-galaxy!",
+    "title": "Tutorial 5: Complex Source"
+  },
+  {
+    "contents": [],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_3_search_chaining/tutorial_6_slam.ipynb",
+    "path": "scripts/chapter_3_search_chaining/tutorial_6_slam.py",
+    "summary": "You are now familiar with pipelines, in particular how we use them to break-down the lens modeling procedure to provide more efficient and reliable model-fits. In the previous tutorials, you learnt how to write your own pipelines, which can fit whatever lens model is of particular interest to your scientific study.",
+    "title": "Tutorial 6: SLaM"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Adapt Image",
+      "Adaption",
+      "Hilbert",
+      "Weight Map",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_4_pixelizations/tutorial_10_brightness_adaption.ipynb",
+    "path": "scripts/chapter_4_pixelizations/tutorial_10_brightness_adaption.py",
+    "summary": "In the previous tutorial we motivated our need to adapt the pixelization to the source's morphology, such that source pixels congregates in the source's brightest regions regardless of where the source is located in the source-plane.",
+    "title": "Tutorial 10: Brightness Adaption"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Convenience Function",
+      "Adaptive Regularization",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_4_pixelizations/tutorial_11_adaptive_regularization.ipynb",
+    "path": "scripts/chapter_4_pixelizations/tutorial_11_adaptive_regularization.py",
+    "summary": "In tutorial 7, we discussed why the `Constant` regularization scheme was sub-optimal. Different regions of the source demand different levels of regularization, motivating a regularization scheme which adapts to the reconstructed source's surface brightness.",
+    "title": "Tutorial 11: Adaptive Regularization"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Mesh",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_4_pixelizations/tutorial_1_pixelizations.ipynb",
+    "path": "scripts/chapter_4_pixelizations/tutorial_1_pixelizations.py",
+    "summary": "In the previous chapters, we used light profiles to model the light of a strong lens's source galaxy, where the light profile was an analytic description of how the luminosity varies as a function of radius. In this chapter, we are instead going to reconstruct the source's light on a pixel-grid, and in this tutorial we will learn how to create a source-plane pixelization.",
+    "title": "Tutorial 1: pixelizations"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Mappers",
+      "Mask",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_4_pixelizations/tutorial_2_mappers.ipynb",
+    "path": "scripts/chapter_4_pixelizations/tutorial_2_mappers.py",
+    "summary": "In the previous tutorial, we used a pixelization to create made a `Mapper`. However, it was not clear what a `Mapper` does, why it was called a mapper and whether it was mapping anything at all!",
+    "title": "Tutorial 2: Mappers"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Pixelization",
+      "Positive Only Solver",
+      "Wrap Up",
+      "Detailed Explanation"
+    ],
+    "cross_refs": [
+      "/imaging/log_likelihood_function/inversion.ipynb"
+    ],
+    "notebook": "notebooks/chapter_4_pixelizations/tutorial_3_inversions.ipynb",
+    "path": "scripts/chapter_4_pixelizations/tutorial_3_inversions.py",
+    "summary": "In the previous two tutorials, we introduced:",
+    "title": "Tutorial 3: Inversions"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Convenience Function",
+      "Pixelization",
+      "Regularization",
+      "Bayesian Evidence",
+      "Detailed Description"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_4_pixelizations/tutorial_4_bayesian_regularization.ipynb",
+    "path": "scripts/chapter_4_pixelizations/tutorial_4_bayesian_regularization.py",
+    "summary": "So far, we have:",
+    "title": "Tutorial 4: Bayesian Regularization"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Borders",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_4_pixelizations/tutorial_5_borders.ipynb",
+    "path": "scripts/chapter_4_pixelizations/tutorial_5_borders.py",
+    "summary": "In the previous tutorials, the source-plane pixel grid perfectly mapped over the traced image-pixel $(y,x)$ coordinates in the source plane. If these pixels mapped to a larger area in the source plane, its pixel-grid would automatically increase its size so as to cover every source-plane coordinate.",
+    "title": "Tutorial 5: Borders"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Unphysical Solutions",
+      "Brief Description",
+      "Light Profiles",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_4_pixelizations/tutorial_6_lens_modeling.ipynb",
+    "path": "scripts/chapter_4_pixelizations/tutorial_6_lens_modeling.py",
+    "summary": "When modeling complex source's with parametric profiles, we quickly entered a regime where our non-linear search was faced with a parameter space of dimensionality N=20+ parameters. This made the model-fitting inefficient and likely to infer a local maxima.",
+    "title": "Tutorial 6: Lens Modeling"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Advantages and Disadvatanges",
+      "Image Mesh",
+      "Regularization",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_4_pixelizations/tutorial_7_adaptive_pixelization.ipynb",
+    "path": "scripts/chapter_4_pixelizations/tutorial_7_adaptive_pixelization.py",
+    "summary": "In this tutorial we will introduce a new `Pixelization` object, which uses an `Overlay` image-mesh and a `Delaunay` mesh.",
+    "title": "Tutorial 7: Adaptive Pixelization"
+  },
+  {
+    "contents": [],
+    "cross_refs": [
+      "/imaging/features/pixelizations/modeling.py"
+    ],
+    "notebook": "notebooks/chapter_4_pixelizations/tutorial_8_model_fit.ipynb",
+    "path": "scripts/chapter_4_pixelizations/tutorial_8_model_fit.py",
+    "summary": "You should now perform lens modeling using a pixelization, which is described fully in the example:",
+    "title": "Tutorial 8: Model-Fit"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Mask",
+      "Simulator",
+      "Fitting",
+      "Fit Problems",
+      "Discussion",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_4_pixelizations/tutorial_9_fit_problems.ipynb",
+    "path": "scripts/chapter_4_pixelizations/tutorial_9_fit_problems.py",
+    "summary": "To begin, make sure you have read the `introduction` file carefully, as a clear understanding of how the Bayesian evidence works is key to understanding this chapter!",
+    "title": "Tutorial 9: Fit Problems"
+  },
+  {
+    "contents": [
+      "Nested Sampling",
+      "Optimizers",
+      "MCMC"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_optional/tutorial_searches.ipynb",
+    "path": "scripts/chapter_optional/tutorial_searches.py",
+    "summary": "Up to now, we've always used the non-linear search Nautilus and not considered the input parameters that control its sampling. In this tutorial, we'll consider how we can change these setting to balance finding the global maxima solution with fast run time.",
+    "title": "Tutorial: Alternative Searches"
+  },
+  {
+    "contents": [
+      "Model",
+      "Dataset Paths",
+      "Simulate",
+      "Ray Tracing",
+      "Output",
+      "Visualize",
+      "Tracer json"
+    ],
+    "cross_refs": [
+      "simulators/start_here.ipynb",
+      "start_here.py"
+    ],
+    "notebook": "notebooks/simulator/lens_sersic.ipynb",
+    "path": "scripts/simulator/lens_sersic.py",
+    "summary": "This script simulates `Imaging` of a 'galaxy-scale' which is identical to the `simple` simulated in the `start_here.py` script, but where the lens galaxy's light is an `Sersic` profile.",
+    "title": "Simulator: Simple Sersic Lens"
+  },
+  {
+    "contents": [
+      "Model",
+      "Dataset Paths",
+      "Simulate",
+      "Ray Tracing",
+      "Output",
+      "Visualize",
+      "Tracer json"
+    ],
+    "cross_refs": [
+      "simulators/start_here.ipynb"
+    ],
+    "notebook": "notebooks/simulator/lens_x2.ipynb",
+    "path": "scripts/simulator/lens_x2.py",
+    "summary": "This script simulates `Imaging` of a 'galaxy-scale' lens where there are two lens galaxies, each with their own light and mass profiles.",
+    "title": "Simulator: Lens x2"
+  },
+  {
+    "contents": [
+      "Model",
+      "Dataset Paths",
+      "Simulate",
+      "Ray Tracing",
+      "Output",
+      "Visualize",
+      "Mask Extra Galaxies",
+      "Tracer json"
+    ],
+    "cross_refs": [
+      "autolens_workspace/notebooks/modeling/features/no_lens_light.ipynb",
+      "imaging/features/pixelization/fit.py",
+      "imaging/features/pixelization/modeling.py",
+      "simulators/start_here.ipynb",
+      "start_here.py"
+    ],
+    "notebook": "notebooks/simulator/no_lens_light.ipynb",
+    "path": "scripts/simulator/no_lens_light.py",
+    "summary": "This script simulates `Imaging` of a 'galaxy-scale' which is identical to the `simple` simulated in the `start_here.py` script, but where the lens galaxy's light is omitted.",
+    "title": "Simulator: No Lens Light"
+  },
+  {
+    "contents": [
+      "Model",
+      "Dataset Paths",
+      "Simulate",
+      "Ray Tracing",
+      "Output",
+      "Visualize",
+      "Tracer json"
+    ],
+    "cross_refs": [
+      "simulators/start_here.ipynb",
+      "start_here.py"
+    ],
+    "notebook": "notebooks/simulator/no_lens_light__mass_sis.ipynb",
+    "path": "scripts/simulator/no_lens_light__mass_sis.py",
+    "summary": "This script simulates `Imaging` of a 'galaxy-scale' which is identical to the `simple` simulated in the `start_here.py` script, but where the lens galaxy's light is omitted and the lens's mass distribution is a Singular Isothermal Sphere.",
+    "title": "Simulator: SIS"
+  },
+  {
+    "contents": [
+      "Model",
+      "Dataset Paths",
+      "Simulate",
+      "Ray Tracing",
+      "Output",
+      "Visualize",
+      "Tracer json"
+    ],
+    "cross_refs": [
+      "simulators/start_here.ipynb"
+    ],
+    "notebook": "notebooks/simulator/source_complex.ipynb",
+    "path": "scripts/simulator/source_complex.py",
+    "summary": "This script simulates `Imaging` of a 'galaxy-scale' strong lens where the source galaxy's light is more complex than other examples, being composed of 4 Sersics.",
+    "title": "Simulator: Source Complex"
+  }
+]

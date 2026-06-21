@@ -1,0 +1,17 @@
+name: Navigator Check
+
+# Thin caller for PyAutoBuild's reusable navigator-catalogue check. The check
+# logic (path/banner lint + catalogue staleness) and its entrypoints live in
+# PyAutoBuild/autobuild; this repo only declares which generator project to run.
+# See PyAutoLabs/PyAutoBuild/.github/workflows/navigator_check.yml.
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  navigator:
+    uses: PyAutoLabs/PyAutoBuild/.github/workflows/navigator_check.yml@main
+    with:
+      project: howtolens

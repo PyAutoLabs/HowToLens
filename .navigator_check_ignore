@@ -1,0 +1,9 @@
+# Paths exempt from the navigator path/banner checks (see
+# PyAutoBuild/autobuild/check_navigator.py). One path or glob per line.
+#
+# CLAUDE.md's "Relationship to autolens_workspace" section mentions sibling
+# autolens_workspace scripts in prose (as the next destination after a concept).
+# Those paths live in the separate autolens_workspace repo, not here, so the
+# path-existence check would flag them as missing. Exempt them.
+scripts/imaging/modeling.py
+scripts/guides/
