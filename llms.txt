@@ -1,0 +1,81 @@
+If your AI can't browse GitHub, paste this entire file into the chat as context.
+
+# HowToLens
+
+> The **HowToLens** lecture series: tutorial scripts (and generated notebooks) that teach
+> strong gravitational lensing and the **PyAutoLens** API from first principles. This file
+> is a routing layer: given a learner's question, point them to the RIGHT existing tutorial
+> in this repository instead of inventing an explanation. Every path below is a real file
+> in this repo; scripts run from the repo root (e.g. `python scripts/chapter_1_introduction/tutorial_1_grids_and_galaxies.py`),
+> and each has a matching notebook under `notebooks/`.
+
+## Who this is for
+
+HowToLens is the **on-ramp for beginners** — students new to lensing, or new to PyAutoLens.
+It teaches the concepts and the API step by step. Once a learner wants to run a real
+analysis on their own data, route them *out* to the production examples in
+[autolens_workspace](https://github.com/PyAutoLabs/autolens_workspace) (see "Ready for real
+analysis?" below).
+
+## Start here
+
+- [start_here.ipynb](start_here.ipynb): One-page orientation — what the lectures cover and how to run them (locally or in Colab).
+- [scripts/chapter_1_introduction/tutorial_1_grids_and_galaxies.py](scripts/chapter_1_introduction/tutorial_1_grids_and_galaxies.py): The first real lecture — what a strong lens is, grids, geometry and light profiles. Begin here if the learner is new to lensing.
+
+## The learning path (chapters in order)
+
+- **Chapter 1 — Introduction** → [scripts/chapter_1_introduction/](scripts/chapter_1_introduction/): Lensing from first principles: grids & galaxies, ray tracing, simulating data, and fitting data. The conceptual foundation everything else builds on.
+- **Chapter 2 — Lens Modeling** → [scripts/chapter_2_lens_modeling/](scripts/chapter_2_lens_modeling/): How to fit a lens model to data with a non-linear search — parameter spaces, priors, dealing with failure, linear light profiles, masking, and reading results.
+- **Chapter 3 — Search Chaining** → [scripts/chapter_3_search_chaining/](scripts/chapter_3_search_chaining/): Breaking a hard fit into a sequence of searches (prior passing), multi-galaxy lenses, complex sources, and an introduction to the SLaM pipelines.
+- **Chapter 4 — Pixelizations** → [scripts/chapter_4_pixelizations/](scripts/chapter_4_pixelizations/): Reconstructing the source on a pixel-grid instead of with light profiles — mappers, inversions, Bayesian regularization, borders, and adaptive meshes.
+
+## I want to understand…
+
+- **What is a strong lens / how does ray tracing work?** → [scripts/chapter_1_introduction/tutorial_2_ray_tracing.py](scripts/chapter_1_introduction/tutorial_2_ray_tracing.py): Mass profiles deflecting light; image-plane vs source-plane.
+- **How does a telescope image (and noise/PSF) get simulated?** → [scripts/chapter_1_introduction/tutorial_6_data.py](scripts/chapter_1_introduction/tutorial_6_data.py): Optics blurring, Poisson noise, background sky, the simulator API.
+- **What does "fitting" a lens actually mean?** → [scripts/chapter_1_introduction/tutorial_7_fitting.py](scripts/chapter_1_introduction/tutorial_7_fitting.py): Masking, model images, residuals and the log likelihood.
+- **How does a non-linear search find a model?** → [scripts/chapter_2_lens_modeling/tutorial_1_non_linear_search.py](scripts/chapter_2_lens_modeling/tutorial_1_non_linear_search.py): Parameter space, priors, nested sampling with Nautilus.
+- **My fit found a wrong (local-maxima) solution — what do I do?** → [scripts/chapter_2_lens_modeling/tutorial_4_dealing_with_failure.py](scripts/chapter_2_lens_modeling/tutorial_4_dealing_with_failure.py): Prior tuning, simplifying the model, and other escapes from local maxima.
+- **What are linear light profiles / MGE?** → [scripts/chapter_2_lens_modeling/tutorial_5_linear_profiles.py](scripts/chapter_2_lens_modeling/tutorial_5_linear_profiles.py): Solving intensities linearly; the Multi-Gaussian Expansion basis.
+- **How do I chain searches / what is SLaM?** → [scripts/chapter_3_search_chaining/tutorial_1_search_chaining.py](scripts/chapter_3_search_chaining/tutorial_1_search_chaining.py) then [scripts/chapter_3_search_chaining/tutorial_6_slam.py](scripts/chapter_3_search_chaining/tutorial_6_slam.py).
+- **How do I reconstruct a complex source on a pixel grid?** → [scripts/chapter_4_pixelizations/tutorial_1_pixelizations.py](scripts/chapter_4_pixelizations/tutorial_1_pixelizations.py) through [tutorial_4_bayesian_regularization.py](scripts/chapter_4_pixelizations/tutorial_4_bayesian_regularization.py).
+
+## Ready for real analysis?
+
+When the learner wants to model their *own* lens (not a teaching dataset), route them to the
+production workspace — it has science-case entry points and a data-preparation guide:
+
+- [autolens_workspace](https://github.com/PyAutoLabs/autolens_workspace) — see its own `llms.txt` routing layer; e.g. `imaging/start_here.py` for CCD data and `imaging/data_preparation/start_here.py` for getting their FITS files analysis-ready.
+
+## How to answer (for the assistant)
+
+When routing a learner, reply in this shape (the same shape the workspace navigator uses, so
+the two agree):
+
+- **Start here** — the single best tutorial for their question (from the lists above).
+- **Then see** — the next tutorial in the chapter, or the concept it builds toward.
+- **Related guide** — a relevant later chapter, or the matching `autolens_workspace` example for production use.
+- **Why this is the right example** — one line tying the tutorial to their question.
+- **What to modify** — the few things they'd change to explore (model components, dataset, search settings).
+- **What needs local execution** — flag any step that requires actually running the fit on their machine.
+
+### Code style (match the lectures, not banner comments)
+
+Drafted code must match this repo's style: triple-quoted `"""__Section__"""` docstrings with
+a line of prose explaining each step, and a module docstring whose title is underlined with
+`=`. Do NOT use `# -----` banner comments to mark sections; reserve inline `#` for short
+line-level notes only.
+
+## Capability boundary (chat without local execution)
+
+A chat assistant can route to the right tutorial, explain lensing concepts, review pasted
+scripts / tracebacks / plots, and draft code. It CANNOT run fits, inspect the learner's local
+files or `output/` folder, or guarantee code against their installed PyAutoLens version. To
+run a tutorial, the learner executes it locally from the repo root, or in Google Colab (the
+notebooks ship Colab setup cells). For sustained editing, execution and project state, point
+them to a local coding agent (Claude Code / Codex) or the
+[autolens_assistant](https://github.com/PyAutoLabs/autolens_assistant) science-assistant workspace.
+
+---
+
+For the full per-tutorial listing, see the generated companion catalogue `llms-full.txt`.
