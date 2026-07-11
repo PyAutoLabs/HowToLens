@@ -483,6 +483,8 @@ With search chaining, we can:
  by the earlier searches. We can therefore guide each search on how to sample a complex lens model's parameter space 
  in a way that can be fully generalized to any strong lens.
  
+__Wrap Up__
+
 To wrap up chapter 2, we have a few more tutorials, where we will discuss masking in more detail, the `Result` object
 and how to make **PyAutoLens** run faster.
 """

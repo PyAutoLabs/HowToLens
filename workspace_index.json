@@ -19,9 +19,13 @@
       "Grids",
       "Geometry",
       "Light Profiles",
-      "One Dimension Projection"
+      "One Dimension Projection",
+      "Galaxies",
+      "Units"
     ],
-    "cross_refs": [],
+    "cross_refs": [
+      "/guides/over_sampling.ipynb"
+    ],
     "notebook": "notebooks/chapter_1_introduction/tutorial_1_grids_and_galaxies.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_1_grids_and_galaxies.py",
     "summary": "A strong gravitational lens is a system where two (or more) galaxies align perfectly down our line of sight from Earth such that the foreground galaxy's mass curves space-time in on itself, such that the light of a background source galaxy is deflected and magnified. This means we can see the background source galaxy multiple times, as multiple arcs or rings, because multiple paths through the foreground galaxy's mass are taken by the source's light.",
@@ -30,7 +34,12 @@
   {
     "contents": [
       "Grid",
-      "Mass Profiles"
+      "Mass Profiles",
+      "Ray Tracing Grids",
+      "Ray Tracing Images",
+      "Galaxies",
+      "Tracer",
+      "Mappings"
     ],
     "cross_refs": [],
     "notebook": "notebooks/chapter_1_introduction/tutorial_2_ray_tracing.ipynb",

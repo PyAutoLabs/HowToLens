@@ -55,6 +55,8 @@ __Contents__
 - **Geometry:** The above grid is centered on the origin (0.0", 0.0").
 - **Light Profiles:** Galaxies are collections of stars, gas, dust, and other astronomical objects that emit light.
 - **One Dimension Projection:** We often want to calculative 1D quantities of a light profile, for example to plot how its light.
+- **Galaxies:** Galaxies are collections of light profiles that represent a galaxy's luminous emission.
+- **Units:** By assuming a redshift for a galaxy we can convert its quantities from arcseconds to kiloparsecs.
 
 """
 
@@ -424,6 +426,247 @@ plt.close()
 Since galaxy light distributions often cover a wide range of values, they are typically better visualized on a log10 
 scale. This approach helps highlight details in the faint outskirts of a light profile.
 
-The `plot_array`/`subplot_\*` object has a `use_log10` option that applies this transformation automatically. Below, you can see 
+The `plot_array`/`subplot_\*` object has a `use_log10` option that applies this transformation automatically. Below, you can see
 that the image plotted in log10 space reveals more details.
+"""
+aplt.plot_array(
+    array=sersic_light_profile.image_2d_from(grid=grid),
+    title="Sersic Image",
+    use_log10=True,
+)
+
+"""
+__Galaxies__
+
+Now, let's introduce `Galaxy` objects, which are a key component in **PyAutoLens**.
+
+A light profile represents a single feature of a galaxy, such as its bulge or disk. To model a complete galaxy,
+we combine multiple light profiles into a `Galaxy` object. This allows us to create images that include different
+components of a galaxy.
+
+In addition to light profiles, a `Galaxy` has a `redshift`, which indicates how far away it is from Earth. The redshift
+is essential for performing unit conversions using cosmological calculations, such as converting arc-seconds into
+kiloparsecs. (A kiloparsec is a distance unit in astronomy, equal to about 3.26 million light-years.)
+
+Redshifts are especially important in strong lensing, where the foreground lens galaxy and background source galaxy
+lie at two different redshifts. We are not yet performing any lensing calculations in this tutorial, so for now we
+simply use a single galaxy to build up intuition for the `Galaxy` object.
+
+Let's start by creating a galaxy with two `Sersic` light profiles, which we will consider to represent a bulge and
+disk component of the galaxy, the two most important structures seen in galaxies.
+"""
+bulge = al.lp.Sersic(
+    centre=(0.0, 0.0),
+    ell_comps=(0.0, 0.111111),
+    intensity=1.0,
+    effective_radius=1.0,
+    sersic_index=2.5,
+)
+
+disk = al.lp.Sersic(
+    centre=(0.0, 0.0),
+    ell_comps=(0.0, 0.3),
+    intensity=0.3,
+    effective_radius=3.0,
+    sersic_index=1.0,
+)
+
+galaxy = al.Galaxy(redshift=0.5, bulge=bulge, disk=disk)
+
+print(galaxy)
+
+"""
+We can pass a 2D grid to a light profile to compute its image using the `image_2d_from` method.
+
+The same approach works for a `Galaxy` object:
+"""
+image = galaxy.image_2d_from(grid=grid)
+
+print("Intensity of `Grid2D` pixel 0:")
+print(image.native[0, 0])
+print("Intensity of `Grid2D` pixel 1:")
+print(image.native[0, 1])
+print("Intensity of `Grid2D` pixel 2:")
+print(image.native[0, 2])
+print("...")
+
+"""
+We can plot the galaxy's image, just like how we did for a light profile.
+"""
+aplt.plot_array(array=galaxy.image_2d_from(grid=grid), title="Galaxy Bulge+Disk Image")
+
+"""
+The bulge dominates the center of the image, and is pretty much the only luminous emission we can see on a linear
+scale. The disk's emission is present, but it is much fainter and spread over a larger area.
+
+We can confirm this using the `subplot_galaxy_light_profiles` method, which plots each individual light profile
+separately.
+"""
+aplt.subplot_galaxy_light_profiles(galaxy=galaxy, grid=grid)
+
+"""
+Because galaxy light distributions often follow a log10 pattern, plotting in log10 space helps reveal details in the
+outskirts of the light profile, in this case the emission of the disk.
+
+This is especially helpful to separate the bulge and disk profiles, which have different intensities and sizes.
+"""
+aplt.plot_array(
+    array=galaxy.image_2d_from(grid=grid),
+    title="Galaxy Bulge+Disk Image",
+    use_log10=True,
+)
+
+"""
+Using the tools above, we can visualize each light profile's contribution in 1D.
+
+1D plots show the intensity of the light profile as a function of distance from the profile's center. The bulge
+and disk profiles in this example share the same `centre`, meaning that plotting them together on the same 1D plot
+shows how they vary relative to one another.
+
+If the `centre` of the profiles were different, when you make the 1D plot you would need to decide whether to plot the
+profiles offset from one another or plot them both from zero.
+"""
+grid_2d_projected = grid.grid_2d_radial_projected_from(
+    centre=galaxy.bulge.centre, angle=galaxy.bulge.angle()
+)
+bulge_image_1d = galaxy.bulge.image_2d_from(grid=grid_2d_projected)
+
+grid_2d_projected = grid.grid_2d_radial_projected_from(
+    centre=galaxy.disk.centre, angle=galaxy.disk.angle()
+)
+disk_image_1d = galaxy.disk.image_2d_from(grid=grid_2d_projected)
+
+plt.plot(grid_2d_projected[:, 1], bulge_image_1d, label="Bulge")
+plt.plot(grid_2d_projected[:, 1], disk_image_1d, label="Disk")
+plt.xlabel("Radius (arcseconds)")
+plt.ylabel("Luminosity")
+plt.legend()
+plt.show()
+plt.close()
+
+"""
+We can group multiple galaxies at the same redshift into a `Galaxies` object, which is created from a list of
+individual galaxies.
+
+In a strong lens, we ultimately group together a foreground lens galaxy and a background source galaxy. For now, we
+simply create a second galaxy and combine it with the original galaxy into a `Galaxies` object, to see how the light
+of multiple galaxies is represented.
+"""
+extra_galaxy = al.Galaxy(
+    redshift=0.5,
+    bulge=al.lp.Sersic(
+        centre=(0.2, 0.3),
+        ell_comps=(0.0, 0.111111),
+        intensity=1.0,
+        effective_radius=1.0,
+        sersic_index=2.5,
+    ),
+)
+
+galaxies = al.Galaxies(galaxies=[galaxy, extra_galaxy])
+
+"""
+The `Galaxies` object has similar methods to those for light profiles and individual galaxies.
+
+For example, `image_2d_from` sums the images of all the galaxies.
+"""
+image = galaxies.image_2d_from(grid=grid)
+
+"""
+We can plot the combined image of all the galaxies, just like with other plotters.
+"""
+aplt.plot_array(array=galaxies.image_2d_from(grid=grid), title="Image")
+
+"""
+A subplot of each individual galaxy image can also be created.
+"""
+aplt.subplot_galaxies(galaxies=galaxies, grid=grid)
+
+"""
+Because galaxy light distributions often follow a log10 pattern, plotting in log10 space helps reveal details in the
+outskirts of the light profile.
+
+This is especially helpful when visualizing how multiple galaxies overlap.
+"""
+aplt.plot_array(array=galaxies.image_2d_from(grid=grid), title="Image", use_log10=True)
+
+"""
+__Units__
+
+Earlier, we mentioned that a galaxy's `redshift` allows us to convert between arcseconds and kiloparsecs.
+
+A redshift measures how much a galaxy's light is stretched by the Universe's expansion. A higher redshift means the
+galaxy is further away, and its light has been stretched more. By knowing a galaxy's redshift, we can convert angular
+distances (like arcseconds) to physical distances (like kiloparsecs).
+
+To perform this conversion, we use a cosmological model that describes the Universe's expansion. Below, we use
+the `Planck15` cosmology, which is based on observations from the Planck satellite.
+"""
+cosmology = al.cosmo.Planck15()
+
+kpc_per_arcsec = cosmology.kpc_per_arcsec_from(redshift=galaxy.redshift)
+
+print("Kiloparsecs per Arcsecond:")
+print(kpc_per_arcsec)
+
+"""
+This `kpc_per_arcsec` can be used as a conversion factor between arcseconds and kiloparsecs when plotting images of
+galaxies.
+
+We compute this value and plot the image, which by default is shown in units of arcseconds.
+"""
+aplt.plot_array(array=galaxy.image_2d_from(grid=grid), title="Image")
+
+"""
+__Wrap Up__
+
+In this tutorial, you've learnt the basic quantities used to describe the galaxies that make up a strong lens, before
+we introduce any lensing calculations.
+
+Let's summarise what we've covered:
+
+- **Grids**: A grid is a set of 2D $(y,x)$ coordinates that represent the positions where we measure the light of a
+galaxy.
+
+- **Geometry**: We showed how to shift, rotate, and convert grids to elliptical coordinates.
+
+- **Light Profiles**: Light profiles are analytic functions that describe how a galaxy's light is distributed in
+space. We used the `Sersic` profile to create images of galaxies.
+
+- **Galaxies**: Galaxies are collections of light profiles. We created galaxies with multiple light profiles, combined
+them into a `Galaxies` object, and visualized their images.
+
+- **Units**: By assuming redshifts for galaxies we can convert their quantities from arcseconds to physical units like
+kiloparsecs.
+
+In the next tutorial, we'll introduce the mass of a galaxy and perform our first lensing calculation, whereby the
+light of a background source galaxy is deflected by the mass of a foreground lens galaxy.
+
+__Advanced Topics__
+
+The following advanced topics are not important for a new user learning the software for the first time. However,
+once you are an expert user, the following guides and concepts are important for doing accurate strong lens analysis,
+and thus may be things you want to commit to memory as future references.
+
+__Other Unit Conversion__
+
+Above, we used a redshift to convert between arcseconds and kiloparsecs. This is just one example of a unit conversion
+that can be performed using a galaxy's redshift.
+
+There are many other unit conversions that can be performed, such as converting the units of a galaxy's image to what
+Astronomers call an AB magnitude system, which is a system used to measure the brightness of galaxies.
+
+The `autolens_workspace/*/guides/units` module contains many examples of unit conversions and how to use them,
+but they will not be covered in the *HowToLens* tutorials.
+
+__Over Sampling__
+
+Over sampling is a numerical technique where the images of light profiles and galaxies are evaluated
+on a higher resolution grid than the image data to ensure the calculation is accurate.
+
+For a new user, the details of over-sampling are not important, therefore just be aware that all calculations use an
+adaptive over sampling scheme with high accuracy across all use cases.
+
+Once you are more experienced, you should read up on over-sampling in more detail via
+the `autolens_workspace/*/guides/over_sampling.ipynb` notebook.
 """

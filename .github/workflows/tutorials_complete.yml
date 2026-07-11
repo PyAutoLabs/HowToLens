@@ -1,0 +1,20 @@
+name: Tutorials Complete
+
+# Guards against tutorial scripts being truncated / cut off mid-generation (a
+# long file re-emitted with the output severed, losing every section below the
+# cut). Each tutorial_*.py must end with a `__Wrap Up__` (or `__Summary__`)
+# terminal section; the check is pure-stdlib and needs no library install.
+# See scripts/check_tutorials_complete.py.
+
+on: [push, pull_request]
+
+jobs:
+  tutorials-complete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Check tutorials are not truncated
+        run: python .github/scripts/check_tutorials_complete.py .

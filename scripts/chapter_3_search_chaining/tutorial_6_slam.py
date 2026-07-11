@@ -36,6 +36,8 @@ The **SLaM** pipelines also make fitting many different models to a single datas
 of earlier searches (e.g. in the Source pipeline) to fit different models in the `Light` and `Mass` pipelines for the
 lens's  light and mass.
 
+__Wrap Up__
+
 Whether you should use individual searches, pipelines, The SLaM pipelines or write your own model-fitting script
 depends on the scope  of your scientific analysis. I would advise you begin by trying to adapting the scripts in the
 `autolens_workspace`to fit your data, and also try using the SLaM pipelines once you are a confident **PyAutoLens** user.
