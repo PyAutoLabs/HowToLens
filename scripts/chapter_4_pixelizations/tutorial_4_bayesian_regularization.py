@@ -318,6 +318,8 @@ The Bayesian log evidence quantifies the following 3 aspects of a fit to strong 
  values of the image pixels whose variances are increased were initially very high (e.g. they were fit poorly by the 
  lens model).
 
+__Wrap Up__
+
 In summary, the log evidence is maximized for solutions which most accurately reconstruct the highest S/N realization of
 the observed image, without over-fitting its noise and using the fewest correlated source pixels. By employing this
 framework throughout, **PyAutoLens** objectively determines the final lens model following the principles of Bayesian
