@@ -2,6 +2,7 @@
 
 [Installation Guide](https://pyautolens.readthedocs.io/en/latest/installation/overview.html) |
 [PyAutoLens readthedocs](https://pyautolens.readthedocs.io/en/latest/index.html) |
+[Browse Chapter 1 With Images](markdown/README.md) |
 [autolens_workspace](https://github.com/PyAutoLabs/autolens_workspace)
 
 <img src="https://github.com/Jammy2211/PyAutoLogo/blob/main/gifs/pyautolens.gif?raw=true" width="900" />
