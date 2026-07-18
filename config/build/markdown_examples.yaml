@@ -1,5 +1,5 @@
 # Curated examples rendered to executed markdown pages (markdown/) with real
-# output images, for GitHub browsing. Built by PyAutoBuild's generate_markdown.py.
+# output images, for GitHub browsing. Built by PyAutoHands's generate_markdown.py.
 # Batch 2b: chapter_1_introduction (no non-linear searches — fast).
 - script: scripts/chapter_1_introduction/tutorial_0_visualization.py
   max_minutes: 30

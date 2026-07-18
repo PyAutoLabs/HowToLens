@@ -79,7 +79,7 @@ lecture course on gravitational lensing by Massimo Meneghetti open as you go thr
 
 Notebooks in `notebooks/` are generated from the Python files in `scripts/`. **Always edit the \`\`.py\`\`
 scripts, never the notebooks directly.** The `# %%` markers in each script alternate between code and
-markdown cells, which [PyAutoBuild](https://github.com/PyAutoLabs/PyAutoBuild) uses to produce the
+markdown cells, which [PyAutoHands](https://github.com/PyAutoLabs/PyAutoHands) uses to produce the
 `.ipynb` files.
 
 ## Relationship to autolens_workspace
