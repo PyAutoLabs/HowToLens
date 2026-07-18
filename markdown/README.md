@@ -12,4 +12,4 @@ Every page below is the corresponding example script **fully executed**, rendere
 - [Tutorial 7: Fitting](chapter_1_introduction/tutorial_7_fitting.md) — from `scripts/chapter_1_introduction/tutorial_7_fitting.py`
 - [Tutorial 9: Summary](chapter_1_introduction/tutorial_8_summary.md) — from `scripts/chapter_1_introduction/tutorial_8_summary.py`
 
-These pages are regenerated manually by PyAutoBuild's `generate_markdown.py` when a curated script changes.
+These pages are regenerated manually by PyAutoHands's `generate_markdown.py` when a curated script changes.

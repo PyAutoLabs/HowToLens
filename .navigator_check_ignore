@@ -1,5 +1,5 @@
 # Paths exempt from the navigator path/banner checks (see
-# PyAutoBuild/autobuild/check_navigator.py). One path or glob per line.
+# PyAutoHands/autobuild/check_navigator.py). One path or glob per line.
 #
 # CLAUDE.md's "Relationship to autolens_workspace" section mentions sibling
 # autolens_workspace scripts in prose (as the next destination after a concept).

@@ -39,9 +39,9 @@ cap grids/masks).
 
 On CI, every PR is gated on Python **3.12 and 3.13** by `smoke_tests.yml` (runs
 `python .github/scripts/run_smoke.py`, driven by `smoke_tests.txt` + `config/build/env_vars.yaml` —
-the definition of green), `navigator_check.yml` (PyAutoBuild's reusable navigator-catalogue check;
+the definition of green), `navigator_check.yml` (PyAutoHands's reusable navigator-catalogue check;
 see *Notebooks vs Scripts*), and `url_check.yml` (link checking). The smoke and navigator jobs check
-out **PyAutoBuild** as a sibling and run the PyAuto* libraries from the **same-named branch** of each
+out **PyAutoHands** as a sibling and run the PyAuto* libraries from the **same-named branch** of each
 source repo, so a HowToLens PR is validated against matching library branches.
 
 ## Sandboxed / restricted runs
@@ -54,17 +54,17 @@ NUMBA_CACHE_DIR=/tmp/numba_cache MPLCONFIGDIR=/tmp/matplotlib python scripts/cha
 
 ## Notebooks vs Scripts
 
-Notebooks in `notebooks/` are **generated** from the `.py` scripts via PyAutoBuild. **Always edit the
+Notebooks in `notebooks/` are **generated** from the `.py` scripts via PyAutoHands. **Always edit the
 `.py` scripts, never the `.ipynb` directly.** The `# %%` marker alternates code and markdown cells.
 Regenerate from the repo root:
 
 ```bash
-PYTHONPATH=../PyAutoBuild/autobuild python3 ../PyAutoBuild/autobuild/generate.py howtolens
+PYTHONPATH=../PyAutoHands/autobuild python3 ../PyAutoHands/autobuild/generate.py howtolens
 ```
 
-The `howtolens` project target is registered in PyAutoBuild (`run_all.py`, `navigator.py`,
+The `howtolens` project target is registered in PyAutoHands (`run_all.py`, `navigator.py`,
 `config/`). The navigator catalogue — `llms-full.txt` + `workspace_index.json` — is what
-`navigator_check.yml` gates; it is rebuilt by the same PyAutoBuild generate/merge flow that builds
+`navigator_check.yml` gates; it is rebuilt by the same PyAutoHands generate/merge flow that builds
 the notebooks. Commit regenerated notebooks and catalogue alongside the script changes.
 
 ## Bulk-edit safety
@@ -84,7 +84,7 @@ entities, sources). If cloned as a sibling, read it locally at `../autolens_assi
 
 - `../PyAutoLens`, `../PyAutoGalaxy` — source libraries.
 - `../autolens_workspace` — the user-facing workspace (tutorials point here as the next destination).
-- `../PyAutoBuild` — notebook generation + CI tooling.
+- `../PyAutoHands` — notebook generation + CI tooling.
 - `../autolens_assistant` — science-assistant workspace (literature wiki; see *Scientific Context*).
 
 ## Task Workflows
