@@ -74,9 +74,9 @@ output results and visualization frequently to hard-disk. If your fit is consist
 is outputting results, try increasing this value to ensure the model-fit runs efficiently.**
 """
 
-from autoconf import jax_wrapper  # Sets JAX environment before other imports
+from autolens import jax_wrapper  # Sets JAX environment before other imports
 
-# from autoconf import setup_notebook; setup_notebook()
+# from autolens import setup_notebook; setup_notebook()
 
 from pathlib import Path
 import autolens as al

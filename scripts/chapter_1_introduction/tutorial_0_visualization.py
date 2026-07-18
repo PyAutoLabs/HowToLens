@@ -16,9 +16,9 @@ __Contents__
 
 """
 
-from autoconf import jax_wrapper  # Sets JAX environment before other imports
+from autolens import jax_wrapper  # Sets JAX environment before other imports
 
-# from autoconf import setup_notebook; setup_notebook()
+# from autolens import setup_notebook; setup_notebook()
 
 """
 If the printed working directory does not match the workspace path on your computer, you can manually set it
