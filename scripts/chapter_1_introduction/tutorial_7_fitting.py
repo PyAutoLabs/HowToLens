@@ -66,15 +66,16 @@ dataset_path = Path("dataset") / "imaging" / "howtolens"
 """
 __Dataset Auto-Simulation__
 
-If the dataset does not already exist on your system, it will be created by running the corresponding
-simulator script. This ensures that all example scripts can be run without manually simulating data first.
+The `howtolens` dataset is the one built up and saved in tutorial 6 (`tutorial_6_data.py`). If it does
+not already exist on your system, it is created by running that script. This ensures every example
+script can be run without manually simulating data first.
 """
-if not dataset_path.exists():
+if al.util.dataset.should_simulate(str(dataset_path)):
     import subprocess
     import sys
 
     subprocess.run(
-        [sys.executable, "scripts/simulator/no_lens_light__mass_sis.py"],
+        [sys.executable, "scripts/chapter_1_introduction/tutorial_6_data.py"],
         check=True,
     )
 
@@ -615,6 +616,15 @@ profiles are unknown.
 """
 dataset_name = "simple__no_lens_light__mass_sis"
 dataset_path = Path("dataset") / "imaging" / dataset_name
+
+if al.util.dataset.should_simulate(str(dataset_path)):
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, "scripts/simulator/no_lens_light__mass_sis.py"],
+        check=True,
+    )
 
 dataset = al.Imaging.from_fits(
     data_path=dataset_path / "data.fits",
