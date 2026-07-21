@@ -49,4 +49,3 @@
 - point_source/features/double_einstein_cross/simulator # PointSolver finds 0 positions on small grid
 - dataset/imaging/slacs1430+4105 # Dataset folder contains data.py helper, not a runnable script
 - group/slam # NEEDS_FIX 2026-04-10 - PriorException: upper limit must be greater than lower limit in group SLaM pipeline
-- imaging/data_preparation/manual/mask_irregular # NEEDS_FIX 2026-04-10 - silent failure, needs investigation
