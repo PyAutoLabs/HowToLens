@@ -46,6 +46,21 @@ import autolens.plot as aplt
 dataset_path = Path("dataset") / "imaging" / "simple__no_lens_light"
 
 """
+__Dataset Auto-Simulation__
+
+If the dataset does not already exist on your system, it is created by running the corresponding
+simulator script. This ensures every example script can be run without manually simulating data first.
+"""
+if al.util.dataset.should_simulate(str(dataset_path)):
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, "scripts/simulator/no_lens_light.py"],
+        check=True,
+    )
+
+"""
 We now load this dataset from .fits files and create an instance of an `Imaging` object.
 """
 dataset = al.Imaging.from_fits(
