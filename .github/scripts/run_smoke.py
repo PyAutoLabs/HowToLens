@@ -24,9 +24,6 @@ import yaml
 WORKSPACE = Path(__file__).resolve().parents[2]
 SMOKE_FILE = WORKSPACE / "smoke_tests.txt"
 ENV_VARS_FILE = WORKSPACE / "config" / "build" / "profile_smoke.yaml"
-if not ENV_VARS_FILE.exists():
-    # Legacy fallback; removed at the stage-3 cleanup once env_vars.yaml is gone.
-    ENV_VARS_FILE = WORKSPACE / "config" / "build" / "env_vars.yaml"
 SCRIPTS_DIR = WORKSPACE / "scripts"
 
 
