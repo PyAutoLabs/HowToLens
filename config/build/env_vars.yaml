@@ -20,23 +20,18 @@ defaults:
   NUMBA_CACHE_DIR: "/tmp/numba_cache"   # Writable cache dir for numba
   MPLCONFIGDIR: "/tmp/matplotlib"       # Writable config dir for matplotlib
 
-overrides:
-  # start_here scripts load real FITS data that breaks with small datasets
-  - pattern: "imaging/start_here"
-    unset: [PYAUTO_SMALL_DATASETS]
-  - pattern: "interferometer/start_here"
-    unset: [PYAUTO_SMALL_DATASETS]
-  - pattern: "group/start_here"
-    unset: [PYAUTO_SMALL_DATASETS]
-  - pattern: "multi/start_here"
-    unset: [PYAUTO_SMALL_DATASETS]
-  # (Removed the dead `howtolens/` + `guides/` PYAUTO_SMALL_DATASETS-unset
-  # workarounds: they matched no files here, and the tutorials now use
-  # `al.util.dataset.should_simulate` which deletes + re-simulates stale
-  # data under the cap, so the chapters run correctly at 16x16.)
-  # guides/results/start_here.py must produce real samples so the example
-  # scripts that read from `output/results_folder` afterwards
-  # (data_fitting, queries, models, samples_via_aggregator) find a
-  # non-empty aggregator. Covers all scripts under guides/results/.
-  - pattern: "guides/results/"
-    unset: [PYAUTO_TEST_MODE, PYAUTO_SKIP_FIT_OUTPUT]
+# (Removed the dead `howtolens/` + `guides/` PYAUTO_SMALL_DATASETS-unset
+# workarounds: they matched no files here, and the tutorials now use
+# `al.util.dataset.should_simulate` which deletes + re-simulates stale
+# data under the cap, so the chapters run correctly at 16x16.)
+#
+# 2026-07-23: the remaining five overrides were removed for the same reason —
+# `imaging/start_here`, `interferometer/start_here`, `group/start_here`,
+# `multi/start_here` and `guides/results/` are all autolens_workspace paths
+# copied in from that repo's env_vars.yaml. HowToLens contains only
+# chapter_*/tutorial_*.py, so none of them ever matched a file here.
+# Do not copy override patterns between repos; a pattern that matches nothing
+# is silently inert, not an override. The list is now empty, and `overrides: []`
+# is written explicitly because env_config.py reads `.get("overrides", [])` —
+# a bare `overrides:` key would load as None and raise on iteration.
+overrides: []
