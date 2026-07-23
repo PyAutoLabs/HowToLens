@@ -9,7 +9,7 @@
 # workspace path such as `gui/mask` or `cluster/modeling` can never match here;
 # it is silently inert, not a skip. In July 2026 this file had accumulated 28
 # such entries against 2 real ones. Every entry below must match a file in THIS
-# repo — verify with `should_skip` in PyAutoHands/autobuild/build_util.py before
+# repo — verify with `should_skip` in PyAutoHands/autohands/build_util.py before
 # adding one.
 #
 # SLOW-skip convention:
