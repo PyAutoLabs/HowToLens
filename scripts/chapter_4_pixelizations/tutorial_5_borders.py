@@ -194,9 +194,7 @@ extremely large radial values?
 Towards the centre of th elliptical isothermal mass profile, the density begins to rise very sharply, it becomes 
 extremely steep or 'cuspy'. This cuspy behaviour towards its centre can cause extremely large deflection angles to be 
 calculated:
-"""
 
-"""
 Central image pixel can therefore be subjected to 'demagnification', whereby they trace to extremely large values in 
 the source plane! 
 
