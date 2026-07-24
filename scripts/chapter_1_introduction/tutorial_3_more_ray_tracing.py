@@ -278,10 +278,7 @@ print(lens_satellite)
 
 """
 Lets have a quick look at the appearance of our lens galaxy and its satellite.
-"""
 
-
-"""
 And their deflection angles, noting that the satellite does not contribute as much to the deflections.
 """
 
@@ -323,10 +320,7 @@ print(source_1)
 
 """
 Lets look at our source galaxies (before lensing)
-"""
 
-
-"""
 __Multi Galaxy Ray Tracing__
 
 Now lets pass our 4 galaxies to a `Tracer`, which means the following will occur:
