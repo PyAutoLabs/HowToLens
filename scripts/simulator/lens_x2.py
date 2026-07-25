@@ -35,7 +35,7 @@ This dataset is used in chapter 3 of the **HowToLens** lectures.
 
 __Start Here Notebook__
 
-If any code in this script is unclear, refer to the `simulators/start_here.ipynb` notebook.
+If any code in this script is unclear, refer to the `autolens_workspace/*/imaging/simulator.ipynb` notebook.
 """
 
 from pathlib import Path

@@ -305,6 +305,6 @@ And, we're done, here are a few questions to get you thinking about inversions:
 __Detailed Explanation__
 
 If you are interested in a more detailed description of how inversions work, then checkout the file
-`autolens_workspace/*/imaging/log_likelihood_function/inversion.ipynb` which gives a visual step-by-step
+`autolens_workspace/*/imaging/features/pixelization/likelihood_function.ipynb` which gives a visual step-by-step
 guide of the process alongside equations and references to literature on the subject.
 """

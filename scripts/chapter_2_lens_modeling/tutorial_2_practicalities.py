@@ -253,11 +253,11 @@ complete in a few minutes, more complex models may require longer run times. In 
 limiting, as the notebook cell will only complete once the fit finishes, preventing you from advancing through the 
 tutorial or running additional code.
 
-To work around this, we recommend running tutorial scripts as standalone Python scripts, found 
-in `autolens_workspace/scripts/howtogalaxy`. These scripts mirror the notebook tutorials but run independently of 
+To work around this, we recommend running tutorial scripts as standalone Python scripts, found
+in the `scripts/` folder of the HowToLens repository. These scripts mirror the notebook tutorials but run independently of
 Jupyter notebooks. For example, you can start a script with:
 
-`python3 scripts/howtogalaxy/chapter_2_modeling/tutorial_2_practicalities.py`
+`python3 scripts/chapter_2_lens_modeling/tutorial_2_practicalities.py`
 
 Using scripts allows results to be saved to the hard drive in the `output` folder, enabling you to inspect results 
 immediately once the script completes. When rerun, the script loads results directly from disk, so any Jupyter 

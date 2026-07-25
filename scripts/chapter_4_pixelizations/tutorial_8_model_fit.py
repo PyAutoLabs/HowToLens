@@ -4,7 +4,7 @@ Tutorial 8: Model-Fit
 
 You should now perform lens modeling using a pixelization, which is described fully in the example:
 
-`autolens_workspace/*/imaging/features/pixelizations/modeling.py`
+`autolens_workspace/*/imaging/features/pixelization/modeling.py`
 
 __Wrap Up__
 
