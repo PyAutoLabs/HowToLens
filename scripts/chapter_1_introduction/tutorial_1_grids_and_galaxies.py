@@ -668,5 +668,5 @@ For a new user, the details of over-sampling are not important, therefore just b
 adaptive over sampling scheme with high accuracy across all use cases.
 
 Once you are more experienced, you should read up on over-sampling in more detail via
-the `autolens_workspace/*/guides/over_sampling.ipynb` notebook.
+the `autolens_workspace/*/guides/advanced/over_sampling.ipynb` notebook.
 """

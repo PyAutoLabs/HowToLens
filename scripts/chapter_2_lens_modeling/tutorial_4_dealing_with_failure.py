@@ -402,7 +402,7 @@ number of live points used by `Nautilus`. The more thoroughly the search examine
 find the global maximum lens model. However, this also means the search will take longer!
 
 Below, we configure a more thorough Nautilus search with `n_live=200`. These settings and what they change are 
-discussed in the optional tutorial `howtolens/chapter_optional/tutorial_searches.ipynb`.
+discussed in the optional tutorial `chapter_optional/tutorial_searches.ipynb`.
 
 Due to the long run times of this search, the output is commented out below. Feel free to uncomment it to run the 
 script faster.

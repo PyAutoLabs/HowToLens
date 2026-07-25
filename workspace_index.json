@@ -24,7 +24,7 @@
       "Units"
     ],
     "cross_refs": [
-      "/guides/over_sampling.ipynb"
+      "/guides/advanced/over_sampling.ipynb"
     ],
     "notebook": "notebooks/chapter_1_introduction/tutorial_1_grids_and_galaxies.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_1_grids_and_galaxies.py",
@@ -149,7 +149,7 @@
       "Wrap Up"
     ],
     "cross_refs": [
-      "/imaging/log_likelihood_function/parametric.ipynb"
+      "/imaging/likelihood_function.ipynb"
     ],
     "notebook": "notebooks/chapter_2_lens_modeling/tutorial_1_non_linear_search.ipynb",
     "path": "scripts/chapter_2_lens_modeling/tutorial_1_non_linear_search.py",
@@ -177,7 +177,7 @@
       "Wrap Up"
     ],
     "cross_refs": [
-      "scripts/howtogalaxy/chapter_2_modeling/tutorial_2_practicalities.py"
+      "scripts/chapter_2_lens_modeling/tutorial_2_practicalities.py"
     ],
     "notebook": "notebooks/chapter_2_lens_modeling/tutorial_2_practicalities.ipynb",
     "path": "scripts/chapter_2_lens_modeling/tutorial_2_practicalities.py",
@@ -210,7 +210,7 @@
       "Discussion"
     ],
     "cross_refs": [
-      "howtolens/chapter_optional/tutorial_searches.ipynb"
+      "chapter_optional/tutorial_searches.ipynb"
     ],
     "notebook": "notebooks/chapter_2_lens_modeling/tutorial_4_dealing_with_failure.ipynb",
     "path": "scripts/chapter_2_lens_modeling/tutorial_4_dealing_with_failure.py",
@@ -236,8 +236,8 @@
       "Wrap Up"
     ],
     "cross_refs": [
-      "/modeling/features/multi_gaussian_expansion.py",
-      "autolens_workspace/scripts/modeling/features/shapelets.py"
+      "/imaging/features/multi_gaussian_expansion/modeling.py",
+      "autolens_workspace/scripts/imaging/features/advanced/shapelets/modeling.py"
     ],
     "notebook": "notebooks/chapter_2_lens_modeling/tutorial_5_linear_profiles.ipynb",
     "path": "scripts/chapter_2_lens_modeling/tutorial_5_linear_profiles.py",
@@ -435,7 +435,7 @@
       "Detailed Explanation"
     ],
     "cross_refs": [
-      "/imaging/log_likelihood_function/inversion.ipynb"
+      "/imaging/features/pixelization/likelihood_function.ipynb"
     ],
     "notebook": "notebooks/chapter_4_pixelizations/tutorial_3_inversions.ipynb",
     "path": "scripts/chapter_4_pixelizations/tutorial_3_inversions.py",
@@ -500,7 +500,7 @@
   {
     "contents": [],
     "cross_refs": [
-      "/imaging/features/pixelizations/modeling.py"
+      "/imaging/features/pixelization/modeling.py"
     ],
     "notebook": "notebooks/chapter_4_pixelizations/tutorial_8_model_fit.ipynb",
     "path": "scripts/chapter_4_pixelizations/tutorial_8_model_fit.py",
@@ -546,7 +546,7 @@
       "Tracer json"
     ],
     "cross_refs": [
-      "simulators/start_here.ipynb",
+      "/imaging/simulator.ipynb",
       "start_here.py"
     ],
     "notebook": "notebooks/simulator/lens_sersic.ipynb",
@@ -565,7 +565,7 @@
       "Tracer json"
     ],
     "cross_refs": [
-      "simulators/start_here.ipynb"
+      "/imaging/simulator.ipynb"
     ],
     "notebook": "notebooks/simulator/lens_x2.ipynb",
     "path": "scripts/simulator/lens_x2.py",
@@ -584,10 +584,10 @@
       "Tracer json"
     ],
     "cross_refs": [
-      "autolens_workspace/notebooks/modeling/features/no_lens_light.ipynb",
-      "imaging/features/pixelization/fit.py",
-      "imaging/features/pixelization/modeling.py",
-      "simulators/start_here.ipynb",
+      "/imaging/simulator.ipynb",
+      "autolens_workspace/notebooks/imaging/features/no_lens_light/modeling.ipynb",
+      "autolens_workspace/scripts/imaging/features/pixelization/fit.py",
+      "autolens_workspace/scripts/imaging/features/pixelization/modeling.py",
       "start_here.py"
     ],
     "notebook": "notebooks/simulator/no_lens_light.ipynb",
@@ -606,7 +606,7 @@
       "Tracer json"
     ],
     "cross_refs": [
-      "simulators/start_here.ipynb",
+      "/imaging/simulator.ipynb",
       "start_here.py"
     ],
     "notebook": "notebooks/simulator/no_lens_light__mass_sis.ipynb",
@@ -625,7 +625,7 @@
       "Tracer json"
     ],
     "cross_refs": [
-      "simulators/start_here.ipynb"
+      "/imaging/simulator.ipynb"
     ],
     "notebook": "notebooks/simulator/source_complex.ipynb",
     "path": "scripts/simulator/source_complex.py",
