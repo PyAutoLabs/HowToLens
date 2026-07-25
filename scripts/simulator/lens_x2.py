@@ -7,8 +7,10 @@ light and mass profiles.
 
 Strong lenses with this complex mass distribution are more challenging to model than those with a single lens galaxy.
 
-This system is on the verge of being a group scale lens, but is included in this section of the workspace as it is
-only two lens galaxies. The `modeling` examples in the `group` package are also applicable to this lens.
+A system with two co-dominant lens galaxies and no shared dark-matter halo is exactly what the
+`autolens_workspace`'s `multi_galaxy` package is dedicated to — its `start_here` and `modeling` examples are
+directly applicable to this lens. (Systems where a dominant group-scale halo joins the galaxies belong one rung
+up the regime ladder, in the `group` package.)
 
 This dataset is modeled in HowToLens chapter 3 and is used to illustrate the advanced **PyAutoLens** feature search
 chaining.
