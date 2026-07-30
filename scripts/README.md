@@ -7,7 +7,6 @@ a strong lens.
 - `chapter_2_lens_modeling`: How to model strong lenses, including a primer on Bayesian non-linear analysis.
 - `chapter_3_search_chaining`: How to fit complex lens models using non-linear search chaining.
 - `chapter_4_pixelizations`: How to perform pixelized reconstructions of the source-galaxy.
-- `chapter_5_hyper_mode`: How to use **PyAutoLens** advanced modeling features that adapt the model to the strong lens being analysed.
 - `chapter_optional`: Optional tutorials.
 
 # Full Explanation
