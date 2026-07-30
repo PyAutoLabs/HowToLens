@@ -188,5 +188,5 @@ al.output_to_json(
 )
 
 """
-The dataset can be viewed in the folder `autolens_workspace/imaging/x2_lens_galaxies`.
+The dataset can be viewed in the folder `autolens_workspace/dataset/imaging/x2_lens_galaxies`.
 """

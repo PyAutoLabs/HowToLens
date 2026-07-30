@@ -143,7 +143,7 @@ database file and load the results from hard-disk to a Python script or Jupyter 
 advanced queries, so specific results can be loaded and inspected.
 
 We won't go into any more detail on the database in this tutorial. If you think the database will be useful, checkout 
-the full set of database tutorials which can be found in the folder `autolens_workspace/*/imaging/advanced/database`. 
+the full set of database tutorials which can be found in the folder `autolens_workspace/*/guides/results/database`. 
 
 Here, you'll learn how to:
 

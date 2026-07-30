@@ -103,7 +103,7 @@ global solution instead of getting stuck at a local maxima.
 In a previous tutorial, we learned how to fully customize priors. Let's apply this knowledge 
 now. I've set up a custom search below with priors adjusted to give the non-linear search a better chance of finding 
 the global maxima solution. I'll also explain how each prior has been changed from the default values specified in
- the `config/priors/default` configuration files.
+ the `config/priors` configuration files.
 
 We will call our lens and source galaxies `lens` and `source` this time, for shorter more readable code.
 
