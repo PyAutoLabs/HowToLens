@@ -6,8 +6,18 @@ name: Tutorials Complete
 # terminal section; the check is pure-stdlib and needs no library install.
 # See scripts/check_tutorials_complete.py.
 
-on: [push, pull_request]
+# One run per commit: PR events carry the CI; pushes only build main
+# (Heart's ws_ci gate reads main-HEAD conclusions). Superseded runs are
+# cancelled on PR refs only — a cancelled main run would read as red CI
+# (cancelled is in Heart's FAILURE_CONCLUSIONS).
+on:
+  push:
+    branches: [main]
+  pull_request:
 
+concurrency:
+  group: tutorials_complete-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
   tutorials-complete:
     runs-on: ubuntu-latest
