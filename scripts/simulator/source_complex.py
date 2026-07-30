@@ -6,7 +6,7 @@ This script simulates `Imaging` of a 'galaxy-scale' strong lens where the source
 other examples, being composed of 4 Sersics.
 
 It is used to illustrate features which reconstruct the source galaxy's light using a pixelizaiton, for example
-in the script `autolens_workspace/notebooks/modeling/features/pixelization`.
+in the script `autolens_workspace/notebooks/imaging/features/pixelization`.
 
 __Contents__
 
@@ -194,5 +194,5 @@ al.output_to_json(
 )
 
 """
-The dataset can be viewed in the folder `autolens_workspace/imaging/source_complex`.
+The dataset can be viewed in the folder `autolens_workspace/dataset/imaging/source_complex`.
 """

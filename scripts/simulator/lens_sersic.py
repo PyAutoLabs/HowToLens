@@ -182,5 +182,5 @@ al.output_to_json(
 )
 
 """
-The dataset can be viewed in the folder `autolens_workspace/imaging/lens_sersic`.
+The dataset can be viewed in the folder `autolens_workspace/dataset/imaging/lens_sersic`.
 """
