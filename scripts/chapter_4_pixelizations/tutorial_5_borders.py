@@ -279,6 +279,21 @@ we'll use new strong lensing data as the previous tutorial, where:
 dataset_name = "x2_lens_galaxies"
 dataset_path = Path("dataset") / "imaging" / dataset_name
 
+"""
+__Dataset Auto-Simulation__
+
+If the dataset does not already exist on your system, it will be created by running the corresponding
+simulator script. This ensures that all example scripts can be run without manually simulating data first.
+"""
+if al.util.dataset.should_simulate(str(dataset_path)):
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, "scripts/simulator/lens_x2.py"],
+        check=True,
+    )
+
 dataset = al.Imaging.from_fits(
     data_path=dataset_path / "data.fits",
     noise_map_path=dataset_path / "noise_map.fits",
