@@ -10,3 +10,6 @@ dataset/
 notebooks/plot/
 test_report.md
 test_results/
+
+# Structured smoke/validation reports (run_smoke.py --report-dir)
+test-results/

@@ -38,7 +38,8 @@ cap grids/masks).
 ## Testing
 
 On CI, every PR is gated on Python **3.12 and 3.13** by `smoke_tests.yml` (runs
-`python .github/scripts/run_smoke.py`, driven by `smoke_tests.txt` + `config/build/profile_smoke.yaml` —
+`python .github/scripts/run_smoke.py`, which runs **every** script under `scripts/` except the
+exclusions in `config/build/no_run.yaml`, with per-script env from `config/build/profile_smoke.yaml` —
 the definition of green), `navigator_check.yml` (PyAutoHands's reusable navigator-catalogue check;
 see *Notebooks vs Scripts*), and `url_check.yml` (link checking). The smoke and navigator jobs check
 out **PyAutoHands** as a sibling and run the PyAuto* libraries from the **same-named branch** of each
