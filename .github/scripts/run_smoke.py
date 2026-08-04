@@ -1,112 +1,74 @@
 """
-Run the workspace smoke test suite.
+Run the workspace smoke test suite: every script under `scripts/`, minus the
+exclusions in `config/build/no_run.yaml`.
 
-Reads `smoke_tests.txt` from the workspace root and `config/build/profile_smoke.yaml`
-for per-script env var overrides, then runs each listed script with the
-appropriate environment. Continues through failures and exits non-zero
-if any script failed.
+Coverage is **opt-out**. A new tutorial is smoke-tested the moment it is added;
+excluding one is a deliberate, documented entry in `config/build/no_run.yaml` —
+the same file the notebook runner already honours, so scripts and notebooks can
+no longer disagree about what is skipped.
 
-The env resolution itself is NOT implemented here: it is PyAutoHands's
-`autohands/env_config.py`, imported below. This file used to carry a copy, and
-the copy had already drifted (its `load_env_config` hardcoded
-`config/build/profile_smoke.yaml`, so the PR gate was structurally unable to read
-the release profile — the seed incident's failure mode 4/7). One resolver
-means the PR gate and the release runner cannot disagree about what a script's
-environment is. See PyAutoHands docs/env_profile_redesign.md §5 (#161 step 2).
+This replaces the former `smoke_tests.txt` allowlist, under which a script was
+tested only if someone remembered to add it. That design left HowToGalaxy
+testing 4 of its 26 scripts, and a public teaching notebook stayed broken in
+three places because no job had ever executed it (HowToGalaxy #58).
 
-Mirrors the logic of the `/smoke-test` skill so CI and local runs stay
-in sync.
+Nothing about discovery, exclusion or environment resolution is implemented
+here. This is a thin shim over PyAutoHands' `autohands/run_python.py` — the same
+entry point PyAutoHeart's workspace-validation uses for its `run_scripts` job —
+so the PR gate and the validation runner cannot drift apart. That runner
+provides:
+
+  * recursive discovery, ordering `simulator*` first and then `start_here.py`,
+    which is what tutorials depending on simulated datasets need
+  * `should_skip()` against `config/build/no_run.yaml`
+  * per-script env from `config/build/profile_smoke.yaml`
+
+Mirrors the `/smoke-test` skill so CI and local runs stay in sync.
 """
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
-import time
 from pathlib import Path
 
-
 WORKSPACE = Path(__file__).resolve().parents[2]
-SMOKE_FILE = WORKSPACE / "smoke_tests.txt"
-ENV_VARS_FILE = WORKSPACE / "config" / "build" / "profile_smoke.yaml"
-SCRIPTS_DIR = WORKSPACE / "scripts"
+PROJECT = "howtolens"
 
 # CI puts PyAutoHands/autohands on PYTHONPATH (PyAutoHeart's reusable
 # smoke-tests.yml clones it alongside the dependency chain); for local runs,
 # fall back to the sibling checkout.
 try:
-    from env_config import build_env_for_script, load_env_config
+    import build_util
 except ImportError:  # pragma: no cover - local-run fallback
     sys.path.insert(0, str(WORKSPACE.parent / "PyAutoHands" / "autohands"))
-    from env_config import build_env_for_script, load_env_config
+    import build_util
 
-
-def load_smoke_scripts() -> list[str]:
-    scripts: list[str] = []
-    for line in SMOKE_FILE.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        scripts.append(line)
-    return scripts
-
-
-def load_cfg() -> dict | None:
-    """Parsed env profile, or None when the workspace has none.
-
-    None flows through build_env_for_script -> None -> subprocess inherits the
-    parent environment, which is what the old local copy's empty-config path
-    did by hand.
-    """
-    if not ENV_VARS_FILE.exists():
-        return None
-    return load_env_config(ENV_VARS_FILE)
-
-
-def run_one(script_rel: str, cfg: dict | None) -> tuple[str, int, float, str]:
-    env = build_env_for_script(Path(script_rel), cfg)
-    script_path = SCRIPTS_DIR / script_rel
-    t0 = time.time()
-    result = subprocess.run(
-        [sys.executable, str(script_path)],
-        cwd=str(WORKSPACE),
-        env=env,
-        capture_output=True,
-        text=True,
-    )
-    elapsed = time.time() - t0
-    output = result.stdout + result.stderr
-    return script_rel, result.returncode, elapsed, output
+AUTOHANDS = Path(build_util.__file__).resolve().parent
 
 
 def main() -> int:
-    if not SMOKE_FILE.exists():
-        print(f"ERROR: no smoke_tests.txt at {SMOKE_FILE}", file=sys.stderr)
-        return 1
-    scripts = load_smoke_scripts()
-    if not scripts:
-        print("No smoke test scripts listed.")
-        return 0
-    cfg = load_cfg()
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join(
+        p for p in (str(AUTOHANDS), env.get("PYTHONPATH", "")) if p
+    )
 
-    print(f"Running {len(scripts)} smoke test script(s) from {SMOKE_FILE.name}\n")
-    failures: list[tuple[str, int, str]] = []
-    for script_rel in scripts:
-        print(f"::group::{script_rel}")
-        name, rc, elapsed, output = run_one(script_rel, cfg)
-        print(output, end="")
-        status = "PASS" if rc == 0 else f"FAIL (exit {rc})"
-        print(f"\n[{status}] {name} — {elapsed:.1f}s")
-        print("::endgroup::")
-        if rc != 0:
-            failures.append((name, rc, output))
-
-    total = len(scripts)
-    passed = total - len(failures)
-    print(f"\n=== Smoke test summary: {passed}/{total} passed ===")
-    for name, rc, _ in failures:
-        print(f"  FAIL  {name}  (exit {rc})")
-    return 0 if not failures else 1
+    # --report-dir is REQUIRED, not cosmetic. run_python.py only propagates
+    # failures (`sys.exit(1)`) when a report was built; without it the suite
+    # runs to completion and always exits 0 — a vacuously green gate. It also
+    # switches execute_script from "abort on the first failure" to "record and
+    # continue", which is the behaviour the old runner had.
+    cmd = [
+        sys.executable,
+        str(AUTOHANDS / "run_python.py"),
+        PROJECT,
+        "scripts",
+        "--report-dir",
+        str(WORKSPACE / "test-results"),
+    ]
+    # run_python.py resolves config/build/ relative to the cwd.
+    return subprocess.run(cmd, cwd=str(WORKSPACE), env=env).returncode
 
 
 if __name__ == "__main__":
