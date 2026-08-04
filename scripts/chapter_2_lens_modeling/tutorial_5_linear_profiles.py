@@ -261,10 +261,10 @@ For example, below, we make a `Basis` out of 30 elliptical Gaussian linear light
 """
 total_gaussians = 30
 
-# The sigma values of the Gaussians will be fixed to values spanning 0.01 to the mask radius, 3.0".
+# The sigma values of the Gaussians will be fixed to values spanning a tenth of the pixel scale to the mask radius, 3.0".
 
 mask_radius = 3.0
-log10_sigma_list = np.linspace(-2, np.log10(mask_radius), total_gaussians)
+log10_sigma_list = np.linspace(np.log10(dataset.pixel_scales[0] / 10.0), np.log10(mask_radius), total_gaussians)
 
 # A list of linear light profile `Gaussians` will be input here, which will then be used to fit the data.
 
@@ -330,9 +330,9 @@ The number of free parameters and therefore the dimensionality of the MGe is jus
 """
 total_gaussians = 30
 
-# The sigma values of the Gaussians will be fixed to values spanning 0.01 to the mask radius, 3.0".
+# The sigma values of the Gaussians will be fixed to values spanning a tenth of the pixel scale to the mask radius, 3.0".
 mask_radius = 3.0
-log10_sigma_list = np.linspace(-2, np.log10(mask_radius), total_gaussians)
+log10_sigma_list = np.linspace(np.log10(dataset.pixel_scales[0] / 10.0), np.log10(mask_radius), total_gaussians)
 
 # By defining the centre here, it creates two free parameters that are assigned below to all Gaussians.
 
@@ -381,9 +381,9 @@ lens galaxy.
 """
 total_gaussians = 15
 
-# The sigma values of the Gaussians will be fixed to values spanning 0.01" to 1.0".
+# The sigma values of the Gaussians will be fixed to values spanning 0.0001" to 1.0".
 
-log10_sigma_list = np.linspace(-2, np.log10(1.0), total_gaussians)
+log10_sigma_list = np.linspace(-4, np.log10(1.0), total_gaussians)
 
 bulge_gaussian_list = []
 
