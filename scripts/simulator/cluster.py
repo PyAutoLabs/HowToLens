@@ -48,6 +48,16 @@ __Start Here Notebook__
 If any code in this script is unclear, refer to the `autolens_workspace/*/cluster/simulator.ipynb` notebook.
 """
 
+import importlib.util
+import sys
+
+if importlib.util.find_spec("jax") is None:
+    print(
+        "Skipping this simulator: it requires the `jax` package, which is not "
+        "installed (install with `pip install autolens[optional]`)."
+    )
+    sys.exit(0)
+
 from autolens import jax_wrapper  # Sets JAX environment before other imports
 
 # from autolens import setup_notebook; setup_notebook()
