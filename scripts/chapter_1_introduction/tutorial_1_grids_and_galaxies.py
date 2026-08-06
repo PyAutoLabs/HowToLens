@@ -57,6 +57,10 @@ __Contents__
 - **One Dimension Projection:** We often want to calculative 1D quantities of a light profile, for example to plot how its light.
 - **Galaxies:** Galaxies are collections of light profiles that represent a galaxy's luminous emission.
 - **Units:** By assuming a redshift for a galaxy we can convert its quantities from arcseconds to kiloparsecs.
+- **Wrap Up:** Summary of the script and next steps.
+- **Advanced Topics:** Optional reference material for expert users, not needed on a first read.
+- **Other Unit Conversion:** Other unit conversions a galaxy's redshift enables (e.g. AB magnitudes).
+- **Over Sampling:** The adaptive over-sampling scheme used to evaluate light profiles accurately.
 
 """
 
@@ -93,7 +97,7 @@ grid = al.Grid2D.uniform(
     shape_native=(
         101,
         101,
-    ),  # The dimensions of the grid, which here is 100 x 100 pixels.
+    ),  # The dimensions of the grid, which here is 101 x 101 pixels.
     pixel_scales=0.1,  # The conversion factor between pixel units and arc-seconds.
 )
 
@@ -150,7 +154,7 @@ specific point, like the center of a galaxy.
 
 We can shift the grid to a new center, (y_c, x_c), by subtracting this center from each coordinate.
 """
-centre = (0.3, 0.5)  # Shifting the grid to be centered at y=1.0", x=2.0".
+centre = (0.3, 0.5)  # Shifting the grid to be centered at y=0.3", x=0.5".
 
 grid_shifted = grid
 grid_shifted[:, 0] = grid_shifted[:, 0] - centre[0]  # Shift in y-direction.

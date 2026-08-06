@@ -7,8 +7,9 @@ clearly in your Jupyter notebook and on your computer screen.
 
 __Contents__
 
-- **Directories:** **PyAutoLens assumes** the working directory is `autolens_workspace` on your hard-disk.
+- **Directories:** **HowToLens** assumes the working directory is the `HowToLens` repository root on your hard-disk.
 - **Dataset:** Load and plot the strong lens dataset.
+- **Dataset Auto-Simulation:** Create the dataset via its simulator script if it is not on your hard-disk.
 - **Subplots:** In addition to plotting individual figures, **PyAutoLens** can plot `subplots` which show multiple.
 - **Plot Customization:** Does the figure display correctly on your computer screen?
 - **Overlays:** Overlays such as critical curves and image positions are added using the `lines=` and `positions=`.
@@ -21,11 +22,16 @@ from autolens import jax_wrapper  # Sets JAX environment before other imports
 # from autolens import setup_notebook; setup_notebook()
 
 """
-If the printed working directory does not match the workspace path on your computer, you can manually set it
-as follows (the example below shows the path I would use on my laptop. The code is commented out so you do not
-use this path in this tutorial!
+__Directories__
+
+**HowToLens** assumes the working directory is the `HowToLens` repository root on your hard-disk, so that relative
+paths to `dataset/` and `output/` resolve correctly.
+
+If your working directory does not match this path on your computer, you can manually set it as follows (the
+example below shows the path I would use on my laptop. The code is commented out so you do not use this path in
+this tutorial!
 """
-# workspace_path = "/Users/Jammy/Code/PyAuto/autolens_workspace"
+# workspace_path = "/Users/Jammy/Code/PyAuto/HowToLens"
 # #%cd $workspace_path
 # print(f"Working Directory has been set to `{workspace_path}`")
 
@@ -33,10 +39,10 @@ use this path in this tutorial!
 __Dataset__
 
 The `dataset_path` specifies where the dataset is located, which is the
-directory `autolens_workspace/dataset/imaging/simple__no_lens_light`.
+directory `dataset/imaging/simple__no_lens_light` of the HowToLens repository.
 
-There are many example simulated images of strong lenses in this directory that will be used throughout the
-**HowToLens** lectures.
+The simulated images of strong lenses used throughout the **HowToLens** lectures are written to the `dataset`
+directory at runtime by the simulator scripts in `scripts/simulator/`.
 """
 from pathlib import Path
 
@@ -92,7 +98,7 @@ Does the figure display correctly on your computer screen?
 
 If not, the default matplotlib settings can be customized via the config files in:
 
-  autolens_workspace/config/visualize/
+  config/visualize/
 
 Key config entries:
 

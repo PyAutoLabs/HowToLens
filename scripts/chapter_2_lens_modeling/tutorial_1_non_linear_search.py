@@ -4,7 +4,7 @@ Tutorial 1: Non-linear Search
 
 The starting point for most scientific analysis conducted by an Astronomer is that they have observations of a strong lens
 using a telescope like the Hubble Space Telescope, and seek to learn about the lens galaxy, source galaxy and the
-Universe from these observations. With **PyAutoLen**, we seek to learn about the lenses may and ray-tracing, asking questions like
+Universe from these observations. With **PyAutoLens**, we seek to learn about the lens's mass and ray-tracing, asking questions like
 how big is the lens galaxy and what does the unlensed source galaxy look like?
 
 To answer these questions, we must therefore fit the dataset with a lens model, where the lens model defines the
@@ -27,7 +27,7 @@ techniques that will ultimately allow us to fit complex models made of many ligh
 and begin learning about real galaxies in the Universe.
 
 This first tutorial introduces a number of key statistical concepts that are fundamental to understanding how
-model-fitting works, both for **PyAutoLen** and in general.
+model-fitting works, both for **PyAutoLens** and in general.
 
 __Overview__
 
@@ -40,22 +40,27 @@ In this tutorial, we will use a non-linear search to fit a lens model to simulat
   model instance to the data.
 
 - Fit datasets with different non-linear searches, including a maximum likelihood estimator (MLE),
-  Markok Chain Monte Carlo (MCMC) and nested sampling.
+  Markov Chain Monte Carlo (MCMC) and nested sampling.
 
 __Contents__
 
 - **Overview:** In this tutorial, we will use a non-linear search to fit a lens model to simulated imaging of.
 - **Parameter Space:** In mathematics, a function is defined by its parameters, which map inputs to outputs.
+- **Non-Linear Search:** The method used to fit the model to the data, by sampling the non-linear parameter space.
 - **Search Types:** There are different types of non-linear searches, each of which explores parameter space in a.
-- **Deeper Background:** **The descriptions of how searches work in this example are simplfied and phoenomenological and do.
+- **Deeper Background:** **The descriptions of how searches work in this example are simplified and phenomenological and do.
 - **PyAutoFit:** Modeling uses the probabilistic programming language.
 - **Initial Setup:** Let's first load the `Imaging` dataset, which we will use to fit a model with a non-linear search.
+- **Dataset Auto-Simulation:** Simulate the dataset via its simulator script if it is not on your hard-disk.
 - **Mask:** Define the 2D mask applied to the dataset for the model-fit.
 - **Model:** Compose the lens model fitted to the data.
 - **Priors:** When we examine the `.info` of our model, we notice that each parameter (like `centre`.
 - **Analysis:** Create the Analysis object that defines how the model is fitted to the data.
 - **Searches:** To perform a non-linear search, we create an instance of a `NonLinearSearch` object.
+- **Maximum Likelihood Estimation (MLE):** The simplest search type, which moves "up" the likelihood gradient.
+- **Markov Chain Monte Carlo (MCMC):** Walkers explore parameter space, mapping out the likelihood surface.
 - **Nested Sampling:** **Nested Sampling** is an advanced method for model-fitting that excels in handling complex models.
+- **What is The Best Search To Use?:** Choosing between MLE, MCMC and nested sampling for lens modeling.
 - **Wrap Up:** Summary of the script and next steps.
 
 __Parameter Space__
@@ -78,8 +83,8 @@ f(x, y, z) = x + y^2 - z^3
 This defines a parameter space in three dimensions, representing the relationships between \(x\), \(y\), \(z\),
 and the output \(f(x, y, z)\).
 
-This concept of parameter space is closely related to how we approach model-fitting. For instance, in chapter 1, w
-e created instances of `Galaxy` objects with
+This concept of parameter space is closely related to how we approach model-fitting. For instance, in chapter 1,
+we created instances of `Galaxy` objects with
 parameters like \( (\text{`centre_0`}, \text{`centre_1`}, \text{`ell_comps_0`}, \text{`ell_comps_1`}, \text{`intensity`}, \text{`effective_radius`}, \text{`sersic_index`}) \).
 These parameters were used to fit data and compute a log likelihood.
 
@@ -144,7 +149,7 @@ We will provide more details on each of these searches below.
 
 __Deeper Background__
 
-**The descriptions of how searches work in this example are simplfied and phoenomenological and do not give a full
+**The descriptions of how searches work in this example are simplified and phenomenological and do not give a full
 description of how they work at a deep statistical level. The goal is to provide you with an intuition for how to use
 them and when different searches are appropriate for different problems. Later tutorials will provide a more formal
 description of how these searches work.**
@@ -172,11 +177,11 @@ Modeling uses the probabilistic programming language
 [PyAutoFit](https://github.com/PyAutoLabs/PyAutoFit), an open-source project that allows complex model
 fitting techniques to be straightforwardly integrated into scientific modeling software. 
 
-**PyAutoFit** is actually a spin-off project of **PyAutoLen**. whereby we found that the statistic techniques and
+**PyAutoFit** is actually a spin-off project of **PyAutoLens**, whereby we found that the statistical techniques and
 methods we applied to model galaxies could be used in a more general setting to many different scientific 
 problems. Check it out if you are interested in developing your own software to perform advanced model-fitting!
 
-We import this library separately from **PyAutoLen**.
+We import this library separately from **PyAutoLens**.
 """
 import autofit as af
 
@@ -185,12 +190,12 @@ __Initial Setup__
 
 Let's first load the `Imaging` dataset, which we will use to fit a model with a non-linear search.
 
-The strong lens in this image was generated using an `Isothermal` lens mass profile and `SersicCore` source light profile, 
+The strong lens in this image was generated using an `IsothermalSph` lens mass profile and `ExponentialCoreSph` source light profile,
 which we'll also use in our model fitting  in this tutorial. This means the model we are going to fit is identical to 
 the one used to simulate the data, allowing us to assess the fitting process under controlled conditions.
 
-The dataset, as well as all subsequent datasets used in future tutorials, is stored in 
-the `autolens_workspace/dataset/imaging` folder. 
+The dataset, as well as all subsequent datasets used in future tutorials, is stored in the HowToLens
+repository's `dataset/imaging` folder (simulated at runtime by the simulator scripts, as shown below).
 """
 dataset_name = "simple__no_lens_light__mass_sis"
 dataset_path = Path("dataset") / "imaging" / dataset_name
@@ -300,10 +305,10 @@ The priors displayed above use default values defined in the `config/priors` dir
 been chosen to be broad, and contain the breadth of plausible solutions one should expect when fitting light and mass
 profiles of a real galaxy.
 
-For instance, consider the `centre` parameter of our `IsothermalSph` light profile. In theory, it could take on any value from 
-negative to positive infinity. However, imaging datasets are typically reduced such that the galaxy centre is close 
-to (0.0", 0.0"). Therefore, a `TruncatedGaussianPrior` with `mean=0.0` and `sigma=0.1` is a good description of where the
-galaxy `centre` is. 
+For instance, consider the `centre` parameter of our `IsothermalSph` mass profile. In theory, it could take on any value from
+negative to positive infinity. However, imaging datasets are typically reduced such that the galaxy centre is close
+to (0.0", 0.0"). Therefore, a `GaussianPrior` with `mean=0.0` and `sigma=0.1` is a good description of where the
+galaxy `centre` is.
 
 If the galaxy had a different centre in the dataset, we would change the mean of the prior to reflect this.
 However, in general, we advise all galaxy images are reduced such that the galaxy is at (0.0", 0.0").
@@ -524,7 +529,7 @@ There is a reduced risk of getting stuck in local maxima, because whilst some wa
 one, other walkers will explore other regions of parameter space and encourage the walker in local maxima to move 
 away from it and head towards higher likelihood regions.
 
-In the example below, we use the `Emcee` MCMC search to fit the strong lens The search starts with walkers 
+In the example below, we use the `Emcee` MCMC search to fit the strong lens. The search starts with walkers
 initialized in a "ball" around the center of the model’s priors, similar to the MLE search that failed earlier.
 """
 search = af.Emcee(
@@ -556,7 +561,7 @@ avoid the local maxima that had trapped the MLE search.
 
 A major advantage of MCMC is that it provides estimates of parameter uncertainties by "mapping out" the likelihood 
 surface, unlike MLE, which only finds the maximum likelihood solution. These error estimates are accessible in 
-the `result.info` string and through the `result.samples` object, which is explained fully in tutorial 5.
+the `result.info` string and through the `result.samples` object, which is explained fully in tutorial 7.
 
 While a good starting point wasn't necessary for this simple model, it becomes essential for efficiently mapping the 
 likelihood surface in more complex models with many parameters. The code below shows an MCMC fit using a good starting 
@@ -635,7 +640,7 @@ their uncertainties.
 search = af.Nautilus(
     n_live=100,
     n_batch=50,  # Explained in next tutorial
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 """
@@ -695,12 +700,12 @@ explore in later tutorials.
 When approaching a model-fitting problem, it's usually advisable to try various search methods to find the most 
 effective one. 
 
-However, after extensive testing within **PyAutoLen**, a clear recommendation has emerged for fitting strong lens models. 
+However, after extensive testing within **PyAutoLens**, a clear recommendation has emerged for fitting strong lens models.
 The nested sampling method `Nautilus` consistently proves to be the most  effective. It requires fewer iterations than 
 MCMC or MLE methods (when no starting point is used), provides robust  sampling even for complex models, includes a 
 built-in stopping criterion, and delivers reliable error estimates.
 
-All examples in the `autolens_workspace` use the `Nautilus` search, and future tutorials in the **HowToGalaxy** 
+All examples in the `autolens_workspace` use the `Nautilus` search, and future tutorials in the **HowToLens**
 series will also use it. We strongly recommend using `Nautilus` from now on.
 
 That said, MLE and MCMC searches can still be effective, and you're encouraged to experiment with them. If you have 

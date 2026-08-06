@@ -45,7 +45,9 @@ search, we can use its results to tune the priors of our second search. For exam
 __Contents__
 
 - **Initial Setup:** Load the same strong lensing data fitted throughout this chapter.
+- **Dataset Auto-Simulation:** Simulate the dataset via its simulator script if it is not on your hard-disk.
 - **Model:** Compose the lens model fitted to the data.
+- **Search + Analysis:** Create the non-linear search and analysis used to fit the first model.
 - **Result:** Overview of the results of the model-fit.
 - **Prior Passing:** Use the results of search 1 to set up the priors of search 2.
 - **Run Time:** Profiling the expected run time of the model-fit.
@@ -175,7 +177,7 @@ search_1 = af.Nautilus(
     name="tutorial_9_search_chaining_1",
     unique_tag=dataset_name,
     n_live=100,
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 analysis_1 = al.AnalysisImaging(dataset=dataset)
@@ -319,7 +321,7 @@ search_2 = af.Nautilus(
     name="tutorial_9_search_chaining_2",
     unique_tag=dataset_name,
     n_live=150,
-    iterations_per_quick_update=25000,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=25000,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 analysis_2 = al.AnalysisImaging(dataset=dataset)

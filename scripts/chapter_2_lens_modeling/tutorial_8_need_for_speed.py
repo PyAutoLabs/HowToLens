@@ -69,7 +69,7 @@ The second number is the time a single log likelihood evaluation takes, which is
    centre of the lens galaxy), which multiplies the number of intensity evaluations performed.
  - Convolving the image that comes from the tracer with the telescope's PSF to compare it to the data. The larger
    the PSF, the more expensive this convolution becomes.
- - For linear light profiles, basis functions like the MGE of tutorial 5 and the pixelizations of chapter 4, solving
+ - For linear light profiles, basis functions like the MGE of tutorial 5 and the pixelizations of chapter 3, solving
    the linear algebra of the inversion, which computes the `intensity` values that best fit the data.
 
 More complex fitting techniques therefore cost more per evaluation: a couple of standard light profiles are cheap,
@@ -87,8 +87,8 @@ performs (ray-tracing, light profile evaluation, PSF convolution, the linear alg
 them into a single optimized program. This compilation is a one-off overhead, typically taking seconds to a couple
 of minutes depending on model complexity. Every one of the tens of thousands of likelihood evaluations that follow
 then reuses the compiled program and runs dramatically faster than ordinary Python. When a search begins you will
-see a log message like `JAX: Applying vmap and jit to likelihood function -- may take a few seconds.` -- that is
-the compilation happening.
+see a log message like `JAX jit compiling vectorized (vmap) likelihood function, could take seconds or minutes...`
+-- that is the compilation happening.
 
 JAX's second superpower is that the same compiled code runs on either a CPU or a GPU. On a GPU, likelihood
 evaluations are not only faster individually but can be batched, with many evaluated simultaneously (the

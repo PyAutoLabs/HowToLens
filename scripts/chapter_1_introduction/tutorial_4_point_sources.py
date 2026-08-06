@@ -279,9 +279,9 @@ an image tens of times brighter than the unlensed source.
 
 For an extended source, magnification stretches the source over more pixels. For a point source, the image stays
 unresolved — so the magnification instead multiplies its observed **flux**. If the source's intrinsic flux is $F$,
-the flux of a multiple image with magnification $mu$ is $|mu| * F$.
+the flux of a multiple image with magnification $\mu$ is $|\mu| * F$.
 
-We compute the magnification at each solved image position below (the sign of $mu$ encodes the image's parity —
+We compute the magnification at each solved image position below (the sign of $\mu$ encodes the image's parity —
 whether it is mirror-flipped — which is why we take its absolute value for fluxes).
 """
 magnifications = al.LensCalc.from_tracer(

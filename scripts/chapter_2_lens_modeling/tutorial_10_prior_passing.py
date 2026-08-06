@@ -13,8 +13,10 @@ way, which is the topic of this tutorial.
 __Contents__
 
 - **Initial Setup:** Load the same strong lensing data as the previous tutorial.
+- **Dataset Auto-Simulation:** Simulate the dataset via its simulator script if it is not on your hard-disk.
 - **Model:** Compose the lens model fitted to the data.
 - **Search:** Configure the non-linear search used to fit the model.
+- **Result (Search 1):** The results of search 1, which are used for prior passing.
 - **Prior Passing:** Use the prior passing API to pass the results of search 1 without writing out values manually.
 - **Result:** Overview of the results of the model-fit.
 - **Wrap Up:** Summary of the script and next steps.
@@ -123,7 +125,7 @@ search_1 = af.Nautilus(
     name="tutorial_9_search_chaining_1",
     unique_tag=dataset_name,
     n_live=100,
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 analysis_1 = al.AnalysisImaging(dataset=dataset)
@@ -178,8 +180,8 @@ For the source's bulge, we are passing the result of an `Exponential` to an `Ser
 
 We can use a special prior passing method to do this, called `take_attributes`. This scans the `Exponential`
 passed to the `take_attributes` method for all parameters which have the same name as the `Sersic` model,
-and if their names are the same it passes their prior as a `model` (like we did above). Thus, it will locate all 6
-parameters in common between the two profiles (centre_, ell_comps, intensity, effective_radius) and pass those,
+and if their names are the same it passes their prior as a `model` (like we did above). Thus, it will locate the
+parameters in common between the two profiles (`centre`, `ell_comps`, `effective_radius`) and pass those,
 leaving the `sersic_index`'s priors as the default values.
 
 The `take_attributes` method is used in many examples of prior passing, when we pass a simpler parameterization of a
@@ -214,7 +216,7 @@ search_2 = af.Nautilus(
     name="tutorial_10_prior_passing_2",
     unique_tag=dataset_name,
     n_live=100,
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 analysis_2 = al.AnalysisImaging(dataset=dataset)

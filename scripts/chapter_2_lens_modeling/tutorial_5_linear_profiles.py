@@ -26,6 +26,7 @@ structures (e.g. asymmetries, twists) with just N=6-8 non-linear parameters.
 __Contents__
 
 - **Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
+- **Dataset Auto-Simulation:** Simulate the dataset via its simulator script if it is not on your hard-disk.
 - **Mask:** Define the 2D mask applied to the dataset for the model-fit.
 - **Linear Light Profiles:** We use a variant of a light profile discussed called a "linear light profile", which is accessed.
 - **Run Time:** Profiling the expected run time of the model-fit.
@@ -163,7 +164,7 @@ search = af.Nautilus(
     unique_tag=dataset_name,
     n_live=100,
     n_batch=50,  # GPU batching and VRAM use explained in chapter 2 tutorial 2.
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 analysis = al.AnalysisImaging(dataset=dataset)
@@ -437,7 +438,7 @@ search = af.Nautilus(
     unique_tag=dataset_name,
     n_live=100,
     n_batch=50,  # GPU batching and VRAM use explained in chapter 2 tutorial 2.
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 print(

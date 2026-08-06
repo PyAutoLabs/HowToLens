@@ -8,6 +8,7 @@ fit each model-fit. In this tutorial, we'll take a look at the result object in 
 __Contents__
 
 - **Initial Setup:** Lets use the model-fit performed in tutorial 1 to get a `Result` object.
+- **Dataset Auto-Simulation:** Simulate the dataset via its simulator script if it is not on your hard-disk.
 - **Tracer & Fit:** In the previous tutorials, we saw that this result contains the maximum log likelihood fit, which.
 - **Samples:** The result contains a lot more information about the model-fit.
 - **Workspace:** We are not going into any more detail on the result variable in this tutorial, or in the.
@@ -78,7 +79,7 @@ search = af.Nautilus(
     unique_tag=dataset_name,
     n_live=80,
     n_batch=50,  # GPU batching and VRAM use explained in chapter 2 tutorial 2.
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 analysis = al.AnalysisImaging(dataset=dataset)

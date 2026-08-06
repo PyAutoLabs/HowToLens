@@ -13,8 +13,8 @@ Telescope, include several factors that affect what we see:
 **Exposure Time:** The time the detector collects light, affecting the clarity of the image. Longer exposure times
 gather more light, improving the signal-to-noise ratio and creating a clearer image.
 
-**Background Sky:** Light from the sky itself, such as distant stars or zodiacal light, adds noise to the image.
-adds additional noise to the image.
+**Background Sky:** Light from the sky itself, such as distant stars or zodiacal light, adds additional noise to
+the image.
 
 In this tutorial, we'll simulate a strong lens image by applying these real-world effects to the light and mass
 profiles and images we created earlier.
@@ -61,7 +61,7 @@ grid = al.Grid2D.uniform(
     shape_native=(
         101,
         101,
-    ),  # The dimensions of the grid, which here is 100 x 100 pixels.
+    ),  # The dimensions of the grid, which here is 101 x 101 pixels.
     pixel_scales=0.1,  # The conversion factor between pixel units and arc-seconds.
 )
 
@@ -131,7 +131,7 @@ The PSF is often more informative when plotted on a log10 scale. This approach a
 in its tail, which are much smaller than the central peak yet critical for many scientific analyses. The tail 
 values may significantly affect the spread and detail captured in the data.
 """
-aplt.plot_array(array=psf.kernel, title="PSF 2D Kernel")
+aplt.plot_array(array=psf.kernel, title="PSF 2D Kernel (Log10)", use_log10=True)
 
 """
 Next, we'll manually perform a 2D convolution of the PSF with the image of the galaxy. This convolution simulates the 
@@ -165,7 +165,7 @@ convolution affects the appearance of the galaxy, making the image appear softer
 """
 aplt.plot_array(array=image, title="Tracer Image Before PSF")
 
-aplt.plot_array(array=blurred_image, title="")
+aplt.plot_array(array=blurred_image, title="Tracer Image After PSF")
 
 
 """
@@ -192,8 +192,8 @@ Therefore, we need to add the Poisson noise after blurring the tracer image.
 
 We also need to consider the units of our image data. Let’s assume that the tracer image is measured in units of 
 electrons per second ($e^- s^{-1}$), which is standard for CCD imaging data. To simulate the number of electrons 
-actually detected in each pixel, we multiply the image by the observation’s exposure time. This conversion changes t
-he units to the total number of electrons collected per pixel over the entire exposure time.
+actually detected in each pixel, we multiply the image by the observation’s exposure time. This conversion changes
+the units to the total number of electrons collected per pixel over the entire exposure time.
 
 Once the image is converted, we add Poisson noise, simulating the randomness in the photon-to-electron conversion 
 process. After adding the noise, we convert the image back to units of electrons per second for analysis, as 
@@ -238,7 +238,7 @@ The final effect we will consider when simulating imaging data is the background
 
 In addition to light from the strong lens, the telescope also picks up light from the sky. This background sky light is 
 primarily due to two sources: zodiacal light, which is light scattered by interplanetary dust in the solar system, 
-and the unresolved emission from distant stars and tracer.
+and the unresolved emission from distant stars and galaxies.
 
 For our simulation, we'll assume that the background sky has a uniform brightness across the image, measured at 
 0.1 electrons per second per pixel. The background sky is added to the image before applying the PSF convolution 
@@ -359,9 +359,8 @@ __Output__
 We will now save these simulated data to `.fits` files, the standard format used by astronomers for storing images.
 Most imaging data from telescopes like the Hubble Space Telescope (HST) are stored in this format.
 
-The `dataset_path` specifies where the data will be saved, in this case, in the directory 
-`autolens_workspace/dataset/imaging/howtolens/`, which contains many example images distributed with 
-the `autolens_workspace`.
+The `dataset_path` specifies where the data will be saved, in this case the `dataset/imaging/howtolens/`
+directory of the HowToLens repository (paths are relative to the repository root, from which scripts are run).
 
 The files are named `data.fits`, `noise_map.fits`, and `psf.fits`, and will be used in the next tutorial.
 """
@@ -471,7 +470,7 @@ Hubble Space Telescope, and how to simulate this data using the `SimulatorImagin
 
 Let's summarise what we've covered:
 
-- **Optics Blurring**: The optics of a telescope blur the light from tracer, reducing the clarity and sharpness of 
+- **Optics Blurring**: The optics of a telescope blur the light of the tracer, reducing the clarity and sharpness of
 the images.
 
 - **Poisson Noise**: The process of converting photons to electrons on a CCD introduces Poisson noise, which is random 

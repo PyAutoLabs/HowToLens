@@ -65,6 +65,7 @@ __Contents__
 - **Galaxies:** A `Galaxy` can contain both light and mass profiles, forming realistic lens and source galaxies.
 - **Tracer:** The `Tracer` object automates ray-tracing for a system of galaxies at different redshifts.
 - **Mappings:** Every image-plane coordinate maps to a source-plane coordinate via the lens equation.
+- **Wrap Up:** Summary of the script and next steps.
 
 """
 

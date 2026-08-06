@@ -19,6 +19,7 @@ __Contents__
 
 - **PyAutoFit:** Modeling uses the probabilistic programming language.
 - **Initial Setup:** Lets first load the `Imaging` dataset we'll fit a model with using a non-linear search.
+- **Dataset Auto-Simulation:** Simulate the dataset via its simulator script if it is not on your hard-disk.
 - **Mask:** Define the 2D mask applied to the dataset for the model-fit.
 - **Model:** Compose the lens model fitted to the data.
 - **Search:** Configure the non-linear search used to fit the model.
@@ -27,6 +28,7 @@ __Contents__
 - **Analysis:** Create the Analysis object that defines how the model is fitted to the data.
 - **VRAM Use:** When running AutoLens with JAX on a GPU, the analysis must fit within the GPU’s available VRAM.
 - **Run Times:** Profiling the expected run time of the model-fit.
+- **Model-Fit:** Begin the model-fit by passing the model and analysis to the search.
 - **Result Info:** A concise readable summary of the results is given by printing its `info` attribute.
 - **Output Folder:** Now checkout the `autolens_workspace/output` folder.
 - **Unique Identifier:** In the output folder, you will note that results are in a folder which is a collection of random.
@@ -47,7 +49,7 @@ reliable, possibly getting stuck in local maxima.
 
 The ideal number of live points depends on model complexity. More parameters generally require more live points, but
 the default of 200 is sufficient for most lens models. Lower values can still yield reliable results, particularly
-for simpler models. For this example (7 parameters), we reduce the live points to 100 to speed up runtime without
+for simpler models. For this example (6 parameters), we reduce the live points to 100 to speed up runtime without
 compromising accuracy.
 
 Tuning non-linear search settings (e.g., the number of live points) to match model complexity is essential. We aim
@@ -55,8 +57,8 @@ for enough live points to ensure accurate results (i.e., finding a global maximu
 is excessive.
 
 In practice, the optimal number of live points is often found through trial and error, guided by summary statistics
-on how well the search is performing, which we’ll cover below. For this single Sersic model with a linear light
-profile, 80 live points is sufficient to achieve reliable results.
+on how well the search is performing, which we’ll cover below. For the simple model fitted here, with a linear light
+profile, 100 live points is sufficient to achieve reliable results.
 
 __Iterations Per Update__
 
@@ -66,8 +68,8 @@ which includes producing visualization.
 Depending on how long it takes for the model to be fitted to the data (see discussion about run times below),
 this can take up a large fraction of the run-time of the non-linear search.
 
-For this fit, the fit is very fast, thus we set a high value of `iterations_per_quick_update=10000` to ensure these updates
-so not slow down the overall speed of the model-fit.
+For this fit, the fit is very fast, thus we set a high value of `iterations_per_quick_update=2500` to ensure these updates
+do not slow down the overall speed of the model-fit.
 
 **If the iteration per update is too low, the model-fit may be significantly slowed down by the time it takes to
 output results and visualization frequently to hard-disk. If your fit is consistent displaying a log saying that it
@@ -172,13 +174,18 @@ model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
 
 print(model.info)
 
+"""
+__Search__
+
+We again use the `Nautilus` non-linear search, with settings chosen following the Search Settings discussion above.
+"""
 search = af.Nautilus(
     path_prefix=Path("howtolens") / "chapter_2",
     name="tutorial_2_practicalities",
     unique_tag=dataset_name,
     n_live=100,
     n_batch=50,  # GPU batching and VRAM use explained in VRAM section below.
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 """
@@ -211,7 +218,7 @@ chosen batch size is comfortably below their GPU’s total VRAM.
 The method below prints the VRAM usage estimate for the analysis and model with the specified batch size,
 it takes about 20-30 seconds to run so you may want to comment it out once you are familiar with your GPU's VRAM limits.
 
-For a MGE model with the low resolution dataset fitted in this example VRAM use is relatively low (~0.027GB) For other 
+For the simple model and low resolution dataset fitted in this example VRAM use is relatively low (~0.027GB). For other
 models (e.g. pixelized sources) and higher resolution datasets it can be much higher (> 1GB going beyond 10GB).
 """
 analysis.print_vram_use(model=model, batch_size=search.batch_size)
@@ -315,9 +322,9 @@ the `dataset_name` to the search's `unique_tag`.
 
 __Output Folder Contents__
 
-Now this is running you should checkout the `autolens_workspace/output` folder. This is where the results of the 
-search are written to hard-disk (in the `start_here` folder), where all outputs are human readable (e.g. as .json,
-.csv or text files).
+Now this is running you should checkout the `output` folder. This is where the results of the
+search are written to hard-disk (in the `tutorial_2_practicalities` folder), where all outputs are human readable
+(e.g. as .json, .csv or text files).
 
 As the fit progresses, results are written to the `output` folder on the fly using the highest likelihood model found
 by the non-linear search so far. This means you can inspect the results of the model-fit as it runs, without having to
@@ -378,7 +385,7 @@ __Other Practicalities__
 The following are examples of other practicalities which I will document fully in this example script in the future,
 but so far have no found the time:
 
-- `config`: The files in `autogalaxy_workspace/config` which control many aspects of how PyAutoGalaxy runs,
+- `config`: The files in the `config` folder which control many aspects of how **PyAutoLens** runs,
  including visualization, the non-linear search settings.
 
 - `config/priors`: Folder containing the default priors on all model components.

@@ -385,7 +385,8 @@ Ray-tracing each critical curve through the lens equation maps it to the source-
 
 Caustics divide the source-plane into regions of different image multiplicity: each time a source crosses a
 caustic, the number of images it produces changes by two. For our SIE lens, a source inside the tangential caustic
-produces four images (plus a faint central image); outside it, two.
+produces four images (plus a faint central image); between the tangential and radial caustics, two; and outside
+both caustics, just one — the source is no longer multiply imaged at all.
 
 `LensCalc` computes both by locating the zero-contours of the eigenvalue fields on the grid:
 """
