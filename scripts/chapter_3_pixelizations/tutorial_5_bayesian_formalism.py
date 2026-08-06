@@ -43,7 +43,8 @@ __Contents__
 - **Regularization Term:** The penalty $s^{T} H s$ applied by the smoothness prior.
 - **Complexity Terms:** The log determinant terms which penalize complex source reconstructions.
 - **Noise Normalization Term:** The Gaussian noise normalization.
-- **Log Evidence:** Combine all five terms and compare to `FitImaging`.
+- **Log Evidence:** Combine all five terms into the log evidence.
+- **Fit:** Compare our by-hand log evidence to the `FitImaging` object's internal calculation.
 - **Wrap Up:** Summary and next steps.
 
 """
@@ -423,15 +424,15 @@ Regularization adds a linear regularization term $G_{L}$ to the merit function w
 where $\lambda$ is the `regularization_coefficient` controlling the degree of smoothing. The `Constant` scheme uses
 gradient regularization (equation 14 of WD03):
 
- $G_{L} = \sum_{i}^{I} \sum_{n=1}^{N} [s_{i} - s_{i, v}]^2$
+ $G_{L} = \sum_{i}^{I} \sum_{n=1}^{N} [s_{i} - s_{i, n}]^2$
 
-In words: for every source pixel, compare its flux with each of its neighbours $v$, and penalize solutions where
+In words: for every source pixel, compare its flux with each of its $N$ neighbours $n$, and penalize solutions where
 the differences are large. This is precisely the "smoothness prior" of tutorial 4, now written as an equation.
 
 To fold this into the linear algebra we define the regularization matrix $H$, with
 dimensions `(total_source_pixels, total_source_pixels)` (equation 13 of WD03):
 
- $H_{ik} = \frac{1}{2} \frac{\partial G_{L}}{\partial s_{i} \partial s_{k}}$
+ $H_{ik} = \frac{1}{2} \frac{\partial^{2} G_{L}}{\partial s_{i} \partial s_{k}}$
 
 $H$ has the coefficient $\lambda$ folded into it. Its non-zero off-diagonal entries mark pairs of source pixels
 which are neighbours and therefore regularized with one another; most entries are zero because most source pixels

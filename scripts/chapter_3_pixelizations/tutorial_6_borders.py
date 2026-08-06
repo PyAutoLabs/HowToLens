@@ -213,7 +213,7 @@ demagnified pixels just like the other pixels in the image-pixel. There are two 
  2) The inversion reconstructs the flux of the demagnified image pixels using source-pixels which contain *only*
  demagnified image pixels (these are the source pixels at the edge of the source plane). These source-pixels *should*
  have had other image-pixels traced within them via image-pixels at even larger radii from the centre of the lens
- galaxy. However, these image-pixels are at radii above 3.0", meaning the circular mask removed them from the inversion.
+ galaxy. However, these image-pixels are at radii above 2.5", meaning the circular mask removed them from the inversion.
 
 Lets quickly use a large circular mask to confirm that these pixels exist when we don't mask them.
 """
@@ -226,7 +226,7 @@ mask_circular_large = al.Mask2D.circular(
 fit = perform_fit_with_source_galaxy_mask_and_border(
     dataset=dataset_unmasked,
     source_galaxy=source_galaxy,
-    mask=mask_circular,
+    mask=mask_circular_large,
     settings=al.Settings(use_border_relocator=False),
 )
 
@@ -270,7 +270,7 @@ To end, lets illustrate how important borders are when modeling multiple lens ga
 and lensing configurations produce nasty edge effects where image pixels not just in the centre of mask, but anywhere 
 in the mask, trace beyond the source-plane border.
 
-we'll use new strong lensing data as the previous tutorial, where:
+we'll use new strong lensing data, where:
 
  - The lens galaxy's light is omitted.
  - There are two lens galaxies whose `MassProfile`'s are `Isothermal`.
@@ -298,11 +298,11 @@ dataset = al.Imaging.from_fits(
     data_path=dataset_path / "data.fits",
     noise_map_path=dataset_path / "noise_map.fits",
     psf_path=dataset_path / "psf.fits",
-    pixel_scales=0.05,
+    pixel_scales=0.1,
 )
 
 """
-We again must define a mask around this image, lets start with a 2.8" mask. we'll use larger masks to illustrate the
+We again must define a mask around this image, lets start with a 2.8" mask. we'll vary the mask size to illustrate the
 effects of the border in a moment.
 """
 dataset_unmasked_x2 = dataset
@@ -340,7 +340,7 @@ def perform_fit_x2_lenses_with_source_galaxy_mask_and_border(
             sersic_index=2.5,
         ),
         mass=al.mp.Isothermal(
-            centre=(1.1, 0.51), ell_comps=(0.0, 0.15), einstein_radius=1.07
+            centre=(0.0, -1.0), ell_comps=(0.17647, 0.0), einstein_radius=1.0
         ),
     )
 
@@ -354,7 +354,7 @@ def perform_fit_x2_lenses_with_source_galaxy_mask_and_border(
             sersic_index=3.0,
         ),
         mass=al.mp.Isothermal(
-            centre=(-0.20, -0.35), ell_comps=(0.06, 0.1053), einstein_radius=0.71
+            centre=(0.0, 1.0), ell_comps=(0.0, -0.111111), einstein_radius=0.8
         ),
     )
 

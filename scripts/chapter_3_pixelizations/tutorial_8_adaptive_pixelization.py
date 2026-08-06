@@ -130,10 +130,10 @@ mapper = fit.inversion.cls_list_from(al.Mapper)[0]
 aplt.subplot_fit_imaging_of_planes(fit=fit)
 
 """
-There is one clear problem, we are using only a small number of the total source pixels to reconstruct the source. The 
-majority of source pixels are located away from the source. By my estimate, we are using just 16 pixels (the central 
-4x4 grid) out of the 1600 pixels to actually fit the data! The remaining ~1500 pixels are doing nothing but fitting 
-noise. 
+There is one clear problem, we are using only a small number of the total source pixels to reconstruct the source. The
+majority of source pixels are located away from the source. By my estimate, we are using just 16 pixels (the central
+4x4 grid) out of the 784 pixels to actually fit the data! The remaining ~750 pixels are doing nothing but fitting
+noise.
 
 This means that regularization is sub-optimal. In tutorial 4, we discussed how the Bayesian evidence of the 
 regularization favours the simplest source solution. That is, the solution which fits the data using the fewest source 
@@ -201,7 +201,7 @@ aplt.subplot_fit_imaging(fit=fit)
 """
 A closer inspection of the pixelization shows the improvement. 
 
-We are using fewer pixels than the rectangular grid (400, instead of 1600) and reconstructing the source in far
+We are using fewer pixels than the rectangular grid (400, instead of 784) and reconstructing the source in far
 greater detail!
 """
 aplt.subplot_fit_imaging_of_planes(fit=fit)

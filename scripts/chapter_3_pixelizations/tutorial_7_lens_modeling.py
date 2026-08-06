@@ -232,8 +232,6 @@ mask = al.Mask2D.circular(
 
 aplt.subplot_imaging_dataset(dataset=dataset)
 
-aplt.subplot_fit_imaging_of_planes(fit=fit)
-
 """
 When fitting such an image we now want to include the lens's light in the analysis. Lets update our mask to be 
 circular so that it includes the central regions of the image and lens galaxy.

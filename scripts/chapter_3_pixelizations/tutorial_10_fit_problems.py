@@ -158,8 +158,8 @@ dataset_source_super_compact = simulate_for_source_galaxy(
 """
 __Fitting__
 
-we'll make one more convenience function which fits the simulated imaging data with an `Overlay` image-mesh, 
-`RectangularAdaptDensity` mesh  and `Constant` regularization scheme pixelization.
+we'll make one more convenience function which fits the simulated imaging data with a
+`RectangularAdaptDensity` mesh and `Constant` regularization scheme pixelization.
 
 We'll input the `coefficient` of each fit, so that for each simulated source we regularize it at an appropriate level. 
 There is nothing new in this function you haven't seen before.
@@ -257,8 +257,8 @@ pixelization. Both the mesh and regularization are to blame!
 
 *Image-Mesh / Mesh*:
 
-The problem is the same one we discussed when we compared magnification-based and brightness-based adaption
-in tutorial 8.
+The problem is the same one we discussed in tutorial 8, when we motivated pixelizations which adapt to where the
+data constrains the source.
 
 We are simply not dedicating enough source-pixels to the central regions of the source reconstruction,
 e.g. where it's brightest. As the source becomes more compact, the source reconstruction no longer has enough

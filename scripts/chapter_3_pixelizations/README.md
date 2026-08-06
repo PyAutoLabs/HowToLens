@@ -18,7 +18,7 @@ In chapter 3, we use **Pixelizations** to reconstruct complex source galaxies on
 
 - [Tutorial 7: Lens Modeling](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.8.4.1/notebooks/chapter_3_pixelizations/tutorial_7_lens_modeling.ipynb) — How to use inversions to fit a lens model.
 
-- [Tutorial 8: Adaptive Pixelization](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.8.4.1/notebooks/chapter_3_pixelizations/tutorial_8_adaptive_pixelization.ipynb) — A Voronoi mesh which adapts to the mass model's magnification.
+- [Tutorial 8: Adaptive Pixelization](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.8.4.1/notebooks/chapter_3_pixelizations/tutorial_8_adaptive_pixelization.ipynb) — A Delaunay mesh which adapts to the mass model's magnification.
 
 - [Tutorial 9: Model Fit](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.8.4.1/notebooks/chapter_3_pixelizations/tutorial_9_model_fit.ipynb) — An example lens modeling pipeline which uses an inversion.
 
