@@ -33,7 +33,7 @@ __Contents__
 
 from autolens import jax_wrapper  # Sets JAX environment before other imports
 
-# from autolens import setup_notebook; setup_notebook()
+from autolens import setup_notebook; setup_notebook()
 
 from pathlib import Path
 import autolens as al
@@ -52,6 +52,7 @@ import autolens.plot as aplt
     
     You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
       warnings.warn(_missing_version_warning(root, library_version))
+    Working Directory has been set to `HowToLens`
     .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
     
     If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
@@ -126,7 +127,7 @@ print(tracer.planes[1][0].disk)
 print()
 ```
 
-    <autolens.lens.tracer.Tracer object at 0x7f7d381977d0>
+    <autolens.lens.tracer.Tracer object at 0x7f8257a76840>
     
     [Redshift: 0.5
     Mass Profiles:

@@ -5,7 +5,7 @@
 Tutorial 7: Fitting
 ===================
 
-In previous tutorials, we used light profiles to create simulated images of tracer and visualized how these images
+In previous tutorials, we used light profiles to create simulated images of a tracer and visualized how these images
 would appear when captured by a CCD detector on a telescope like the Hubble Space Telescope.
 
 However, this simulation process is the reverse of what astronomers typically do when analyzing real data. Usually,
@@ -36,7 +36,9 @@ Here is an overview of what we'll cover in this tutorial:
 
 __Contents__
 
-- **Dataset & Mask:** Standard set up of the dataset and mask that is fitted.
+- **Dataset:** Load the imaging dataset that we previously simulated, consisting of the image, noise map, and PSF.
+- **Dataset Auto-Simulation:** Create the dataset by running the tutorial 6 script if it is not on your hard-disk.
+- **Mask:** Apply a mask to the data, excluding regions with low signal-to-noise ratios from the analysis.
 - **Masked Grid:** In tutorials 1 and 2, we emphasized that the `Grid2D` object is crucial for evaluating a lens's.
 - **Fitting:** Fit the lens model to the dataset and inspect the results.
 - **Incorrect Fit:** In the previous section, we successfully created and fitted a lens model to the image data.
@@ -46,6 +48,8 @@ __Contents__
 
 ```python
 
+from autolens import jax_wrapper  # Sets JAX environment before other imports
+
 from autolens import setup_notebook; setup_notebook()
 
 import numpy as np
@@ -54,7 +58,25 @@ import autolens as al
 import autolens.plot as aplt
 ```
 
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
     Working Directory has been set to `HowToLens`
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
 
 
 __Dataset__
@@ -62,11 +84,11 @@ __Dataset__
 We begin by loading the imaging dataset that we will use for fitting in this tutorial. This dataset is identical to the 
 one we simulated in the previous tutorial, representing how a lens would appear if captured by a CCD camera.
 
-In the previous tutorial, we saved this dataset as .fits files in the `autolens_workspace/dataset/imaging/howtolens` 
-folder. The `.fits` format is commonly used in astronomy for storing image data along with metadata, making it a
-standard for CCD imaging.
+In the previous tutorial, we saved this dataset as .fits files in the `dataset/imaging/howtolens` folder of the
+HowToLens repository. The `.fits` format is commonly used in astronomy for storing image data along with metadata,
+making it a standard for CCD imaging.
 
-The `dataset_path` below specifies where these files are located: `autolens_workspace/dataset/imaging/howtolens/`.
+The `dataset_path` below specifies where these files are located: `dataset/imaging/howtolens/`.
 
 
 ```python
@@ -75,17 +97,18 @@ dataset_path = Path("dataset") / "imaging" / "howtolens"
 
 __Dataset Auto-Simulation__
 
-If the dataset does not already exist on your system, it will be created by running the corresponding
-simulator script. This ensures that all example scripts can be run without manually simulating data first.
+The `howtolens` dataset is the one built up and saved in tutorial 6 (`tutorial_6_data.py`). If it does
+not already exist on your system, it is created by running that script. This ensures every example
+script can be run without manually simulating data first.
 
 
 ```python
-if not dataset_path.exists():
+if al.util.dataset.should_simulate(str(dataset_path)):
     import subprocess
     import sys
 
     subprocess.run(
-        [sys.executable, "scripts/simulator/no_lens_light__mass_sis.py"],
+        [sys.executable, "scripts/chapter_1_introduction/tutorial_6_data.py"],
         check=True,
     )
 
@@ -123,11 +146,11 @@ aplt.subplot_imaging_dataset(dataset=dataset)
 ```
 
     Value of first pixel in imaging data:
-    0.01999999999999999
+    0.053333333333333316
     Value of first pixel in noise map:
-    0.02
+    0.02260776661041756
     Value of first pixel in PSF:
-    0.0
+    2.210334945638401e-12
 
 
 
@@ -138,7 +161,7 @@ aplt.subplot_imaging_dataset(dataset=dataset)
 
 __Mask__
 
-The signal-to-noise map of the image highlights areas where the signal (light from the lens and source tracer) 
+The signal-to-noise map of the image highlights areas where the signal (light from the lens and source galaxies)
 is detected above the  background noise. Values above 3.0 indicate regions where the light is detected with a 
 signal-to-noise ratio of at least 3, while values below 3.0 are dominated by noise, where the light is not 
 clearly distinguishable.
@@ -166,37 +189,18 @@ print(mask)  # 1 = True, meaning the pixel is masked. Edge pixels are indeed mas
 print(mask[48:53, 48:53])  # Central pixels are `False` and therefore unmasked.
 ```
 
-    Mask2D([[False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False]])
-    []
+    Mask2D([[ True,  True,  True, ...,  True,  True,  True],
+           [ True,  True,  True, ...,  True,  True,  True],
+           [ True,  True,  True, ...,  True,  True,  True],
+           ...,
+           [ True,  True,  True, ...,  True,  True,  True],
+           [ True,  True,  True, ...,  True,  True,  True],
+           [ True,  True,  True, ...,  True,  True,  True]], shape=(101, 101))
+    [[False False False False False]
+     [False False False False False]
+     [False False False False False]
+     [False False False False False]
+     [False False False False False]]
 
 
 We can visualize the mask over the strong lens image using an `aplt.subplot_imaging_dataset`, which helps us adjust the mask as needed. 
@@ -226,7 +230,7 @@ that only the unmasked regions are considered during the analysis.
 dataset = dataset.apply_mask(mask=mask)
 ```
 
-    2026-07-11 16:29:25,502 - autoarray.dataset.imaging.dataset - INFO - IMAGING - Data masked, contains a total of 225 image-pixels
+    2026-08-06 13:37:34,866 - autoarray.dataset.imaging.dataset - INFO - IMAGING - Data masked, contains a total of 2809 image-pixels
 
 
 When we plot the masked imaging data again, the mask is now automatically included in the plot, even though we did 
@@ -255,36 +259,13 @@ print(dataset.mask)
 ```
 
     Mask2D:
-    Mask2D([[False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False],
-           [False, False, False, False, False, False, False, False, False,
-            False, False, False, False, False, False]])
+    Mask2D([[ True,  True,  True, ...,  True,  True,  True],
+           [ True,  True,  True, ...,  True,  True,  True],
+           [ True,  True,  True, ...,  True,  True,  True],
+           ...,
+           [ True,  True,  True, ...,  True,  True,  True],
+           [ True,  True,  True, ...,  True,  True,  True],
+           [ True,  True,  True, ...,  True,  True,  True]], shape=(101, 101))
 
 
 In earlier tutorials, we discussed how grids and arrays have `native` and `slim` representations:
@@ -312,8 +293,8 @@ print(
 ```
 
     Number of unmasked pixels:
-    (15, 15)
-    (225,)
+    (101, 101)
+    (2809,)
 
 
 The `mask` object also has a `pixels_in_mask` attribute, which gives the number of unmasked pixels. This should 
@@ -324,7 +305,7 @@ match the size of the `slim` data structure.
 print(dataset.data.mask.pixels_in_mask)
 ```
 
-    225
+    2809
 
 
 We can use the `slim` attribute to print the first unmasked values from the image and noise map:
@@ -338,9 +319,9 @@ print(dataset.noise_map.slim[0])
 ```
 
     First unmasked image value:
-    0.01999999999999999
+    0.4633333333333334
     First unmasked noise map value:
-    0.02
+    0.043333333333333335
 
 
 Additionally, we can verify that the `native` data structure has zeros at the edges where the mask is applied and 
@@ -356,9 +337,9 @@ print(dataset.data.native[centre])
 ```
 
     Example masked pixel in the image's native representation at its edge:
-    0.01999999999999999
+    0.0
     Example unmasked pixel in the image's native representation at its center:
-    0.6233333333333334
+    0.52
 
 
 __Masked Grid__
@@ -497,14 +478,12 @@ aplt.plot_array(array=fit.model_data, title="Model Image")
 ```
 
     First model image pixel:
-
-
-    1.8009715550322956
+    0.4831484402089213
 
 
 
     
-![png](tutorial_7_fitting_files/tutorial_7_fitting_37_2.png)
+![png](tutorial_7_fitting_files/tutorial_7_fitting_37_1.png)
     
 
 
@@ -555,9 +534,9 @@ aplt.plot_array(array=fit.residual_map, title="Residual Map")
 ```
 
     First residual-map pixel:
-    -1.7809715550322955
+    -0.019815106875587907
     First residual-map pixel via fit:
-    -1.7809715550322955
+    -0.019815106875587907
 
 
 
@@ -593,9 +572,9 @@ aplt.plot_array(array=fit.normalized_residual_map, title="Normalized Residual Ma
 ```
 
     First normalized residual-map pixel:
-    -89.04857775161477
+    -0.45727169712895166
     First normalized residual-map pixel via fit:
-    -89.04857775161477
+    -0.45727169712895166
 
 
 
@@ -630,9 +609,9 @@ aplt.plot_array(array=fit.chi_squared_map, title="Chi Squared Map")
 ```
 
     First chi-squared pixel:
-    7929.649199585381
+    0.2090974049951917
     First chi-squared pixel via fit:
-    7929.649199585381
+    0.2090974049951917
 
 
 
@@ -662,8 +641,8 @@ print("Chi-squared = ", chi_squared)
 print("Chi-squared via fit = ", fit.chi_squared)
 ```
 
-    Chi-squared =  645295.8813889123
-    Chi-squared via fit =  645295.8813889123
+    Chi-squared =  2870.509352378347
+    Chi-squared via fit =  2870.509352378347
 
 
 The reduced chi-squared is the `chi_squared` value divided by the number of data points (e.g., the number of pixels
@@ -682,12 +661,12 @@ reduced_chi_squared = chi_squared / dataset.mask.pixels_in_mask
 print("Reduced Chi-squared = ", reduced_chi_squared)
 ```
 
-    Reduced Chi-squared =  2867.9816950618324
+    Reduced Chi-squared =  1.0218972418577241
 
 
 Another quantity that contributes to our final assessment of the goodness-of-fit is the `noise_normalization`.
 
-The `noise_normalization` is computed as the logarithm of the sum of squared noise values in our data: 
+The `noise_normalization` is computed by summing, over every pixel, the logarithm of 2 pi times the squared noise value:
 
 \[
 \text{{noise\_normalization}} = \sum \log(2 \pi \text{{noise\_map}}^2)
@@ -707,8 +686,8 @@ print("Noise Normalization = ", noise_normalization)
 print("Noise Normalization via fit = ", fit.noise_normalization)
 ```
 
-    Noise Normalization =  -1023.7670414997456
-    Noise Normalization via fit =  -1023.7670414997456
+    Noise Normalization =  -8670.33617182735
+    Noise Normalization via fit =  -8670.33617182735
 
 
 From the `chi_squared` and `noise_normalization`, we can define a final goodness-of-fit measure known as 
@@ -729,8 +708,8 @@ print("Log Likelihood = ", log_likelihood)
 print("Log Likelihood via fit = ", fit.log_likelihood)
 ```
 
-    Log Likelihood =  -322136.0571737063
-    Log Likelihood via fit =  -322136.0571737063
+    Log Likelihood =  2899.9134097245014
+    Log Likelihood via fit =  2899.9134097245014
 
 
 In the previous discussion, we noted that a lower \(\chi^2\) value indicates a better fit of the model to the 
@@ -781,7 +760,7 @@ and 'log_likelihood' before.
 These metrics are standard ways to quantify the quality of a model fit. They are applicable not only to 1D data but 
 also to more complex data structures like 2D images, 3D data cubes, or any other multidimensional datasets.
 
-__Incorrect Fit___
+__Incorrect Fit__
 
 In the previous section, we successfully created and fitted a lens model to the image data, resulting in an 
 excellent fit. The residual map and chi-squared map showed no significant discrepancies, indicating that the 
@@ -853,9 +832,9 @@ print(fit_bad.log_likelihood)
 ```
 
     Previous Likelihood:
-    -322136.0571737063
+    2899.9134097245014
     New Likelihood:
-    -401645.6055797826
+    -64618.8911885303
 
 
 As expected, we observe that the log likelihood has decreased! This decline confirms that our new model is indeed a 
@@ -898,7 +877,7 @@ aplt.subplot_fit_imaging(fit=fit_very_bad)
     
 
 
-It is now evident that this model provides a terrible fit to the data. The tracer do not resemble a plausible 
+It is now evident that this model provides a terrible fit to the data. The tracer does not resemble a plausible
 representation of our simulated strong lens dataset, which we already anticipated given that we generated the data ourselves!
 
 As expected, the log likelihood has dropped dramatically with this poorly fitting model.
@@ -913,10 +892,10 @@ print(fit_very_bad.log_likelihood)
 ```
 
     Previous Likelihoods:
-    -322136.0571737063
-    -401645.6055797826
+    2899.9134097245014
+    -64618.8911885303
     New Likelihood:
-    -2703441.378104259
+    -1599395.1803587012
 
 
 __Model Fitting__
@@ -927,8 +906,8 @@ quality, reducing the log likelihood.
 
 In practice, however, we don't know the "true" model. For example, we might have an image of a strong lens observed with 
 the Hubble Space Telescope, but the values for parameters like its `einstein_radius` and others are 
-unknown. The process of determining the best-fit model is called model fitting, and it is the main topic of 
-Chapter 2 of *HowToGalaxy*.
+unknown. The process of determining the best-fit model is called model fitting, and it is the main topic of
+Chapter 2 of **HowToLens**.
 
 To conclude this section, let's perform a basic, hands-on model fit to develop some intuition about how we can find 
 the best-fit model. We'll start by loading a simple dataset that was simulated without any lens light, using 
@@ -939,6 +918,15 @@ profiles are unknown.
 ```python
 dataset_name = "simple__no_lens_light__mass_sis"
 dataset_path = Path("dataset") / "imaging" / dataset_name
+
+if al.util.dataset.should_simulate(str(dataset_path)):
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, "scripts/simulator/no_lens_light__mass_sis.py"],
+        check=True,
+    )
 
 dataset = al.Imaging.from_fits(
     data_path=dataset_path / "data.fits",
@@ -958,7 +946,13 @@ dataset = dataset.apply_mask(mask=mask)
 aplt.subplot_imaging_dataset(dataset=dataset)
 ```
 
-    2026-07-11 16:29:33,067 - autoarray.dataset.imaging.dataset - INFO - IMAGING - Data masked, contains a total of 225 image-pixels
+    Figure(700x700)
+    .../PyAutoArray/autoarray/operators/convolver.py:1424: UserWarning: No blurring_image provided. Only the direct image will be convolved. This may change the correctness of the PSF convolution.
+      warnings.warn(
+    Figure(1800x1800)
+    Figure(1800x1800)
+    Figure(700x700)
+    2026-08-06 13:38:03,369 - autoarray.dataset.imaging.dataset - INFO - IMAGING - Data masked, contains a total of 2828 image-pixels
 
 
 
@@ -1021,7 +1015,7 @@ print(fit.log_likelihood)
 
 
     Log Likelihood:
-    -91864.03686663607
+    -468816.25824381993
 
 
 Manually guessing model parameters repeatedly is a very inefficient and slow way to find the best fit. If the model 
@@ -1058,8 +1052,3 @@ Let's summarise what we have covered:
   
 - **Model Fitting**: We performed a basic model fit on a simple dataset, adjusting the model parameters to improve the
   fit quality.  
-
-
-```python
-
-```
