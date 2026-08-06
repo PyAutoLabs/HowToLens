@@ -1,4 +1,4 @@
-So, we've learnt how to build pipelines that model strong lenses and customize them to our science case.
+So, we've learnt how to model strong lenses and build pipelines that customize the process to our science case.
 
 However, we ran into a pretty huge barrier when trying to fit complex sources. It required an unwieldy number
 of non-linear parameters, and even when we included them, the results were rubbish. The non-linear parameter space
