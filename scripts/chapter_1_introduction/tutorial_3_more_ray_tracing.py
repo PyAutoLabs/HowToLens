@@ -1,5 +1,5 @@
 """
-Tutorial 5: More Ray Tracing
+Tutorial 3: More Ray Tracing
 ============================
 
 We'll now reinforce the ideas that we learnt about ray-tracing in the previous tutorial and introduce the following
@@ -27,7 +27,7 @@ __Contents__
 
 - **Initial Setup:** To begin, lets setup the grid we'll ray-trace using.
 - **Concise Code:** Lets set up the tracer used in the previous tutorial.
-- **Critical Curves:** To end, we can finally explain what the black lines that have appeared on many of the plots.
+- **Critical Curves:** We can finally explain what the black lines that have appeared on many of the plots.
 - **Caustics:** In the previous tutorial, we plotted the critical curves of the mass profile on the image-plane.
 - **Units:** Lets plot the lensing quantities again.
 - **More Complexity:** We now make a lens with some attributes we didn`t in the last tutorial.
@@ -89,8 +89,8 @@ tracer = al.Tracer(galaxies=[lens, source])
 """
 __Critical Curves__
 
-To end, we can finally explain what the black lines that have appeared on many of the plots throughout this chapter 
-actually are. 
+We can finally explain what the black lines that have appeared on many of the plots throughout this chapter
+actually are.
 
 These lines are called the 'critical curves', and they define line of infinite magnification due to a mass profile. 
 They therefore mark where in the image-plane a mass profile perfectly `focuses` light rays such that if a source is 
@@ -104,7 +104,7 @@ However, a radial critical curve only appears when the lens galaxy's mass profil
 when its inner mass slope is less steep than a steep power-law). To make it appear below, we therefore change
 the mass profile of our lens galaxy to a `PowerLawSph` with a slope of 1.8.
 
-In the next tutorial, we'll introduce 'caustics', which are where the critical curves map too in the source-plane.
+In the next section, we'll introduce 'caustics', which are where the critical curves map to in the source-plane.
 """
 mass_profile = al.mp.PowerLawSph(centre=(0.0, 0.0), einstein_radius=1.6, slope=1.8)
 
@@ -121,12 +121,12 @@ radial_critical_curves_list = al.LensCalc.from_mass_obj(
 """
 __Caustics__
 
-In the previous tutorial, we plotted the critical curves of the mass profile on the image-plane. We will now plot the
+In the previous section, we plotted the critical curves of the mass profile on the image-plane. We will now plot the
 'caustics', which correspond to each critical curve ray-traced to the source-plane. This is computed by using the 
 lens galaxy mass profile's to calculate the deflection angles at the critical curves and ray-trace them to the 
 source-plane.
 
-As discussed in the previous tutorial, critical curves mark regions of infinite magnification. Thus, if a source
+As discussed in the previous section, critical curves mark regions of infinite magnification. Thus, if a source
 appears near a caustic in the source plane it will appear significantly brighter than its true luminosity. 
 
 We again have to use a mass profile with a slope below 2.0 to ensure a radial critical curve and therefore radial
@@ -172,9 +172,9 @@ We can also plot the caustic on the source-plane image.
 aplt.plot_array(array=tracer.image_2d_list_from(grid=grid)[1], title="Plane 1 Image")
 
 """
-Caustics also mark the regions in the source-plane where the multiplicity of the strong lens changes. That is,
-if a source crosses a caustic, it goes from 2 images to 1 image. Try and show this yourself by changing the (y,x) 
-centre of the source-plane galaxy's light profile!
+Caustics also mark the regions in the source-plane where the multiplicity of the strong lens changes. Each time
+a source crosses a caustic, the number of images it produces changes by two. Try and show this yourself by changing
+the (y,x) centre of the source-plane galaxy's light profile!
 """
 source = al.Galaxy(
     redshift=1.0,
@@ -203,7 +203,7 @@ aplt.subplot_tracer(tracer=tracer, grid=grid)
 aplt.subplot_galaxies_images(tracer=tracer, grid=grid)
 
 """
-If you're too familiar with Cosmology, it will be unclear how exactly we converted the distance units from 
+If you're not too familiar with Cosmology, it will be unclear how exactly we converted the distance units from
 arcseconds to kiloparsecs. You'll need to read up on your Cosmology lecture to understand this properly.
 
 You can create a `Cosmology` object, which provides many methods for calculation different cosmological quantities, 
@@ -325,9 +325,9 @@ __Multi Galaxy Ray Tracing__
 
 Now lets pass our 4 galaxies to a `Tracer`, which means the following will occur:
 
- - Using the galaxy redshift`s, and image-plane and source-plane will be created each with two galaxies galaxies.
+ - Using the galaxy redshifts, an image-plane and source-plane will be created, each with two galaxies.
 
-We've also pass the tracer below a Planck15 cosmology, where the cosomology of the Universe describes exactly how 
+We also pass the tracer below a Planck15 cosmology, where the cosmology of the Universe describes exactly how
 ray-tracing is performed.
 """
 tracer = al.Tracer(
@@ -350,7 +350,7 @@ We can now plot the tracer`s image, which now there are two galaxies in each pla
  5) The image of the source galaxies is computed by summing both of their images and ray-tracing their light back to 
  the image-plane.
  
-This process is pretty much the same as we have single in previous tutorials when there is one galaxy per plane. We
+This process is pretty much the same as we have seen in previous tutorials when there is one galaxy per plane. We
 are simply summing the images and deflection angles of the galaxies before using them to perform ray-tracing.
 """
 aplt.plot_array(array=tracer.image_2d_from(grid=grid), title="Image")
@@ -369,7 +369,7 @@ aplt.plot_grid(grid=tracer.traced_grid_2d_list_from(grid=grid)[1], title="Plane 
 """
 __Wrap Up__
 
-Tutorial 6 completed! Try the following:
+Tutorial 3 completed! Try the following:
 
  1) If you change the lens and source galaxy redshifts, does the tracer's image change?
 

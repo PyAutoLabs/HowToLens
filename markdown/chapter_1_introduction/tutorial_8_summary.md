@@ -2,7 +2,7 @@
 > It shows the example fully executed, with its real output images.
 > Run it yourself via the [Python script](../../scripts/chapter_1_introduction/tutorial_8_summary.py) or the [Jupyter notebook](../../notebooks/chapter_1_introduction/tutorial_8_summary.ipynb).
 
-Tutorial 9: Summary
+Tutorial 8: Summary
 ===================
 
 In this chapter, we have learnt that:
@@ -40,7 +40,25 @@ import autolens as al
 import autolens.plot as aplt
 ```
 
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
     Working Directory has been set to `HowToLens`
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
 
 
 __Start__
@@ -109,7 +127,7 @@ print(tracer.planes[1][0].disk)
 print()
 ```
 
-    <autolens.lens.tracer.Tracer object at 0x7f8385b568d0>
+    <autolens.lens.tracer.Tracer object at 0x7f8257a76840>
     
     [Redshift: 0.5
     Mass Profiles:
@@ -277,8 +295,3 @@ repository:
  https://github.com/PyAutoLabs/PyAutoLens
 
 Even the smallest bit of exposure via a GitHub star can help our project grow!
-
-
-```python
-
-```

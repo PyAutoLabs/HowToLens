@@ -25,8 +25,10 @@ an important concept to keep in mind for the remainder of this chapter!
 __Contents__
 
 - **Initial Setup:** we'll use new strong lensing data, where.
+- **Dataset Auto-Simulation:** Simulate the dataset via its simulator script if it is not on your hard-disk.
 - **Mask:** Define the 2D mask applied to the dataset for the model-fit.
 - **Model:** Compose the lens model fitted to the data.
+- **Search + Analysis:** Create the non-linear search and analysis used to fit the model.
 - **Run Time:** Profiling the expected run time of the model-fit.
 - **Result:** Overview of the results of the model-fit.
 - **Global and Local Maxima:** Up to now, all our non-linear searches have successfully found lens models that provide visibly.
@@ -125,7 +127,7 @@ model = af.Collection(
 __Search + Analysis__
 
 We set up `Nautilus` as we did in the previous tutorial, however given the increase in model complexity we'll use
-a higher `n_live` value of 150 to ensure we sample the complex parameter space efficiently.
+a higher `n_live` value of 200 to ensure we sample the complex parameter space efficiently.
 """
 search = af.Nautilus(
     path_prefix=Path("howtolens") / "chapter_2",
@@ -133,7 +135,7 @@ search = af.Nautilus(
     unique_tag=dataset_name,
     n_live=200,
     n_batch=50,  # GPU batching and VRAM use explained in chapter 2 tutorial 2.
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 analysis = al.AnalysisImaging(dataset=dataset)
@@ -198,7 +200,7 @@ search = af.Nautilus(
     unique_tag=dataset_name,
     n_live=75,
     n_batch=50,  # GPU batching and VRAM use explained in chapter 2 tutorial 2.
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 print(
@@ -251,13 +253,13 @@ sampling parameter space thoroughly. For modeling real lenses we wouldn't do thi
 inferring a local maxima is still very real, especially as we make our lens model more complex.
 
 Lets think about *complexity*. As we make our lens model more realistic, we also made it more complex. For this 
-tutorial, our non-linear parameter space went from 7 dimensions to 18. This means there was a much larger *volume* of 
+tutorial, our non-linear parameter space went from 6 dimensions to 20. This means there was a much larger *volume* of
 parameter space to search. As this volume grows, there becomes a higher chance that our non-linear search gets lost 
 and infers a local maxima, especially if we don't set it up with enough live points!
 
 At its core, lens modeling is all about learning how to get a non-linear search to find the global maxima region of 
-parameter space, even when the lens model is complex. This will be the main theme throughout the rest of this chapter
-and is the main subject of chapter 3.
+parameter space, even when the lens model is complex. This will be the main theme throughout the rest of this chapter,
+culminating in the search chaining technique introduced in tutorials 9 and 10.
 
 In the next exercise, we'll learn how to deal with failure and begin thinking about how we can ensure our non-linear 
 search finds the global-maximum log likelihood solution. First, think about the following:
@@ -268,7 +270,7 @@ search finds the global-maximum log likelihood solution. First, think about the 
  2) The non-linear search failed because parameter space was too complex. Could we make it less complex, whilst 
  still keeping our lens model fairly realistic?
     
- 3) The source galaxy in this example had only 7 non-linear parameters. Real source galaxies may have multiple 
+ 3) The source galaxy in this example had only 6 non-linear parameters. Real source galaxies may have multiple
  components (e.g. a disk, bulge, bar, star-forming knot) and there may even be more than 1 source galaxy! Do you 
  think there is any hope of us navigating a parameter space if the source contributes 20+ parameters by itself?
 """

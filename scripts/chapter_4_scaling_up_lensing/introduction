@@ -1,0 +1,19 @@
+Every lens we have modeled so far had one lens galaxy and one source. Real strong lenses live in crowded
+fields, and the most scientifically exciting systems are bigger: two or more lens galaxies, galaxy groups,
+entire clusters, and mass distributions that only weak lensing can reach.
+
+In this chapter, we scale lens modeling up, step by step. You'll learn how we:
+
+1) Handle extra galaxies near a lens, by scaling their light out of the fit or modeling them explicitly.
+2) Model systems with two or more co-dominant lens galaxies, and understand the degeneracies this creates.
+3) Use scaling relations to tie galaxy masses to their luminosities, so model complexity stops growing
+   with every galaxy we add.
+4) Model group-scale lenses, introducing truncated dPIE mass profiles and an optional group dark matter halo.
+5) Model cluster-scale lenses, using point-source positions, a CSV interface for member catalogues and
+   multi-plane ray tracing.
+6) Fit weak-lensing shear catalogues, which probe dark matter far beyond the strong lensing region.
+
+Much of this chapter's methodology (extra galaxies, multi-galaxy fields, scaling relations) applies equally
+to non-lensing galaxy studies with **PyAutoGalaxy**.
+
+Sound good? I agree, so lets get on with it.

@@ -10,8 +10,9 @@ clearly in your Jupyter notebook and on your computer screen.
 
 __Contents__
 
-- **Directories:** **PyAutoLens assumes** the working directory is `autolens_workspace` on your hard-disk.
+- **Directories:** **HowToLens** assumes the working directory is the `HowToLens` repository root on your hard-disk.
 - **Dataset:** Load and plot the strong lens dataset.
+- **Dataset Auto-Simulation:** Create the dataset via its simulator script if it is not on your hard-disk.
 - **Subplots:** In addition to plotting individual figures, **PyAutoLens** can plot `subplots` which show multiple.
 - **Plot Customization:** Does the figure display correctly on your computer screen?
 - **Overlays:** Overlays such as critical curves and image positions are added using the `lines=` and `positions=`.
@@ -25,16 +26,39 @@ from autolens import jax_wrapper  # Sets JAX environment before other imports
 from autolens import setup_notebook; setup_notebook()
 ```
 
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
     Working Directory has been set to `HowToLens`
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
 
 
-If the printed working directory does not match the workspace path on your computer, you can manually set it
-as follows (the example below shows the path I would use on my laptop. The code is commented out so you do not
-use this path in this tutorial!
+__Directories__
+
+**HowToLens** assumes the working directory is the `HowToLens` repository root on your hard-disk, so that relative
+paths to `dataset/` and `output/` resolve correctly.
+
+If your working directory does not match this path on your computer, you can manually set it as follows (the
+example below shows the path I would use on my laptop. The code is commented out so you do not use this path in
+this tutorial!
 
 
 ```python
-# workspace_path = "/Users/Jammy/Code/PyAuto/autolens_workspace"
+# workspace_path = "/Users/Jammy/Code/PyAuto/HowToLens"
 # #%cd $workspace_path
 # print(f"Working Directory has been set to `{workspace_path}`")
 ```
@@ -42,10 +66,10 @@ use this path in this tutorial!
 __Dataset__
 
 The `dataset_path` specifies where the dataset is located, which is the
-directory `autolens_workspace/dataset/imaging/simple__no_lens_light`.
+directory `dataset/imaging/simple__no_lens_light` of the HowToLens repository.
 
-There are many example simulated images of strong lenses in this directory that will be used throughout the
-**HowToLens** lectures.
+The simulated images of strong lenses used throughout the **HowToLens** lectures are written to the `dataset`
+directory at runtime by the simulator scripts in `scripts/simulator/`.
 
 
 ```python
@@ -56,6 +80,31 @@ import autolens.plot as aplt
 
 dataset_path = Path("dataset") / "imaging" / "simple__no_lens_light"
 ```
+
+__Dataset Auto-Simulation__
+
+If the dataset does not already exist on your system, it is created by running the corresponding
+simulator script. This ensures every example script can be run without manually simulating data first.
+
+
+```python
+if al.util.dataset.should_simulate(str(dataset_path)):
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, "scripts/simulator/no_lens_light.py"],
+        check=True,
+    )
+```
+
+    Figure(700x700)
+    .../PyAutoArray/autoarray/operators/convolver.py:1424: UserWarning: No blurring_image provided. Only the direct image will be convolved. This may change the correctness of the PSF convolution.
+      warnings.warn(
+    Figure(1800x1800)
+    Figure(1800x1800)
+    Figure(700x700)
+
 
 We now load this dataset from .fits files and create an instance of an `Imaging` object.
 
@@ -78,7 +127,7 @@ aplt.plot_array(array=dataset.data, title="Dataset Image")
 
 
     
-![png](tutorial_0_visualization_files/tutorial_0_visualization_9_0.png)
+![png](tutorial_0_visualization_files/tutorial_0_visualization_11_0.png)
     
 
 
@@ -96,7 +145,7 @@ aplt.subplot_imaging_dataset(dataset=dataset)
 
 
     
-![png](tutorial_0_visualization_files/tutorial_0_visualization_11_0.png)
+![png](tutorial_0_visualization_files/tutorial_0_visualization_13_0.png)
     
 
 
@@ -106,7 +155,7 @@ Does the figure display correctly on your computer screen?
 
 If not, the default matplotlib settings can be customized via the config files in:
 
-  autolens_workspace/config/visualize/
+  config/visualize/
 
 Key config entries:
 
@@ -126,7 +175,7 @@ aplt.plot_array(array=dataset.data, title="Dataset Image (Log10)", use_log10=Tru
 
 
     
-![png](tutorial_0_visualization_files/tutorial_0_visualization_13_0.png)
+![png](tutorial_0_visualization_files/tutorial_0_visualization_15_0.png)
     
 
 
@@ -168,7 +217,7 @@ aplt.plot_array(
 
 
     
-![png](tutorial_0_visualization_files/tutorial_0_visualization_15_0.png)
+![png](tutorial_0_visualization_files/tutorial_0_visualization_17_0.png)
     
 
 
@@ -186,8 +235,3 @@ The key plotting functions you'll use are:
 
 Great! Hopefully, visualization in **PyAutoLens** is displaying nicely for us to get on with the
 **HowToLens** lecture series.
-
-
-```python
-
-```

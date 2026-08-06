@@ -9,7 +9,9 @@ We'll also learn a neat trick to improve the speed and accuracy of a non-linear 
 __Contents__
 
 - **Initial Setup:** we'll use the same strong lensing data as tutorials 1 & 2, where.
+- **Dataset Auto-Simulation:** Simulate the dataset via its simulator script if it is not on your hard-disk.
 - **Mask:** Define the 2D mask applied to the dataset for the model-fit.
+- **Model + Analysis:** Compose the lens model and create the analysis that fits it using the chosen mask.
 - **Run Time:** Profiling the expected run time of the model-fit.
 - **Search:** Configure the non-linear search used to fit the model.
 - **Discussion:** So, we can choose the mask we use in a model-fit.
@@ -33,7 +35,7 @@ __Initial Setup__
 we'll use the same strong lensing data as tutorials 1 & 2, where:
 
  - The lens galaxy's total mass distribution is a `IsothermalSph`.
- - The source galaxy's light is a `ExponentialSph`.
+ - The source galaxy's light is a `ExponentialCoreSph`.
 """
 dataset_name = "simple__no_lens_light__mass_sis"
 dataset_path = Path("dataset") / "imaging" / dataset_name
@@ -126,7 +128,7 @@ search = af.Nautilus(
     unique_tag=dataset_name,
     n_live=80,
     n_batch=50,  # GPU batching and VRAM use explained in chapter 2 tutorial 2.
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 analysis = al.AnalysisImaging(dataset=dataset)
@@ -255,7 +257,7 @@ search = af.Nautilus(
     unique_tag=dataset_name,
     n_live=80,
     n_batch=50,  # GPU batching and VRAM use explained in chapter 2 tutorial 2.
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 print(

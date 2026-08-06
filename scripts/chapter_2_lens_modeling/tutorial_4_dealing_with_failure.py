@@ -21,11 +21,15 @@ global maxima solution is in indeed the global maxima.
 __Contents__
 
 - **Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
+- **Dataset Auto-Simulation:** Simulate the dataset via its simulator script if it is not on your hard-disk.
 - **Mask:** Define the 2D mask applied to the dataset for the model-fit.
 - **Prior Tuning:** First, we will try to assist our non-linear search by tuning our priors.
 - **Run Time:** Profiling the expected run time of the model-fit.
 - **Result:** Overview of the results of the model-fit.
 - **Discussion:** By tuning our priors to the specific lens model we are fitting, we increase the chances of finding.
+- **Approach 2: Reducing Complexity:** Simplify the lens model, for example by assuming light-traces-mass.
+- **Approach 3: Look Harder:** Brute force the global maxima with more thorough non-linear search settings.
+- **Wrap Up:** Summary of the script and next steps.
 
 """
 
@@ -229,7 +233,7 @@ search = af.Nautilus(
     unique_tag=dataset_name,
     n_live=150,
     n_batch=50,  # GPU batching and VRAM use explained in chapter 2 tutorial 2.
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 analysis = al.AnalysisImaging(dataset=dataset)
@@ -336,7 +340,7 @@ search = af.Nautilus(
     unique_tag=dataset_name,
     n_live=200,
     n_batch=50,  # GPU batching and VRAM use explained in chapter 2 tutorial 2.
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 """
@@ -401,11 +405,8 @@ Every non-linear search has settings that control how thoroughly it explores par
 number of live points used by `Nautilus`. The more thoroughly the search examines the space, the more likely it is to 
 find the global maximum lens model. However, this also means the search will take longer!
 
-Below, we configure a more thorough Nautilus search with `n_live=200`. These settings and what they change are 
+Below, we configure a more thorough Nautilus search with `n_live=300`. These settings and what they change are
 discussed in the optional tutorial `chapter_optional/tutorial_searches.ipynb`.
-
-Due to the long run times of this search, the output is commented out below. Feel free to uncomment it to run the 
-script faster.
 """
 lens = af.Model(
     al.Galaxy,
@@ -424,7 +425,7 @@ search = af.Nautilus(
     name="tutorial_4_look_harder",
     unique_tag=dataset_name,
     n_live=300,
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 """
 __Run Time__
@@ -467,8 +468,8 @@ Let's list the advantages and disadvantages of simply adjusting the non-linear s
 weeks, or even months!
 
 In conclusion, we can now fit strong lenses effectively. When the process fails, we know how to make it work.
-In chapter 3 of **HowToLens**, we will introduce a technique called 'non-linear search chaining', which performs a model 
-fit by chaining together multiple searches back-to-back . This allows us to combine the 3 different approaches 
+In tutorials 9 and 10 of this chapter, we will introduce a technique called 'non-linear search chaining', which performs
+a model fit by chaining together multiple searches back-to-back. This allows us to combine the 3 different approaches
 discussed and exploit the advantages of each, whilst not being hindered by their disadvantages.
 
 With search chaining, we can:
@@ -485,6 +486,6 @@ With search chaining, we can:
  
 __Wrap Up__
 
-To wrap up chapter 2, we have a few more tutorials, where we will discuss masking in more detail, the `Result` object
-and how to make **PyAutoLens** run faster.
+Before we get to search chaining, we have a few more tutorials, where we will discuss masking in more detail, the
+`Result` object and how to make **PyAutoLens** run faster.
 """

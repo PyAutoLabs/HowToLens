@@ -137,7 +137,7 @@ search = af.Nautilus(
     unique_tag=dataset_name,
     n_live=400,
     n_batch=50,  # GPU batching and VRAM use explained in chapter 2 tutorial 2.
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 analysis = al.AnalysisImaging(dataset=dataset)
@@ -170,7 +170,7 @@ search = af.Nautilus(
     unique_tag=dataset_name,
     n_live=75,
     n_batch=50,  # GPU batching and VRAM use explained in chapter 2 tutorial 2.
-    iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
+    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
 )
 
 print(
@@ -205,7 +205,7 @@ and do not provide high likelihood fits to the data, but takes many extra iterat
 error estimates (perhaps this is our final lens model fit before we publish the results in a paper), these extra
 iterations are acceptable. 
 
-However, we often don't care about the errors. For example, in the previous tutorial when chaining searches, the only
+However, we often don't care about the errors. For example, in chapter 2's search chaining tutorial, the only
 result we used from the fit performed in the first search was the maximum log likelihood model, omitting the errors
 entirely! Its seems wasteful to use a nested sampling algorithm like Nautilus to map out the entirity of parameter
 space when we don't use this information!
@@ -308,7 +308,7 @@ aplt.subplot_fit_imaging(fit=result_emcee.max_log_likelihood_fit)
 __Wrap Up__
 
 This tutorial showed how the same lens model can be fitted using different non-linear searches (e.g. `Nautilus`,
-`Emcee`, `PySwarms`). Each search explores parameter space in a different way, and the best choice depends on the
+`Emcee`, `Zeus`). Each search explores parameter space in a different way, and the best choice depends on the
 dimensionality and complexity of the model you are fitting.
 
 For the vast majority of lens models in **PyAutoLens**, the default nested sampling search `Nautilus` is recommended,

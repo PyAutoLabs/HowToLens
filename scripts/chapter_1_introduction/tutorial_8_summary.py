@@ -1,5 +1,5 @@
 """
-Tutorial 9: Summary
+Tutorial 8: Summary
 ===================
 
 In this chapter, we have learnt that:

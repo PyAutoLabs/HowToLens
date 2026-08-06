@@ -2,7 +2,7 @@
 Tutorial 7: Fitting
 ===================
 
-In previous tutorials, we used light profiles to create simulated images of tracer and visualized how these images
+In previous tutorials, we used light profiles to create simulated images of a tracer and visualized how these images
 would appear when captured by a CCD detector on a telescope like the Hubble Space Telescope.
 
 However, this simulation process is the reverse of what astronomers typically do when analyzing real data. Usually,
@@ -33,7 +33,9 @@ Here is an overview of what we'll cover in this tutorial:
 
 __Contents__
 
-- **Dataset & Mask:** Standard set up of the dataset and mask that is fitted.
+- **Dataset:** Load the imaging dataset that we previously simulated, consisting of the image, noise map, and PSF.
+- **Dataset Auto-Simulation:** Create the dataset by running the tutorial 6 script if it is not on your hard-disk.
+- **Mask:** Apply a mask to the data, excluding regions with low signal-to-noise ratios from the analysis.
 - **Masked Grid:** In tutorials 1 and 2, we emphasized that the `Grid2D` object is crucial for evaluating a lens's.
 - **Fitting:** Fit the lens model to the dataset and inspect the results.
 - **Incorrect Fit:** In the previous section, we successfully created and fitted a lens model to the image data.
@@ -41,6 +43,8 @@ __Contents__
 - **Wrap Up:** Summary of the script and next steps.
 
 """
+
+from autolens import jax_wrapper  # Sets JAX environment before other imports
 
 # from autolens import setup_notebook; setup_notebook()
 
@@ -55,11 +59,11 @@ __Dataset__
 We begin by loading the imaging dataset that we will use for fitting in this tutorial. This dataset is identical to the 
 one we simulated in the previous tutorial, representing how a lens would appear if captured by a CCD camera.
 
-In the previous tutorial, we saved this dataset as .fits files in the `autolens_workspace/dataset/imaging/howtolens` 
-folder. The `.fits` format is commonly used in astronomy for storing image data along with metadata, making it a
-standard for CCD imaging.
+In the previous tutorial, we saved this dataset as .fits files in the `dataset/imaging/howtolens` folder of the
+HowToLens repository. The `.fits` format is commonly used in astronomy for storing image data along with metadata,
+making it a standard for CCD imaging.
 
-The `dataset_path` below specifies where these files are located: `autolens_workspace/dataset/imaging/howtolens/`.
+The `dataset_path` below specifies where these files are located: `dataset/imaging/howtolens/`.
 """
 dataset_path = Path("dataset") / "imaging" / "howtolens"
 
@@ -112,7 +116,7 @@ aplt.subplot_imaging_dataset(dataset=dataset)
 """
 __Mask__
 
-The signal-to-noise map of the image highlights areas where the signal (light from the lens and source tracer) 
+The signal-to-noise map of the image highlights areas where the signal (light from the lens and source galaxies)
 is detected above the  background noise. Values above 3.0 indicate regions where the light is detected with a 
 signal-to-noise ratio of at least 3, while values below 3.0 are dominated by noise, where the light is not 
 clearly distinguishable.
@@ -427,7 +431,7 @@ print("Reduced Chi-squared = ", reduced_chi_squared)
 """
 Another quantity that contributes to our final assessment of the goodness-of-fit is the `noise_normalization`.
 
-The `noise_normalization` is computed as the logarithm of the sum of squared noise values in our data: 
+The `noise_normalization` is computed by summing, over every pixel, the logarithm of 2 pi times the squared noise value:
 
 \[
 \text{{noise\_normalization}} = \sum \log(2 \pi \text{{noise\_map}}^2)
@@ -501,7 +505,7 @@ and 'log_likelihood' before.
 These metrics are standard ways to quantify the quality of a model fit. They are applicable not only to 1D data but 
 also to more complex data structures like 2D images, 3D data cubes, or any other multidimensional datasets.
 
-__Incorrect Fit___
+__Incorrect Fit__
 
 In the previous section, we successfully created and fitted a lens model to the image data, resulting in an 
 excellent fit. The residual map and chi-squared map showed no significant discrepancies, indicating that the 
@@ -586,7 +590,7 @@ fit_very_bad = al.FitImaging(dataset=dataset, tracer=tracer)
 aplt.subplot_fit_imaging(fit=fit_very_bad)
 
 """
-It is now evident that this model provides a terrible fit to the data. The tracer do not resemble a plausible 
+It is now evident that this model provides a terrible fit to the data. The tracer does not resemble a plausible
 representation of our simulated strong lens dataset, which we already anticipated given that we generated the data ourselves!
 
 As expected, the log likelihood has dropped dramatically with this poorly fitting model.
@@ -606,8 +610,8 @@ quality, reducing the log likelihood.
 
 In practice, however, we don't know the "true" model. For example, we might have an image of a strong lens observed with 
 the Hubble Space Telescope, but the values for parameters like its `einstein_radius` and others are 
-unknown. The process of determining the best-fit model is called model fitting, and it is the main topic of 
-Chapter 2 of *HowToGalaxy*.
+unknown. The process of determining the best-fit model is called model fitting, and it is the main topic of
+Chapter 2 of **HowToLens**.
 
 To conclude this section, let's perform a basic, hands-on model fit to develop some intuition about how we can find 
 the best-fit model. We'll start by loading a simple dataset that was simulated without any lens light, using 

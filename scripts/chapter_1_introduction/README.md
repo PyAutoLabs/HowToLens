@@ -12,7 +12,7 @@ In chapter 1, we introduce you to strong gravitational lensing and the core **Py
 
 - [Tutorial 3: More Ray Tracing](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.8.4.1/notebooks/chapter_1_introduction/tutorial_3_more_ray_tracing.ipynb) — Advanced strong lens ray-tracing.
 
-- [Tutorial 4: Point Sources](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.8.4.1/notebooks/chapter_1_introduction/tutorial_4_point_sources.ipynb) — How lensing calculations when the source galaxy is a point-source (e.g. a quasar).
+- [Tutorial 4: Point Sources](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.8.4.1/notebooks/chapter_1_introduction/tutorial_4_point_sources.ipynb) — How lensing calculations change when the source galaxy is a point source (e.g. a quasar).
 
 - [Tutorial 5: Lensing Formalism](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.8.4.1/notebooks/chapter_1_introduction/tutorial_5_lensing_formalism.ipynb) — The algebraic lensing formalism used to describe strong lensing.
 

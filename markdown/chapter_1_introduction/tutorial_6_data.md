@@ -16,8 +16,8 @@ Telescope, include several factors that affect what we see:
 **Exposure Time:** The time the detector collects light, affecting the clarity of the image. Longer exposure times
 gather more light, improving the signal-to-noise ratio and creating a clearer image.
 
-**Background Sky:** Light from the sky itself, such as distant stars or zodiacal light, adds noise to the image.
-adds additional noise to the image.
+**Background Sky:** Light from the sky itself, such as distant stars or zodiacal light, adds additional noise to
+the image.
 
 In this tutorial, we'll simulate a strong lens image by applying these real-world effects to the light and mass
 profiles and images we created earlier.
@@ -28,6 +28,7 @@ Here is an overview of what we'll cover in this tutorial:
 - **Poisson Noise:** We'll add Poisson noise to the image, simulating the randomness in the photon-to-electron conversion process on the CCD.
 - **Background Sky:** We'll add a background sky to the image, simulating the light from the sky that adds noise to the image.
 - **Simulator:** We'll use the `SimulatorImaging` object to simulate imaging data that includes all these effects.
+- **Other Data Types:** We'll finish with a brief look at interferometer and weak lensing data, two other types of data used to study strong lenses.
 
 __Contents__
 
@@ -37,6 +38,8 @@ __Contents__
 - **Background Sky:** The final effect we will consider when simulating imaging data is the background sky.
 - **Simulator:** The `SimulatorImaging` object lets us create simulated imaging data while including the effects of.
 - **Output:** We will now save these simulated data to `.fits` files, the standard format used by astronomers for.
+- **Interferometer Data:** Radio / sub-mm interferometers like ALMA observe visibilities in the uv-plane rather than images.
+- **Weak Lensing Data:** Weak lensing datasets are catalogues of weakly sheared background galaxy ellipticities.
 - **Wrap Up:** Summary of the script and next steps.
 
 
@@ -53,7 +56,25 @@ import autolens as al
 import autolens.plot as aplt
 ```
 
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
     Working Directory has been set to `HowToLens`
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
 
 
 __Initial Setup__
@@ -67,7 +88,7 @@ grid = al.Grid2D.uniform(
     shape_native=(
         101,
         101,
-    ),  # The dimensions of the grid, which here is 100 x 100 pixels.
+    ),  # The dimensions of the grid, which here is 101 x 101 pixels.
     pixel_scales=0.1,  # The conversion factor between pixel units and arc-seconds.
 )
 ```
@@ -158,7 +179,7 @@ values may significantly affect the spread and detail captured in the data.
 
 
 ```python
-aplt.plot_array(array=psf.kernel, title="PSF 2D Kernel")
+aplt.plot_array(array=psf.kernel, title="PSF 2D Kernel (Log10)", use_log10=True)
 ```
 
 
@@ -195,7 +216,7 @@ blurred_image = convolved_image.trimmed_after_convolution_from(
 )  # Trimming back to the original size.
 ```
 
-    .../PyAutoArray/autoarray/operators/convolver.py:1415: UserWarning: No blurring_image provided. Only the direct image will be convolved. This may change the correctness of the PSF convolution.
+    .../PyAutoArray/autoarray/operators/convolver.py:1424: UserWarning: No blurring_image provided. Only the direct image will be convolved. This may change the correctness of the PSF convolution.
       warnings.warn(
 
 
@@ -206,7 +227,7 @@ convolution affects the appearance of the galaxy, making the image appear softer
 ```python
 aplt.plot_array(array=image, title="Tracer Image Before PSF")
 
-aplt.plot_array(array=blurred_image, title="")
+aplt.plot_array(array=blurred_image, title="Tracer Image After PSF")
 
 ```
 
@@ -245,8 +266,8 @@ Therefore, we need to add the Poisson noise after blurring the tracer image.
 
 We also need to consider the units of our image data. Let’s assume that the tracer image is measured in units of 
 electrons per second ($e^- s^{-1}$), which is standard for CCD imaging data. To simulate the number of electrons 
-actually detected in each pixel, we multiply the image by the observation’s exposure time. This conversion changes t
-he units to the total number of electrons collected per pixel over the entire exposure time.
+actually detected in each pixel, we multiply the image by the observation’s exposure time. This conversion changes
+the units to the total number of electrons collected per pixel over the entire exposure time.
 
 Once the image is converted, we add Poisson noise, simulating the randomness in the photon-to-electron conversion 
 process. After adding the noise, we convert the image back to units of electrons per second for analysis, as 
@@ -309,7 +330,7 @@ The final effect we will consider when simulating imaging data is the background
 
 In addition to light from the strong lens, the telescope also picks up light from the sky. This background sky light is 
 primarily due to two sources: zodiacal light, which is light scattered by interplanetary dust in the solar system, 
-and the unresolved emission from distant stars and tracer.
+and the unresolved emission from distant stars and galaxies.
 
 For our simulation, we'll assume that the background sky has a uniform brightness across the image, measured at 
 0.1 electrons per second per pixel. The background sky is added to the image before applying the PSF convolution 
@@ -387,7 +408,7 @@ simulator = al.SimulatorImaging(
 dataset = simulator.via_tracer_from(tracer=tracer, grid=grid)
 ```
 
-    .../PyAutoArray/autoarray/operators/convolver.py:1415: UserWarning: No blurring_image provided. Only the direct image will be convolved. This may change the correctness of the PSF convolution.
+    .../PyAutoArray/autoarray/operators/convolver.py:1424: UserWarning: No blurring_image provided. Only the direct image will be convolved. This may change the correctness of the PSF convolution.
       warnings.warn(
 
 
@@ -490,9 +511,8 @@ __Output__
 We will now save these simulated data to `.fits` files, the standard format used by astronomers for storing images.
 Most imaging data from telescopes like the Hubble Space Telescope (HST) are stored in this format.
 
-The `dataset_path` specifies where the data will be saved, in this case, in the directory 
-`autolens_workspace/dataset/imaging/howtolens/`, which contains many example images distributed with 
-the `autolens_workspace`.
+The `dataset_path` specifies where the data will be saved, in this case the `dataset/imaging/howtolens/`
+directory of the HowToLens repository (paths are relative to the repository root, from which scripts are run).
 
 The files are named `data.fits`, `noise_map.fits`, and `psf.fits`, and will be used in the next tutorial.
 
@@ -513,6 +533,129 @@ aplt.fits_imaging(
     Dataset Path:  dataset/imaging/howtolens
 
 
+__Interferometer Data__
+
+CCD imaging is not the only type of data used to study strong lenses. Radio and sub-mm interferometers, like the
+Atacama Large Millimeter Array (ALMA) and the Jansky Very Large Array (JVLA), observe strong lenses at wavelengths
+where a CCD cannot.
+
+An interferometer does not observe an image of the lens. Each pair of antennas in the array measures a "visibility",
+a Fourier component of the sky brightness, at a point in what is called the "uv-plane" set by the separation of the
+two antennas. The dataset is therefore a set of complex visibilities in Fourier space, not a 2D image, and its
+noise properties are very different from those of CCD data — there is no PSF convolution, Poisson noise or
+background sky; instead each visibility has Gaussian noise.
+
+One could Fourier transform the visibilities into an image (called a "dirty image") and fit that, but the transform
+correlates the noise between pixels, making the fit statistically incorrect. **PyAutoLens** therefore fits lens
+models directly in visibility space: the tracer's image is evaluated in real space on a grid (defined by a
+real-space mask), Fourier transformed to the uv-plane and compared with the observed visibilities there.
+
+Below, we load a simulated interferometer dataset (creating it first via the `scripts/simulator/interferometer.py`
+script if it does not exist on your hard-disk, using the same auto-simulation idiom as later tutorials) and plot
+its dirty images — the closest an interferometer dataset comes to the CCD images we simulated above.
+
+HowToLens will not cover interferometry any further than this. The lecture series teaches lensing using CCD
+imaging, and everything you learn transfers to visibility-space fitting. If you need to model interferometer data,
+go to the `autolens_workspace/scripts/interferometer` package, which is the dedicated resource for uv-plane lens
+modeling.
+
+
+```python
+dataset_path = Path("dataset") / "interferometer" / "simple"
+
+if al.util.dataset.should_simulate(str(dataset_path)):
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, "scripts/simulator/interferometer.py"],
+        check=True,
+    )
+
+real_space_mask = al.Mask2D.circular(
+    shape_native=(100, 100),
+    pixel_scales=0.1,
+    radius=3.0,
+)
+
+dataset = al.Interferometer.from_fits(
+    data_path=dataset_path / "data.fits",
+    noise_map_path=dataset_path / "noise_map.fits",
+    uv_wavelengths_path=dataset_path / "uv_wavelengths.fits",
+    real_space_mask=real_space_mask,
+    transformer_class=al.TransformerDFT,
+)
+
+aplt.subplot_interferometer_dirty_images(dataset=dataset)
+```
+
+    Figure(700x700)
+    Figure(1800x600)
+
+
+
+    
+![png](tutorial_6_data_files/tutorial_6_data_41_1.png)
+    
+
+
+__Weak Lensing Data__
+
+There is one more type of lensing data to glimpse before we move on: weak lensing.
+
+A weak lensing dataset looks nothing like the images above. Instead of the spectacular arcs and rings of strong
+lensing, it is a *catalogue* of many background galaxies, each with a measured ellipticity — a shear — at its
+(y, x) position on the sky. Each galaxy is only weakly sheared by the foreground mass, a distortion far too small
+to see in any single galaxy, and the plot below shows this: a field of short line segments tracing the subtle,
+coherent stretching of the background galaxy population, rather than any arc-like feature.
+
+We load a simulated weak lensing shear catalogue (again auto-simulating it, via `scripts/simulator/weak_lensing.py`,
+if it is not on your hard-disk) and plot it, just so you have seen what this data looks like.
+
+That is deliberately all we will say for now — this glimpse is foreshadowing. Weak lensing gets a full treatment in
+the final tutorial of chapter 4, which describes what these shear measurements are, why they are made far from the
+lens centre and how they are fitted; until then, we defer all further description to that tutorial.
+
+
+```python
+dataset_path = Path("dataset") / "weak_lensing" / "simple"
+
+if al.util.dataset.should_simulate(str(dataset_path)):
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, "scripts/simulator/weak_lensing.py"],
+        check=True,
+    )
+
+dataset = al.from_json(file_path=dataset_path / "dataset.json")
+
+aplt.subplot_weak_dataset(dataset=dataset)
+```
+
+    name : simple
+    n_galaxies : 1500
+    shear_yx : ShearYX2DIrregular([[-0.00525262,  0.18463656],
+           [ 0.13942478, -0.32888726],
+           [ 0.19774603, -0.02665228],
+           ...,
+           [ 0.14253715, -0.02222372],
+           [ 0.11760603, -0.16325793],
+           [ 0.64420539, -0.25627485]], shape=(1500, 2))
+    noise_map : ArrayIrregular([0.25, 0.25, 0.25, ..., 0.25, 0.25, 0.25], shape=(1500,))
+    redshifts : None
+    is_reduced : False
+    
+    Wrote dataset to dataset/weak_lensing/simple
+
+
+
+    
+![png](tutorial_6_data_files/tutorial_6_data_43_1.png)
+    
+
+
 __Wrap Up__
 
 In this tutorial, you learned how CCD imaging data of a lens is collected using real telescopes like the 
@@ -520,7 +663,7 @@ Hubble Space Telescope, and how to simulate this data using the `SimulatorImagin
 
 Let's summarise what we've covered:
 
-- **Optics Blurring**: The optics of a telescope blur the light from tracer, reducing the clarity and sharpness of 
+- **Optics Blurring**: The optics of a telescope blur the light of the tracer, reducing the clarity and sharpness of
 the images.
 
 - **Poisson Noise**: The process of converting photons to electrons on a CCD introduces Poisson noise, which is random 
@@ -533,8 +676,3 @@ the entire image.
 these effects together and contains the `data`, `psf`, and `noise_map` components.
 
 - **Output**: We saved the simulated data to `.fits` files, the standard format used by astronomers for storing images.
-
-
-```python
-
-```

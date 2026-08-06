@@ -60,6 +60,10 @@ __Contents__
 - **One Dimension Projection:** We often want to calculative 1D quantities of a light profile, for example to plot how its light.
 - **Galaxies:** Galaxies are collections of light profiles that represent a galaxy's luminous emission.
 - **Units:** By assuming a redshift for a galaxy we can convert its quantities from arcseconds to kiloparsecs.
+- **Wrap Up:** Summary of the script and next steps.
+- **Advanced Topics:** Optional reference material for expert users, not needed on a first read.
+- **Other Unit Conversion:** Other unit conversions a galaxy's redshift enables (e.g. AB magnitudes).
+- **Over Sampling:** The adaptive over-sampling scheme used to evaluate light profiles accurately.
 
 
 ```python
@@ -76,13 +80,25 @@ import autolens as al
 import autolens.plot as aplt
 ```
 
-    2026-07-11 18:13:08,002 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Can not load face (unknown file format; error code 0x2)
-
-
-    2026-07-11 18:13:08,198 - matplotlib.font_manager - INFO - generated new fontManager
-
-
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
     Working Directory has been set to `HowToLens`
+    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
+    
+    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
+    
+    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
+      warnings.warn(_missing_version_warning(root, library_version))
 
 
 __Grids__
@@ -108,7 +124,7 @@ grid = al.Grid2D.uniform(
     shape_native=(
         101,
         101,
-    ),  # The dimensions of the grid, which here is 100 x 100 pixels.
+    ),  # The dimensions of the grid, which here is 101 x 101 pixels.
     pixel_scales=0.1,  # The conversion factor between pixel units and arc-seconds.
 )
 ```
@@ -202,7 +218,7 @@ We can shift the grid to a new center, (y_c, x_c), by subtracting this center fr
 
 
 ```python
-centre = (0.3, 0.5)  # Shifting the grid to be centered at y=1.0", x=2.0".
+centre = (0.3, 0.5)  # Shifting the grid to be centered at y=0.3", x=0.5".
 
 grid_shifted = grid
 grid_shifted[:, 0] = grid_shifted[:, 0] - centre[0]  # Shift in y-direction.
@@ -477,9 +493,9 @@ print(image.slim[1])
 ```
 
     Intensity of pixel 0:
-    0.01336649114209766
+    0.013366491142097661
     Intensity of pixel 1:
-    0.014020623587576737
+    0.014020623587576735
 
 
 To visualize the light profile's image, we use `aplt.plot_array`.
@@ -668,9 +684,9 @@ print("...")
 ```
 
     Intensity of `Grid2D` pixel 0:
-    0.024894917164848044
+    0.02489491716484805
     Intensity of `Grid2D` pixel 1:
-    0.025428546280541572
+    0.025428546280541576
     Intensity of `Grid2D` pixel 2:
     0.02596640780160061
     ...
@@ -927,9 +943,4 @@ For a new user, the details of over-sampling are not important, therefore just b
 adaptive over sampling scheme with high accuracy across all use cases.
 
 Once you are more experienced, you should read up on over-sampling in more detail via
-the `autolens_workspace/*/guides/over_sampling.ipynb` notebook.
-
-
-```python
-
-```
+the `autolens_workspace/*/guides/advanced/over_sampling.ipynb` notebook.
