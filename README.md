@@ -21,13 +21,14 @@ they are concise and assume the concepts taught in **HowToLens** as background.
 ## Chapters
 
 - `chapter_1_introduction` — An introduction to strong gravitational lensing and **PyAutoLens**: grids, light
-  and mass profiles, galaxies, ray-tracing, simulated imaging data, and fitting.
+  and mass profiles, galaxies, ray-tracing, point sources, the lensing formalism, simulated imaging data,
+  and fitting.
 - `chapter_2_lens_modeling` — Bayesian inference, non-linear searches, and how to fit a lens model to CCD
-  imaging data with **PyAutoLens**.
-- `chapter_3_search_chaining` — Chaining multiple non-linear searches together to build automated lens
-  modeling pipelines for complex systems.
-- `chapter_4_pixelizations` — Pixelized source reconstructions (inversions) for sources with irregular
-  morphologies.
+  imaging data with **PyAutoLens**, ending with search chaining and automated pipelines.
+- `chapter_3_pixelizations` — Pixelized source reconstructions (inversions) for sources with irregular
+  morphologies, including the Bayesian formalism underpinning them.
+- `chapter_4_scaling_up_lensing` — Scaling lens modeling up beyond a single lens galaxy: extra galaxies,
+  multi-galaxy lenses, scaling relations, group and cluster scales, and weak lensing.
 - `chapter_optional` — Optional tutorials on alternative non-linear searches and other advanced topics.
 
 **HowToLens** currently sits at four chapters. Each chapter will take around a day to work through.
