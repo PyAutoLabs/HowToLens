@@ -536,7 +536,7 @@ slowing down convergence of the non-linear search. We have found that MGEs perfo
 lens modeling problems. 
 
 If you have a desire to fit sources with even more complex morphologies we recommend you look at how to reconstruct 
-sources using pixelizations in the `modeling/features` section or  chapter 4 of **HowToLens**.
+sources using pixelizations in the `modeling/features` section or chapter 3 of **HowToLens**.
  
 __Wrap Up__
 
@@ -549,7 +549,7 @@ in the data. For example, a basis of Gaussians still assumes that they have a we
 galaxies which may have multiple components with multiple centres (e.g. many star forming knots) which such a 
 basis cannot capture.
 
-In chapter 4 of **HowToLens** we introduce non-parametric pixelizations, which reconstruct the data in way
+In chapter 3 of **HowToLens** we introduce non-parametric pixelizations, which reconstruct the data in way
 that does not make assumptions like a centre and can thus reconstruct even more complex, asymmetric and irregular
 galaxy morphologies.
 """

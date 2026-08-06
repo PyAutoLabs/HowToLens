@@ -1,6 +1,6 @@
 """
-Tutorial 2: Prior Passing
-=========================
+Tutorial 10: Prior Passing
+==========================
 
 In the previous tutorial, we used non-linear search chaining to break the model-fitting procedure down into two
 non-linear searches. This used an initial search to fit a simple lens model, whose results were used to tune and
@@ -12,13 +12,13 @@ way, which is the topic of this tutorial.
 
 __Contents__
 
-- **Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
+- **Initial Setup:** Load the same strong lensing data as the previous tutorial.
 - **Model:** Compose the lens model fitted to the data.
 - **Search:** Configure the non-linear search used to fit the model.
-- **Prior Passing:** We are now going to use the prior passing API to pass these results, in a way which does not.
+- **Prior Passing:** Use the prior passing API to pass the results of search 1 without writing out values manually.
 - **Result:** Overview of the results of the model-fit.
 - **Wrap Up:** Summary of the script and next steps.
-- **Detailed Explanation Of Prior Passing:** To end, I provide a detailed overview of how prior passing works and illustrate tools that can be.
+- **Detailed Explanation Of Prior Passing:** A detailed overview of how prior passing works and tools to customize it.
 - **EXAMPLE:** Lets go through an example using a real parameter.
 
 """
@@ -119,8 +119,8 @@ We also create the same search as the previous tutorial, using the same name to 
 run it.
 """
 search_1 = af.Nautilus(
-    path_prefix=Path("howtolens", "chapter_3"),
-    name="tutorial_1_search_chaining_1",
+    path_prefix=Path("howtolens", "chapter_2"),
+    name="tutorial_9_search_chaining_1",
     unique_tag=dataset_name,
     n_live=100,
     iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
@@ -210,8 +210,8 @@ Lets setup and run the search. I have given it a different name to the previous 
 that were passed.
 """
 search_2 = af.Nautilus(
-    path_prefix=Path("howtolens", "chapter_3"),
-    name="tutorial_2_search_chaining_2",
+    path_prefix=Path("howtolens", "chapter_2"),
+    name="tutorial_10_prior_passing_2",
     unique_tag=dataset_name,
     n_live=100,
     iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
@@ -220,7 +220,7 @@ search_2 = af.Nautilus(
 analysis_2 = al.AnalysisImaging(dataset=dataset)
 
 print(
-    "The non-linear search has begun running - checkout the workspace/output/5_chaining_searches"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_2"
     " folder for live output of the results, images and lens model."
     " This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
@@ -244,18 +244,19 @@ aplt.subplot_fit_imaging(fit=result_2.max_log_likelihood_fit)
 """
 __Wrap Up__
 
-We will expand on the prior passing API in the following tutorials. The main thing to note is that we can pass 
-entire profiles or galaxies using prior passing, if their model does not change (which for the bulge, mass and 
-source_bulge above, was not true). The API to pass a whole profile or galaxy is as follows:
- 
+This tutorial has covered the core of the prior passing API; the chaining examples in the `autolens_workspace`
+(e.g. `autolens_workspace/scripts/guides/modeling/chaining.py`) expand on it further. The main thing to note is that
+we can pass entire profiles or galaxies using prior passing, if their model does not change (which for the bulge,
+mass and source_bulge above, was not true). The API to pass a whole profile or galaxy is as follows:
+
  bulge = result_1.model.galaxies.lens.bulge
  lens = result_1.model.galaxies.lens
  source = result_1.model.galaxies.source
- 
+
 We can also pass priors using an `instance` instead of a `model`. When an `instance` is used, the maximum likelihood
-parameter values are passed as fixed values that are therefore not fitted for nby the non-linear search (reducing its
-dimensionality). We will use this in the next tutorial to fit the lens light, fix it to the best-fit model in a second
-search, and then go on to fit it as a model in the final search.
+parameter values are passed as fixed values that are therefore not fitted for by the non-linear search (reducing its
+dimensionality). Chained fits often use this to fix the lens light to the best-fit model of an early search, reducing
+the dimensionality of the searches that follow — the workspace's chaining examples show this in action.
  
 Lets now think about how priors are passed. Checkout the `model.info` file of the second search of this tutorial. The 
 parameters do not use the default priors we saw in search 1 (which are typically broad UniformPriors). Instead, 
@@ -265,7 +266,7 @@ they use GaussianPrior`s where:
  - The sigma values are specified in the `width_modifier` field of the profile's entry in the `priors.yaml' config 
    file (we will discuss why this is used in a moment).
 
-Like the manual `GaussianPrior`'s that were used in tutorial 1, the prior passing API sets up the prior on each 
+Like the manual `GaussianPrior`'s that were used in the previous tutorial, the prior passing API sets up the prior on each
 parameter with a `GaussianPrior` centred on the high likelihood regions of parameter space!
 
 __Detailed Explanation Of Prior Passing__

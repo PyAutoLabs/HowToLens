@@ -1,15 +1,19 @@
 """
-Tutorial 1: Search Chaining
+Tutorial 9: Search Chaining
 ===========================
 
-In chapter 2, we learnt how to perform lens modeling using a non-linear search. In all of the tutorials, we fitted the
-data using just one non-linear search. In this chapter, we introduce a technique called 'non-linear search chaining',
-fits a lens model using a sequence of non-linear searches. The initial searches fit simpler lens models whose parameter
-spaces can be more accurately and efficiently sampled. The results of this search are then passed to later searches
-which fit lens models of gradually increasing complexity.
+Throughout this chapter, we have fitted the data using just one non-linear search. The previous tutorial discussed
+the run-time cost of doing this: with a single search, the dimensionality of the model, the priors on its parameters
+and the search settings must all be juggled at once, leaving us little flexibility to trade them off against one
+another.
 
-Lets think back to tutorial 4 of chapter 2. We learnt there were three approaches one could take fitting a lens model
-accurately if we found that a model fit failed. These were:
+In this closing part of the chapter, we introduce a technique called 'non-linear search chaining', which fits a lens
+model using a sequence of non-linear searches. The initial searches fit simpler lens models whose parameter spaces can
+be more accurately and efficiently sampled. The results of this search are then passed to later searches which fit
+lens models of gradually increasing complexity.
+
+Lets think back to tutorial 4 of this chapter. We learnt there were three approaches one could take fitting a lens
+model accurately if we found that a model fit failed. These were:
 
  1) Tuning our priors to the strong lens we're fitting.
  2) Making our lens model less complex.
@@ -24,7 +28,7 @@ complex and realistic lens models in a way that that can be generalized to many 
 we'll run 2 searches, and chain the lens model inferred in the first search to the priors of the second search`s lens
 model.
 
-Our first search will make the same light-traces-mass assumption we made in the previous tutorial. We saw that this
+Our first search will make the same light-traces-mass assumption we made in tutorial 4. We saw that this
 gives a reasonable lens model. However, we'll make a couple of extra simplifying assumptions, to really try and bring
 our lens model complexity down and get the non-linear search running fast.
 
@@ -40,10 +44,10 @@ search, we can use its results to tune the priors of our second search. For exam
 
 __Contents__
 
-- **Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
+- **Initial Setup:** Load the same strong lensing data fitted throughout this chapter.
 - **Model:** Compose the lens model fitted to the data.
 - **Result:** Overview of the results of the model-fit.
-- **Prior Passing:** Now all we need to do is look at the results of search 1 and pass the results as priors for search.
+- **Prior Passing:** Use the results of search 1 to set up the priors of search 2.
 - **Run Time:** Profiling the expected run time of the model-fit.
 - **Model Fit:** Perform the model-fit using the search and analysis.
 - **Wrap Up:** Summary of the script and next steps.
@@ -63,7 +67,7 @@ import autofit as af
 """
 __Initial Setup__
 
-we'll use the same strong lensing data as the previous tutorial, where:
+we'll use the same strong lensing data as tutorials 3, 4 and 5 of this chapter, where:
 
  - The lens galaxy's light is an `Sersic`.
  - The lens galaxy's total mass distribution is an `Isothermal` and `ExternalShear`.
@@ -167,8 +171,8 @@ __Search + Analysis__
 Now lets create the search and analysis.
 """
 search_1 = af.Nautilus(
-    path_prefix=Path("howtolens", "chapter_3"),
-    name="tutorial_1_search_chaining_1",
+    path_prefix=Path("howtolens", "chapter_2"),
+    name="tutorial_9_search_chaining_1",
     unique_tag=dataset_name,
     n_live=100,
     iterations_per_quick_update=2500,  # Outpuers Notebook visualization of max likelihood model every N iterations
@@ -181,7 +185,7 @@ Lets run the search, noting that our liberal approach to reducing the lens model
 11 parameters.
 """
 print(
-    "The non-linear search has begun running - checkout the workspace/output/5_chaining_searches"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_2"
     " folder for live output of the results, images and lens model."
     " This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
@@ -311,8 +315,8 @@ Lets setup and run the search. As expected, it gives us the correct lens model. 
 faster than we are used to!
 """
 search_2 = af.Nautilus(
-    path_prefix=Path("howtolens", "chapter_3"),
-    name="tutorial_1_search_chaining_2",
+    path_prefix=Path("howtolens", "chapter_2"),
+    name="tutorial_9_search_chaining_2",
     unique_tag=dataset_name,
     n_live=150,
     iterations_per_quick_update=25000,  # Outpuers Notebook visualization of max likelihood model every N iterations
@@ -334,7 +338,7 @@ __Model Fit__
 Run the search.
 """
 print(
-    "The non-linear search has begun running - checkout the workspace/output/5_chaining_searches"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_2"
     " folder for live output of the results, images and lens model."
     " This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )

@@ -467,8 +467,8 @@ Let's list the advantages and disadvantages of simply adjusting the non-linear s
 weeks, or even months!
 
 In conclusion, we can now fit strong lenses effectively. When the process fails, we know how to make it work.
-In chapter 3 of **HowToLens**, we will introduce a technique called 'non-linear search chaining', which performs a model 
-fit by chaining together multiple searches back-to-back . This allows us to combine the 3 different approaches 
+In tutorials 9 and 10 of this chapter, we will introduce a technique called 'non-linear search chaining', which performs
+a model fit by chaining together multiple searches back-to-back. This allows us to combine the 3 different approaches
 discussed and exploit the advantages of each, whilst not being hindered by their disadvantages.
 
 With search chaining, we can:
@@ -485,6 +485,6 @@ With search chaining, we can:
  
 __Wrap Up__
 
-To wrap up chapter 2, we have a few more tutorials, where we will discuss masking in more detail, the `Result` object
-and how to make **PyAutoLens** run faster.
+Before we get to search chaining, we have a few more tutorials, where we will discuss masking in more detail, the
+`Result` object and how to make **PyAutoLens** run faster.
 """

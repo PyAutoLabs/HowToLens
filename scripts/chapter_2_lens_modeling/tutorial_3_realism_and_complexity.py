@@ -256,8 +256,8 @@ parameter space to search. As this volume grows, there becomes a higher chance t
 and infers a local maxima, especially if we don't set it up with enough live points!
 
 At its core, lens modeling is all about learning how to get a non-linear search to find the global maxima region of 
-parameter space, even when the lens model is complex. This will be the main theme throughout the rest of this chapter
-and is the main subject of chapter 3.
+parameter space, even when the lens model is complex. This will be the main theme throughout the rest of this chapter,
+culminating in the search chaining technique introduced in tutorials 9 and 10.
 
 In the next exercise, we'll learn how to deal with failure and begin thinking about how we can ensure our non-linear 
 search finds the global-maximum log likelihood solution. First, think about the following:
