@@ -103,7 +103,7 @@ ladder we stand:
    background galaxies carrying too little shear. (Surveys recover it only by *stacking* thousands of lens
    galaxies, a technique called galaxy-galaxy lensing that averages over the lens population.)
 
- - **A group** (Einstein radius ~5-10", the scale of the group tutorial earlier in this chapter): the signal is
+ - **A group** (Einstein radius ~4-10", the scale of the group tutorial earlier in this chapter): the signal is
    marginal — detectable for well-observed individual groups, but noisy.
 
  - **A cluster** (Einstein radius ~10-30"+, the previous tutorial's scale): the signal is strong enough to measure
@@ -181,7 +181,8 @@ measurement is several times larger than the shear it contains.
 
 Unlike every previous tutorial, we do not write this dataset to disk and reload it. The whole catalogue is a few
 thousand numbers, so we keep it in memory and use it directly — which also mirrors how you might resimulate
-catalogues on the fly when testing survey sensitivities. (The workspace's `scripts/weak/simulator.py` shows the
+catalogues on the fly when testing survey sensitivities. (This repo's `scripts/simulator/weak_lensing.py` — the
+script chapter 1's data tutorial auto-ran to give you your first glimpse of a shear catalogue — shows the
 disk-based version, with the same JSON output pattern as the imaging simulators.)
 """
 dataset_name = "weak_lensing"

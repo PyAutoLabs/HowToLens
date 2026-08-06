@@ -61,7 +61,7 @@ of a single background source:
  - The two lens galaxies' light are `Sersic` profiles, centred at (0.0", -1.0") and (0.0", 1.0").
  - The two lens galaxies' mass distributions are `Isothermal` profiles with comparable Einstein radii (1.0" and
    0.8") — this comparability is what makes them co-dominant.
- - The source galaxy's light is an `Sersic`.
+ - The source galaxy's light is an `ExponentialCoreSph`.
 
 __Dataset Auto-Simulation__
 
@@ -469,7 +469,7 @@ learnt:
   chapter).
 
 - **Parameter growth**: Each deflector added 9 free parameters (4 for its MGE light, 5 for its SIE mass) — and the
-  MGE is what kept it that cheap, since its linear light profiles add flexibility without non-linear parameters.
+  MGE is what kept it that cheap, since its Gaussian intensities are solved for by linear algebra rather than sampled.
 
 - **Fixed mass centres**: Fixing each galaxy's mass centre to its observed light centre (removing 2 parameters per
   deflector) is the standard trick for taming the severe centre degeneracies of multi-deflector models.

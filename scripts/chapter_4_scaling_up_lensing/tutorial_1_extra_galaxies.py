@@ -474,5 +474,5 @@ In this tutorial, we took the first step up in scale from the single lens galaxy
 Throughout, the extra galaxy was a nuisance: something to remove or account for, so that our analysis of the
 main lens remained accurate. In the next tutorial we meet systems where that framing breaks down entirely, because
 a second galaxy is not a nuisance but a co-equal lens, with light and mass comparable to the first. There, no
-single galaxy is "the" lens, and the model must treat them all on an equal footing
+single galaxy is "the" lens, and the model must treat them all on an equal footing.
 """

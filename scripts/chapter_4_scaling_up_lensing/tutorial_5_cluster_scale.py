@@ -2,8 +2,8 @@
 Tutorial 5: Cluster Scale
 =========================
 
-Throughout this chapter we have been climbing a ladder of scale: from a single lens galaxy with a couple of
-extra galaxies nearby, to multi-galaxy lenses, to galaxy groups whose members share a common dark matter halo.
+Throughout this chapter we have been climbing a ladder of scale: from a single lens galaxy with an extra
+galaxy nearby, to multi-galaxy lenses, to galaxy groups whose members share a common dark matter halo.
 
 This tutorial climbs the final rung: **galaxy clusters**, the most massive gravitationally-bound structures in
 the Universe. A cluster-scale strong lens contains:
@@ -693,5 +693,5 @@ massive structures in the Universe. But a cluster's gravity does not stop deflec
 where multiple images form. Far beyond it, every background galaxy is still subtly sheared — distorted by a
 percent or less — and by measuring those distortions statistically across thousands of galaxies, the
 cluster's mass can be mapped out to its edges. That is **weak lensing**, a different regime with different
-data and different statistics, and it is where the next tutorial takes us
+data and different statistics, and it is where the next tutorial takes us.
 """

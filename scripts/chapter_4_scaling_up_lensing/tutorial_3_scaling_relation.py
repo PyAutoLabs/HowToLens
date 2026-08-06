@@ -421,9 +421,9 @@ Saving one parameter looks modest — the point is what happens as the populatio
 lens had twelve additional member galaxies (we invent centres on a ring and plausible luminosities; this model
 is composed for counting only, **not** fitted — our dataset contains no such galaxies!).
 
-Each imagined member is mass-only (as in the previous tutorials, faint distant perturbers whose light is
-negligible or outside the mask need no light model), with its Einstein radius tied to the anchor by the same
-relation. We count the parameters of this 14-galaxy lens model, and of its nightmare per-galaxy twin.
+Each imagined member is mass-only (faint distant perturbers whose light is negligible or outside the mask need
+no light model — the mass-only counterpart of the intermediate options tutorial 1 discussed), with its Einstein
+radius tied to the anchor by the same relation. We count the parameters of this 14-galaxy lens model, and of its nightmare per-galaxy twin.
 """
 total_members = 12
 
@@ -572,7 +572,7 @@ __Lens Environments__
 Everything above was framed around lenses with multiple deflectors, but the same machinery solves a problem we
 met at the start of this chapter: the **environment** of an ordinary single-galaxy lens.
 
-The first tutorial of this chapter modelled a couple of nearby galaxies individually, which was fine for two.
+The first tutorial of this chapter modelled a nearby extra galaxy individually, which was fine for one.
 But a deep image of a real lens can reveal dozens of galaxies near the line of sight, each contributing a small
 perturbation to the deflection field. Modeling them individually is hopeless; ignoring them entirely can bias
 precision measurements. With a scaling relation they cost nothing: measure each galaxy's centre and luminosity
@@ -601,7 +601,7 @@ So far, we tied galaxy to galaxy. But the biggest lenses in the Universe — gal
 something the galaxies themselves cannot account for: a massive dark matter halo enveloping the whole system,
 holding most of its mass. In the next tutorial we step up to group-scale lenses, where the scaling relation
 becomes essential (there are simply too many member galaxies to free) and a dark matter halo joins the model as
-a new component. There, we will also meet a different way to normalise the relation — a reference Einstein
-radius at fixed magnitude, rather than an anchor galaxy — and truncated mass profiles, which describe members
-whose outer dark matter has been tidally stripped by the very halo we are adding.
+a new component. There, we will also meet a different way to normalise the relation — a shared free
+normalization at a fixed reference luminosity, rather than an anchor galaxy — and truncated mass profiles, which
+describe members whose outer dark matter has been tidally stripped by the very halo we are adding.
 """

@@ -32,7 +32,7 @@ This script simulates `Imaging` of a 'galaxy-scale' strong lens where:
 
  - The lens galaxies' light are three `Sersic`'s.
  - The lens galaxies' mass distributions are three `Isothermal`'s.
- - The source galaxy's light is an `Sersic`.
+ - The source galaxy's light is an `ExponentialCoreSph`.
 
 This dataset is used in chapter 4 of the **HowToLens** lectures.
 

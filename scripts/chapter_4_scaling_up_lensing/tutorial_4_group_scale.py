@@ -482,6 +482,10 @@ power laws of its luminosity, normalized by a single shared free parameter:
  - `r_cut = r_cut_ref * (L / L_ref) ** 0.7`
 
 These exponents follow the convention of modern cluster lensing analyses, and `L_ref` is a fixed reference
+luminosity. The 0.25 is the previous tutorial's Faber-Jackson relation recast for velocity dispersion:
+`L ~ sigma^4` inverts to `sigma ~ L^0.25`, and since `theta_E ~ sigma^2` this reproduces the `theta_E ~ L^0.5`
+scaling we anchored there. Note also the change of normalization: rather than hanging the relation off an
+anchor galaxy the model already fits, we normalise it with a shared free parameter at a fixed reference
 luminosity. Now the *entire member population's mass* costs one free parameter (`sigma_ref`), no matter how
 many members the group has, and each member's observed luminosity acts as a physically motivated prior on its
 mass.
@@ -525,10 +529,15 @@ for centre, luminosity in zip(member_centres, luminosity_list):
 
 model = af.Collection(
     galaxies=af.Collection(lens=bgg_model, source=source_model),
-    extra_galaxies=af.Collection(member_list),
+    scaling_galaxies=af.Collection(member_list),
 )
 
 """
+Note that the tied members now live in the `scaling_galaxies` collection — the home the previous tutorial
+introduced for a scaling-relation population — whereas the individually-modelled members above sat in
+`extra_galaxies`, like tutorial 1's interlopers. Both collections are included in the ray-tracing; the split
+keeps `model.info` readable and tells the results machinery which galaxies are a tied population.
+
 The model's `info` shows that both members' `sigma` values now trace back to the single shared `sigma_ref`
 prior, and the parameter count has dropped to N=18.
 

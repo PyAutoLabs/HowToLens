@@ -8,7 +8,7 @@ measurements at the (y, x) positions of a population of background source galaxi
 
 The lens is a **cluster-scale** mass (Einstein radius 25", the regime where weak lensing is actually used) and the
 background galaxies are placed in an **annulus outside the strong-lensing core** — this is where real weak-lensing
-measurements are made, so the simulated shears are genuinely weak (|gamma| ~ 0.05-0.2) rather than the order-unity
+measurements are made, so the simulated shears are genuinely weak (|gamma| ~ 0.06-0.25) rather than the order-unity
 shears found among galaxies projected near the Einstein radius.
 
 The shear computation itself comes from `Tracer.shear_yx_2d_via_hessian_from`, which differentiates the
@@ -91,7 +91,7 @@ between an inner radius of 50" (~2 Einstein radii, safely into the weak regime) 
 (~3.3 arc-minutes), uniformly in area.
 
 This is the physically genuine weak-lensing geometry: at 50" the shear is |gamma| ~ 0.25 and by 200" it has
-fallen to |gamma| ~ 0.03, so every galaxy is a *weak* probe whose individual shear is well below the 0.25 shape
+fallen to |gamma| ~ 0.06, so every galaxy is a *weak* probe whose individual shear is well below the 0.25 shape
 noise. The signal lives in the ensemble of 1500 galaxies (a deep-survey source density of ~45 / arc-minute^2),
 exactly as in a real cluster weak-lensing analysis.
 
