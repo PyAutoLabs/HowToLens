@@ -25,6 +25,7 @@ Here is an overview of what we'll cover in this tutorial:
 - **Poisson Noise:** We'll add Poisson noise to the image, simulating the randomness in the photon-to-electron conversion process on the CCD.
 - **Background Sky:** We'll add a background sky to the image, simulating the light from the sky that adds noise to the image.
 - **Simulator:** We'll use the `SimulatorImaging` object to simulate imaging data that includes all these effects.
+- **Other Data Types:** We'll finish with a brief look at interferometer and weak lensing data, two other types of data used to study strong lenses.
 
 __Contents__
 
@@ -34,6 +35,8 @@ __Contents__
 - **Background Sky:** The final effect we will consider when simulating imaging data is the background sky.
 - **Simulator:** The `SimulatorImaging` object lets us create simulated imaging data while including the effects of.
 - **Output:** We will now save these simulated data to `.fits` files, the standard format used by astronomers for.
+- **Interferometer Data:** Radio / sub-mm interferometers like ALMA observe visibilities in the uv-plane rather than images.
+- **Weak Lensing Data:** Weak lensing datasets are catalogues of weakly sheared background galaxy ellipticities.
 - **Wrap Up:** Summary of the script and next steps.
 
 """
@@ -372,6 +375,93 @@ aplt.fits_imaging(
     psf_path=dataset_path / "psf.fits",
     overwrite=True,
 )
+
+"""
+__Interferometer Data__
+
+CCD imaging is not the only type of data used to study strong lenses. Radio and sub-mm interferometers, like the
+Atacama Large Millimeter Array (ALMA) and the Jansky Very Large Array (JVLA), observe strong lenses at wavelengths
+where a CCD cannot.
+
+An interferometer does not observe an image of the lens. Each pair of antennas in the array measures a "visibility",
+a Fourier component of the sky brightness, at a point in what is called the "uv-plane" set by the separation of the
+two antennas. The dataset is therefore a set of complex visibilities in Fourier space, not a 2D image, and its
+noise properties are very different from those of CCD data — there is no PSF convolution, Poisson noise or
+background sky; instead each visibility has Gaussian noise.
+
+One could Fourier transform the visibilities into an image (called a "dirty image") and fit that, but the transform
+correlates the noise between pixels, making the fit statistically incorrect. **PyAutoLens** therefore fits lens
+models directly in visibility space: the tracer's image is evaluated in real space on a grid (defined by a
+real-space mask), Fourier transformed to the uv-plane and compared with the observed visibilities there.
+
+Below, we load a simulated interferometer dataset (creating it first via the `scripts/simulator/interferometer.py`
+script if it does not exist on your hard-disk, using the same auto-simulation idiom as later tutorials) and plot
+its dirty images — the closest an interferometer dataset comes to the CCD images we simulated above.
+
+HowToLens will not cover interferometry any further than this. The lecture series teaches lensing using CCD
+imaging, and everything you learn transfers to visibility-space fitting. If you need to model interferometer data,
+go to the `autolens_workspace/scripts/interferometer` package, which is the dedicated resource for uv-plane lens
+modeling.
+"""
+dataset_path = Path("dataset") / "interferometer" / "simple"
+
+if al.util.dataset.should_simulate(str(dataset_path)):
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, "scripts/simulator/interferometer.py"],
+        check=True,
+    )
+
+real_space_mask = al.Mask2D.circular(
+    shape_native=(100, 100),
+    pixel_scales=0.1,
+    radius=3.0,
+)
+
+dataset = al.Interferometer.from_fits(
+    data_path=dataset_path / "data.fits",
+    noise_map_path=dataset_path / "noise_map.fits",
+    uv_wavelengths_path=dataset_path / "uv_wavelengths.fits",
+    real_space_mask=real_space_mask,
+    transformer_class=al.TransformerDFT,
+)
+
+aplt.subplot_interferometer_dirty_images(dataset=dataset)
+
+"""
+__Weak Lensing Data__
+
+There is one more type of lensing data to glimpse before we move on: weak lensing.
+
+A weak lensing dataset looks nothing like the images above. Instead of the spectacular arcs and rings of strong
+lensing, it is a *catalogue* of many background galaxies, each with a measured ellipticity — a shear — at its
+(y, x) position on the sky. Each galaxy is only weakly sheared by the foreground mass, a distortion far too small
+to see in any single galaxy, and the plot below shows this: a field of short line segments tracing the subtle,
+coherent stretching of the background galaxy population, rather than any arc-like feature.
+
+We load a simulated weak lensing shear catalogue (again auto-simulating it, via `scripts/simulator/weak_lensing.py`,
+if it is not on your hard-disk) and plot it, just so you have seen what this data looks like.
+
+That is deliberately all we will say for now — this glimpse is foreshadowing. Weak lensing gets a full treatment in
+the final tutorial of chapter 4, which describes what these shear measurements are, why they are made far from the
+lens centre and how they are fitted; until then, we defer all further description to that tutorial.
+"""
+dataset_path = Path("dataset") / "weak_lensing" / "simple"
+
+if al.util.dataset.should_simulate(str(dataset_path)):
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, "scripts/simulator/weak_lensing.py"],
+        check=True,
+    )
+
+dataset = al.from_json(file_path=dataset_path / "dataset.json")
+
+aplt.subplot_weak_dataset(dataset=dataset)
 
 """
 __Wrap Up__
