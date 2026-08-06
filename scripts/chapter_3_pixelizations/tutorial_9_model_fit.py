@@ -1,5 +1,5 @@
 """
-Tutorial 8: Model-Fit
+Tutorial 9: Model-Fit
 =====================
 
 You should now perform lens modeling using a pixelization, which is described fully in the example:

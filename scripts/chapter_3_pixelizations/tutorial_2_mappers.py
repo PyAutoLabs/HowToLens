@@ -2,12 +2,12 @@
 Tutorial 2: Mappers
 ===================
 
-In the previous tutorial, we used a pixelization to create made a `Mapper`. However, it was not clear what a `Mapper`
+In the previous tutorial, we used a pixelization to create a `Mapper`. However, it was not clear what a `Mapper`
 does, why it was called a mapper and whether it was mapping anything at all!
 
 Therefore, in this tutorial, we'll cover mappers in more detail.
 
-WARNING: THHIS TUTORIAL VISUALS ARE SLIGHTLY BUGGY CURRENTLY AND WILL BE FIXED IN THE FUTURE.
+WARNING: THIS TUTORIAL'S VISUALS ARE SLIGHTLY BUGGY CURRENTLY AND WILL BE FIXED IN THE FUTURE.
 
 __Contents__
 
@@ -71,8 +71,8 @@ grid = al.Grid2D.uniform(
 )
 
 """
-Our `Tracer` will use the same lens galaxy and source galaxy that we used to Simulate the imaging data (although, 
-becuase we're modeling the source with a pixel-grid, we do not pass it any light profiles.
+Our `Tracer` will use the same lens galaxy and source galaxy that we used to simulate the imaging data (although,
+because we're modeling the source with a pixel-grid, we do not pass the source any light profiles).
 """
 lens_galaxy = al.Galaxy(
     redshift=0.5,
@@ -116,8 +116,8 @@ aplt.plot_array(
 aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid")
 
 """
-Using the `lines=`/`positions=` overlays object we are also going to highlight specific grid coordinates certain colors, such that we
-can see how they map from the image-plane to source-plane and visa versa.
+Using the `positions=` overlay input we are also going to highlight specific grid coordinates in certain colors, such
+that we can see how they map from the image-plane to the source-plane and vice versa.
 
 We do this by specifying their integer indexes, corresponding to the index of each data point in the image and source
 plane grids. These indexes are used to highlight the grid coordinates in the image and source-plane grids that map
@@ -149,8 +149,8 @@ aplt.plot_array(array=dataset.data, title="Image")
 aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid")
 
 """
-We can now make these mappings appear the other way round. That is, we can input a source-pixel index (of our 
-rectangular grid) and highlight how all of the (sub-)image-pixels that it contains map to the image-plane. 
+We can now make these mappings appear the other way round. That is, we can input a source-pixel index (of our
+rectangular grid) and highlight how all of the image-pixels that it contains map to the image-plane.
 
 To make the indexes appear in the image-plane, we have to convert them from their source-plane pixel indexes
 to image plane image-pixel indexes using the mapper.
@@ -224,7 +224,7 @@ dataset = dataset.apply_mask(mask=mask)
 aplt.plot_array(array=dataset.data, title="Data")
 
 """
-To create the mapper, we need to set up the masked imaging's grid as the source-plane gird via the tracer.
+To create the mapper, we need to trace the masked imaging's grid to the source-plane via the tracer.
 """
 tracer = al.Tracer(galaxies=[lens_galaxy, al.Galaxy(redshift=1.0)])
 
@@ -280,7 +280,7 @@ another. Your exercises are:
  radius deviates from 1.6" (the input value of the simulated lens), what do you notice about where the points map 
  from the centre of the source-plane (where the source-galaxy is simulated, e.g. (0.0", 0.0"))?
         
- 2) Think about how this could help us actually model lenses. We have said we're going to reconstruct our source 
- galaxies on the pixel-grid. So, how does knowing how each pixel maps to the image actually help us? If you`ve not got 
- any bright ideas, then worry not, that exactly what we're going to cover in the next tutorial.
+ 2) Think about how this could help us actually model lenses. We have said we're going to reconstruct our source
+ galaxies on the pixel-grid. So, how does knowing how each pixel maps to the image actually help us? If you've not got
+ any bright ideas, then worry not, that's exactly what we're going to cover in the next tutorial.
 """

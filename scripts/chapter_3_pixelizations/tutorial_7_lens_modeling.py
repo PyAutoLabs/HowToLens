@@ -1,17 +1,17 @@
 """
-Tutorial 6: Lens Modeling
+Tutorial 7: Lens Modeling
 =========================
 
-When modeling complex source's with parametric profiles, we quickly entered a regime where our non-linear search was
+When modeling complex sources with parametric profiles, we quickly entered a regime where our non-linear search was
 faced with a parameter space of dimensionality N=20+ parameters. This made the model-fitting inefficient and likely to
 infer a local maxima.
 
-Inversions do not suffer this problem, meaning they are a very a powerful tool for modeling strong lenses. Furthermore,
-they have *more* freemdom than parametric light profiles because they do not relying on specific analytic light
+Inversions do not suffer this problem, meaning they are a very powerful tool for modeling strong lenses. Furthermore,
+they have *more* freedom than parametric light profiles because they do not rely on specific analytic light
 distributions and a symmetric profile shape. This will allow us to fit more complex mass models and ask ever more
 interesting scientific questions!
 
-However, inversion do have some short comings that we need to be aware of before we use them for lens modeling. That`s
+However, inversions do have some shortcomings that we need to be aware of before we use them for lens modeling. That's
 what we cover in this tutorial.
 
 __Contents__
@@ -100,8 +100,8 @@ __Unphysical Solutions__
 The code below illustrates a systematic set of solutions called demagnified solutions, which negatively impact
 lens modeling using source pixelizations.
 
-Since writing the code below, I have wrote a full readthedocs page illustrating the issue, which is linked too below.
-I recommend you read this page first, to understand what a demagnified solution is, why its a problem and how we
+Since writing the code below, I have written a full readthedocs page illustrating the issue, which is linked to below.
+I recommend you read this page first, to understand what a demagnified solution is, why it is a problem and how we
 fix it. The code below should then build on this.
 
  https://pyautolens.readthedocs.io/en/latest/general/demagnified_solutions.html
@@ -140,9 +140,9 @@ aplt.subplot_fit_imaging_of_planes(fit=fit)
 What happened!? This incorrect mass-model provides a really good fit to the image! The residuals and chi-squared-map 
 are as good as the ones we saw in the previous tutorials.
 
-How can an incorrect lens model provide such a fit? Well, as I'm sure you noticed, the source has been reconstructed 
-as a demagnified version of the image. Clearly, this is not a physical solution or a solution that we want our 
-non-linear search to find, but for inversion's the reality is these solutions eixst.
+How can an incorrect lens model provide such a fit? Well, as I'm sure you noticed, the source has been reconstructed
+as a demagnified version of the image. Clearly, this is not a physical solution or a solution that we want our
+non-linear search to find, but for inversions the reality is these solutions exist.
 
 This is not necessarily problematic for lens modeling. Afterall, the source reconstruction above is extremely complex, 
 it requires a lot of source pixels to fit the image accurately and its lack of smoothness will be heavily penalized
@@ -179,19 +179,19 @@ print("Bayesian Evidence of Correct Fit:")
 print(correct_fit.log_evidence)
 
 """
-The `log_evidence` *is* lower. However, the difference in `log_evidence` is not *that large*. This could be a problem 
-for the non-linear search, as it will see many solutions in parameter space with high `log_evidence` values. Furthermore, 
-these solutions occupy a *large volumne* of parameter space (e.g. everywhere the lens model that is wrong). This makes 
-it easy for the non-linear search to get lost searching through these unphysical solutions and, unfortunately, inferring 
+The `log_evidence` *is* lower. However, the difference in `log_evidence` is not *that large*. This could be a problem
+for the non-linear search, as it will see many solutions in parameter space with high `log_evidence` values. Furthermore,
+these solutions occupy a *large volume* of parameter space (e.g. everywhere the lens model is wrong). This makes
+it easy for the non-linear search to get lost searching through these unphysical solutions and, unfortunately, inferring
 an incorrect lens model (e.g. a local maxima).
 
-There is no simple fix for this, and it is the price we pay for making the inversion has so much flexibility in how it
-reconstructs the source's light. The solution to this problem? Search chaining. In fact, this is the problem that lead
-us to initially conceive of search chaining! 
+There is no simple fix for this, and it is the price we pay for giving the inversion so much flexibility in how it
+reconstructs the source's light. The solution to this problem? Search chaining, which we covered at the end of
+chapter 2 (tutorials 9-11). In fact, this is the problem that led us to initially conceive of search chaining!
 
 The idea is simple, we write a pipeline that begins by modeling the source galaxy's light using a light profile, thereby
-initializing the priors for the lens galaxy's light and mass. Then, when we switch to an `Inversion` in the next 
-search, the mass model starts in the correct regions of parameter space and does not get lost sampling these 
+initializing the priors for the lens galaxy's light and mass. Then, when we switch to an `Inversion` in the next
+search, the mass model starts in the correct regions of parameter space and does not get lost sampling these
 incorrect solutions.
 
 The following paper discusses these solutions in more detail (https://arxiv.org/abs/2012.04665).
@@ -202,8 +202,8 @@ We can also model strong lenses using light profiles and an inversion at the sam
 simultaneously fit and subtract the lens galaxy's light using a light profile whilst reconstructing the source's
 light using an inversion. 
 
-To do this, all we have to do is give the lens galaxy a light profile and use the tracer and fit objects we are used 
-too:.
+To do this, all we have to do is give the lens galaxy a light profile and use the tracer and fit objects we are
+used to.
 """
 dataset_name = "lens_sersic"
 dataset_path = Path("dataset") / "imaging" / dataset_name
@@ -306,11 +306,11 @@ aplt.subplot_fit_imaging_of_planes(fit=fit)
 """
 __Wrap Up__
 
-And with that, we're done. I'll end by pointing out a few things about what we've covered to get you thinking about 
-the next tutorial on adaption.
-    
- - When the lens galaxy's light is subtracted perfectly it leaves no residuals. However, if it isn't subtracted 
- perfectly it does leave residuals, which will be fitted by the inversion. If the residual are significant this is 
- going to impact the source reconstruction negatively and can lead to some pretty nasty systematics. In the next 
- chapter, we'll learn how our adaptive analysis can prevent this residual fitting.
+And with that, we're done. I'll end by pointing out a few things about what we've covered to get you thinking about
+the adaption tutorials later in this chapter.
+
+ - When the lens galaxy's light is subtracted perfectly it leaves no residuals. However, if it isn't subtracted
+ perfectly it does leave residuals, which will be fitted by the inversion. If the residuals are significant this is
+ going to impact the source reconstruction negatively and can lead to some pretty nasty systematics. In the adaption
+ tutorials at the end of this chapter, we'll learn how our adaptive analysis can prevent this residual fitting.
 """

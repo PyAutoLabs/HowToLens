@@ -68,11 +68,11 @@ dataset = al.Imaging.from_fits(
 """
 __Convenience Function__
 
-we're going to perform a lot of fits using an `Inversion` this tutorial. This would create a lot of code, so to keep 
+we're going to perform a lot of fits using an `Inversion` this tutorial. This would create a lot of code, so to keep
 things tidy, I've setup this function which handles it all for us.
 
-(You may notice we include an option to `use_pixelization_border, ignore this for now, as we'll be covering borders in 
-the next tutorial)
+(Borders, which relocate demagnified image pixels in the source-plane, are used behind the scenes here -- we'll be
+covering them in tutorial 6.)
 """
 
 
@@ -142,11 +142,14 @@ aplt.subplot_fit_imaging(fit=no_regularization_fit)
 So, what is happening here? Why does reducing the `coefficient` do this to our source reconstruction? First, we need
 to understand what regularization actually does!
 
-When the inversion reconstructs the source, it does not *only* compute the set of source-pixel fluxes that best-fit 
-the image. It also regularizes this solution, whereby it goes to every pixel on the rectangular source-plane grid 
-and computes the different between the reconstructed flux values of every source pixel with its 4 neighboring pixels. 
-If the difference in flux is large the solution is penalized, reducing its log likelihood. You can think of this as 
+When the inversion reconstructs the source, it does not *only* compute the set of source-pixel fluxes that best-fit
+the image. It also regularizes this solution, whereby it goes to every pixel on the rectangular source-plane grid
+and computes the difference between the reconstructed flux values of every source pixel with its 4 neighboring pixels.
+If the difference in flux is large the solution is penalized, reducing its log likelihood. You can think of this as
 us applying a 'smoothness prior' on the reconstructed source galaxy's light.
+
+(In the language of linear algebra, this smoothness prior is encoded in a `regularization matrix` $H$ which is
+added to the linear system the inversion solves -- tutorial 5 writes this out in full.)
 
 This smoothing adds a 'penalty term' to the log likelihood of an inversion which is the summed difference between the 
 reconstructed fluxes of every source-pixel pair multiplied by the `coefficient`. By setting the regularization 
@@ -279,14 +282,16 @@ print(fit.log_evidence)
 aplt.subplot_fit_imaging(fit=fit)
 
 """
- 2) Can you think of any other ways we might increase the Bayesian evidence even further? In future tutorials we will 
- learn how **PyAutoLens** can adapts the source reconstructions to the properties of the image so as to maximize the 
+ 2) Can you think of any other ways we might increase the Bayesian evidence even further? In future tutorials we will
+ learn how **PyAutoLens** can adapt the source reconstruction to the properties of the image so as to maximize the
  Bayesian evidence!
- 
+
 __Detailed Description__
 
 Below, I provide a more detailed discussion of the Bayesian evidence. It is not paramount that you understand this to
-use **PyAutoLens**, but I recommend you give it a read to get an intuition for how the evidence works.
+use **PyAutoLens**, but I recommend you give it a read to get an intuition for how the evidence works. The evidence
+itself is a sum of chi-squared, regularization and matrix log-determinant terms -- tutorial 5 derives the exact
+expression and computes every term in code.
 
 The Bayesian log evidence quantifies the following 3 aspects of a fit to strong lens imaging data:
 
@@ -297,10 +302,10 @@ The Bayesian log evidence quantifies the following 3 aspects of a fit to strong 
 
  However, this raises the question of what constitutes a ‘good’ solution? The Bayesian evidence defines this by
  assuming that the image data consists of independent Gaussian noise in every image pixel. A ‘good’ solution is one
- whose chi-squared residuals are consistent with Gaussian noise, producing a reduced chi-squared near 1.0 .Solutions
- which give a reduced chi squared below 1 are penalized for being overly complex and fitting the image’s noise, whereas
- solutions with a reduced chi-squared above are penalized for not invoking a more complex source model when the data it
- is necessary to fit the data bettter. In both circumstances, these penalties reduce the inferred Bayesian evidence!
+ whose chi-squared residuals are consistent with Gaussian noise, producing a reduced chi-squared near 1.0. Solutions
+ which give a reduced chi-squared below 1 are penalized for being overly complex and fitting the image’s noise, whereas
+ solutions with a reduced chi-squared above 1 are penalized for not invoking a more complex source model when the data
+ necessitates it. In both circumstances, these penalties reduce the inferred Bayesian evidence!
 
 2) *The complexity of the source reconstruction:* The log evidence estimates the number of source pixels that are used 
  to reconstruct the image, after accounting for their correlation with one another due to regularization. Solutions that
@@ -308,9 +313,9 @@ The Bayesian log evidence quantifies the following 3 aspects of a fit to strong 
  reconstructions are favoured.
 
 3) *The signal-to-noise (S/N) of the image that is fitted:* The Bayesian evidence favours models which fit higher S/N
- realizations of the observed data (where the S/N is determined using the image-pixel variances, e.g. the noise-map). Up 
- to now, all **PyAutoLens** fits assumed fixed variances, meaning that this aspect of the Bayeisan evidence has no impact 
- on the inferred evidence values. However, in hyper-mode we will invoke functionality that increases the variances 
+ realizations of the observed data (where the S/N is determined using the image-pixel variances, e.g. the noise-map). Up
+ to now, all **PyAutoLens** fits assumed fixed variances, meaning that this aspect of the Bayesian evidence has no impact
+ on the inferred evidence values. However, adaptive features can invoke functionality that increases the variances
  of image-pixels where the lens model fits the data poorly.
    
  The premise is that whilst increasing the variances of image pixels lowers their S/N values and therefore also

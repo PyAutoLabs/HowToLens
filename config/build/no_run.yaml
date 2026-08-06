@@ -25,10 +25,3 @@
 #   permanent skips — every mega-run surfaces them with a loud warning
 #   banner. Investigate the failure, fix the underlying bug, and remove
 #   the NEEDS_FIX marker.
-
-- tutorial_6_borders # NEEDS_FIX 2026-08-04 - cap-induced, not a mask problem:
-  # fails only under PYAUTO_SMALL_DATASETS (IndexError: index 371 out of bounds
-  # for axis 0 with size 272) and passes on the same dataset files without the
-  # cap. Hardcoded pix/border indices outrun the capped mesh. Fix by decoupling
-  # the indices (or the mesh shape) from dataset resolution, as HowToGalaxy
-  # chapter_4 tutorial_3 did, then remove this entry.

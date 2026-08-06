@@ -1,5 +1,5 @@
 """
-Tutorial 10: Brightness Adaption
+Tutorial 11: Brightness Adaption
 ================================
 
 In the previous tutorial we motivated our need to adapt the pixelization to the source's morphology, such that source
@@ -116,7 +116,7 @@ tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy_magnification])
 fit = al.FitImaging(dataset=dataset, tracer=tracer)
 
 """
-Lets have a quick look to make sure it has the same residuals we saw in tutorial 1.
+Lets have a quick look to make sure it has the same residuals we saw in the previous tutorial.
 """
 mapper = fit.inversion.cls_list_from(al.Mapper)[0]
 
@@ -358,9 +358,9 @@ aplt.plot_array(array=fit.model_images_of_planes_list[1], title="Plane 1 Image")
 """
 __Wrap Up__
 
-To end, lets think about the Bayesian evidence, which we saw now goes to significantly higher values than for a 
-magnification-based grid. At this point, it might be worth reminding yourself how the Bayesian evidence works by 
-going back to description in this chapters `introduction` text file.
+To end, lets think about the Bayesian evidence, which we saw now goes to significantly higher values than for a
+magnification-based grid. At this point, it might be worth reminding yourself how the Bayesian evidence works by
+going back to tutorials 4 and 5 of this chapter.
 
 So, why do you think why adapting to the source's brightness increases the log evidence?
 
@@ -374,5 +374,5 @@ This provides a second benefit. If the best solutions in our fit want to use the
 **PyAutoLens** can now access those solutions, this means that adapt-mode will run much faster than the magnification 
 based grid! Put simply, fewer source-pixels means lower computational overheads. YAY!
 
-Tutorial 2 done, next up, adaptive regularization!
+Tutorial 11 done, next up, adaptive regularization!
 """

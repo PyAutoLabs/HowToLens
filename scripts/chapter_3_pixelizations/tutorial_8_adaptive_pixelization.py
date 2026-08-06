@@ -1,5 +1,5 @@
 """
-Tutorial 7: Adaptive Pixelization
+Tutorial 8: Adaptive Pixelization
 =================================
 
 In this tutorial we will introduce a new `Pixelization` object, which uses an `Overlay` image-mesh and a `Delaunay`
@@ -12,7 +12,7 @@ So, why would we want to do that? Lets take another quick look at the rectangula
 __Contents__
 
 - **Initial Setup:** We'll use the same strong lensing data as the previous tutorial, where.
-- **Advantages and Disadvatanges:** Lets think about the rectangular pixelization.
+- **Advantages and Disadvantages:** Lets think about the rectangular pixelization.
 - **Image Mesh:** The Delaunay mesh is an irregular grid of pixels (or triangles) in the source-plane.
 - **Regularization:** On the rectangular grid, we regularized each source pixel with its 4 neighbors.
 - **Wrap Up:** Summary of the script and next steps.
@@ -114,12 +114,12 @@ aplt.subplot_fit_imaging(fit=fit)
 aplt.subplot_fit_imaging_of_planes(fit=fit)
 
 """
-__Advantages and Disadvatanges__
+__Advantages and Disadvantages__
 
-Lets think about the rectangular pixelization. Is this the optimal way to reconstruct our source? Are there features 
-in the source-plane that arn`t ideal? How do you think we could do a better job?
+Lets think about the rectangular pixelization. Is this the optimal way to reconstruct our source? Are there features
+in the source-plane that aren't ideal? How do you think we could do a better job?
 
-There are a number of reasons the rectangular pixelization is not optimal, and is infact a pretty poor method to 
+There are a number of reasons the rectangular pixelization is not optimal, and it is in fact a pretty poor method to
 model strong lenses!
 
 So what is wrong with the grid? Well, lets think about the source reconstruction.
@@ -149,7 +149,7 @@ This is what the Delaunay mesh enables.
 __Image Mesh__
 
 The Delaunay mesh is an irregular grid of pixels (or triangles) in the source-plane. We must first therefore determine
-a set of (y,x) source-plane coordinates defining this grid, specifically where each triangle vertex is loated.
+a set of (y,x) source-plane coordinates defining this grid, specifically where each triangle vertex is located.
 
 We do this using an `image_mesh`, which defines a method to determine a set of coordinates in the image-plane 
 which are ray-traced to the source-plane. These traced coordinates are the triangle vertexes of our source-pixel mesh. 
@@ -164,7 +164,7 @@ image_mesh = al.image_mesh.Overlay(shape=(20, 20))
 image_plane_mesh_grid = image_mesh.image_plane_mesh_grid_from(mask=dataset.mask)
 
 """
-We can plot this grid over the image, to see that it is a coarse grid of (y,x) coordinates laid ove the image.
+We can plot this grid over the image, to see that it is a coarse grid of (y,x) coordinates laid over the image.
 """
 
 aplt.plot_array(array=dataset.data, title="Data")
@@ -201,7 +201,7 @@ aplt.subplot_fit_imaging(fit=fit)
 """
 A closer inspection of the pixelization shows the improvement. 
 
-We are using fewer pixels than the rectangular grid (400, instead of 1600) and reconstructing the source is far 
+We are using fewer pixels than the rectangular grid (400, instead of 1600) and reconstructing the source in far
 greater detail!
 """
 aplt.subplot_fit_imaging_of_planes(fit=fit)
@@ -217,13 +217,13 @@ it shares a direct vertex with.
 
 __Wrap Up__
 
-The `Overlay` image-mesh and `Delaunay` mesh is still far from optimal. There are lots of source-pixels effectively f
-itting just noise. We can achieve even better solutions if the central regions of the source were reconstructed using 
-more pixels and fewer source pixels are used in the outskirts of the source plane. 
+The `Overlay` image-mesh and `Delaunay` mesh is still far from optimal. There are lots of source-pixels effectively
+fitting just noise. We could achieve even better solutions if the central regions of the source were reconstructed
+using more pixels, and fewer source pixels were used in the outskirts of the source plane.
 
-Tutorials 9, 10 and 11 show even more advanced and adaptive pixelizations which do just this, by adapting to the
+Tutorials 10, 11 and 12 show even more advanced and adaptive pixelizations which do just this, by adapting to the
 source galaxy's morphology rather than the mass model magnification.
 
-In the mean time, you may wish to experiment with using both Delaunay and Delaunay grids to fit 
-lenses which can be easily achieve by changing the input pixelization given to a pipeline.
+In the mean time, you may wish to experiment with using both rectangular and Delaunay meshes to fit
+lenses, which is easily achieved by changing the input pixelization given to a pipeline.
 """

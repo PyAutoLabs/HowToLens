@@ -1,5 +1,5 @@
 """
-Tutorial 5: Borders
+Tutorial 6: Borders
 ===================
 
 In the previous tutorials, the source-plane pixel grid perfectly mapped over the traced image-pixel $(y,x)$ coordinates
@@ -7,7 +7,8 @@ in the source plane. If these pixels mapped to a larger area in the source plane
 increase its size so as to cover every source-plane coordinate.
 
 In this tutorial, we will consider how the size of the pixelization grid is chosen and introduce the concept of a
-border.
+border. The previous tutorial applied border relocation as a single step of the likelihood algebra -- here we see
+why that step is needed.
 
 __Contents__
 
@@ -68,7 +69,7 @@ __Borders__
 
 So, what is a border? In the image-plane, a border is the set of exterior pixels in a mask that are at its border.
 
-Lets plot the image with a circular circular and tell our `aplt.subplot_imaging_dataset` to plot the border.
+Lets apply a circular mask to the image and plot the dataset -- the border is the ring of pixels at the mask's edge.
 """
 mask_circular = al.Mask2D.circular(
     shape_native=dataset.shape_native,
@@ -83,8 +84,8 @@ border = mask_circular.derive_grid.border
 aplt.subplot_imaging_dataset(dataset=dataset)
 
 """
-As you can see, for a circular mask the border *is* the edge of the mask (the ring of black dots we're used to 
-seeing whenever we plot a mask. 
+As you can see, for a circular mask the border *is* the edge of the mask (the ring of black dots we're used to
+seeing whenever we plot a mask).
 
 For an annular mask, pixels on its inner edge are not a part of the border, whereas those on its outer edge are.
 """
@@ -133,10 +134,9 @@ def perform_fit_with_source_galaxy_mask_and_border(
 
 
 """
-Okay, so lets first look at the mapper without using a border and using annular mask.
+Okay, so lets first look at the mapper without using a border, using the annular mask.
 
-First, note how we set up the border, using a `al.Settings` object. This behaves analogously to the 
-`SettingsLens` objects we have used in previous tutorials.
+Note how we control the border via the `al.Settings` object's `use_border_relocator` input.
 """
 pixelization = al.Pixelization(
     mesh=al.mesh.RectangularAdaptDensity(shape=(40, 40)),
@@ -191,12 +191,12 @@ aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid
 So, why is this happening? What is the mass profile physically doing to create these source plane coordinates at 
 extremely large radial values? 
 
-Towards the centre of th elliptical isothermal mass profile, the density begins to rise very sharply, it becomes 
-extremely steep or 'cuspy'. This cuspy behaviour towards its centre can cause extremely large deflection angles to be 
-calculated:
+Towards the centre of the elliptical isothermal mass profile, the density begins to rise very sharply, it becomes
+extremely steep or 'cuspy'. This cuspy behaviour towards its centre causes extremely large deflection angles to be
+calculated.
 
-Central image pixel can therefore be subjected to 'demagnification', whereby they trace to extremely large values in 
-the source plane! 
+Central image pixels are therefore subjected to 'demagnification', whereby they trace to extremely large values in
+the source plane!
 
 Physically, this is not a problem, and it is the reason we do not see a 'central image' in most strong lenses, as the 
 light-rays which take this path through the centre of the lens are demagnified. However, if the lens galaxy had a less
@@ -205,14 +205,14 @@ steep inner mass distribution (termed a 'core') we would see the central image.
 Demagnification is a problem for the pixelization and inversion though, which reconstruct the flux of these 
 demagnified pixels just like the other pixels in the image-pixel. There are two negative consequences:
 
- 1) The rectangular pixel-grid that we 'lay over' the source-plane is very larger because it expands to include the 
- demagnified image-pixels. As a result, larger source-pixels are used to reconstruct the central regions of the 
- source-plane (where the source galaxy is actually located), meaning we reconstruct the source-galaxy at a lower 
+ 1) The rectangular pixel-grid that we 'lay over' the source-plane becomes very large, because it expands to include
+ the demagnified image-pixels. As a result, larger source-pixels are used to reconstruct the central regions of the
+ source-plane (where the source galaxy is actually located), meaning we reconstruct the source-galaxy at a lower
  effective resolution.
-    
- 2) The inversion reconstructs the flux of the demanigified image pixels using source-pixels which contain *only* 
- demagnified image pixels (these are the source pixels at the edge of the source plane). These source-pixels *should* 
- have had other image-pixels traced within them via image-pixels at even larger radii from the centre of the lens 
+
+ 2) The inversion reconstructs the flux of the demagnified image pixels using source-pixels which contain *only*
+ demagnified image pixels (these are the source pixels at the edge of the source plane). These source-pixels *should*
+ have had other image-pixels traced within them via image-pixels at even larger radii from the centre of the lens
  galaxy. However, these image-pixels are at radii above 3.0", meaning the circular mask removed them from the inversion.
 
 Lets quickly use a large circular mask to confirm that these pixels exist when we don't mask them.
@@ -376,10 +376,6 @@ fit = perform_fit_x2_lenses_with_source_galaxy_mask_and_border(
 
 mapper = fit.inversion.cls_list_from(al.Mapper)[0]
 
-border = mapper.source_plane_data_grid.over_sampled[
-    fit.dataset.grids.border_relocator.sub_border_slim
-]
-
 
 aplt.plot_array(array=fit.model_data, title="Plane 1 Image")
 
@@ -396,22 +392,17 @@ fit = perform_fit_x2_lenses_with_source_galaxy_mask_and_border(
 
 mapper = fit.inversion.cls_list_from(al.Mapper)[0]
 
-border = mapper.source_plane_data_grid.over_sampled[
-    fit.dataset.grids.border_relocator.sub_border_slim
-]
-
 aplt.plot_array(array=fit.model_data, title="Plane 1 Image")
 
 """
-Multi-galaxy modeling is rife for border effects and if you have multiple lens galaxies I heartily recommend you pay 
-a close eye to your source-plane borders!
+Multi-galaxy modeling is rife with border effects, and if you have multiple lens galaxies I heartily recommend you
+keep a close eye on your source-plane borders!
 
-Care must also be taken when choosing the size of your mask. If you don't choose a big enough mask, the border won't 
-be able to relocate all of the demanigified image pixels to the border edge.
+Care must also be taken when choosing the size of your mask. If you don't choose a big enough mask, the border won't
+be able to relocate all of the demagnified image pixels to the border edge.
 
-(The figures below look pretty horrible, because every ray-traced image coordinate is being plotted in the 
-source plane. Therefore, there are many black dots which overwhelm the figure. The point to focus on are the
-edges of the grid, where one can see the relocations of these coordinates.
+The fits below repeat the analysis with progressively larger circular masks, so you can see how the mask size
+changes the border and the resulting model image.
 """
 dataset = al.Imaging.from_fits(
     data_path=dataset_path / "data.fits",
@@ -433,10 +424,6 @@ fit = perform_fit_x2_lenses_with_source_galaxy_mask_and_border(
 
 mapper = fit.inversion.cls_list_from(al.Mapper)[0]
 
-border = mapper.source_plane_data_grid.over_sampled[
-    fit.dataset.grids.border_relocator.sub_border_slim
-]
-
 
 aplt.plot_array(array=fit.model_data, title="Plane 1 Image")
 
@@ -453,10 +440,6 @@ fit = perform_fit_x2_lenses_with_source_galaxy_mask_and_border(
 )
 
 mapper = fit.inversion.cls_list_from(al.Mapper)[0]
-
-border = mapper.source_plane_data_grid.over_sampled[
-    fit.dataset.grids.border_relocator.sub_border_slim
-]
 
 
 aplt.plot_array(array=fit.model_data, title="Plane 1 Image")
@@ -482,10 +465,6 @@ fit = perform_fit_x2_lenses_with_source_galaxy_mask_and_border(
 
 mapper = fit.inversion.cls_list_from(al.Mapper)[0]
 
-border = mapper.source_plane_data_grid.over_sampled[
-    fit.dataset.grids.border_relocator.sub_border_slim
-]
-
 
 aplt.plot_array(array=fit.model_data, title="Plane 1 Image")
 
@@ -510,10 +489,6 @@ fit = perform_fit_x2_lenses_with_source_galaxy_mask_and_border(
 )
 
 mapper = fit.inversion.cls_list_from(al.Mapper)[0]
-
-border = mapper.source_plane_data_grid.over_sampled[
-    fit.dataset.grids.border_relocator.sub_border_slim
-]
 
 
 aplt.plot_array(array=fit.model_data, title="Plane 1 Image")

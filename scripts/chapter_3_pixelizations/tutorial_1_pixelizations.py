@@ -1,5 +1,5 @@
 """
-Tutorial 1: pixelizations
+Tutorial 1: Pixelizations
 =========================
 
 In the previous chapters, we used light profiles to model the light of a strong lens's source galaxy, where the light
@@ -72,10 +72,10 @@ pixelization = al.Pixelization(mesh=mesh)
 
 """
 By itself, a pixelization does not tell us much. It has no grid of $(y,x)$ coordinates, no image, and no information
-about the lens we are fitting. 
+about the lens we are fitting.
 
-This information comes when we use the pixelization to create up a `Mapper`, which we
-perform below using the (traced) source-plane grid that we created above.
+This information comes when we use the pixelization to create a `Mapper`, which we
+do below using the (traced) source-plane grid that we created above.
 """
 interpolator = mesh.interpolator_from(
     source_plane_data_grid=source_plane_grid, source_plane_mesh_grid=None
@@ -84,7 +84,7 @@ interpolator = mesh.interpolator_from(
 mapper = al.Mapper(interpolator=interpolator)
 
 """
-This `Mapper` is a `RectangularMapper`, every `Pixelization` generates it owns mapper.
+This `Mapper` is a `RectangularMapper` -- every `Pixelization` generates its own mapper.
 """
 print(type(mapper))
 
@@ -94,8 +94,8 @@ By plotting our mapper, we now see our `Pixelization`.
 aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid")
 
 """
-However, the `Mapper` does contain lots of interesting information about our `Pixelization`, for example its 
-pixelization_grid tells us where the pixel centers are located.
+The `Mapper` contains lots of interesting information about our `Pixelization`, for example its
+`source_plane_mesh_grid` tells us where the pixel centres are located.
 """
 print("RectangularAdaptDensity Grid2D Pixel Centre 1:")
 print(mapper.source_plane_mesh_grid[0])
@@ -112,7 +112,7 @@ We can plot these centre on our grid, to make it look slightly less boring!
 aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid")
 
 """
-The `Mapper` also has the (source-plane) grid that we passed when we set it up. Lets check they`re the same.
+The `Mapper` also has the (source-plane) grid that we passed when we set it up. Lets check they're the same.
 """
 print("Source Grid2D Pixel 1")
 print(source_plane_grid[0])
@@ -132,7 +132,7 @@ aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid
 aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid")
 
 """
-Finally, the mapper`s `mesh_grid` has lots of information about the pixelization, for example, the arc-second 
+Finally, the mapper's mesh grid has lots of information about the pixelization, for example, its arc-second
 size and dimensions.
 """
 print(mapper.source_plane_mesh_grid.geometry.shape_native_scaled)
@@ -145,10 +145,10 @@ __Wrap Up__
 This was a relatively gentle overview of pixelizations, but one that was hopefully easy to follow. Think about the 
 following questions before moving on to the next tutorial:
 
- 1) Look at how the source-grid coordinates are distributed over the rectangular pixel-grid. Are these points 
- distributed evenly over the rectangular grid`s pixels? Do some pixels have a lot more grid-points inside of them? 
+ 1) Look at how the source-grid coordinates are distributed over the rectangular pixel-grid. Are these points
+ distributed evenly over the rectangular grid's pixels? Do some pixels have a lot more grid-points inside of them?
  Do some pixels have no grid-points in them?
 
- 2) The rectangular pixelization`s edges are aligned with the most exterior coordinates of the source-grid. This is 
- intentional, why do you think this is?
+ 2) The rectangular pixelization's edges are aligned with the most exterior coordinates of the source-grid. This is
+ intentional -- why do you think this is?
 """

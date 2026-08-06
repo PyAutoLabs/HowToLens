@@ -7,7 +7,7 @@ In the previous two tutorials, we introduced:
  - `Pixelization`'s: which place a pixel-grid in the source-plane.
  - `Mappers`'s: which describe how each source-pixel maps to one or more image pixels.
 
-However, non of this has actually helped us fit strong lens data or reconstruct the source galaxy. This is the subject
+However, none of this has actually helped us fit strong lens data or reconstruct the source galaxy. This is the subject
 of this tutorial, where the process of reconstructing the source's light on the pixelization is called an `Inversion`.
 
 __Contents__
@@ -63,7 +63,7 @@ dataset = al.Imaging.from_fits(
 )
 
 """
-Lets create an annular mask which traces the stongly lensed source's ring of light.
+Lets create an annular mask which traces the strongly lensed source's ring of light.
 """
 mask = al.Mask2D.circular_annular(
     shape_native=dataset.shape_native,
@@ -222,9 +222,10 @@ aplt.plot_array(
 )
 
 """
-Pretty great, huh? If you ran the complex source pipeline in chapter 3, you'll remember that getting a model image 
-that looked this good simply *was not possible*. With an inversion, we can do this with ease and without having to 
-perform model-fitting with 20+ parameters for the source's light!
+Pretty great, huh? If you fitted complex sources using light profiles in the search chaining tutorials at the end of
+chapter 2 (tutorials 9-11), you'll remember that getting a model image that looked this good simply *was not possible*.
+With an inversion, we can do this with ease and without having to perform model-fitting with 20+ parameters for the
+source's light!
 
 We will now briefly discuss how an inversion actually works, however the explanation I give in this tutorial will be 
 overly-simplified. To be good at lens modeling you do not need to understand the details of how an inversion works, you 
@@ -249,10 +250,15 @@ performed we know two key pieces of information:
  1) The mappings between every source-pixel and sets of image-pixels.
  2) The flux values in every observed image-pixel, which are the values we want to fit successfully.
 
-It turns out that with these two pieces of information we can linearly solve for the set of source-pixel fluxes that 
-best-fit (e.g. maximize the log likelihood) our observed image. Essentially, we set up the mappings between source and 
-image pixels as a large matrix and solve for the source-pixel fluxes in an analogous fashion to how you would solve a 
+It turns out that with these two pieces of information we can linearly solve for the set of source-pixel fluxes that
+best-fit (e.g. maximize the log likelihood) our observed image. Essentially, we set up the mappings between source and
+image pixels as a large matrix and solve for the source-pixel fluxes in an analogous fashion to how you would solve a
 set of simultaneous linear equations. This process is called a `linear inversion`.
+
+In the language of linear algebra: the mappings form a `mapping matrix` $f$, which together with the data and
+noise-map defines a linear system whose solution is the vector of source-pixel fluxes $s$. Tutorial 5 of this
+chapter writes this system out in full and computes it step-by-step in code -- for now, the intuition above is all
+you need.
 
 There are three more things about a linear inversion that are worth knowing:
 
@@ -265,7 +271,7 @@ There are three more things about a linear inversion that are worth knowing:
  the mapping between every sub-pixel and source-pixel that is computed and used to perform the inversion. This prevents 
  aliasing effects degrading the image reconstruction. By default **PyAutoLens** uses sub-gridding of degree 4x4.
 
- 3) The inversion`s solution is regularized. But wait, that`s what we'll cover in the next tutorial!
+ 3) The inversion's solution is regularized. But wait, that's what we'll cover in the next tutorial!
 
 Finally, let me show you how easy it is to fit an image with an `Inversion` using a `FitImaging` object. Instead of 
 giving the source galaxy a light profile, we simply pass it a `Pixelization` and regularization, and pass it to a 
@@ -319,7 +325,8 @@ And, we're done, here are a few questions to get you thinking about inversions:
  
 __Detailed Explanation__
 
-If you are interested in a more detailed description of how inversions work, then checkout the file
-`autolens_workspace/*/imaging/features/pixelization/likelihood_function.ipynb` which gives a visual step-by-step
-guide of the process alongside equations and references to literature on the subject.
+If you are interested in a more detailed description of how inversions work, tutorial 5 of this chapter collects the
+full linear algebra in one place. The file
+`autolens_workspace/*/imaging/features/pixelization/likelihood_function.ipynb` gives a complementary visual
+step-by-step guide of the process alongside equations and references to literature on the subject.
 """

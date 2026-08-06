@@ -1,8 +1,8 @@
 """
-Tutorial 11: Adaptive Regularization
+Tutorial 12: Adaptive Regularization
 ====================================
 
-In tutorial 7, we discussed why the `Constant` regularization scheme was sub-optimal. Different regions of the source
+In tutorial 10, we discussed why the `Constant` regularization scheme was sub-optimal. Different regions of the source
 demand different levels of regularization, motivating a regularization scheme which adapts to the reconstructed
 source's surface brightness.
 
@@ -174,8 +174,8 @@ Yes, it does!
 
 Combining the adaptive mesh and regularization will only further benefit lens modeling!
 
-However, as shown below, we don't fit the source as well as the morphology based mesh did in the last chapter. 
-This is because although the adaptive regularization scheme improves the fit, the magnification based 
+However, as shown below, we don't fit the source as well as the morphology based mesh did in the previous tutorial.
+This is because although the adaptive regularization scheme improves the fit, the magnification based
 mesh simply does not have sufficient resolution to resolve the source's cuspy central light.
 """
 aplt.subplot_fit_imaging(fit=fit)
@@ -267,20 +267,25 @@ print("Evidence using adaptive regularization. ", fit.log_evidence)
 __Wrap Up__
 
 To end, lets consider what this adaptive regularization scheme means in the context of maximizing the Bayesian
-evidence. In the previous tutorial, we noted that by using a brightness-based adaptive pixelization we increased 
-the Bayesian evidence by allowing for new solutions which fit the data user fewer source pixels; the key criteria 
+evidence. In the previous tutorial, we noted that by using a brightness-based adaptive pixelization we increased
+the Bayesian evidence by allowing for new solutions which fit the data using fewer source pixels; the key criteria
 in making a source reconstruction 'more simple' and 'less complex'.
 
-As you might of guessed, adaptive regularization increases the Bayesian log evidence by making the source 
+As you might have guessed, adaptive regularization increases the Bayesian log evidence by making the source
 reconstruction simpler:
 
- 1) Reducing regularization in the source's brightest regions produces a `simpler` solution in that we are not 
+ 1) Reducing regularization in the source's brightest regions produces a `simpler` solution in that we are not
  over-smoothing our reconstruction of its brightest regions.
-    
- 2) Increasing regularization in the outskirts produces a simpler solution by correlating more source-pixels, 
+
+ 2) Increasing regularization in the outskirts produces a simpler solution by correlating more source-pixels,
  effectively reducing the number of pixels used by the reconstruction.
 
-Together, brightness based pixelization's and regularization allow us to find the objectively `simplest` source 
-solution possible and therefore ensure that our Bayesian evidence has a well defined maximum value. This was not the 
-case for magnification based pixelization's and constant regularization schemes.
+Together, brightness based pixelizations and regularization allow us to find the objectively `simplest` source
+solution possible and therefore ensure that our Bayesian evidence has a well defined maximum value. This was not the
+case for magnification based pixelizations and constant regularization schemes.
+
+That completes this chapter on pixelized source reconstruction. You can now reconstruct sources of arbitrary
+complexity and adapt every part of the analysis to the data itself. In chapter 4, `Scaling Up Lensing`, we take these
+tools to bigger systems: lenses with extra galaxies along the line of sight, multi-galaxy lenses, scaling relations,
+group and cluster scale lenses and weak lensing.
 """

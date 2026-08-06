@@ -1,18 +1,19 @@
 """
-Tutorial 9: Fit Problems
-========================
+Tutorial 10: Fit Problems
+=========================
 
-To begin, make sure you have read the `introduction` file carefully, as a clear understanding of how the Bayesian
-evidence works is key to understanding this chapter!
+To begin, make sure you have read tutorials 4 and 5 carefully, as a clear understanding of how the Bayesian
+evidence works is key to understanding the adaption tutorials that close this chapter!
 
-In the previous chapter we investigated two pixelization's: `RectangularAdaptDensity` and `RectangularAdaptDensity`. We argued that the
-latter was better than the former, because it dedicated more source-pixels to the regions of the source-plane where we
-had more data, e.g, the high-magnification regions. Therefore, we could fit the data using fewer source pixels,
-which improved computational efficiency and increased the Bayesian evidence.
+Earlier in this chapter (tutorial 8) we investigated two pixelizations: the `RectangularAdaptDensity` mesh and the
+`Delaunay` mesh with an `Overlay` image-mesh. We argued that the latter was better than the former, because it
+dedicated more source-pixels to the regions of the source-plane where we had more data, e.g. the high-magnification
+regions. Therefore, we could fit the data using fewer source pixels, which improved computational efficiency and
+increased the Bayesian evidence.
 
 So far, we've used just one regularization scheme; `Constant`. As the name suggests, this scheme applies just one
 regularization coefficient when comparing source pixel fluxes to apply smoothing. Here is a recap of our discussion
-about regularization from chapter 4:
+about regularization from tutorial 4:
 
 --------------------------------------------
 
@@ -256,14 +257,15 @@ pixelization. Both the mesh and regularization are to blame!
 
 *Image-Mesh / Mesh*:
 
-The problem is the same one we discussed when we compared the `RectangularAdaptDensity` and `RectangularAdaptDensity` meshes in tutorial 7. 
+The problem is the same one we discussed when we compared magnification-based and brightness-based adaption
+in tutorial 8.
 
-We are simply not dedicating enough source-pixels to the central regions of the source reconstruction, 
-e.g. where it`s brightest. As the source becomes more compact, the source reconstruction no longer has enough 
+We are simply not dedicating enough source-pixels to the central regions of the source reconstruction,
+e.g. where it's brightest. As the source becomes more compact, the source reconstruction no longer has enough
 resolution to resolve its fine-detailed central structure, causing the fit to the image to degrade.
 
-As we made our sources more compact we go from reconstructing them using ~100 source pixels, to ~20  source pixels 
-to ~ 10 source pixels. This is why we advocated not using the `RectangularAdaptDensity` mesh previously!
+As we made our sources more compact we went from reconstructing them using ~100 source pixels, to ~20 source pixels
+to ~10 source pixels.
 
 Adapting to the mass model magnification is not the best approach. As we simulated more compact sources the 
 magnification (which is determined via the mass model) does not change. We therefore reconstructed each source
@@ -293,7 +295,7 @@ aplt.plot_array(
 )
 
 """
-As you can see, all pixels are regularized with our input regularization_coefficient value of 3.6.
+As you can see, all pixels are regularized with our single input regularization coefficient value.
 
 This is not the best approach to regularizing the source. In fact, different regions of the source prefer different 
 levels of regularization:
@@ -315,7 +317,7 @@ low regularization coefficient whereas other parts want a high value.
 By using a single regularization coefficient, we infer an intermediate regularization coefficient that over-smooths 
 the source's central regions whilst failing to fully correlate exterior pixels. 
 
-An adaptive regularization scheme, where the regularization coefficient varies from the outskirts to the centrel 
+An adaptive regularization scheme, where the regularization coefficient varies from the outskirts to the central
 regions, will produce solutions that further increase the Bayesian evidence.
 
 __Wrap Up__
