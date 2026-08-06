@@ -475,9 +475,7 @@ assert model_many_tied.prior_count == model.prior_count
 Twelve more galaxies, zero more parameters. The tied model's dimensionality is *independent of the number of
 galaxies* — this is the property that makes group- and cluster-scale lens modeling possible at all, and it is
 why the assertion above is worth having in the script rather than in prose.
-"""
 
-"""
 __Model Fit__
 
 We now fit the scaling-relation model to the data, using the familiar `Nautilus` search and `AnalysisImaging`
