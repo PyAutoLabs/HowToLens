@@ -375,7 +375,9 @@ model_per_galaxy = af.Collection(
     galaxies=af.Collection(**per_galaxy_lens_dict, source=source),
 )
 
-print(f"Free parameters, per-galaxy model (previous tutorial): {model_per_galaxy.prior_count}")
+print(
+    f"Free parameters, per-galaxy model (previous tutorial): {model_per_galaxy.prior_count}"
+)
 print(f"Free parameters, scaling-relation model:               {model.prior_count}")
 
 """
@@ -433,7 +435,8 @@ member_centres = [
 ]
 
 member_luminosities = [
-    float(luminosity) for luminosity in np.linspace(0.05, 0.5, total_members) * luminosity_anchor
+    float(luminosity)
+    for luminosity in np.linspace(0.05, 0.5, total_members) * luminosity_anchor
 ]
 
 members_tied_list = []
@@ -466,8 +469,12 @@ model_many_freed = af.Collection(
 )
 
 print(f"Free parameters, 2-galaxy scaling model:            {model.prior_count}")
-print(f"Free parameters, 14-galaxy scaling model:           {model_many_tied.prior_count}")
-print(f"Free parameters, 14-galaxy per-galaxy-mass model:   {model_many_freed.prior_count}")
+print(
+    f"Free parameters, 14-galaxy scaling model:           {model_many_tied.prior_count}"
+)
+print(
+    f"Free parameters, 14-galaxy per-galaxy-mass model:   {model_many_freed.prior_count}"
+)
 
 assert model_many_tied.prior_count == model.prior_count
 
@@ -530,7 +537,9 @@ for i in tied_indexes:
     )
 
     print(f"Tied galaxy {i}: true einstein_radius      = {einstein_radii_true[i]:.3f}")
-    print(f"Tied galaxy {i}: relation predicts         = {einstein_radius_predicted:.3f}")
+    print(
+        f"Tied galaxy {i}: relation predicts         = {einstein_radius_predicted:.3f}"
+    )
 
 """
 The prediction lands within a few percent of the truth: this simulated pair happens to sit almost exactly on the

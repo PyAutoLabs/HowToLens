@@ -400,7 +400,9 @@ for centre in member_centres:
 
 # Source:
 
-source_model = af.Model(al.Galaxy, redshift=1.0, bulge=af.Model(al.lp_linear.SersicCore))
+source_model = af.Model(
+    al.Galaxy, redshift=1.0, bulge=af.Model(al.lp_linear.SersicCore)
+)
 
 # Overall Lens Model:
 

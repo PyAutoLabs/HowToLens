@@ -195,8 +195,10 @@ This is a purely cosmological quantity — it depends only on the constants c an
 previous section. It has a beautiful interpretation: it is the surface density a lens needs, given this observer /
 lens / source geometry, to be capable of producing multiple images.
 """
-sigma_cr_kpc = cosmology.critical_surface_density_between_redshifts_solar_mass_per_kpc2_from(
-    redshift_0=0.5, redshift_1=1.0
+sigma_cr_kpc = (
+    cosmology.critical_surface_density_between_redshifts_solar_mass_per_kpc2_from(
+        redshift_0=0.5, redshift_1=1.0
+    )
 )
 sigma_cr_arcsec = cosmology.critical_surface_density_between_redshifts_from(
     redshift_0=0.5, redshift_1=1.0
@@ -306,7 +308,9 @@ differences of the deflection field (as we saw in the workspace guides, this wor
 """
 hessian_yy, hessian_xy, hessian_yx, hessian_xx = lens_calc.hessian_from(grid=grid)
 
-print(f"Hessian components at pixel 0: H_yy = {hessian_yy[0]:.4f}, H_xx = {hessian_xx[0]:.4f}")
+print(
+    f"Hessian components at pixel 0: H_yy = {hessian_yy[0]:.4f}, H_xx = {hessian_xx[0]:.4f}"
+)
 
 """
 Differentiating the lens equation beta = theta - alpha(theta) gives the **Jacobian matrix** A, which maps a small
@@ -390,7 +394,9 @@ both caustics, just one — the source is no longer multiply imaged at all.
 
 `LensCalc` computes both by locating the zero-contours of the eigenvalue fields on the grid:
 """
-tangential_critical_curve_list = lens_calc.tangential_critical_curve_list_from(grid=grid)
+tangential_critical_curve_list = lens_calc.tangential_critical_curve_list_from(
+    grid=grid
+)
 radial_critical_curve_list = lens_calc.radial_critical_curve_list_from(grid=grid)
 
 tangential_caustic_list = lens_calc.tangential_caustic_list_from(grid=grid)

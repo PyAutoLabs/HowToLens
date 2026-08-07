@@ -515,7 +515,9 @@ print("Max Log Likelihood Model:")
 print(f"BCG sigma: {instance.galaxies.lens_0.mass.sigma:.1f} km/s")
 print(f"BCG r_cut: {instance.galaxies.lens_0.mass.r_cut:.2f} arcsec")
 print(f"Satellite sigma: {instance.galaxies.lens_1.mass.sigma:.1f} km/s")
-print(f"Halo mass_at_200: {instance.galaxies.host_halo.dark.mass_at_200:.2e} solar masses")
+print(
+    f"Halo mass_at_200: {instance.galaxies.host_halo.dark.mass_at_200:.2e} solar masses"
+)
 
 """
 __Results: Per-Member Profiles__
@@ -559,7 +561,9 @@ for result in result_list:
     fit = result.max_log_likelihood_fit
 
     print(f"Source '{result.max_log_likelihood_fit.dataset.name}':")
-    print(f"  Solved source-plane centre: {np.asarray(fit.positions.source_plane_coordinate)}")
+    print(
+        f"  Solved source-plane centre: {np.asarray(fit.positions.source_plane_coordinate)}"
+    )
     print(f"  Source-plane residuals: {np.asarray(fit.positions.residual_map)}")
     print(f"  Log likelihood: {float(fit.positions.log_likelihood):.2f}")
 
@@ -597,7 +601,9 @@ for dataset in dataset_list:
     )
     magnifications = lens_calc.magnification_2d_via_hessian_from(grid=dataset.positions)
 
-    print(f"Source '{dataset.name}' image magnifications: {np.abs(np.asarray(magnifications))}")
+    print(
+        f"Source '{dataset.name}' image magnifications: {np.abs(np.asarray(magnifications))}"
+    )
 
 """
 __Results: Image-Plane Validation__
@@ -620,7 +626,9 @@ for result, dataset in zip(result_list, dataset_list):
     )
 
     print(f"Source '{dataset.name}':")
-    print(f"  Observed positions ({len(dataset.positions)}): {dataset.positions.in_list}")
+    print(
+        f"  Observed positions ({len(dataset.positions)}): {dataset.positions.in_list}"
+    )
     print(f"  Model positions ({len(model_positions)}): {model_positions.in_list}")
 
     aplt.plot_grid(
@@ -648,8 +656,10 @@ upper_3_sigma = samples.values_at_upper_sigma(sigma=3.0)
 lower_3_sigma = samples.values_at_lower_sigma(sigma=3.0)
 
 print("BCG sigma 3-sigma interval:")
-print(f"  {lower_3_sigma.galaxies.lens_0.mass.sigma:.1f}"
-      f" - {upper_3_sigma.galaxies.lens_0.mass.sigma:.1f} km/s")
+print(
+    f"  {lower_3_sigma.galaxies.lens_0.mass.sigma:.1f}"
+    f" - {upper_3_sigma.galaxies.lens_0.mass.sigma:.1f} km/s"
+)
 
 aplt.corner_anesthetic(samples=samples)
 
