@@ -160,3 +160,5 @@ The remaining tutorials of this chapter attack the other half of the product: se
 passing (tutorial 10) reduce the number of evaluations needed to fit complex models, and the SLaM pipelines
 (tutorial 11) package these ideas into automated pipelines for fitting large samples of lenses.
 """
+
+# from autolens import setup_notebook; setup_notebook()

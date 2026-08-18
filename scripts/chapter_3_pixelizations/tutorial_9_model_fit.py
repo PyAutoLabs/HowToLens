@@ -11,3 +11,5 @@ __Wrap Up__
 Once complete, you can then move on to the next HowToLens tutorial and gain more insight into adaptive
 pixelizations.
 """
+
+# from autolens import setup_notebook; setup_notebook()
