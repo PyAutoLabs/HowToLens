@@ -65,3 +65,5 @@ the `autolens_workspace` to fit your data, and also try using the SLaM pipelines
 This tutorial concludes the lens modeling chapter. In the next chapter, we introduce pixelizations, which reconstruct
 the source galaxy on a pixel-grid rather than with light profiles.
 """
+
+# from autolens import setup_notebook; setup_notebook()
