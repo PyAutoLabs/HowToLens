@@ -96,7 +96,7 @@ evaluations are not only faster individually but can be batched, with many evalu
 of an order of magnitude or more are common, and they grow with the size of the dataset and model. If you have
 access to a GPU (even a modest laptop GPU), it is the single biggest speed-up available to you.
 
-You do not need to do anything to switch this on. If JAX is installed (`pip install autolens[jax]`), every
+You do not need to do anything to switch this on. JAX installs with `autolens` by default, and every
 `AnalysisImaging` object we have created in this chapter defaults to `use_jax=True` and the search compiles and
 batches the likelihood function automatically. You can force the plain NumPy path with
 `al.AnalysisImaging(dataset=dataset, use_jax=False)` (or by setting the environment variable
