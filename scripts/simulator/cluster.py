@@ -74,7 +74,7 @@ import autolens.plot as aplt
 __Dataset Paths__
 
 The `dataset_type` describes the type of data being simulated and `dataset_name` gives it a
-descriptive name. The cluster dataset is output to `howtolens/dataset/cluster/simple`, which the
+descriptive name. The cluster dataset is output to `dataset/cluster/simple`, which the
 tutorial on cluster-scale lensing loads via the auto-simulation guard.
 """
 dataset_type = "cluster"
@@ -525,5 +525,5 @@ aplt.subplot_galaxies_images(
 )
 
 """
-The dataset can be viewed in the folder `howtolens/dataset/cluster/simple`.
+The dataset can be viewed in the folder `dataset/cluster/simple`.
 """

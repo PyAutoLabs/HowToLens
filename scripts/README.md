@@ -10,6 +10,7 @@ a strong lens.
 - `chapter_4_scaling_up_lensing`: How to scale lens modeling up to extra galaxies, multi-galaxy lenses,
   scaling relations, groups, clusters and weak lensing.
 - `chapter_optional`: Optional tutorials.
+- `simulator`: Scripts used to simulate the strong lens datasets fitted throughout the **HowToLens** lectures.
 
 # Full Explanation
 
