@@ -124,7 +124,7 @@ every (y,x) coordinate on the grid in units of arc-seconds.
 """
 deflections = sis_mass_profile.deflections_yx_2d_from(grid=image_plane_grid)
 
-"""
+r"""
 Like grids and arrays, the deflection angles can be accessed using the `native` and `slim` attributes. These are 
 structured similarly to a `Grid2D` object:
 
@@ -151,7 +151,7 @@ The deflection angles are stored in a `VectorYX2D` data structure:
 """
 print(type(deflections))
 
-"""
+r"""
 This structure includes a `grid`, which represents the `Grid2D` of coordinates where the deflection angles are 
 calculated (in this case, the `image_plane_grid` we defined earlier). It also has vector-specific methods, 
 such as `magnitude`, which calculates the magnitude of each deflection vector using \((x^2 + y^2)^{0.5}\).
@@ -229,7 +229,7 @@ aplt.plot_array(
     use_log10=True,
 )
 
-"""
+r"""
 __Ray Tracing Grids__
 
 We now have all the tools we need to perform our first ray-tracing calculation.
@@ -367,7 +367,7 @@ the source's light there, and compare the resulting lensed image to the observed
 aplt.plot_grid(grid=image_plane_grid_traced, title="Image Plane Grid")
 aplt.plot_grid(grid=source_plane_grid_traced, title="Source Plane Grid")
 
-"""
+r"""
 __Wrap Up__
 
 In this tutorial, you performed your first lensing calculations. Let's summarise what we've learnt:

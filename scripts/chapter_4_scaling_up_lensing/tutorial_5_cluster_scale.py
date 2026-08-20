@@ -1,4 +1,4 @@
-"""
+r"""
 Tutorial 5: Cluster Scale
 =========================
 

@@ -1,4 +1,4 @@
-"""
+r"""
 Tutorial 1: Non-linear Search
 =============================
 
