@@ -328,7 +328,7 @@ look very similar (the only difference is the noise in the image).
 aplt.plot_array(array=fit.data, title="Data")
 aplt.plot_array(array=fit.model_data, title="Model Image")
 
-"""
+r"""
 The `residual_map` is the different between the observed image and model image, showing where in the image the fit is
 good (e.g. low residuals) and where it is bad (e.g. high residuals).
 
@@ -348,7 +348,7 @@ print(fit.residual_map.slim[0])
 
 aplt.plot_array(array=fit.residual_map, title="Residual Map")
 
-"""
+r"""
 Are these residuals indicative of a good fit to the data? Without considering the noise in the data, it's difficult 
 to ascertain. That is, its hard to ascenrtain if a residual value is large or small because this depends on the
 amount of noise in that pixel.
@@ -372,7 +372,7 @@ print(fit.normalized_residual_map.slim[0])
 
 aplt.plot_array(array=fit.normalized_residual_map, title="Normalized Residual Map")
 
-"""
+r"""
 Next, we define the `chi_squared_map`, which is obtained by squaring the `normalized_residual_map` and serves as a 
 measure of goodness of fit.
 
@@ -395,7 +395,7 @@ print(fit.chi_squared_map.slim[0])
 
 aplt.plot_array(array=fit.chi_squared_map, title="Chi Squared Map")
 
-"""
+r"""
 Now, we consolidate all the information in our `chi_squared_map` into a single measure of goodness-of-fit 
 called `chi_squared`. 
 
@@ -428,7 +428,7 @@ whereas a value significantly less than 1.0 suggests that the model is overfitti
 reduced_chi_squared = chi_squared / dataset.mask.pixels_in_mask
 print("Reduced Chi-squared = ", reduced_chi_squared)
 
-"""
+r"""
 Another quantity that contributes to our final assessment of the goodness-of-fit is the `noise_normalization`.
 
 The `noise_normalization` is computed by summing, over every pixel, the logarithm of 2 pi times the squared noise value:
@@ -448,7 +448,7 @@ noise_normalization = np.sum(np.log(2 * np.pi * dataset.noise_map**2))
 print("Noise Normalization = ", noise_normalization)
 print("Noise Normalization via fit = ", fit.noise_normalization)
 
-"""
+r"""
 From the `chi_squared` and `noise_normalization`, we can define a final goodness-of-fit measure known as 
 the `log_likelihood`. 
 
@@ -464,7 +464,7 @@ log_likelihood = -0.5 * (chi_squared + noise_normalization)
 print("Log Likelihood = ", log_likelihood)
 print("Log Likelihood via fit = ", fit.log_likelihood)
 
-"""
+r"""
 In the previous discussion, we noted that a lower \(\chi^2\) value indicates a better fit of the model to the 
 observed data. 
 

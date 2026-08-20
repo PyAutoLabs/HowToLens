@@ -161,7 +161,7 @@ source_galaxy = al.Galaxy(redshift=1.0, point_0=point_source)
 
 tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
 
-"""
+r"""
 Note that we attached the point source to its galaxy with the name `point_0`. This name is a label that PyAutoLens
 uses when fitting real data to pair each point source in the model with the dataset containing its observed image
 positions. With one source the name is a formality, but group- and cluster-scale lenses can contain many point
@@ -270,7 +270,7 @@ aplt.plot_array(
     title="Multiple Images and Critical Curve",
 )
 
-"""
+r"""
 __Magnifications__
 
 Lensing does not just relocate a point source's light — it magnifies it. Each multiple image has its own
@@ -340,7 +340,7 @@ print(time_delays)
 print("Time Delays relative to first image (days):")
 print(time_delays - time_delays[0])
 
-"""
+r"""
 __Extended Versus Point Computations__
 
 We can now state precisely why point-source lensing works so differently from everything in tutorials 2 and 3, on

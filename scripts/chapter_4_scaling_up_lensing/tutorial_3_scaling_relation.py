@@ -1,4 +1,4 @@
-"""
+r"""
 Tutorial 3: Scaling Relations
 =============================
 
@@ -541,7 +541,7 @@ for i in tied_indexes:
         f"Tied galaxy {i}: relation predicts         = {einstein_radius_predicted:.3f}"
     )
 
-"""
+r"""
 The prediction lands within a few percent of the truth: this simulated pair happens to sit almost exactly on the
 Faber-Jackson relation. That is why the tied fit succeeds. Real galaxies are not always so obliging.
 

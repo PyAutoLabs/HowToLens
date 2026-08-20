@@ -175,7 +175,7 @@ source_galaxy = al.Galaxy(redshift=1.0, pixelization=pixelization)
 
 tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
 
-"""
+r"""
 __Ray Tracing__
 
 Every 2D (y,x) image-plane coordinate $\theta$ is ray-traced to its source-plane coordinate $\beta$ by subtracting
@@ -331,7 +331,7 @@ plt.colorbar()
 plt.show()
 plt.close()
 
-"""
+r"""
 __Data Vector (D)__
 
 We now pose the reconstruction as a linear inversion, converting the blurred mapping matrix, data and noise-map
@@ -363,7 +363,7 @@ plt.colorbar()
 plt.show()
 plt.close()
 
-"""
+r"""
 __Curvature Matrix (F)__
 
 The curvature matrix has dimensions `(total_source_pixels, total_source_pixels)` and is given by (WD03):
@@ -386,7 +386,7 @@ plt.colorbar()
 plt.show()
 plt.close()
 
-"""
+r"""
 __Unregularized Solve__
 
 The inversion seeks the source-pixel fluxes $s$ (a vector with one entry per source pixel) that minimize the
@@ -410,7 +410,7 @@ reconstruction = np.linalg.solve(curvature_matrix, data_vector)
 
 print(reconstruction)
 
-"""
+r"""
 The reconstructed source-pixel fluxes are a noisy, unsmooth mess -- exactly the over-fitting we saw in tutorial 4
 when we set the regularization coefficient to zero. The linear inversion is fitting the noise in the data, because
 this system of equations is ill-posed: we need a smoothness prior.
@@ -486,7 +486,7 @@ mapped_reconstructed_data = al.Array2D(
 
 aplt.plot_array(array=mapped_reconstructed_data, title="Reconstructed Image")
 
-"""
+r"""
 __Likelihood Function__
 
 We now quantify the goodness-of-fit of the source reconstruction, computing the quantity tutorial 4 called the
@@ -521,7 +521,7 @@ chi_squared = np.sum(chi_squared_map)
 
 print(chi_squared)
 
-"""
+r"""
 __Regularization Term__
 
 The second term, $s^{T} H s$, is the $\lambda \, G_{L}$ regularization penalty evaluated at the solution: the summed
@@ -536,7 +536,7 @@ regularization_term = np.matmul(
 
 print(regularization_term)
 
-"""
+r"""
 __Complexity Terms__
 
 Up to this point, nothing has justified our choice of `regularization_coefficient=1.0`. We cannot choose it using
