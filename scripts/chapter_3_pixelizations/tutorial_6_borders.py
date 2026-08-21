@@ -139,7 +139,7 @@ Okay, so lets first look at the mapper without using a border, using the annular
 Note how we control the border via the `al.Settings` object's `use_border_relocator` input.
 """
 pixelization = al.Pixelization(
-    mesh=al.mesh.RectangularAdaptDensity(shape=(40, 40)),
+    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(40, 40)),
     regularization=al.reg.Constant(coefficient=1.0),
 )
 

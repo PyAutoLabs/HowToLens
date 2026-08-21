@@ -5,7 +5,7 @@ Tutorial 10: Fit Problems
 To begin, make sure you have read tutorials 4 and 5 carefully, as a clear understanding of how the Bayesian
 evidence works is key to understanding the adaption tutorials that close this chapter!
 
-Earlier in this chapter (tutorial 8) we investigated two pixelizations: the `RectangularAdaptDensity` mesh and the
+Earlier in this chapter (tutorial 8) we investigated two pixelizations: the `RectangularBilinearAdaptDensity` mesh and the
 `Delaunay` mesh with an `Overlay` image-mesh. We argued that the latter was better than the former, because it
 dedicated more source-pixels to the regions of the source-plane where we had more data, e.g. the high-magnification
 regions. Therefore, we could fit the data using fewer source pixels, which improved computational efficiency and
@@ -159,7 +159,7 @@ dataset_source_super_compact = simulate_for_source_galaxy(
 __Fitting__
 
 we'll make one more convenience function which fits the simulated imaging data with a
-`RectangularAdaptDensity` mesh and `Constant` regularization scheme pixelization.
+`RectangularBilinearAdaptDensity` mesh and `Constant` regularization scheme pixelization.
 
 We'll input the `coefficient` of each fit, so that for each simulated source we regularize it at an appropriate level. 
 There is nothing new in this function you haven't seen before.
@@ -177,7 +177,7 @@ def fit_with_Rectangular_from(dataset, mask, coefficient):
     )
 
     pixelization = al.Pixelization(
-        mesh=al.mesh.RectangularAdaptDensity(shape=(24, 24)),
+        mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(24, 24)),
         regularization=al.reg.Constant(coefficient=coefficient),
     )
 
