@@ -99,7 +99,7 @@ we again use the rectangular pixelization to create the mapper.
 
 (Ignore the regularization input below for now, we will cover this in the next tutorial).
 """
-mesh = al.mesh.RectangularAdaptDensity(shape=(25, 25))
+mesh = al.mesh.RectangularBilinearAdaptDensity(shape=(25, 25))
 
 pixelization = al.Pixelization(mesh=mesh)
 
@@ -278,7 +278,7 @@ giving the source galaxy a light profile, we simply pass it a `Pixelization` and
 tracer.
 """
 pixelization = al.Pixelization(
-    mesh=al.mesh.RectangularAdaptDensity(shape=(40, 40)),
+    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(40, 40)),
     regularization=al.reg.Constant(coefficient=1.0),
 )
 

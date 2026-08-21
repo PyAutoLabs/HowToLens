@@ -57,13 +57,13 @@ to reconstruct the galaxy.
 There are multiple `Mesh`'s available. For now, we'll keep it simple and use a rectangular
 grid, whose `shape` defines its $(y,x)$ dimensions.
 
-The `RectangularAdaptDensity` mesh adapts its pixels to the density of the traced source-plane
+The `RectangularBilinearAdaptDensity` mesh adapts its pixels to the density of the traced source-plane
 grid via the ray-guided transformed uniform (RTU) grid formulation of Enzi et al. (2026)
 (https://arxiv.org/abs/2606.30620), which should be cited in published work using this mesh.
 Note that whereas that paper pairs the RTU grid with a Gaussian-process source prior,
 **PyAutoLens** instead uses its own regularization schemes, introduced later in this chapter.
 """
-mesh = al.mesh.RectangularAdaptDensity(shape=(25, 25))
+mesh = al.mesh.RectangularBilinearAdaptDensity(shape=(25, 25))
 
 """
 We now pass the mesh to a `Pixelization`.
@@ -97,11 +97,11 @@ aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid
 The `Mapper` contains lots of interesting information about our `Pixelization`, for example its
 `source_plane_mesh_grid` tells us where the pixel centres are located.
 """
-print("RectangularAdaptDensity Grid2D Pixel Centre 1:")
+print("RectangularBilinearAdaptDensity Grid2D Pixel Centre 1:")
 print(mapper.source_plane_mesh_grid[0])
-print("RectangularAdaptDensity Grid2D Pixel Centre 2:")
+print("RectangularBilinearAdaptDensity Grid2D Pixel Centre 2:")
 print(mapper.source_plane_mesh_grid[1])
-print("RectangularAdaptDensity Grid2D Pixel Centre 3:")
+print("RectangularBilinearAdaptDensity Grid2D Pixel Centre 3:")
 print(mapper.source_plane_mesh_grid[2])
 print("etc.")
 

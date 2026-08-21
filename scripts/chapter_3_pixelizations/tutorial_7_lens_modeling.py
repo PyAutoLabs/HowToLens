@@ -123,7 +123,7 @@ lens_galaxy = al.Galaxy(
 )
 
 pixelization = al.Pixelization(
-    mesh=al.mesh.RectangularAdaptDensity(shape=(20, 20)),
+    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(20, 20)),
     regularization=al.reg.Constant(coefficient=1.0),
 )
 
@@ -160,7 +160,7 @@ lens_galaxy = al.Galaxy(
 )
 
 pixelization = al.Pixelization(
-    mesh=al.mesh.RectangularAdaptDensity(shape=(20, 20)),
+    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(20, 20)),
     regularization=al.reg.Constant(coefficient=1.0),
 )
 
@@ -260,7 +260,7 @@ lens_galaxy = al.Galaxy(
 )
 
 pixelization = al.Pixelization(
-    mesh=al.mesh.RectangularAdaptDensity(shape=(20, 20)),
+    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(20, 20)),
     regularization=al.reg.Constant(coefficient=1.0),
 )
 

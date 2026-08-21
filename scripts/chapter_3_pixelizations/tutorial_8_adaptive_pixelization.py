@@ -100,7 +100,7 @@ mesh_shape = (mesh_pixels_yx, mesh_pixels_yx)
 
 
 pixelization = al.Pixelization(
-    mesh=al.mesh.RectangularAdaptDensity(shape=mesh_shape),
+    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=mesh_shape),
     regularization=al.reg.Constant(coefficient=0.5),
 )
 
