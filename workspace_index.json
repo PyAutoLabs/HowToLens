@@ -373,6 +373,7 @@
       "Wrap Up"
     ],
     "cross_refs": [
+      "autolens_workspace/scripts/imaging/features/pixelization/cpu_fast_modeling.py",
       "chapter_optional/tutorial_searches.py"
     ],
     "notebook": "notebooks/chapter_2_lens_modeling/tutorial_8_need_for_speed.ipynb",
