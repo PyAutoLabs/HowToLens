@@ -110,7 +110,10 @@ is why short interactive computations sometimes feel slower than you might expec
 
 Long-time users may remember that **PyAutoLens** previously used `numba`, which recompiles individual Python
 functions into fast machine code. JAX supersedes it: rather than accelerating functions one at a time, it compiles
-and optimizes the likelihood function end-to-end, and adds GPU support and batching on top.
+and optimizes the likelihood function end-to-end, and adds GPU support and batching on top. The one exception is
+pixelized-source modeling on a CPU, where the `numba` sparse-operator path (see
+`autolens_workspace/scripts/imaging/features/pixelization/cpu_fast_modeling.py`, and chapter 3) remains the faster
+route on many-core machines.
 
 Therefore, **PyAutoLens** is pretty well optimized and there are no 'low hanging fruit' speed ups available by
 writing the code in a different language.
