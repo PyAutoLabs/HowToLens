@@ -27,6 +27,7 @@ from autolens import jax_wrapper  # Sets JAX environment before other imports
 from pathlib import Path
 import autolens as al
 import autolens.plot as aplt
+import autoarray.plot as aaplt
 
 """
 __Initial Setup__
@@ -232,16 +233,21 @@ overly-simplified. To be good at lens modeling you do not need to understand the
 simply need to be able to use an inversion to model a strong lens. 
 
 To begin, lets consider some random mappings between our mapper`s source-pixels and the image.
+
+`mapper.mappings_from` returns one `Mapping` per group of source-pixels, which we pass straight to
+`subplot_image_and_mapper` as `regions=`. Each mapping is drawn in its own colour: the source-plane cell on the right,
+and the image-plane regions it maps to on the left. Tutorial 2 covers this in detail.
 """
-pix_indexes = [[445], [285], [313], [132], [11]]
+pix_indexes = [[min(index, mapper.pixels - 1)] for index in [445, 285, 313, 132, 211]]
 
-indexes = mapper.slim_indexes_for_pix_indexes(pix_indexes=pix_indexes)
+mappings = mapper.mappings_from(pix_indexes=pix_indexes)
 
-
-aplt.plot_array(
-    array=dataset.data, title="Image", positions=mapper.image_plane_data_grid
+aaplt.subplot_image_and_mapper(
+    mapper=mapper,
+    image=dataset.data,
+    regions=mappings,
+    mesh_grid=mapper.source_plane_mesh_grid,
 )
-aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid")
 
 """
 These mappings are known before the inversion reconstructs the source galaxy, which means before this inversion is
