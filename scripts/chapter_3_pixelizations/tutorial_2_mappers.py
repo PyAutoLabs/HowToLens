@@ -7,8 +7,6 @@ does, why it was called a mapper and whether it was mapping anything at all!
 
 Therefore, in this tutorial, we'll cover mappers in more detail.
 
-WARNING: THIS TUTORIAL'S VISUALS ARE SLIGHTLY BUGGY CURRENTLY AND WILL BE FIXED IN THE FUTURE.
-
 __Contents__
 
 - **Initial Setup:** we'll use new strong lensing data, where.
@@ -25,6 +23,7 @@ from autolens import jax_wrapper  # Sets JAX environment before other imports
 from pathlib import Path
 import autolens as al
 import autolens.plot as aplt
+import autoarray.plot as aaplt
 
 """
 __Initial Setup__
@@ -106,9 +105,9 @@ mapper = al.Mapper(interpolator=interpolator)
 
 
 """
-We first plot the mapper's pixelization, which is a grid of rectangular pixels in the source-plane.
-
-We plot this next to the image using the `subplot_image_and_mapper` method.
+Lets look at the two things a mapper holds. In the image-plane it has the (y,x) coordinate of every image-pixel it
+uses, and in the source-plane it has the rectangular mesh those coordinates land on after being ray-traced by the
+tracer.
 """
 aplt.plot_array(
     array=dataset.data, title="Image", positions=mapper.image_plane_data_grid
@@ -116,101 +115,141 @@ aplt.plot_array(
 aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid")
 
 """
-Using the `positions=` overlay input we are also going to highlight specific grid coordinates in certain colors, such
-that we can see how they map from the image-plane to the source-plane and vice versa.
+The mapper's job is to pair those two things together. Before we look at how it pairs whole source pixels, it helps
+to see the simpler, point-level version: take a handful of image-pixel coordinates and follow the *same* coordinates
+into the source-plane.
 
-We do this by specifying their integer indexes, corresponding to the index of each data point in the image and source
-plane grids. These indexes are used to highlight the grid coordinates in the image and source-plane grids that map
-directly to one another.
+We do this by giving the `indexes=` input a list of index groups, where each group is drawn in its own colour. The
+same colour therefore marks the same coordinates in both planes.
 """
+total_points = len(mapper.image_plane_data_grid)
+
+side = int(round(total_points**0.5))
+
+centre = side * (side // 2) + side // 2
+
 indexes = [
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-    [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+    [index for index in range(0, 10) if index < total_points],
+    [
+        centre + step * side
+        for step in range(-5, 5)
+        if 0 <= centre + step * side < total_points
+    ],
 ]
 
-
-aplt.plot_array(
-    array=dataset.data, title="Image", positions=mapper.image_plane_data_grid
+aaplt.plot_grid(
+    grid=mapper.image_plane_data_grid,
+    indexes=indexes,
+    title="Image-Plane Data Grid",
 )
-aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid")
-
-"""
-It can help to plot the image-plane grid and source-plane grid over each image, in order to see how the
-mapped pixels relate to the image and source-plane grids overall.
-
-This requires us to plot each image individually (e.g. not using `subplot_image_and_mapper`), so we can plot each
-grid via the visuals object and have them displayed clearly.
-"""
-
-
-aplt.plot_array(array=dataset.data, title="Image")
-
-
-aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid")
-
-"""
-We can now make these mappings appear the other way round. That is, we can input a source-pixel index (of our
-rectangular grid) and highlight how all of the image-pixels that it contains map to the image-plane.
-
-To make the indexes appear in the image-plane, we have to convert them from their source-plane pixel indexes
-to image plane image-pixel indexes using the mapper.
-
-Lets map source pixel 312, the central source-pixel, to the image sub-grid and then plot it via the visuals object.
-
-The pixels, plotted in red, extended beyond the central square pixel of the source-plane grid. This is because
-the pairing of data pixels to source pixels is not one-to-one, as an interpolation scheme is used to map pixels
-which land near the edges of the source-pixel, but outside them, to that source pixel with a weight.
-"""
-pix_indexes = [[312]]
-
-indexes = mapper.slim_indexes_for_pix_indexes(pix_indexes=pix_indexes)
-
-
-aplt.plot_array(
-    array=dataset.data, title="Image", positions=mapper.image_plane_data_grid
+aaplt.plot_grid(
+    grid=mapper.source_plane_data_grid,
+    indexes=indexes,
+    title="Source-Plane Data Grid (Traced)",
 )
-aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid")
 
 """
-There we have it, multiple imaging in all its glory. 
+The red points, the first ten image-pixels at the very corner of the image, barely move: they are far from the lens
+galaxy, so they are hardly deflected. The green points run vertically through the centre of the image, straight
+through the lens galaxy, and are dragged a long way -- in the source-plane they no longer form a straight line, and
+they pile up near the centre.
 
-Try changing the source-pixel indexes of the line below. This will give you a feel for how different regions of the 
-source-plane map to the image.
+This is only half the story though, because it tells us where individual coordinates go, not which *source pixel*
+they end up inside. That is what a mapper actually stores, and it is what we look at next.
+
+We can now make the mapping appear the other way round. That is, we can input a source-pixel index (of our
+rectangular mesh) and ask the mapper which image-pixels land inside it.
+
+`mapper.mappings_from` answers exactly this. It takes a list of source-pixel index *groups* and returns one `Mapping`
+per group. Each `Mapping` carries:
+
+ - `source_contours`: the outline of the source-plane cell(s) in the group.
+ - `image_contours`: the outlines of the connected regions of image-pixels which map into that group.
+
+Both are polygons in arc-seconds, so we can draw them straight onto the image and onto the source-plane, in the same
+colour. That colour is the whole point: it says "this source region produces these image regions".
+
+Lets map source pixel 312, the central source-pixel, and draw it in both planes. We clamp the index with
+`min(index, mapper.pixels - 1)` so the tutorial still runs if you shrink the mesh.
 """
-pix_indexes = [[312, 318], [412]]
+pix_indexes = [[min(312, mapper.pixels - 1)]]
 
-indexes = mapper.slim_indexes_for_pix_indexes(pix_indexes=pix_indexes)
+mappings = mapper.mappings_from(pix_indexes=pix_indexes)
 
-
-aplt.plot_array(
-    array=dataset.data, title="Image", positions=mapper.image_plane_data_grid
+aaplt.subplot_image_and_mapper(
+    mapper=mapper,
+    image=dataset.data,
+    regions=mappings,
+    mesh_grid=mapper.source_plane_mesh_grid,
 )
-aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid")
 
 """
-Okay, so I think we can agree, mapper's map things! More specifically, they map source-plane pixels to multiple pixels 
+There we have it, multiple imaging in all its glory.
+
+On the right, a single small red rectangle: one cell of the source-plane mesh. On the left, that same red appears in
+two or more *separate* regions of the image, sitting on the lensed source's ring. The lens galaxy's mass has taken
+one patch of source and produced several images of it, and the mapper knows which image-pixels belong to which.
+
+Notice also that the red regions in the image-plane are wider than a strict "four image pixels per source pixel"
+footprint would be. This is because the pairing of image-pixels to source-pixels is not one-to-one: a bilinear
+interpolation scheme is used, so an image-pixel which lands near the edge of a source-pixel, but outside it, is still
+paired with that source-pixel with a weight.
+
+Try changing the source-pixel indexes below. This will give you a feel for how different regions of the source-plane
+map to the image.
+"""
+pix_indexes = [
+    [min(index, mapper.pixels - 1) for index in group] for group in [[312, 313], [412]]
+]
+
+mappings = mapper.mappings_from(pix_indexes=pix_indexes)
+
+aaplt.subplot_image_and_mapper(
+    mapper=mapper,
+    image=dataset.data,
+    regions=mappings,
+    mesh_grid=mapper.source_plane_mesh_grid,
+)
+
+"""
+Two groups, two colours. The first group is two neighbouring source pixels, so red covers twice the area of the
+source-plane and correspondingly wider arcs in the image. The second group is a single pixel further from the centre
+of the source-plane, drawn in green, and its images land somewhere else entirely on the ring.
+
+This is the key insight of the whole chapter: *every* source pixel has a set of image regions like this, and the
+collection of all of them is the "mapping matrix" that an inversion solves. Tutorial 3 puts that matrix to work.
+
+Okay, so I think we can agree, mapper's map things! More specifically, they map source-plane pixels to multiple pixels
 in the observed image of a strong lens.
 
 __Mask__
 
-Finally, lets repeat the steps that we performed above, but now using a masked image. By applying a `Mask2D`, the 
-mapper only maps image-pixels that are not removed by the mask. This removes the (many) image pixels at the edge of the 
-image, where the source is not present. These pixels also pad-out the source-plane, thus by removing them our 
+Finally, lets repeat the steps that we performed above, but now using a masked image. By applying a `Mask2D`, the
+mapper only maps image-pixels that are not removed by the mask. This removes the (many) image pixels at the edge of the
+image, where the source is not present. These pixels also pad-out the source-plane, thus by removing them our
 source-plane reduces in size.
 
-Lets just have a quick look at these edges pixels:
+Lets first see why they are worth removing, by drawing source pixels near the edge of the mesh:
 """
-pix_indexes = [[0, 1, 2, 3, 4, 5, 6, 7], [620, 621, 622, 623, 624]]
+pix_indexes = [
+    [min(index, mapper.pixels - 1) for index in group]
+    for group in [[600, 601, 602, 603, 604], [620, 621, 622, 623, 624]]
+]
 
-indexes = mapper.slim_indexes_for_pix_indexes(pix_indexes=pix_indexes)
+mappings = mapper.mappings_from(pix_indexes=pix_indexes)
 
-
-aplt.plot_array(
-    array=dataset.data, title="Image", positions=mapper.image_plane_data_grid
+aaplt.subplot_image_and_mapper(
+    mapper=mapper,
+    image=dataset.data,
+    regions=mappings,
+    mesh_grid=mapper.source_plane_mesh_grid,
 )
-aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid")
 
 """
+Both groups sit along the bottom edge of the source-plane mesh, and both map to a single blob in a corner of the
+image, far from the lensed source, where there is no signal to reconstruct. They are wasted source pixels: the
+inversion has to solve for them, but the data has nothing to say about them.
+
 Lets use an annular `Mask2D`, which will capture the ring-like shape of the lensed source galaxy.
 """
 mask = al.Mask2D.circular_annular(
@@ -257,18 +296,35 @@ First, look how much closer we are to the source-plane (The axis sizes have decr
 We can more clearly see the diamond of points in the centre of the source-plane (for those who have been reading up, 
 this diamond is called the `caustic`).
 
-Now lets plot some indexes mapping from the source-plane to the image-plane, which will highlight how the
-source-pixels map to the image pixels.
+The source-plane is now only ~1" across instead of ~7", so every source pixel covers a much larger fraction of the
+figure and the polygons we drew above are far easier to read. Lets draw four source pixels at once, each in its own
+colour.
 """
-pix_indexes = [[312], [314], [316], [318]]
+pix_indexes = [
+    [min(index, mapper.pixels - 1)] for index in [312, 314, 316, 318]
+]
 
-indexes = mapper.slim_indexes_for_pix_indexes(pix_indexes=pix_indexes)
+mappings = mapper.mappings_from(pix_indexes=pix_indexes)
 
-
-aplt.plot_array(
-    array=dataset.data, title="Image", positions=mapper.image_plane_data_grid
+aaplt.subplot_image_and_mapper(
+    mapper=mapper,
+    image=dataset.data,
+    regions=mappings,
+    mesh_grid=mapper.source_plane_mesh_grid,
 )
-aplt.plot_grid(grid=mapper.source_plane_mesh_grid, title="Source-Plane Mesh Grid")
+
+"""
+Four source pixels, four colours, and in the image-plane each colour picks out its own short segments of the ring,
+on opposite sides of it. Source pixels which are neighbours in the source-plane produce image regions which are
+neighbours along each arc -- the lensing is smooth, and the mapper preserves that.
+
+The number of image-plane regions each source pixel maps to is the number of multiple images it produces (the mask
+can split one arc into more than one region, so treat these counts as a lower bound on the physical multiplicity):
+"""
+for mapping in mappings:
+    print(
+        f"Source pixel {mapping.pix_indexes} maps to {len(mapping.image_regions)} image-plane regions."
+    )
 
 """
 __Wrap Up__
