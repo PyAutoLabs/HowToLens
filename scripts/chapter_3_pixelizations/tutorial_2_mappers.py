@@ -300,9 +300,7 @@ The source-plane is now only ~1" across instead of ~7", so every source pixel co
 figure and the polygons we drew above are far easier to read. Lets draw four source pixels at once, each in its own
 colour.
 """
-pix_indexes = [
-    [min(index, mapper.pixels - 1)] for index in [312, 314, 316, 318]
-]
+pix_indexes = [[min(index, mapper.pixels - 1)] for index in [312, 314, 316, 318]]
 
 mappings = mapper.mappings_from(pix_indexes=pix_indexes)
 

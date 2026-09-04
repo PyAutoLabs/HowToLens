@@ -219,7 +219,9 @@ To reconstruct the source on a `RectangularUniform` mesh, we need the centres of
 We compute these by overlaying a uniform rectangular grid over the relocated traced grid, sized so the mesh fully
 contains the region of the source-plane the traced image-pixels cover, without wasted edge pixels beyond it.
 """
-from autoarray.inversion.mesh.mesh.rectangular_rtu_adapt_density import overlay_grid_from
+from autoarray.inversion.mesh.mesh.rectangular_rtu_adapt_density import (
+    overlay_grid_from,
+)
 
 mesh_grid = overlay_grid_from(
     shape_native=mesh_shape, grid=al.Grid2DIrregular(relocated_grid)
