@@ -283,8 +283,17 @@ Finally, let me show you how easy it is to fit an image with an `Inversion` usin
 giving the source galaxy a light profile, we simply pass it a `Pixelization` and regularization, and pass it to a 
 tracer.
 """
+# `PYAUTO_SMALL_DATASETS=1` (the CI smoke harness) caps the data to a 16 x 16 image, where a
+# 40 x 40 mesh reconstructs 1600 source pixels from a few dozen image pixels. The mesh is
+# capped alongside the data; a normal full-resolution run keeps the 40 x 40 grid described above.
+mesh_shape = (
+    al.util.dataset.SMALL_DATASETS_SHAPE_NATIVE
+    if dataset.shape_native == al.util.dataset.SMALL_DATASETS_SHAPE_NATIVE
+    else (40, 40)
+)
+
 pixelization = al.Pixelization(
-    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(40, 40)),
+    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=mesh_shape),
     regularization=al.reg.Constant(coefficient=1.0),
 )
 

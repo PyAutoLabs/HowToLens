@@ -138,8 +138,17 @@ Okay, so lets first look at the mapper without using a border, using the annular
 
 Note how we control the border via the `al.Settings` object's `use_border_relocator` input.
 """
+# `PYAUTO_SMALL_DATASETS=1` (the CI smoke harness) caps the data to a 16 x 16 image, where a
+# 40 x 40 mesh reconstructs 1600 source pixels from a few dozen image pixels. The mesh is
+# capped alongside the data; a normal full-resolution run keeps the 40 x 40 grid described above.
+mesh_shape = (
+    al.util.dataset.SMALL_DATASETS_SHAPE_NATIVE
+    if dataset.shape_native == al.util.dataset.SMALL_DATASETS_SHAPE_NATIVE
+    else (40, 40)
+)
+
 pixelization = al.Pixelization(
-    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(40, 40)),
+    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=mesh_shape),
     regularization=al.reg.Constant(coefficient=1.0),
 )
 

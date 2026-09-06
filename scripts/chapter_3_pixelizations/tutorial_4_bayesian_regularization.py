@@ -106,8 +106,17 @@ __Pixelization__
 
 Okay, so lets look at our fit from the previous tutorial in more detail. we'll use a higher resolution 40 x 40 grid.
 """
+# `PYAUTO_SMALL_DATASETS=1` (the CI smoke harness) caps the data to a 16 x 16 image, where a
+# 40 x 40 mesh reconstructs 1600 source pixels from a few dozen image pixels. The mesh is
+# capped alongside the data; a normal full-resolution run keeps the 40 x 40 grid described above.
+mesh_shape = (
+    al.util.dataset.SMALL_DATASETS_SHAPE_NATIVE
+    if dataset.shape_native == al.util.dataset.SMALL_DATASETS_SHAPE_NATIVE
+    else (40, 40)
+)
+
 pixelization = al.Pixelization(
-    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(40, 40)),
+    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=mesh_shape),
     regularization=al.reg.Constant(coefficient=1.0),
 )
 
@@ -126,7 +135,7 @@ However, the high quality of this solution was possible because I chose a `coeff
 1.0. If we reduce this `coefficient` to zero, the source reconstruction goes *very* weird.
 """
 pixelization = al.Pixelization(
-    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(40, 40)),
+    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=mesh_shape),
     regularization=al.reg.Constant(coefficient=0.0),
 )
 
@@ -177,7 +186,7 @@ strong lens. By smoothing our source reconstruction we ensure it does not over f
 So, what happens if we apply a high value for the regularization coefficient?
 """
 pixelization = al.Pixelization(
-    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(40, 40)),
+    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=mesh_shape),
     regularization=al.reg.Constant(coefficient=100.0),
 )
 
@@ -266,7 +275,7 @@ Here are a few questions for you to think about.
  from the value above by changing these parameters, I've set you up with a code to do so below.
 """
 pixelization = al.Pixelization(
-    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(40, 40)),
+    mesh=al.mesh.RectangularBilinearAdaptDensity(shape=mesh_shape),
     regularization=al.reg.Constant(coefficient=1.0),
 )
 
