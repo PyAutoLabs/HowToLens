@@ -64,7 +64,7 @@ dataset = al.Imaging.from_fits(
 )
 
 """
-Lets create an annular mask which traces the strongly lensed source's ring of light.
+Lets create an annular mask which traces the strongly lensed source's ring of light, and apply it to the dataset.
 """
 mask = al.Mask2D.circular_annular(
     shape_native=dataset.shape_native,
@@ -73,14 +73,17 @@ mask = al.Mask2D.circular_annular(
     outer_radius=2.8,
 )
 
+dataset = dataset.apply_mask(mask=mask)
 
-aplt.plot_array(array=dataset.data, title="Data")
+"""
+Now the mask is applied, plotting the data draws it over the image, letting us check the annulus traces the ring of
+lensed source light.
+"""
+aplt.plot_array(array=dataset.data, title="Image Data With Mask Applied")
 
 """
 We now create the masked source-plane grid via the tracer, as we did in the previous tutorial.
 """
-dataset = dataset.apply_mask(mask=mask)
-
 lens_galaxy = al.Galaxy(
     redshift=0.5,
     mass=al.mp.Isothermal(
@@ -187,10 +190,9 @@ mask = al.Mask2D.circular_annular(
     outer_radius=3.2,
 )
 
-
-aplt.plot_array(array=dataset.data, title="Data")
-
 dataset = dataset.apply_mask(mask=mask)
+
+aplt.plot_array(array=dataset.data, title="Image Data With Mask Applied")
 
 lens_galaxy = al.Galaxy(
     redshift=0.5,
