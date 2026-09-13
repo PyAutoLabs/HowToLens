@@ -389,6 +389,26 @@ free `effective_radius` and `einstein_radius` parameters.
 print(model.info)
 
 """
+The model can also be drawn, and this is the first model in the series with a genuinely new *shape* rather than
+simply new profiles. The figure is the **map** — the structure of the model, which galaxy owns which profile and
+parameter, and whether each parameter is free, fixed or solved for during the fit — and the `info` above is the
+**legend**, holding the priors and fixed values themselves.
+
+The new shape is immediately visible: there are now two top-level frames side by side rather than one. The
+familiar `galaxies` frame holds `lens · Galaxy` and `source · Galaxy`, and beside it sits a second frame titled
+`extra_galaxies`, holding the card `0 · Galaxy` at `redshift = 0.5` with its own `light · ExponentialSph` and
+`mass · IsothermalSph` profiles. That second frame is the `extra_galaxies` input to the `Collection` drawn as a
+picture: the interloper is part of the model and part of the ray-tracing, but it is visibly neither the lens nor
+the source.
+
+Then look at what the extra galaxy costs. Both of its `centre` pills are greyed out — fixed to the centre we
+measured from the data — and its `light` card carries the dashed `intensity · solved` pill, so only
+`effective_radius` and `einstein_radius` are left white. The footer reads `21 unique sampled scalars`, just two
+more than the same lens-and-source model would score without it: an entire extra galaxy for two dimensions.
+"""
+af.ModelPlotter(model).figure()
+
+"""
 __Extra Galaxies Fit__
 
 We fit this model with the same search set up as before. The model has only two more free parameters than the

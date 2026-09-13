@@ -168,6 +168,19 @@ The `info` attribute shows the model in a readable format.
 print(model_1.info)
 
 """
+The map of `model_1` shows the three kinds of simplification we just made, each drawn differently. The `centre`
+pills on `bulge · Sersic` and `mass · Isothermal` are greyed out, as is `sersic_index`: grey means fixed to a
+value and removed from the search. `ell_comps` carries a blue `shared ×2` badge on the bulge and an
+`↗ bulge.ell_comps` reference on the mass, with a bracket joining them — the pairing. And `intensity · solved`
+sits dashed on both linear light profiles. The footer adds it all up: `11 unique sampled scalars`, `10 fixed
+leaf slots`, `2 shared priors` and `2 parameters solved during fitting`.
+
+Eleven dimensions is a deliberately crude model, and that is exactly what the first search in a chain wants: it
+needs only to be good enough to locate the lens roughly, and to do so quickly.
+"""
+af.ModelPlotter(model_1).figure()
+
+"""
 __Search + Analysis__
 
 Now lets create the search and analysis.
@@ -311,6 +324,17 @@ model_2 = af.Collection(galaxies=af.Collection(lens=lens, source=source))
 The `info` attribute shows the model, including the priors specified above.
 """
 print(model_2.info)
+
+"""
+The second model's map is the comparison worth making. Every grey pill has turned white — the centres and the
+`sersic_index` are free again — the blue bracket between `bulge` and `mass` has gone with them, and the source's
+card is now a `Sersic` carrying a `sersic_index` pill of its own. The footer reads `19 unique sampled scalars`
+against the eleven of `model_1`.
+
+That is search chaining drawn as a picture: search 1 fits the small map, and what it learns buys us the priors
+that make the large map affordable.
+"""
+af.ModelPlotter(model_2).figure()
 
 """
 Lets setup and run the search. As expected, it gives us the correct lens model. However, it does so significantly 

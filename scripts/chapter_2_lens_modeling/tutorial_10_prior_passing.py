@@ -115,6 +115,17 @@ The `info` attribute shows the model in a readable format.
 print(model_1.info)
 
 """
+This is the same model as the first search of the previous tutorial, so it is the same map: greyed `centre` and
+`sersic_index` pills for the parameters fixed to values, the blue `shared ×2` and `↗ bulge.ell_comps` pair
+joining the mass's ellipticity to the bulge's, dashed `intensity · solved` pills on both linear light profiles,
+and a footer of `11 unique sampled scalars`.
+
+Hold this map in mind as you read the second model below. This tutorial is about what changes between the two —
+and, more importantly, about what does not.
+"""
+af.ModelPlotter(model_1).figure()
+
+"""
 __Search__
 
 We also create the same search as the previous tutorial, using the same name to ensure we use the same results, and 
@@ -204,6 +215,22 @@ model_2 = af.Collection(galaxies=af.Collection(lens=lens, source=source))
 The `info` attribute shows the model, including how all priors are updated via prior passing.
 """
 print(model_2.info)
+
+"""
+Here is the lesson of this tutorial, drawn. Prior passing moves the **legend** and leaves the **map** alone:
+almost every number in the `info` above has been replaced by a narrow prior centred on search 1's result, and
+not one of those replacements shows up in the figure, because a prior is a number and numbers are not structure.
+
+What the map *does* show are the two changes we made deliberately, and separately from the passing itself: the
+`centre` and `sersic_index` pills are white rather than grey (we chose not to pass those, so they are free
+again, and the blue bracket between bulge and mass is gone with them), and the source's card is now
+`bulge · Sersic` rather than `bulge · ExponentialCore` — the upgrade `take_attributes` exists to make possible.
+The footer moves from `11 unique sampled scalars` to `19`.
+
+This is a good habit when chaining searches: draw both models. Every difference you see on the map is a
+structural decision you made on purpose; everything else the chain did for you is in the legend.
+"""
+af.ModelPlotter(model_2).figure()
 
 """
 __Search__

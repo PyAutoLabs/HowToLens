@@ -347,6 +347,27 @@ model = af.Collection(
 print(model.info)
 
 """
+This is the model whose map is worth the most, because the scaling relation is a piece of structure the `info`
+can only describe in words. The figure is the **map** — what the model is made of and how its parts are tied
+together — and the `info` is the **legend** of priors and values.
+
+Two top-level frames again, but not the pair from tutorial 1: `galaxies` holds `lens · Galaxy` (the anchor) and
+`source · Galaxy`, and below it a frame titled `scaling_galaxies` holds the tied member as `0 · Galaxy`. All
+three galaxies wear a `bulge · Basis` plate, a `Gaussian` card badged `10 components`; on the two lens galaxies
+its caption reads `Gaussian with priors centre fixed, ell_comps ⇄ shared, sigma fixed (varies by member),
+intensity solved`, which is the MGE costing two free parameters apiece, exactly as claimed above.
+
+Now look at the tied galaxy's `mass · IsothermalSph` card. Where the anchor has a plain white `einstein_radius`
+pill, the tied galaxy has an amber **expression** pill spelling the relation out in full —
+`einstein_radius = galaxies.lens.mass.einstein_radius * <luminosity ratio>` — with an amber dashed line running
+across the figure from the anchor's `einstein_radius` pill to it. The figure's legend names this state
+`relation (expression shown)`, and it is a state no amount of reading priors can reveal: the tied radius has no
+prior, because it is not a parameter. The footer's `11 unique sampled scalars` counts the anchor's radius once
+and the tied galaxy's not at all.
+"""
+af.ModelPlotter(model).figure()
+
+"""
 __Parameter Counts__
 
 Let's verify the claims above by counting, rather than believing. First we recompose the previous tutorial's
