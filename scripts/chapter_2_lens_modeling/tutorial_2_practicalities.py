@@ -175,6 +175,20 @@ model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
 print(model.info)
 
 """
+As in the previous tutorial we also draw the model, remembering the division of labour between the two views:
+the figure is the **map**, showing the structure of the model — which galaxy owns which profile and parameter,
+and whether each parameter is free, fixed or solved — and the `info` is the **legend**, holding the priors and
+values themselves.
+
+Because this is the same model as tutorial 1, it is the same map: the `galaxies` frame holding a
+`lens · Galaxy` card at `redshift = 0.5` with its `mass · IsothermalSph` profile, a `source · Galaxy` card at
+`redshift = 1.0` with its `bulge · ExponentialCoreSph` and its dashed `intensity · solved` pill, and a footer
+reading `6 unique sampled scalars`. Nothing in this tutorial changes the model — every setting we discuss
+below belongs to the search, and the search is not drawn on this map.
+"""
+af.ModelPlotter(model).figure()
+
+"""
 __Search__
 
 We again use the `Nautilus` non-linear search, with settings chosen following the Search Settings discussion above.

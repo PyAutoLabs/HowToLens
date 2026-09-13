@@ -294,6 +294,33 @@ appear in a notebook).]
 print(model.info)
 
 """
+The same model can also be drawn as a figure, via `af.ModelPlotter`.
+
+The figure and the `info` are two views of the same model, and it is worth being precise about the division of
+labour between them. The figure is the **map**: it shows the structure of the model, meaning which galaxy owns
+which profile, which profile owns which parameter, and what state every parameter is in — free, fixed to a
+value, shared with another parameter, related to one by an expression, or solved for during the fit rather than
+sampled. The `info` printed above is the **legend**: it lists the priors and values themselves, the numbers the
+map has no room for.
+
+Read this first map from the outside in. The outer frame is titled `galaxies`, after the `Collection` we just
+composed. Inside it sit two cards, `lens · Galaxy` and `source · Galaxy`, each labelled underneath with its
+redshift, `redshift = 0.5` and `redshift = 1.0` — which is how **PyAutoLens** knows which galaxy does the
+lensing and which one is lensed. Inside the lens card is a single profile card, `mass · IsothermalSph`, holding
+the pills `centre` (carrying a `2D` badge, because a centre is a tuple of two coordinates) and `einstein_radius`.
+Inside the source card is `bulge · ExponentialCoreSph`, whose greyed-out `radius_break`, `gamma` and `alpha`
+pills mark parameters fixed to default values, and whose dashed `intensity · solved` pill marks the one
+parameter that is not sampled at all: because this is a linear light profile, its `intensity` is solved for by
+linear algebra at every likelihood evaluation. The footer totals the model up as `6 unique sampled scalars`,
+`5 fixed leaf slots` and `1 parameter solved during fitting`.
+
+Draw the map every time you compose a model. It fits on one screen now and may look like a redundant restatement
+of the `info`, but the two views scale very differently: by chapter 4 our models hold fifteen galaxies and their
+`info` runs to hundreds of lines, whilst the map still fits in a glance.
+"""
+af.ModelPlotter(model).figure()
+
+"""
 __Priors__
 
 When we examine the `.info` of our model, we notice that each parameter (like `centre`, `effective_radius`, 
@@ -346,6 +373,16 @@ model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
 By reprinting the `model.info`, we can see that the priors have been updated to the values we specified.
 """
 print(model.info)
+
+"""
+Drawing the model again makes the point sharply: the map is identical to the one above. Priors live in the
+legend, not on the map, so customizing them changes many numbers in the `info` and nothing at all in the figure.
+
+That is exactly what you want from the two views. When you tune priors you are changing where the search looks,
+not what it is looking for, and an unchanged map is the visual confirmation that you have not accidentally
+changed the model itself whilst editing it.
+"""
+af.ModelPlotter(model).figure()
 
 """
 __Analysis__

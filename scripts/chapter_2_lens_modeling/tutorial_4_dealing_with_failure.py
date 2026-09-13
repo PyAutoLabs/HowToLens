@@ -224,6 +224,23 @@ The `info` attribute shows the model in a readable format, including the priors 
 print(model.info)
 
 """
+Drawing the model makes plain why this fit is so much harder than the one in tutorial 1. The figure is the
+**map** of the model, showing its structure and the state of every parameter, whilst the `info` above is the
+**legend**, holding the priors we just customized.
+
+The `lens · Galaxy` card now holds three profile cards rather than one: `bulge · Sersic`, `mass · Isothermal`
+and `shear · ExternalShear`. Every pill is white, meaning every parameter is free, and the footer counts
+`20 unique sampled scalars` against the six of tutorial 1. Note also that these are *ordinary* light profiles
+rather than the linear ones we have been using: `intensity` appears as a plain free pill on both `bulge` cards
+instead of the dashed `intensity · solved` we saw before, so the search has to sample it. Tutorial 5 will take
+those two dimensions back.
+
+The priors we tightened above are nowhere on this map, because a prior is a number and numbers belong to the
+legend. The map's job here is to show you the *size* of the problem the priors are helping with.
+"""
+af.ModelPlotter(model).figure()
+
+"""
 We can now create this custom search and run it. Our non-linear search will now start by sampling higher likelihood 
 regions of parameter space, given our improved and more informed priors.
 """
@@ -330,6 +347,19 @@ model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
 The `info` attribute shows the model in a readable format, including the parameter links specified above.
 """
 print(model.info)
+
+"""
+Now the map earns its keep. On the `mass · Isothermal` card the `centre` and `ell_comps` pills are no longer
+free parameters of their own: each carries a blue reference badge reading `↗ bulge.centre` and
+`↗ bulge.ell_comps`, and a blue bracket runs down the side of the figure joining them to the matching
+`shared ×2` badges on the `bulge · Sersic` card. That bracket *is* the light-traces-mass assumption, drawn.
+The footer confirms the saving: `16 unique sampled scalars` and `4 shared priors`, down from the twenty of the
+previous model.
+
+Pairing parameters is easy to get subtly wrong and hard to spot in a long `info` listing, but trivial to check
+on the map. Whenever you pair parameters, draw the model and confirm the brackets land where you meant them to.
+"""
+af.ModelPlotter(model).figure()
 
 """
 We now create this search and run it.

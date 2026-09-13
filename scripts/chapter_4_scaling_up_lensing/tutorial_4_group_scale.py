@@ -420,6 +420,24 @@ the end of this tutorial.
 """
 print(model.info)
 
+"""
+The figure is the **map** of this model and the `info` is its **legend**; at group scale the map begins doing
+real work, because the model now contains a population rather than a handful of named galaxies.
+
+The `galaxies` frame holds the two individually-modelled cards, `lens · Galaxy` (the BGG, with its
+`bulge · SersicSph` and `mass · IsothermalSph`) and `source · Galaxy`. Beside them the `extra_galaxies` frame
+holds not two cards but one dashed **plate**: a `Galaxy` card badged `2 components` and subtitled
+`0 - 1 · redshift = 0.5`, standing for both members at once. The plate's pills say what the members have in
+common and how they differ — `centre · fixed, varies by member` (every member's centre is fixed, each to its own
+value), and `effective_radius`, `sersic_index` and `sigma` each badged `independent`, which the figure's legend
+glosses as *one prior per member*. The `r_core`, `r_cut`, `redshift_object`, `redshift_source`, `H0` and `Om0`
+pills are grey: the pinned dPIE constants.
+
+The footer reads `19 unique sampled scalars` — the N=19 the line below prints — with `1 plate standing for 2
+components`. Hold on to that number and that plate: the next model changes both.
+"""
+af.ModelPlotter(model).figure()
+
 print(f"Total free parameters: {model.prior_count}")
 
 """
@@ -553,6 +571,24 @@ This dataset was in fact simulated with members that obey this exact scaling rel
 true model.
 """
 print(model.info)
+
+"""
+The map records the change precisely. The tied members have moved out of the `extra_galaxies` frame into one
+titled `scaling_galaxies`, and they are now drawn as two separate cards, `0 · Galaxy` and `1 · Galaxy`, rather
+than as a single plate — a plate stands for components that share one description, and these two no longer do.
+On each card's `mass · dPIEMassSph` the `sigma` pill is no longer an `independent` prior but an amber
+**expression** pill, and both expressions name the same prior:
+`sigma = scaling_galaxies.1.mass.sigma.sigma_ref * <luminosity ratio>`, with a different ratio on each card. One
+free prior, two galaxies — the scaling relation, drawn.
+
+The `r_cut` pills stay grey, as they were before. `r_cut_ref * luminosity_ratio ** 0.7` is arithmetic on plain
+numbers rather than on a prior, so it yields a fixed value, and a fixed value is a legend entry, not a relation.
+
+The footer falls from `19 unique sampled scalars` to `18`. One parameter is an unremarkable saving for two
+members, but the map shows why the saving keeps growing: however many cards you add to the `scaling_galaxies`
+frame, every one of their `sigma` pills points back at that single `sigma_ref`.
+"""
+af.ModelPlotter(model).figure()
 
 print(f"Total free parameters: {model.prior_count}")
 
