@@ -90,14 +90,6 @@ if al.util.dataset.should_simulate(str(dataset_path)):
     )
 ```
 
-    .../PyAutoArray/autoarray/operators/convolver.py:1478: UserWarning: No blurring_image provided. Only the direct image will be convolved. This may change the correctness of the PSF convolution.
-      warnings.warn(
-    Figure(700x700)
-    Figure(1800x1800)
-    Figure(1800x1800)
-    Figure(700x700)
-
-
 We now load this dataset from .fits files and create an instance of an `Imaging` object.
 
 
