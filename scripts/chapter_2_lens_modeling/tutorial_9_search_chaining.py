@@ -168,12 +168,12 @@ The `info` attribute shows the model in a readable format.
 print(model_1.info)
 
 """
-The map of `model_1` shows the three kinds of simplification we just made, each drawn differently. The `centre`
-pills on `bulge · Sersic` and `mass · Isothermal` are greyed out, as is `sersic_index`: grey means fixed to a
-value and removed from the search. `ell_comps` carries a blue `shared ×2` badge on the bulge and an
-`↗ bulge.ell_comps` reference on the mass, with a bracket joining them — the pairing. And `intensity · solved`
-sits dashed on both linear light profiles. The footer adds it all up: `11 unique sampled scalars`, `10 fixed
-leaf slots`, `2 shared priors` and `2 parameters solved during fitting`.
+The same model can also be visualized as a figure, making its structure easier to understand at a glance.
+
+The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
+fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
+corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
+parameter.
 
 Eleven dimensions is a deliberately crude model, and that is exactly what the first search in a chain wants: it
 needs only to be good enough to locate the lens roughly, and to do so quickly.
@@ -326,13 +326,12 @@ The `info` attribute shows the model, including the priors specified above.
 print(model_2.info)
 
 """
-The second model's map is the comparison worth making. Every grey pill has turned white — the centres and the
-`sersic_index` are free again — the blue bracket between `bulge` and `mass` has gone with them, and the source's
-card is now a `Sersic` carrying a `sersic_index` pill of its own. The footer reads `19 unique sampled scalars`
-against the eleven of `model_1`.
+The second model is the comparison worth making. The centres and the `sersic_index` are free again, the pairing
+between `bulge` and `mass` has gone with them, and the source is now a `Sersic` with a `sersic_index` of its
+own: nineteen free parameters against the eleven of `model_1`.
 
-That is search chaining drawn as a picture: search 1 fits the small map, and what it learns buys us the priors
-that make the large map affordable.
+That is search chaining: search 1 fits the small model, and what it learns buys us the priors that make the
+large model affordable.
 """
 af.ModelPlotter(model_2).figure()
 

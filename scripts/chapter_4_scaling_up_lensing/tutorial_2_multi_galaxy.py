@@ -205,20 +205,16 @@ multi-galaxy regime — and its `prior_count` gives the total number of free par
 print(model.info)
 
 """
-Drawing the model shows the multi-galaxy regime at a glance. The figure is the **map** of the model's structure
-and the `info` is the **legend** of its priors; here it is the map that carries the news.
+The same model can also be visualized as a figure, making its structure easier to understand at a glance.
 
-Inside the `galaxies` frame there are now three cards rather than two: `lens_0 · Galaxy` and `lens_1 · Galaxy`,
-both at `redshift = 0.5`, above the single `source · Galaxy` at `redshift = 1.0`. Each deflector card holds its
-own `mass · Isothermal` with three white pills — `centre`, `ell_comps`, `einstein_radius` — two independent,
-fully free mass models. That is the defining feature of this regime, and the thing every earlier chapter lacked.
+The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
+fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
+corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
+parameter.
 
-Each galaxy's light is drawn as a `bulge · Basis` card wrapping a dashed **plate**: one `Gaussian` card badged
-`20 components`, standing for all twenty Gaussians of the MGE, with `centre` and `ell_comps` carrying blue
-`shared across group` badges, `sigma` reading `fixed, varies by member` and `intensity` dashed as
-`intensity · solved`. The footer does the accounting: `22 unique sampled scalars` — the same number the
-`prior_count` prints below — alongside `63 fixed leaf slots`, `60 parameters solved during fitting` and
-`3 plates standing for 60 components`.
+Each deflector has its own `mass · Isothermal` with a free `centre`, `ell_comps` and `einstein_radius`: two
+independent, fully free mass models. That is the defining feature of this regime, and the thing every earlier
+chapter lacked.
 """
 af.ModelPlotter(model).figure()
 
@@ -291,11 +287,10 @@ free parameter count has dropped from 22 to **18** — each SIE now contributes 
 print(model.info)
 
 """
-The map is the cleanest way to see what just changed. The two `mass · Isothermal` cards' `centre` pills have
-turned grey — fixed to the measured light centres, no longer sampled — and nothing else in the figure has moved.
-The footer falls from `22 unique sampled scalars` to `18`, with `67 fixed leaf slots` where there were `63`.
+The two `mass · Isothermal` centres are now fixed to the measured light centres rather than sampled, and
+nothing else about the model has changed: twenty-two free parameters down to eighteen.
 
-Four grey pills, four dimensions gone. That is the standard trick of the multi-galaxy regime, drawn.
+Four centres fixed, four dimensions gone. That is the standard trick of the multi-galaxy regime.
 """
 af.ModelPlotter(model).figure()
 
@@ -464,12 +459,10 @@ model = af.Collection(galaxies=af.Collection(**lens_dict, source=source))
 print(model.info)
 
 """
-With a third deflector the map simply grows a third card: `lens_0`, `lens_1` and `lens_2 · Galaxy`, each an
-identical copy of the structure above, each with its grey fixed mass `centre`. The footer reads `25 unique
-sampled scalars` and `4 plates standing for 80 components`.
+A third deflector, `lens_2`, is an identical copy of the structure above, with its own fixed mass `centre`.
 
-Nothing about the *shape* of the model changed when we added a galaxy, which is exactly the point the list-based
-API is making. The map grows by one card per deflector, and the parameter count by seven.
+Nothing about the *shape* of the model changed when we added a galaxy, which is exactly the point the
+list-based API is making. The model grows by one deflector, and the parameter count by seven.
 """
 af.ModelPlotter(model).figure()
 

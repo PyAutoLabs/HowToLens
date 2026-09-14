@@ -416,25 +416,16 @@ model = af.Collection(
 print(model.info)
 
 """
-This figure is the punchline of the chapter, and it repays reading slowly. The map shows the model's structure;
-the `info` above is the legend of its priors.
+The same model can also be visualized as a figure, making its structure easier to understand at a glance.
 
-Each of the four tiers described above is drawn as its own object. The `galaxies` frame opens with a dashed
-**plate** — `Galaxy` badged `2 components`, subtitled `lens_0 · lens_1 · redshift = 0.5` — standing for both
-main galaxies at once: on its `mass · dPIEMassSph` card, `centre · fixed, varies by member` is grey, `sigma` and
-`r_cut` are badged `independent` (one free prior per member), and `r_core`, the two redshifts and `H0` / `Om0`
-are grey pinned constants. Below it the host halo appears as an ordinary card, `host_halo · Galaxy`, holding
-`dark · NFWMCRLudlowSph` with exactly one white pill, `mass_at_200`. Below that a second plate, `Galaxy` badged
-`2 components` and subtitled `source_0 · source_1`, holds `point_0 · PointSolved` whose only pill is the dashed
-`centre · solved` — the source centres solved for rather than sampled.
+The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
+fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
+corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
+parameter.
 
-The second top-level frame, `scaling_galaxies`, holds the member tier: a plate badged `9 components` and one
-card, `9 · Galaxy`, standing apart from it, and on both the `sigma` pill is an amber expression reading
-`sigma = scaling_galaxies.9.mass.sigma.scaling_sigma_ref * <luminosity ratio>`. Ten members, one free prior.
-
-Now read the footer: `6 unique sampled scalars`, `113 fixed leaf slots`, `2 parameters solved during fitting`
-and `3 plates standing for 13 components`. Thirteen galaxies and two sources, six dimensions. The `info` needs
-a hundred lines to say that; the map says it in one picture, and the six white pills are countable at a glance.
+Thirteen galaxies and two sources are modelled with six free parameters. That compression — main galaxies and
+sources sharing priors, one halo, and a scaling relation tying ten members to a single free prior — is what makes
+a cluster-scale model tractable at all.
 """
 af.ModelPlotter(model).figure()
 

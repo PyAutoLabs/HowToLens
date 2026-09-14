@@ -150,16 +150,12 @@ Note how the `intensity` is no longer listed and does not have a prior associate
 print(model.info)
 
 """
-The figure shows the linear light profiles in a way the `info` cannot. On both `bulge` cards — the lens's
-`Sersic` and the source's `ExponentialCore` — the final pill is drawn with a dashed outline and reads
-`intensity · solved`, and the figure's legend line spells the dash out as *solved during fitting*. The footer
-then separates the two kinds of quantity for you: `18 unique sampled scalars`, the dimensions the search
-actually explores, and `2 parameters solved during fitting`, the intensities the inversion computes exactly at
-every likelihood evaluation.
+The same model can also be visualized as a figure, making its structure easier to understand at a glance.
 
-This is precisely the distinction the section above is making. In the `info` the `intensity` is simply absent,
-and an absence is a hard thing to notice; on the map it is present but visibly marked as belonging to a
-different machine.
+The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
+fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
+corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
+parameter.
 """
 af.ModelPlotter(model).figure()
 
@@ -448,18 +444,12 @@ composed of 45 Gaussians in total (30 for the lens, 15 for the source)!
 print(model.info)
 
 """
-The `info` for this model is enormous — forty-five Gaussians, each with its own block of parameters. The map is
-not, because it collapses repetition into **plates**. Each `bulge · Basis` card holds a `profile_list` frame
-containing one dashed plate: a single `Gaussian` card badged `30 components` on the lens and `15 components` on
-the source, with the index range (`0 - 29`, `0 - 14`) printed beneath the title. A plate says "this one card
-stands for all of these components", and its pills describe what every member of the plate has in common:
-`centre` and `ell_comps` carry blue `shared across group` badges, `sigma` reads `fixed, varies by member`, and
-`intensity` is the familiar dashed `intensity · solved`. The caption under the plate repeats it in words,
-`Gaussian with priors centre ⇄ shared, ell_comps ⇄ shared, sigma fixed (varies by member), intensity solved`.
+The `info` for this model is enormous — forty-five Gaussians, each with its own block of parameters — but the
+model itself is small. Each `bulge · Basis` holds a single `Gaussian` repeated thirty times on the lens and
+fifteen times on the source, and every member of a basis shares one `centre` and one `ell_comps`, has its own
+fixed `sigma`, and has its `intensity` solved by the inversion.
 
-That is the whole MGE trick in one line of the figure, and the footer proves the arithmetic: `13 unique sampled
-scalars` alongside `47 fixed leaf slots`, `45 parameters solved during fitting` and `2 plates standing for 45
-components`. Forty-five Gaussians, thirteen dimensions — the N=13 quoted above.
+That is the whole MGE trick: forty-five Gaussians, thirteen dimensions — the N=13 quoted above.
 """
 af.ModelPlotter(model).figure()
 

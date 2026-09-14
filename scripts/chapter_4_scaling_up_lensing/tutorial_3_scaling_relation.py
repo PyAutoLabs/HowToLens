@@ -347,23 +347,15 @@ model = af.Collection(
 print(model.info)
 
 """
-This is the model whose map is worth the most, because the scaling relation is a piece of structure the `info`
-can only describe in words. The figure is the **map** — what the model is made of and how its parts are tied
-together — and the `info` is the **legend** of priors and values.
+The same model can also be visualized as a figure, making its structure easier to understand at a glance.
 
-Two top-level frames again, but not the pair from tutorial 1: `galaxies` holds `lens · Galaxy` (the anchor) and
-`source · Galaxy`, and below it a frame titled `scaling_galaxies` holds the tied member as `0 · Galaxy`. All
-three galaxies wear a `bulge · Basis` plate, a `Gaussian` card badged `10 components`; on the two lens galaxies
-its caption reads `Gaussian with priors centre fixed, ell_comps ⇄ shared, sigma fixed (varies by member),
-intensity solved`, which is the MGE costing two free parameters apiece, exactly as claimed above.
+The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
+fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
+corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
+parameter.
 
-Now look at the tied galaxy's `mass · IsothermalSph` card. Where the anchor has a plain white `einstein_radius`
-pill, the tied galaxy has an amber **expression** pill spelling the relation out in full —
-`einstein_radius = galaxies.lens.mass.einstein_radius * <luminosity ratio>` — with an amber dashed line running
-across the figure from the anchor's `einstein_radius` pill to it. The figure's legend names this state
-`relation (expression shown)`, and it is a state no amount of reading priors can reveal: the tied radius has no
-prior, because it is not a parameter. The footer's `11 unique sampled scalars` counts the anchor's radius once
-and the tied galaxy's not at all.
+The tied galaxy's `einstein_radius` is not sampled at all. It is computed from the anchor lens galaxy's via the
+scaling relation, so it has no prior, because it is not a parameter.
 """
 af.ModelPlotter(model).figure()
 

@@ -334,19 +334,15 @@ model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
 print(model.info)
 
 """
-The map of a weak-lensing model is the smallest in the series, and that is the point of drawing it. The figure
-shows the model's structure; the `info` above lists its priors.
+The same model can also be visualized as a figure, making its structure easier to understand at a glance.
 
-Inside the `galaxies` frame, `lens · Galaxy` at `redshift = 0.5` holds a single `mass · Isothermal` card with
-three white pills — `centre`, `ell_comps` and `einstein_radius` — and `source · Galaxy` at `redshift = 1.0`
-holds nothing at all: its card carries the line `no parameters` where every other source in this series has had
-a light profile. In weak lensing the source galaxies are the *data*, a catalogue of measured shapes, so there is
-no source light to fit. The footer reads `5 unique sampled scalars`, against the twenty-plus of the imaging
-tutorials.
+The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
+fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
+corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
+parameter.
 
-Set this map beside the cluster model's from the previous tutorial and you have the two extremes of the chapter
-in one comparison: fifteen galaxies in six dimensions there, two galaxies in five here — and in both cases the
-figure tells you the dimensionality far faster than scrolling through `info` ever could.
+In weak lensing the source galaxies are the *data*, a catalogue of measured shapes, so there is no source light
+to fit and the source galaxy in this model carries no light profile at all.
 """
 af.ModelPlotter(model).figure()
 
