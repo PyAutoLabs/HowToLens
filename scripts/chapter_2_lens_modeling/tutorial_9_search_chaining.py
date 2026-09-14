@@ -168,12 +168,12 @@ The `info` attribute shows the model in a readable format.
 print(model_1.info)
 
 """
-The map of `model_1` shows the three kinds of simplification we just made, each drawn differently. The `centre`
-pills on `bulge · Sersic` and `mass · Isothermal` are greyed out, as is `sersic_index`: grey means fixed to a
-value and removed from the search. `ell_comps` carries a blue `shared ×2` badge on the bulge and an
-`↗ bulge.ell_comps` reference on the mass, with a bracket joining them — the pairing. And `intensity · solved`
-sits dashed on both linear light profiles. The footer adds it all up: `11 unique sampled scalars`, `10 fixed
-leaf slots`, `2 shared priors` and `2 parameters solved during fitting`.
+The same model can also be visualized as a figure, making its structure easier to understand at a glance.
+
+The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
+fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
+corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
+parameter.
 
 Eleven dimensions is a deliberately crude model, and that is exactly what the first search in a chain wants: it
 needs only to be good enough to locate the lens roughly, and to do so quickly.

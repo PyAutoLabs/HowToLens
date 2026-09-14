@@ -389,22 +389,16 @@ free `effective_radius` and `einstein_radius` parameters.
 print(model.info)
 
 """
-The model can also be drawn, and this is the first model in the series with a genuinely new *shape* rather than
-simply new profiles. The figure is the **map** — the structure of the model, which galaxy owns which profile and
-parameter, and whether each parameter is free, fixed or solved for during the fit — and the `info` above is the
-**legend**, holding the priors and fixed values themselves.
+The same model can also be visualized as a figure, making its structure easier to understand at a glance.
 
-The new shape is immediately visible: there are now two top-level frames side by side rather than one. The
-familiar `galaxies` frame holds `lens · Galaxy` and `source · Galaxy`, and beside it sits a second frame titled
-`extra_galaxies`, holding the card `0 · Galaxy` at `redshift = 0.5` with its own `light · ExponentialSph` and
-`mass · IsothermalSph` profiles. That second frame is the `extra_galaxies` input to the `Collection` drawn as a
-picture: the interloper is part of the model and part of the ray-tracing, but it is visibly neither the lens nor
-the source.
+The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
+fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
+corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
+parameter.
 
-Then look at what the extra galaxy costs. Both of its `centre` pills are greyed out — fixed to the centre we
-measured from the data — and its `light` card carries the dashed `intensity · solved` pill, so only
-`effective_radius` and `einstein_radius` are left white. The footer reads `21 unique sampled scalars`, just two
-more than the same lens-and-source model would score without it: an entire extra galaxy for two dimensions.
+The extra galaxy is part of the model and part of the ray-tracing, but it is neither the lens nor the source.
+Its centres are fixed to the values we measured from the data and its light is linear, so an entire extra galaxy
+costs just two more free parameters than the same lens-and-source model without it.
 """
 af.ModelPlotter(model).figure()
 

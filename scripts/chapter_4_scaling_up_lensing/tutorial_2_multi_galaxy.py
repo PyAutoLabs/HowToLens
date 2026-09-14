@@ -205,20 +205,16 @@ multi-galaxy regime — and its `prior_count` gives the total number of free par
 print(model.info)
 
 """
-Drawing the model shows the multi-galaxy regime at a glance. The figure is the **map** of the model's structure
-and the `info` is the **legend** of its priors; here it is the map that carries the news.
+The same model can also be visualized as a figure, making its structure easier to understand at a glance.
 
-Inside the `galaxies` frame there are now three cards rather than two: `lens_0 · Galaxy` and `lens_1 · Galaxy`,
-both at `redshift = 0.5`, above the single `source · Galaxy` at `redshift = 1.0`. Each deflector card holds its
-own `mass · Isothermal` with three white pills — `centre`, `ell_comps`, `einstein_radius` — two independent,
-fully free mass models. That is the defining feature of this regime, and the thing every earlier chapter lacked.
+The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
+fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
+corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
+parameter.
 
-Each galaxy's light is drawn as a `bulge · Basis` card wrapping a dashed **plate**: one `Gaussian` card badged
-`20 components`, standing for all twenty Gaussians of the MGE, with `centre` and `ell_comps` carrying blue
-`shared across group` badges, `sigma` reading `fixed, varies by member` and `intensity` dashed as
-`intensity · solved`. The footer does the accounting: `22 unique sampled scalars` — the same number the
-`prior_count` prints below — alongside `63 fixed leaf slots`, `60 parameters solved during fitting` and
-`3 plates standing for 60 components`.
+Each deflector has its own `mass · Isothermal` with a free `centre`, `ell_comps` and `einstein_radius`: two
+independent, fully free mass models. That is the defining feature of this regime, and the thing every earlier
+chapter lacked.
 """
 af.ModelPlotter(model).figure()
 

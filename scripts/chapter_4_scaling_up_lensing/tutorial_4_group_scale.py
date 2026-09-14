@@ -421,20 +421,12 @@ the end of this tutorial.
 print(model.info)
 
 """
-The figure is the **map** of this model and the `info` is its **legend**; at group scale the map begins doing
-real work, because the model now contains a population rather than a handful of named galaxies.
+The same model can also be visualized as a figure, making its structure easier to understand at a glance.
 
-The `galaxies` frame holds the two individually-modelled cards, `lens · Galaxy` (the BGG, with its
-`bulge · SersicSph` and `mass · IsothermalSph`) and `source · Galaxy`. Beside them the `extra_galaxies` frame
-holds not two cards but one dashed **plate**: a `Galaxy` card badged `2 components` and subtitled
-`0 - 1 · redshift = 0.5`, standing for both members at once. The plate's pills say what the members have in
-common and how they differ — `centre · fixed, varies by member` (every member's centre is fixed, each to its own
-value), and `effective_radius`, `sersic_index` and `sigma` each badged `independent`, which the figure's legend
-glosses as *one prior per member*. The `r_core`, `r_cut`, `redshift_object`, `redshift_source`, `H0` and `Om0`
-pills are grey: the pinned dPIE constants.
-
-The footer reads `19 unique sampled scalars` — the N=19 the line below prints — with `1 plate standing for 2
-components`. Hold on to that number and that plate: the next model changes both.
+The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
+fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
+corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
+parameter.
 """
 af.ModelPlotter(model).figure()
 

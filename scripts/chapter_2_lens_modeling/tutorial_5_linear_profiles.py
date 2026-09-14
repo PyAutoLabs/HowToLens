@@ -150,16 +150,12 @@ Note how the `intensity` is no longer listed and does not have a prior associate
 print(model.info)
 
 """
-The figure shows the linear light profiles in a way the `info` cannot. On both `bulge` cards — the lens's
-`Sersic` and the source's `ExponentialCore` — the final pill is drawn with a dashed outline and reads
-`intensity · solved`, and the figure's legend line spells the dash out as *solved during fitting*. The footer
-then separates the two kinds of quantity for you: `18 unique sampled scalars`, the dimensions the search
-actually explores, and `2 parameters solved during fitting`, the intensities the inversion computes exactly at
-every likelihood evaluation.
+The same model can also be visualized as a figure, making its structure easier to understand at a glance.
 
-This is precisely the distinction the section above is making. In the `info` the `intensity` is simply absent,
-and an absence is a hard thing to notice; on the map it is present but visibly marked as belonging to a
-different machine.
+The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
+fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
+corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
+parameter.
 """
 af.ModelPlotter(model).figure()
 

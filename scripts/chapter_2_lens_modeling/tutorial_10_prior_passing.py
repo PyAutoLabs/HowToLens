@@ -115,13 +115,16 @@ The `info` attribute shows the model in a readable format.
 print(model_1.info)
 
 """
-This is the same model as the first search of the previous tutorial, so it is the same map: greyed `centre` and
-`sersic_index` pills for the parameters fixed to values, the blue `shared ×2` and `↗ bulge.ell_comps` pair
-joining the mass's ellipticity to the bulge's, dashed `intensity · solved` pills on both linear light profiles,
-and a footer of `11 unique sampled scalars`.
+The same model can also be visualized as a figure, making its structure easier to understand at a glance.
 
-Hold this map in mind as you read the second model below. This tutorial is about what changes between the two —
-and, more importantly, about what does not.
+The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
+fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
+corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
+parameter.
+
+This is the same model as the first search of the previous tutorial. Keep it in mind as you read the second
+model below: this tutorial is about what prior passing changes between the two and, more importantly, about what
+it does not.
 """
 af.ModelPlotter(model_1).figure()
 
