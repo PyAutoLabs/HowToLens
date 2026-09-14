@@ -287,11 +287,10 @@ free parameter count has dropped from 22 to **18** — each SIE now contributes 
 print(model.info)
 
 """
-The map is the cleanest way to see what just changed. The two `mass · Isothermal` cards' `centre` pills have
-turned grey — fixed to the measured light centres, no longer sampled — and nothing else in the figure has moved.
-The footer falls from `22 unique sampled scalars` to `18`, with `67 fixed leaf slots` where there were `63`.
+The two `mass · Isothermal` centres are now fixed to the measured light centres rather than sampled, and
+nothing else about the model has changed: twenty-two free parameters down to eighteen.
 
-Four grey pills, four dimensions gone. That is the standard trick of the multi-galaxy regime, drawn.
+Four centres fixed, four dimensions gone. That is the standard trick of the multi-galaxy regime.
 """
 af.ModelPlotter(model).figure()
 
@@ -460,12 +459,10 @@ model = af.Collection(galaxies=af.Collection(**lens_dict, source=source))
 print(model.info)
 
 """
-With a third deflector the map simply grows a third card: `lens_0`, `lens_1` and `lens_2 · Galaxy`, each an
-identical copy of the structure above, each with its grey fixed mass `centre`. The footer reads `25 unique
-sampled scalars` and `4 plates standing for 80 components`.
+A third deflector, `lens_2`, is an identical copy of the structure above, with its own fixed mass `centre`.
 
-Nothing about the *shape* of the model changed when we added a galaxy, which is exactly the point the list-based
-API is making. The map grows by one card per deflector, and the parameter count by seven.
+Nothing about the *shape* of the model changed when we added a galaxy, which is exactly the point the
+list-based API is making. The model grows by one deflector, and the parameter count by seven.
 """
 af.ModelPlotter(model).figure()
 

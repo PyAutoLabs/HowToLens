@@ -220,18 +220,12 @@ The `info` attribute shows the model, including how all priors are updated via p
 print(model_2.info)
 
 """
-Here is the lesson of this tutorial, drawn. Prior passing moves the **legend** and leaves the **map** alone:
-almost every number in the `info` above has been replaced by a narrow prior centred on search 1's result, and
-not one of those replacements shows up in the figure, because a prior is a number and numbers are not structure.
+Prior passing replaces almost every number in the `info` above with a narrow prior centred on search 1's result,
+but it changes nothing about the model's structure, because a prior is a number and numbers are not structure.
 
-What the map *does* show are the two changes we made deliberately, and separately from the passing itself: the
-`centre` and `sersic_index` pills are white rather than grey (we chose not to pass those, so they are free
-again, and the blue bracket between bulge and mass is gone with them), and the source's card is now
-`bulge · Sersic` rather than `bulge · ExponentialCore` — the upgrade `take_attributes` exists to make possible.
-The footer moves from `11 unique sampled scalars` to `19`.
-
-This is a good habit when chaining searches: draw both models. Every difference you see on the map is a
-structural decision you made on purpose; everything else the chain did for you is in the legend.
+The two changes we made deliberately, and separately from the passing itself, are structural: `centre` and
+`sersic_index` are free again, because we chose not to pass those, and the source is now a `Sersic` rather than
+an `ExponentialCore` — the upgrade `take_attributes` exists to make possible.
 """
 af.ModelPlotter(model_2).figure()
 

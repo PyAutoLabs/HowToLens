@@ -346,15 +346,11 @@ The `info` attribute shows the model in a readable format, including the paramet
 print(model.info)
 
 """
-Now the map earns its keep. On the `mass · Isothermal` card the `centre` and `ell_comps` pills are no longer
-free parameters of their own: each carries a blue reference badge reading `↗ bulge.centre` and
-`↗ bulge.ell_comps`, and a blue bracket runs down the side of the figure joining them to the matching
-`shared ×2` badges on the `bulge · Sersic` card. That bracket *is* the light-traces-mass assumption, drawn.
-The footer confirms the saving: `16 unique sampled scalars` and `4 shared priors`, down from the twenty of the
-previous model.
+The `mass · Isothermal`'s `centre` and `ell_comps` are no longer free parameters of their own: each is tied to
+the matching parameter of the `bulge · Sersic`. That pairing *is* the light-traces-mass assumption, and it takes
+the model from twenty free parameters down to sixteen.
 
-Pairing parameters is easy to get subtly wrong and hard to spot in a long `info` listing, but trivial to check
-on the map. Whenever you pair parameters, draw the model and confirm the brackets land where you meant them to.
+Pairing parameters is easy to get subtly wrong and hard to spot in a long `info` listing.
 """
 af.ModelPlotter(model).figure()
 

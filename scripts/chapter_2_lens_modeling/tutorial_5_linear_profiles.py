@@ -444,18 +444,12 @@ composed of 45 Gaussians in total (30 for the lens, 15 for the source)!
 print(model.info)
 
 """
-The `info` for this model is enormous — forty-five Gaussians, each with its own block of parameters. The map is
-not, because it collapses repetition into **plates**. Each `bulge · Basis` card holds a `profile_list` frame
-containing one dashed plate: a single `Gaussian` card badged `30 components` on the lens and `15 components` on
-the source, with the index range (`0 - 29`, `0 - 14`) printed beneath the title. A plate says "this one card
-stands for all of these components", and its pills describe what every member of the plate has in common:
-`centre` and `ell_comps` carry blue `shared across group` badges, `sigma` reads `fixed, varies by member`, and
-`intensity` is the familiar dashed `intensity · solved`. The caption under the plate repeats it in words,
-`Gaussian with priors centre ⇄ shared, ell_comps ⇄ shared, sigma fixed (varies by member), intensity solved`.
+The `info` for this model is enormous — forty-five Gaussians, each with its own block of parameters — but the
+model itself is small. Each `bulge · Basis` holds a single `Gaussian` repeated thirty times on the lens and
+fifteen times on the source, and every member of a basis shares one `centre` and one `ell_comps`, has its own
+fixed `sigma`, and has its `intensity` solved by the inversion.
 
-That is the whole MGE trick in one line of the figure, and the footer proves the arithmetic: `13 unique sampled
-scalars` alongside `47 fixed leaf slots`, `45 parameters solved during fitting` and `2 plates standing for 45
-components`. Forty-five Gaussians, thirteen dimensions — the N=13 quoted above.
+That is the whole MGE trick: forty-five Gaussians, thirteen dimensions — the N=13 quoted above.
 """
 af.ModelPlotter(model).figure()
 

@@ -565,20 +565,17 @@ true model.
 print(model.info)
 
 """
-The map records the change precisely. The tied members have moved out of the `extra_galaxies` frame into one
-titled `scaling_galaxies`, and they are now drawn as two separate cards, `0 · Galaxy` and `1 · Galaxy`, rather
-than as a single plate — a plate stands for components that share one description, and these two no longer do.
-On each card's `mass · dPIEMassSph` the `sigma` pill is no longer an `independent` prior but an amber
-**expression** pill, and both expressions name the same prior:
-`sigma = scaling_galaxies.1.mass.sigma.sigma_ref * <luminosity ratio>`, with a different ratio on each card. One
-free prior, two galaxies — the scaling relation, drawn.
+The tied members have moved out of `extra_galaxies` into `scaling_galaxies`, and they no longer share one
+description: each member's `sigma` is no longer an independent prior but an expression,
+`sigma = scaling_galaxies.1.mass.sigma.sigma_ref * <luminosity ratio>`, with a different ratio for each. One
+free prior, two galaxies — the scaling relation.
 
-The `r_cut` pills stay grey, as they were before. `r_cut_ref * luminosity_ratio ** 0.7` is arithmetic on plain
-numbers rather than on a prior, so it yields a fixed value, and a fixed value is a legend entry, not a relation.
+`r_cut` stays fixed, as it was before. `r_cut_ref * luminosity_ratio ** 0.7` is arithmetic on plain numbers
+rather than on a prior, so it yields a fixed value rather than a relation.
 
-The footer falls from `19 unique sampled scalars` to `18`. One parameter is an unremarkable saving for two
-members, but the map shows why the saving keeps growing: however many cards you add to the `scaling_galaxies`
-frame, every one of their `sigma` pills points back at that single `sigma_ref`.
+Nineteen free parameters fall to eighteen. One parameter is an unremarkable saving for two members, but the
+saving keeps growing: however many members you add to `scaling_galaxies`, every one of their `sigma` values
+points back at that single `sigma_ref`.
 """
 af.ModelPlotter(model).figure()
 

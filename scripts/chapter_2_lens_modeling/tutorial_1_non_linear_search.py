@@ -361,12 +361,8 @@ By reprinting the `model.info`, we can see that the priors have been updated to 
 print(model.info)
 
 """
-Drawing the model again makes the point sharply: the map is identical to the one above. Priors live in the
-legend, not on the map, so customizing them changes many numbers in the `info` and nothing at all in the figure.
-
-That is exactly what you want from the two views. When you tune priors you are changing where the search looks,
-not what it is looking for, and an unchanged map is the visual confirmation that you have not accidentally
-changed the model itself whilst editing it.
+Customizing priors changes many numbers in the `info` and nothing at all about the model itself. When you tune
+priors you are changing where the search looks, not what it is looking for.
 """
 af.ModelPlotter(model).figure()
 
