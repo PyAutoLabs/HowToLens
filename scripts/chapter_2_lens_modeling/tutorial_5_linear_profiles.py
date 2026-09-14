@@ -203,7 +203,7 @@ converging to an incorrect solution and scales better if even more light profile
 Run the non-linear search.
 """
 print(
-    "The non-linear search has begun running - checkout the workspace/output/howtolens/chapter_2/tutorial_5_linear_light_profile"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_2/tutorial_5_linear_light_profile"
     " folder for live output of the results, images and model."
     " This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
@@ -476,7 +476,7 @@ search = af.Nautilus(
 )
 
 print(
-    "The non-linear search has begun running - checkout the workspace/output/howtolens/chapter_2/tutorial_5_basis"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_2/tutorial_5_basis"
     " folder for live output of the results, images and model."
     " This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )

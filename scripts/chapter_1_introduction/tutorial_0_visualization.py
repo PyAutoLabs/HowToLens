@@ -24,8 +24,18 @@ from autolens import jax_wrapper  # Sets JAX environment before other imports
 """
 __Directories__
 
-**HowToLens** assumes the working directory is the `HowToLens` repository root on your hard-disk, so that relative
-paths to `dataset/` and `output/` resolve correctly.
+**HowToLens** assumes the working directory is the `HowToLens` repository root on your hard-disk. This setup
+allows **PyAutoLens** to:
+
+- Load configuration settings from the config files in the `config/` folder.
+
+- Load the example strong lens datasets in the `dataset/` folder.
+
+- Write the results of model-fits to your hard-disk in the `output/` folder.
+
+If you do not have a clone of **HowToLens** on your computer, you can download it here:
+
+ https://github.com/PyAutoLabs/HowToLens
 
 If your working directory does not match this path on your computer, you can manually set it as follows (the
 example below shows the path I would use on my laptop. The code is commented out so you do not use this path in

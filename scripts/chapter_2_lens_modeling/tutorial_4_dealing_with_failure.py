@@ -265,7 +265,7 @@ Due to prior tuning, the model-fit should take less than 10000 iterations per fr
 Run the non-linear search.
 """
 print(
-    "The non-linear search has begun running - checkout the workspace/output/howtolens/chapter_2/tutorial_4_custom_priors"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_2/tutorial_4_custom_priors"
     " folder for live output of the results, images and lens model."
     " This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
@@ -384,7 +384,7 @@ converge.
 Run the non-linear search.
 """
 print(
-    "The non-linear search has begun running - checkout the workspace/output/howtolens/chapter_2/tutorial_4_reducing_complexity"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_2/tutorial_4_reducing_complexity"
     " folder for live output of the results, images and lens model."
     " This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
@@ -468,7 +468,7 @@ to converge and thus take longer than we are used too.
 Run the non-linear search.
 """
 print(
-    "The non-linear search has begun running - checkout the workspace/output/howtolens/chapter_2/tutorial_4_look_harder"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_2/tutorial_4_look_harder"
     " folder for live output of the results, images and lens model."
     " This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )

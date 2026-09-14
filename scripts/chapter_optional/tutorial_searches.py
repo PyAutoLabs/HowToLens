@@ -143,7 +143,7 @@ search = af.Nautilus(
 analysis = al.AnalysisImaging(dataset=dataset)
 
 print(
-    "The non-linear search has begun running - checkout the workspace/output"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_optional/tutorial_searches_slow"
     "  folder for live output of the results, images and lens model."
     "  This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
@@ -165,7 +165,7 @@ print(result_slow.samples.total_samples)
 Now lets run the search with fast settings, so we can compare the total number of iterations required.
 """
 search = af.Nautilus(
-    path_prefix=Path("howtolens") / "chapter_2",
+    path_prefix=Path("howtolens") / "chapter_optional",
     name="tutorial_searches_fast",
     unique_tag=dataset_name,
     n_live=75,
@@ -174,7 +174,7 @@ search = af.Nautilus(
 )
 
 print(
-    "The non-linear search has begun running - checkout the workspace/output"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_optional/tutorial_searches_fast"
     "  folder for live output of the results, images and lens model."
     "  This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
@@ -264,7 +264,7 @@ source = af.Model(al.Galaxy, redshift=1.0, bulge=bulge)
 model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
 
 search = af.Zeus(
-    path_prefix=Path("howtolens") / "chapter_2",
+    path_prefix=Path("howtolens") / "chapter_optional",
     name="tutorial_searches_zeus",
     unique_tag=dataset_name,
     nwalkers=50,
@@ -272,7 +272,7 @@ search = af.Zeus(
 )
 
 print(
-    "Zeus has begun running - checkout the workspace/output"
+    "Zeus has begun running - checkout the output/howtolens/chapter_optional/tutorial_searches_zeus"
     "  folder for live output of the results, images and lens model."
     "  This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
@@ -285,7 +285,7 @@ aplt.subplot_fit_imaging(fit=result_zeus.max_log_likelihood_fit)
 
 
 search = af.Emcee(
-    path_prefix=Path("howtolens") / "chapter_2",
+    path_prefix=Path("howtolens") / "chapter_optional",
     name="tutorial_searches_emcee",
     unique_tag=dataset_name,
     nwalkers=50,
@@ -293,7 +293,7 @@ search = af.Emcee(
 )
 
 print(
-    "The non-linear search has begun running - checkout the workspace/output"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_optional/tutorial_searches_emcee"
     "  folder for live output of the results, images and lens model."
     "  This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )

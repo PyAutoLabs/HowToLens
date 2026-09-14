@@ -266,5 +266,5 @@ al.output_to_json(
 )
 
 """
-The dataset can be viewed in the folder `autolens_workspace/dataset/imaging/lens_extra_galaxy`.
+The dataset can be viewed in the folder `dataset/imaging/lens_extra_galaxy`.
 """
