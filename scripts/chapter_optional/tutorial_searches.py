@@ -143,7 +143,7 @@ search = af.Nautilus(
 analysis = al.AnalysisImaging(dataset=dataset)
 
 print(
-    "The non-linear search has begun running - checkout the workspace/output"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_optional/tutorial_searches_slow"
     "  folder for live output of the results, images and lens model."
     "  This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
@@ -174,7 +174,7 @@ search = af.Nautilus(
 )
 
 print(
-    "The non-linear search has begun running - checkout the workspace/output"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_2/tutorial_searches_fast"
     "  folder for live output of the results, images and lens model."
     "  This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
@@ -272,7 +272,7 @@ search = af.Zeus(
 )
 
 print(
-    "Zeus has begun running - checkout the workspace/output"
+    "Zeus has begun running - checkout the output/howtolens/chapter_2/tutorial_searches_zeus"
     "  folder for live output of the results, images and lens model."
     "  This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
@@ -293,7 +293,7 @@ search = af.Emcee(
 )
 
 print(
-    "The non-linear search has begun running - checkout the workspace/output"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_2/tutorial_searches_emcee"
     "  folder for live output of the results, images and lens model."
     "  This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )

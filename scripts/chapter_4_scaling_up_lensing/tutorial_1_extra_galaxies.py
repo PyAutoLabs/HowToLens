@@ -243,7 +243,7 @@ search = af.Nautilus(
 analysis = al.AnalysisImaging(dataset=dataset)
 
 print(
-    "The non-linear search has begun running - checkout the workspace/output/howtolens/chapter_4/tutorial_1_extra_galaxies_noise_scaling"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_4/tutorial_1_extra_galaxies_noise_scaling"
     " folder for live output of the results, images and model."
     " This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
@@ -426,7 +426,7 @@ search = af.Nautilus(
 analysis = al.AnalysisImaging(dataset=dataset)
 
 print(
-    "The non-linear search has begun running - checkout the workspace/output/howtolens/chapter_4/tutorial_1_extra_galaxies_model"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_4/tutorial_1_extra_galaxies_model"
     " folder for live output of the results, images and model."
     " This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )

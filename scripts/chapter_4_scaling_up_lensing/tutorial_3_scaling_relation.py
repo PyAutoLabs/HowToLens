@@ -521,7 +521,7 @@ search = af.Nautilus(
 analysis = al.AnalysisImaging(dataset=dataset)
 
 print(
-    "The non-linear search has begun running - checkout the workspace/output/howtolens/chapter_4/tutorial_3_scaling_relation"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_4/tutorial_3_scaling_relation"
     " folder for live output of the results, images and model."
     " This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )

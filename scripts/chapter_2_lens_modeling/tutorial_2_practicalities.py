@@ -30,9 +30,9 @@ __Contents__
 - **Run Times:** Profiling the expected run time of the model-fit.
 - **Model-Fit:** Begin the model-fit by passing the model and analysis to the search.
 - **Result Info:** A concise readable summary of the results is given by printing its `info` attribute.
-- **Output Folder:** Now checkout the `autolens_workspace/output` folder.
+- **Output Folder:** Now checkout the `output` folder.
 - **Unique Identifier:** In the output folder, you will note that results are in a folder which is a collection of random.
-- **Output Folder Contents:** Now this is running you should checkout the `autolens_workspace/output` folder.
+- **Output Folder Contents:** Now this is running you should checkout the `output` folder.
 - **Result:** Overview of the results of the model-fit.
 - **Other Practicalities:** The following are examples of other practicalities which I will document fully in this example.
 - **Wrap Up:** Summary of the script and next steps.
@@ -62,7 +62,7 @@ profile, 100 live points is sufficient to achieve reliable results.
 
 __Iterations Per Update__
 
-Every N iterations, the non-linear search outputs the current results to the folder `autolens_workspace/output`,
+Every N iterations, the non-linear search outputs the current results to the folder `output`,
 which includes producing visualization.
 
 Depending on how long it takes for the model to be fitted to the data (see discussion about run times below),
@@ -290,7 +290,7 @@ for using super-computers for fitting tasks, as they require separate Python scr
 For tasks like loading results, inspecting data, plotting, and interpreting results, Jupyter notebooks remain ideal.
 """
 print(
-    "The non-linear search has begun running - checkout the autolens_workspace/output/"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_2/tutorial_2_practicalities"
     " folder for live output of the results, images and lens model."
     " This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
@@ -313,7 +313,7 @@ print(result.info)
 """
 __Output Folder__
 
-Now checkout the `autolens_workspace/output` folder.
+Now checkout the `output` folder.
 
 This is where the results of the search are written to hard-disk (in the `tutorial_2_practicalities` folder). 
 

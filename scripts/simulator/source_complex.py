@@ -194,5 +194,5 @@ al.output_to_json(
 )
 
 """
-The dataset can be viewed in the folder `autolens_workspace/dataset/imaging/source_complex`.
+The dataset can be viewed in the folder `dataset/imaging/source_complex`.
 """

@@ -150,7 +150,7 @@ more.
 Run the non-linear search.
 """
 print(
-    "The non-linear search has begun running - checkout the autolens_workspace/output/howtolens/chapter_2/tutorial_3_realism_and_complexity"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_2/tutorial_3_realism_and_complexity"
     " folder for live output of the results, images and lens model."
     " This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
@@ -204,7 +204,7 @@ search = af.Nautilus(
 )
 
 print(
-    "The non-linear search has begun running - checkout the autolens_workspace/output/3_realism_and_complexity"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_2/tutorial_3_realism_and_complexity__local_maxima"
     " folder for live output of the results, images and lens model."
     " This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )

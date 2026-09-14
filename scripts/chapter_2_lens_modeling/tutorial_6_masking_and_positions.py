@@ -261,7 +261,7 @@ search = af.Nautilus(
 )
 
 print(
-    "The non-linear search has begun running - checkout the workspace/output/t7_with_positions"
+    "The non-linear search has begun running - checkout the output/howtolens/chapter_2/tutorial_6_with_positions"
     "  folder for live output of the results, images and lens model."
     "  This Jupyter notebook cell with progress once search has completed - this could take some time!"
 )
