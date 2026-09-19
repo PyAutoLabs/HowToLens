@@ -60,7 +60,7 @@ __Initial Setup__
 we'll use the same strong lensing data as the previous tutorial, where:
 
  - The lens galaxy's light is an `Sersic`.
- - The lens galaxy's total mass distribution is an `Isothermal` and `ExternalShear`.
+ - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.
  - The source galaxy's light is an `Exponential`.
 """
 dataset_name = "lens_sersic"
@@ -135,12 +135,13 @@ bulge = af.Model(al.lp_linear.Sersic)
 mass = af.Model(al.mp.Isothermal)
 
 lens = af.Model(
-    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass, shear=al.mp.ExternalShear
+    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass
 )
+field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=al.lp_linear.ExponentialCore)
 
-model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
+model = af.Collection(galaxies=af.Collection(lens=lens, source=source), fields=field)
 
 """
 The `info` attribute shows the model, including the linear light profiles.

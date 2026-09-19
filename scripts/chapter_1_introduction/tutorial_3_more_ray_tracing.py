@@ -258,8 +258,8 @@ lens = al.Galaxy(
     mass=al.mp.Isothermal(
         centre=(0.0, 0.0), ell_comps=(0.0, -0.111111), einstein_radius=1.6
     ),
-    shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.0),
 )
+field = al.MassField(redshift=0.5, shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.0))
 
 print(lens)
 
@@ -333,6 +333,7 @@ ray-tracing is performed.
 tracer = al.Tracer(
     galaxies=[lens, lens_satellite, source_0, source_1],
     cosmology=al.cosmo.Planck15(),
+    fields=[field],
 )
 
 """

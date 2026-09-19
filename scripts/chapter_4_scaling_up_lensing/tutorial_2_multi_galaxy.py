@@ -161,10 +161,9 @@ both cheap and flexible is close to essential — this is exactly where the MGE 
 Each Isothermal mass model adds 5 free parameters: its centre (2), elliptical components (2) and Einstein
 radius (1).
 
-(The `autolens_workspace` multi-galaxy examples additionally include a single external shear for the whole
-system, held in its own model entry at the system centre rather than attached to any one deflector — the shear
-describes the tidal field of structure *outside* the system, so it belongs to no individual galaxy. We omit it
-here to keep the parameter accounting simple.)
+An external shear would enter the model as a separate `MassField` through `fields=field`. It describes the tidal
+field of structure *outside* the system, so it belongs to neither deflector. We omit it here to keep the parameter
+accounting simple.
 """
 lens_dict = {}
 

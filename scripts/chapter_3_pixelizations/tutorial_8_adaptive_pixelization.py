@@ -43,7 +43,7 @@ __Initial Setup__
 We'll use the same strong lensing data as the previous tutorial, where:
 
  - The lens galaxy's light is omitted.
- - The lens galaxy's total mass distribution is an `Isothermal` and `ExternalShear`.
+ - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.
  - The source galaxy's light is an `Sersic`.
 """
 dataset_name = "simple__no_lens_light"
@@ -90,8 +90,8 @@ lens_galaxy = al.Galaxy(
         einstein_radius=1.6,
         ell_comps=al.convert.ell_comps_from(axis_ratio=0.9, angle=45.0),
     ),
-    shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.05),
 )
+field = al.MassField(redshift=0.5, shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.05))
 
 dataset = dataset.apply_mask(mask=mask)
 
@@ -106,7 +106,7 @@ pixelization = al.Pixelization(
 
 source_galaxy = al.Galaxy(redshift=1.0, pixelization=pixelization)
 
-tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
+tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy], fields=[field])
 
 fit = al.FitImaging(dataset=dataset, tracer=tracer)
 
@@ -182,7 +182,7 @@ pixelization = al.Pixelization(
 
 source_galaxy = al.Galaxy(redshift=1.0, pixelization=pixelization)
 
-tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
+tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy], fields=[field])
 
 """
 By using this tracer in a fit, we see that our source-plane no longer uses rectangular pixels, but a Delaunay mesh!

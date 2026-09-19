@@ -51,7 +51,7 @@ __Initial Setup__
 we'll use new strong lensing data, where:
 
  - The lens galaxy's light is an `Sersic`.
- - The lens galaxy's total mass distribution is an `Isothermal` and `ExternalShear`.
+ - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.
  - The source galaxy's light is an `Exponential`.
 """
 dataset_name = "lens_sersic"
@@ -110,6 +110,7 @@ to the `Collection` object, which assumes they are `Model` objects.
 
 We will use this consistent API throughout the chapter, so you should get used to it!
 """
+field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 model = af.Collection(
     galaxies=af.Collection(
         lens=af.Model(
@@ -117,10 +118,10 @@ model = af.Collection(
             redshift=0.5,
             bulge=al.lp.Sersic,
             mass=al.mp.Isothermal,
-            shear=al.mp.ExternalShear,
         ),
         source=af.Model(al.Galaxy, redshift=1.0, bulge=al.lp.ExponentialCore),
     ),
+    fields=field,
 )
 
 """

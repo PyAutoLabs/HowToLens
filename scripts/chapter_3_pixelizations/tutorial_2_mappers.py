@@ -31,7 +31,7 @@ __Initial Setup__
 we'll use new strong lensing data, where:
 
  - The lens galaxy's light is omitted.
- - The lens galaxy's total mass distribution is an `Isothermal` and `ExternalShear`.
+ - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.
  - The source galaxy's light is an `Sersic`.
 """
 dataset_name = "simple__no_lens_light"
@@ -80,10 +80,10 @@ lens_galaxy = al.Galaxy(
         einstein_radius=1.6,
         ell_comps=al.convert.ell_comps_from(axis_ratio=0.9, angle=45.0),
     ),
-    shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.05),
 )
+field = al.MassField(redshift=0.5, shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.05))
 
-tracer = al.Tracer(galaxies=[lens_galaxy, al.Galaxy(redshift=1.0)])
+tracer = al.Tracer(galaxies=[lens_galaxy, al.Galaxy(redshift=1.0)], fields=[field])
 
 source_plane_grid = tracer.traced_grid_2d_list_from(grid=grid)[1]
 
@@ -265,7 +265,7 @@ aplt.plot_array(array=dataset.data, title="Data")
 """
 To create the mapper, we need to trace the masked imaging's grid to the source-plane via the tracer.
 """
-tracer = al.Tracer(galaxies=[lens_galaxy, al.Galaxy(redshift=1.0)])
+tracer = al.Tracer(galaxies=[lens_galaxy, al.Galaxy(redshift=1.0)], fields=[field])
 
 source_plane_grid = tracer.traced_grid_2d_list_from(grid=dataset.grids.pixelization)[1]
 

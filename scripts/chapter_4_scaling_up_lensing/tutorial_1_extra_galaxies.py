@@ -68,7 +68,7 @@ Lets load the `Imaging` dataset we'll fit in this tutorial. It is similar to the
 throughout chapter 2, where:
 
  - The lens galaxy's light is an `Sersic`.
- - The lens galaxy's total mass distribution is an `Isothermal` and `ExternalShear`.
+ - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.
  - The source galaxy's light is an `SersicCore`.
 
 However, there is one addition: an extra galaxy, with its own light (an `ExponentialSph`) and its own
@@ -220,8 +220,9 @@ bulge = af.Model(al.lp_linear.Sersic)
 mass = af.Model(al.mp.Isothermal)
 
 lens = af.Model(
-    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass, shear=al.mp.ExternalShear
+    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass
 )
+field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 # Source:
 
@@ -229,7 +230,7 @@ source = af.Model(al.Galaxy, redshift=1.0, bulge=al.lp_linear.SersicCore)
 
 # Overall Lens Model:
 
-model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
+model = af.Collection(galaxies=af.Collection(lens=lens, source=source), fields=field)
 
 search = af.Nautilus(
     path_prefix=Path("howtolens", "chapter_4"),
@@ -323,8 +324,9 @@ bulge = af.Model(al.lp_linear.Sersic)
 mass = af.Model(al.mp.Isothermal)
 
 lens = af.Model(
-    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass, shear=al.mp.ExternalShear
+    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass
 )
+field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 # Source:
 
@@ -379,7 +381,8 @@ extra_galaxies = af.Collection(extra_galaxies_list)
 # Overall Lens Model:
 
 model = af.Collection(
-    galaxies=af.Collection(lens=lens, source=source), extra_galaxies=extra_galaxies
+    galaxies=af.Collection(lens=lens, source=source), extra_galaxies=extra_galaxies,
+    fields=field,
 )
 
 """

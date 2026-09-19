@@ -49,25 +49,7 @@ import autolens as al
 import autolens.plot as aplt
 ```
 
-    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
-    
-    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
-    
-    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
-      warnings.warn(_missing_version_warning(root, library_version))
-    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
-    
-    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
-    
-    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
-      warnings.warn(_missing_version_warning(root, library_version))
     Working Directory has been set to `HowToLens`
-    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
-    
-    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
-    
-    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
-      warnings.warn(_missing_version_warning(root, library_version))
 
 
 __Initial Setup__
@@ -156,6 +138,12 @@ radial_critical_curves_list = al.LensCalc.from_mass_obj(
 
 ```
 
+    .../PyAutoGalaxy/autogalaxy/operate/lens_calc.py:565: UserWarning: LensCalc Hessian: 1 of 9801 points did not converge after 20 halvings (largest relative error estimate 4.26e-01); values kept.
+      warnings.warn(
+    .../PyAutoGalaxy/autogalaxy/operate/lens_calc.py:565: UserWarning: LensCalc Hessian: 1 of 9801 points did not converge after 20 halvings (largest relative error estimate 4.26e-01); values kept.
+      warnings.warn(
+
+
 __Caustics__
 
 In the previous section, we plotted the critical curves of the mass profile on the image-plane. We will now plot the
@@ -218,6 +206,10 @@ radial_caustics_list = al.LensCalc.from_tracer(tracer=tracer).radial_caustic_lis
     
 
 
+    .../PyAutoGalaxy/autogalaxy/operate/lens_calc.py:565: UserWarning: LensCalc Hessian: 1 of 9801 points did not converge after 20 halvings (largest relative error estimate 4.26e-01); values kept.
+      warnings.warn(
+
+
 We can also plot the caustic on the source-plane image.
 
 
@@ -272,15 +264,19 @@ aplt.subplot_tracer(tracer=tracer, grid=grid)
 aplt.subplot_galaxies_images(tracer=tracer, grid=grid)
 ```
 
-
-    
-![png](tutorial_3_more_ray_tracing_files/tutorial_3_more_ray_tracing_17_0.png)
-    
+    .../PyAutoGalaxy/autogalaxy/operate/lens_calc.py:565: UserWarning: LensCalc Hessian: 1 of 9801 points did not converge after 20 halvings (largest relative error estimate 4.26e-01); values kept.
+      warnings.warn(
 
 
 
     
 ![png](tutorial_3_more_ray_tracing_files/tutorial_3_more_ray_tracing_17_1.png)
+    
+
+
+
+    
+![png](tutorial_3_more_ray_tracing_files/tutorial_3_more_ray_tracing_17_2.png)
     
 
 
@@ -361,8 +357,8 @@ lens = al.Galaxy(
     mass=al.mp.Isothermal(
         centre=(0.0, 0.0), ell_comps=(0.0, -0.111111), einstein_radius=1.6
     ),
-    shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.0),
 )
+field = al.MassField(redshift=0.5, shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.0))
 
 print(lens)
 ```
@@ -382,11 +378,6 @@ print(lens)
     einstein_radius: 1.6
     slope: 2.0
     core_radius: 0.0
-    ExternalShear
-    centre: (0.0, 0.0)
-    ell_comps: (0.0, 0.0)
-    gamma_1: 0.05
-    gamma_2: 0.0
 
 
 Lets also create a small satellite galaxy nearby the lens galaxy and at the same redshift.
@@ -513,6 +504,7 @@ ray-tracing is performed.
 tracer = al.Tracer(
     galaxies=[lens, lens_satellite, source_0, source_1],
     cosmology=al.cosmo.Planck15(),
+    fields=[field],
 )
 ```
 
