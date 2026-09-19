@@ -41,7 +41,7 @@ __Initial Setup__
 we'll use the same strong lensing data as the previous tutorial, where:
 
  - The lens galaxy's light is an `Sersic`.
- - The lens galaxy's total mass distribution is an `Isothermal` and `ExternalShear`.
+ - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.
  - The source galaxy's light is an `Exponential`.
  
 All the usual steps for setting up a model fit (masking, analysis, etc.) are included below.
@@ -102,12 +102,13 @@ mass.ell_comps = bulge.ell_comps
 bulge.sersic_index = 4.0
 
 lens = af.Model(
-    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass, shear=al.mp.ExternalShear
+    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass
 )
+field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=al.lp_linear.ExponentialCore)
 
-model_1 = af.Collection(galaxies=af.Collection(lens=lens, source=source))
+model_1 = af.Collection(galaxies=af.Collection(lens=lens, source=source), fields=field)
 
 """
 The `info` attribute shows the model in a readable format.
@@ -182,12 +183,14 @@ bulge.sersic_index = af.TruncatedGaussianPrior(
 
 """
 For the mass, we again must account for how its centre was fixed to (0.0", 0.0") and therefore not pass the centre.
-Passing the other parameters is the same as how we passed the bulge parameters, as is the shear.
+The external shear belongs to its own field, so we pass that field model separately. Taking it from
+`result_1.model.fields` keeps its parameters free with the priors learned in the first search; taking
+`result_1.instance.fields` would fix them to the fitted values instead.
 """
 mass = af.Model(al.mp.Isothermal)
 mass.einstein_radius = result_1.model.galaxies.lens.mass.einstein_radius
 mass.ell_comps = result_1.model.galaxies.lens.mass.ell_comps
-shear = result_1.model.galaxies.lens.shear
+field = result_1.model.fields
 
 """
 For the source's bulge, we are passing the result of an `Exponential` to an `Sersic`. 
@@ -208,11 +211,11 @@ source_bulge.take_attributes(result_1.model.galaxies.source.bulge)
 """
 We now compose the model with these components that have had their priors customized. 
 """
-lens = af.Model(al.Galaxy, redshift=0.5, bulge=bulge, mass=mass, shear=shear)
+lens = af.Model(al.Galaxy, redshift=0.5, bulge=bulge, mass=mass)
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=source_bulge)
 
-model_2 = af.Collection(galaxies=af.Collection(lens=lens, source=source))
+model_2 = af.Collection(galaxies=af.Collection(lens=lens, source=source), fields=field)
 
 """
 The `info` attribute shows the model, including how all priors are updated via prior passing.

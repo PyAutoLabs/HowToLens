@@ -38,7 +38,7 @@ __Initial Setup__
 We'll use the same strong lensing data as the previous tutorial, where:
 
  - The lens galaxy's light is omitted.
- - The lens galaxy's total mass distribution is an `Isothermal` and `ExternalShear`.
+ - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.
  - The source galaxy's light is an `Sersic`.
 """
 dataset_name = "simple__no_lens_light"
@@ -79,7 +79,7 @@ This function fits the imaging data with a tracer, returning a `FitImaging` obje
 """
 
 
-def perform_fit_with_lens__source_galaxy(dataset, lens_galaxy, source_galaxy):
+def perform_fit_with_lens__source_galaxy(dataset, lens_galaxy, source_galaxy, field):
     mask = al.Mask2D.circular_annular(
         shape_native=dataset.shape_native,
         pixel_scales=dataset.pixel_scales,
@@ -89,7 +89,7 @@ def perform_fit_with_lens__source_galaxy(dataset, lens_galaxy, source_galaxy):
 
     dataset = dataset.apply_mask(mask=mask)
 
-    tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
+    tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy], fields=[field])
 
     return al.FitImaging(dataset=dataset, tracer=tracer)
 
@@ -119,8 +119,8 @@ lens_galaxy = al.Galaxy(
         einstein_radius=0.8,
         ell_comps=al.convert.ell_comps_from(axis_ratio=0.9, angle=45.0),
     ),
-    shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.05),
 )
+field = al.MassField(redshift=0.5, shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.05))
 
 pixelization = al.Pixelization(
     mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(20, 20)),
@@ -130,7 +130,7 @@ pixelization = al.Pixelization(
 source_galaxy = al.Galaxy(redshift=1.0, pixelization=pixelization)
 
 fit = perform_fit_with_lens__source_galaxy(
-    dataset=dataset, lens_galaxy=lens_galaxy, source_galaxy=source_galaxy
+    dataset=dataset, lens_galaxy=lens_galaxy, source_galaxy=source_galaxy, field=field
 )
 
 aplt.subplot_fit_imaging(fit=fit)
@@ -156,8 +156,8 @@ lens_galaxy = al.Galaxy(
         einstein_radius=1.6,
         ell_comps=al.convert.ell_comps_from(axis_ratio=0.9, angle=45.0),
     ),
-    shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.05),
 )
+field = al.MassField(redshift=0.5, shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.05))
 
 pixelization = al.Pixelization(
     mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(20, 20)),
@@ -167,7 +167,7 @@ pixelization = al.Pixelization(
 source_galaxy = al.Galaxy(redshift=1.0, pixelization=pixelization)
 
 correct_fit = perform_fit_with_lens__source_galaxy(
-    dataset=dataset, lens_galaxy=lens_galaxy, source_galaxy=source_galaxy
+    dataset=dataset, lens_galaxy=lens_galaxy, source_galaxy=source_galaxy, field=field
 )
 
 aplt.subplot_fit_imaging(fit=correct_fit)

@@ -49,7 +49,7 @@ __Initial Setup__
 we'll use the same strong lensing data as the previous tutorial, where:
 
  - The lens galaxy's light is an `Sersic`.
- - The lens galaxy's total mass distribution is an `Isothermal` and `ExternalShear`.
+ - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.
  - The source galaxy's light is an `Exponential`.
 """
 dataset_name = "lens_sersic"
@@ -211,12 +211,13 @@ form. Furthermore, the source's morphology can be pretty complex, making it diff
 prior!
 """
 lens = af.Model(
-    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass, shear=al.mp.ExternalShear
+    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass
 )
+field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=al.lp.ExponentialCore)
 
-model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
+model = af.Collection(galaxies=af.Collection(lens=lens, source=source), fields=field)
 
 """
 The `info` attribute shows the model in a readable format, including the priors specified above.
@@ -333,12 +334,13 @@ We now compose the model, which will have a non-linear parameter space with 4 le
 previously. 
 """
 lens = af.Model(
-    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass, shear=al.mp.ExternalShear
+    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass
 )
+field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=al.lp.ExponentialCore)
 
-model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
+model = af.Collection(galaxies=af.Collection(lens=lens, source=source), fields=field)
 
 """
 The `info` attribute shows the model in a readable format, including the parameter links specified above.
@@ -436,12 +438,12 @@ lens = af.Model(
     redshift=0.5,
     bulge=al.lp.Sersic,
     mass=al.mp.Isothermal,
-    shear=al.mp.ExternalShear,
 )
+field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=al.lp.ExponentialCore)
 
-model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
+model = af.Collection(galaxies=af.Collection(lens=lens, source=source), fields=field)
 
 search = af.Nautilus(
     path_prefix=Path("howtolens") / "chapter_2",

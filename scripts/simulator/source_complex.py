@@ -22,7 +22,7 @@ __Model__
 
 This script simulates `Imaging` of a 'galaxy-scale' strong lens where:
 
- - The lens galaxy's total mass distribution is an `Isothermal` and `ExternalShear`.
+ - The lens galaxy's mass distribution is an `Isothermal` profile.
  - The source galaxy's light is four `Sersic`s.
 
 This produces a very complex lensed source galaxy, which is used to illustrate source reconstructions on pixel-grids

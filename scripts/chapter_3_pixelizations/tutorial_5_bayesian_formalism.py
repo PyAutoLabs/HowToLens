@@ -66,7 +66,7 @@ __Initial Setup__
 we'll use the same strong lensing data as the previous tutorials, where:
 
  - The lens galaxy's light is omitted.
- - The lens galaxy's total mass distribution is an `Isothermal` and `ExternalShear`.
+ - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.
  - The source galaxy's light is an `Sersic`.
 
 Because the lens galaxy's light is omitted, the data is already "lens subtracted". WD03 make the same assumption,
@@ -152,7 +152,7 @@ mesh_shape = (mesh_pixels_yx, mesh_pixels_yx)
 """
 __Tracer__
 
-We use the same lens galaxy mass model as the previous tutorials (an `Isothermal` plus `ExternalShear`, the true
+We use the same lens system mass model as the previous tutorials (an `Isothermal` galaxy plus a separate `ExternalShear` field, the true
 model of the simulated data) and a source galaxy whose `Pixelization` pairs the `RectangularUniform` mesh with
 `Constant` regularization (whose role appears later, when we reach the matrix $H$).
 """
@@ -163,8 +163,8 @@ lens_galaxy = al.Galaxy(
         einstein_radius=1.6,
         ell_comps=al.convert.ell_comps_from(axis_ratio=0.9, angle=45.0),
     ),
-    shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.05),
 )
+field = al.MassField(redshift=0.5, shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.05))
 
 pixelization = al.Pixelization(
     mesh=al.mesh.RectangularUniform(shape=mesh_shape),
@@ -173,7 +173,7 @@ pixelization = al.Pixelization(
 
 source_galaxy = al.Galaxy(redshift=1.0, pixelization=pixelization)
 
-tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
+tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy], fields=[field])
 
 r"""
 __Ray Tracing__

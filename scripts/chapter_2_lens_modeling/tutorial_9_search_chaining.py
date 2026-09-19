@@ -72,7 +72,7 @@ __Initial Setup__
 we'll use the same strong lensing data as tutorials 3, 4 and 5 of this chapter, where:
 
  - The lens galaxy's light is an `Sersic`.
- - The lens galaxy's total mass distribution is an `Isothermal` and `ExternalShear`.
+ - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.
  - The source galaxy's light is an `Exponential`.
 """
 dataset_name = "lens_sersic"
@@ -155,12 +155,13 @@ We have not done anything to the source model, but use an `Exponential` which wi
 `Sersic` in the second search.
 """
 lens = af.Model(
-    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass, shear=al.mp.ExternalShear
+    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass
 )
+field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=al.lp_linear.ExponentialCore)
 
-model_1 = af.Collection(galaxies=af.Collection(lens=lens, source=source))
+model_1 = af.Collection(galaxies=af.Collection(lens=lens, source=source), fields=field)
 
 """
 The `info` attribute shows the model in a readable format.
@@ -233,7 +234,7 @@ parameter can or can`t take. It makes it more likely we will accidentally cut-ou
 """
 bulge = af.Model(al.lp_linear.Sersic)
 mass = af.Model(al.mp.Isothermal)
-shear = af.Model(al.mp.ExternalShear)
+field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 source_bulge = af.Model(al.lp_linear.Sersic)
 
 """
@@ -284,8 +285,8 @@ mass.ell_comps.ell_comps_1 = af.TruncatedGaussianPrior(
 mass.einstein_radius = af.TruncatedGaussianPrior(
     mean=1.6, sigma=0.1, lower_limit=0.0, upper_limit=np.inf
 )
-shear.gamma_1 = af.GaussianPrior(mean=0.05, sigma=0.05)
-shear.gamma_2 = af.GaussianPrior(mean=0.05, sigma=0.05)
+field.shear.gamma_1 = af.GaussianPrior(mean=0.05, sigma=0.05)
+field.shear.gamma_2 = af.GaussianPrior(mean=0.05, sigma=0.05)
 
 """
 __SOURCE LIGHT PRIORS:__
@@ -314,11 +315,11 @@ source_bulge.sersic_index = af.TruncatedGaussianPrior(
 """
 We now compose the model with these components that have had their priors customized. 
 """
-lens = af.Model(al.Galaxy, redshift=0.5, bulge=bulge, mass=mass, shear=shear)
+lens = af.Model(al.Galaxy, redshift=0.5, bulge=bulge, mass=mass)
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=source_bulge)
 
-model_2 = af.Collection(galaxies=af.Collection(lens=lens, source=source))
+model_2 = af.Collection(galaxies=af.Collection(lens=lens, source=source), fields=field)
 
 """
 The `info` attribute shows the model, including the priors specified above.

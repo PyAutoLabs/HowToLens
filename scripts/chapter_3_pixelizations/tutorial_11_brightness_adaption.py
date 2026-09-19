@@ -51,7 +51,7 @@ __Initial Setup__
 we'll use the same strong lensing data as the previous tutorial, where:
 
  - The lens galaxy's light is omitted.
- - The lens galaxy's total mass distribution is an `Isothermal` and `ExternalShear`.
+ - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.
  - The source galaxy's light is an `Sersic`.
 """
 dataset_name = "simple__no_lens_light"
@@ -101,8 +101,8 @@ lens_galaxy = al.Galaxy(
         einstein_radius=1.6,
         ell_comps=al.convert.ell_comps_from(axis_ratio=0.9, angle=45.0),
     ),
-    shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.05),
 )
+field = al.MassField(redshift=0.5, shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.05))
 
 pixelization = al.Pixelization(
     mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(24, 24)),
@@ -111,7 +111,7 @@ pixelization = al.Pixelization(
 
 source_galaxy_magnification = al.Galaxy(redshift=1.0, pixelization=pixelization)
 
-tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy_magnification])
+tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy_magnification], fields=[field])
 
 fit = al.FitImaging(dataset=dataset, tracer=tracer)
 
@@ -174,7 +174,7 @@ We now fit using this adapt image and mesh using the normal API.
 Note however that the `FitImaging` object receives the `adapt_images` as an input and they are used when
 setting up the image-mesh and mesh.
 """
-tracer = al.Tracer(galaxies=[lens_galaxy, galaxy_adapt])
+tracer = al.Tracer(galaxies=[lens_galaxy, galaxy_adapt], fields=[field])
 
 fit = al.FitImaging(dataset=dataset, tracer=tracer, adapt_images=adapt_images)
 
@@ -302,7 +302,7 @@ source_weight_power_10 = al.Galaxy(
     pixelization=pixelization,
 )
 
-tracer = al.Tracer(galaxies=[lens_galaxy, source_weight_power_10])
+tracer = al.Tracer(galaxies=[lens_galaxy, source_weight_power_10], fields=[field])
 
 adapt_images = al.AdaptImages(
     galaxy_image_dict={source_weight_power_10: adapt_image},
@@ -344,7 +344,7 @@ weight_map = al.Array2D(values=weight_map, mask=mask)
 
 aplt.plot_array(array=weight_map, title="")
 
-tracer = al.Tracer(galaxies=[lens_galaxy, source_weight_floor])
+tracer = al.Tracer(galaxies=[lens_galaxy, source_weight_floor], fields=[field])
 
 adapt_images = al.AdaptImages(
     galaxy_image_dict={source_weight_floor: adapt_image},

@@ -32,7 +32,7 @@ import autofit as af
 we'll use new strong lensing data, where:
 
  - The lens galaxy's light is an `Sersic`.
- - The lens galaxy's total mass distribution is an `Isothermal` and `ExternalShear`.
+ - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.
  - The source galaxy's light is an `Sersic`.
 """
 dataset_name = "lens_sersic"
@@ -245,9 +245,9 @@ mass.ell_comps.ell_comps_0 = af.UniformPrior(lower_limit=-0.3, upper_limit=0.3)
 mass.ell_comps.ell_comps_1 = af.UniformPrior(lower_limit=-0.3, upper_limit=0.3)
 mass.einstein_radius = af.UniformPrior(lower_limit=1.0, upper_limit=2.0)
 
-shear = af.Model(al.mp.ExternalShear)
-shear.gamma_1 = af.UniformPrior(lower_limit=-0.1, upper_limit=0.1)
-shear.gamma_2 = af.UniformPrior(lower_limit=-0.1, upper_limit=0.1)
+field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
+field.shear.gamma_1 = af.UniformPrior(lower_limit=-0.1, upper_limit=0.1)
+field.shear.gamma_2 = af.UniformPrior(lower_limit=-0.1, upper_limit=0.1)
 
 bulge = af.Model(al.lp.Sersic)
 bulge.centre.centre_0 = af.UniformPrior(lower_limit=-0.1, upper_limit=0.1)
@@ -258,10 +258,10 @@ bulge.intensity = af.UniformPrior(lower_limit=0.1, upper_limit=0.5)
 bulge.effective_radius = af.UniformPrior(lower_limit=0.0, upper_limit=0.4)
 bulge.sersic_index = af.UniformPrior(lower_limit=0.5, upper_limit=2.0)
 
-lens = af.Model(al.Galaxy, redshift=0.5, mass=mass, shear=shear)
+lens = af.Model(al.Galaxy, redshift=0.5, mass=mass)
 source = af.Model(al.Galaxy, redshift=1.0, bulge=bulge)
 
-model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
+model = af.Collection(galaxies=af.Collection(lens=lens, source=source), fields=field)
 
 search = af.Zeus(
     path_prefix=Path("howtolens") / "chapter_optional",
