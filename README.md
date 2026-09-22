@@ -116,6 +116,7 @@ The tutorials are distributed as both Jupyter notebooks (`notebooks/`) and Pytho
 We recommend the notebooks for reading — images and plots render inline, and you can step through small
 code blocks interactively. Use the Python scripts for actual **PyAutoLens** use, which is the workflow
 chapter 3 onwards transitions you to.
+
 ## Before Chapter 1
 
 Before starting chapter 1, complete `scripts/chapter_1_introduction/tutorial_0_visualization.py`
