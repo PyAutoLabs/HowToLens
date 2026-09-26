@@ -210,9 +210,7 @@ strong lens and often tell you roughly where the source-galaxy is located (in th
 form. Furthermore, the source's morphology can be pretty complex, making it difficult to come up with a good source 
 prior!
 """
-lens = af.Model(
-    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass
-)
+lens = af.Model(al.Galaxy, redshift=0.5, bulge=bulge, mass=mass)
 field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=al.lp.ExponentialCore)
@@ -333,9 +331,7 @@ mass.ell_comps = bulge.ell_comps
 We now compose the model, which will have a non-linear parameter space with 4 less dimensions than the fit performed
 previously. 
 """
-lens = af.Model(
-    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass
-)
+lens = af.Model(al.Galaxy, redshift=0.5, bulge=bulge, mass=mass)
 field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=al.lp.ExponentialCore)

@@ -219,9 +219,7 @@ same one we used in chapter 2's linear profiles tutorial: a linear `Sersic` lens
 bulge = af.Model(al.lp_linear.Sersic)
 mass = af.Model(al.mp.Isothermal)
 
-lens = af.Model(
-    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass
-)
+lens = af.Model(al.Galaxy, redshift=0.5, bulge=bulge, mass=mass)
 field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 # Source:
@@ -323,9 +321,7 @@ We compose the main lens and source model exactly as before.
 bulge = af.Model(al.lp_linear.Sersic)
 mass = af.Model(al.mp.Isothermal)
 
-lens = af.Model(
-    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass
-)
+lens = af.Model(al.Galaxy, redshift=0.5, bulge=bulge, mass=mass)
 field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 # Source:
@@ -381,7 +377,8 @@ extra_galaxies = af.Collection(extra_galaxies_list)
 # Overall Lens Model:
 
 model = af.Collection(
-    galaxies=af.Collection(lens=lens, source=source), extra_galaxies=extra_galaxies,
+    galaxies=af.Collection(lens=lens, source=source),
+    extra_galaxies=extra_galaxies,
     fields=field,
 )
 

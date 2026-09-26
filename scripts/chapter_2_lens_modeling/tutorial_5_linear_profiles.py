@@ -134,9 +134,7 @@ standard for your own model-fits from here on!
 bulge = af.Model(al.lp_linear.Sersic)
 mass = af.Model(al.mp.Isothermal)
 
-lens = af.Model(
-    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass
-)
+lens = af.Model(al.Galaxy, redshift=0.5, bulge=bulge, mass=mass)
 field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=al.lp_linear.ExponentialCore)

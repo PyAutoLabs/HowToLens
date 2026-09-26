@@ -87,7 +87,9 @@ def fit_via_source_galaxy_from(dataset, source_galaxy, adapt_images=None):
             ell_comps=al.convert.ell_comps_from(axis_ratio=0.9, angle=45.0),
         ),
     )
-    field = al.MassField(redshift=0.5, shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.05))
+    field = al.MassField(
+        redshift=0.5, shear=al.mp.ExternalShear(gamma_1=0.05, gamma_2=0.05)
+    )
 
     tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy], fields=[field])
 
