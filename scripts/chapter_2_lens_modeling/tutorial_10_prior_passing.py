@@ -101,9 +101,7 @@ mass.ell_comps = bulge.ell_comps
 
 bulge.sersic_index = 4.0
 
-lens = af.Model(
-    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass
-)
+lens = af.Model(al.Galaxy, redshift=0.5, bulge=bulge, mass=mass)
 field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=al.lp_linear.ExponentialCore)

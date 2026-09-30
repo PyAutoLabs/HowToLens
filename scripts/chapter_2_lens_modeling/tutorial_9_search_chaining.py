@@ -154,9 +154,7 @@ We now compose the model with these components that have had their priors custom
 We have not done anything to the source model, but use an `Exponential` which will become the more complex
 `Sersic` in the second search.
 """
-lens = af.Model(
-    al.Galaxy, redshift=0.5, bulge=bulge, mass=mass
-)
+lens = af.Model(al.Galaxy, redshift=0.5, bulge=bulge, mass=mass)
 field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=al.lp_linear.ExponentialCore)

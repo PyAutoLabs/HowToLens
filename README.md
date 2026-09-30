@@ -1,8 +1,8 @@
 # HowToLens
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/start_here.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/start_here.ipynb)
 
-[Start Here on Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/start_here.ipynb) |
+[Start Here on Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/start_here.ipynb) |
 [Installation Guide](https://pyautolens.readthedocs.io/en/latest/installation/overview.html) |
 [PyAutoLens readthedocs](https://pyautolens.readthedocs.io/en/latest/index.html) |
 [Browse Chapter 1 With Images](markdown/README.md) |
@@ -77,61 +77,61 @@ output figures inline. Nothing runs and nothing installs — you just read it. T
 skimming a tutorial before running it, or for reading on a phone. Markdown pages currently exist only
 for the chapter 1 tutorials listed with a `markdown` link below; every other tutorial is Colab-only.
 
-**[Start Here](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/start_here.ipynb)** — a one-page overview of the whole series.
+**[Start Here](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/start_here.ipynb)** — a one-page overview of the whole series.
 
 - **[Chapter 1: Introduction](scripts/chapter_1_introduction/README.md)** — Grids, light and mass profiles, galaxies, ray-tracing, point sources, the lensing formalism, data, and fitting.
-  - Tutorial 0: Visualization — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_1_introduction/tutorial_0_visualization.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_0_visualization.md))
-  - Tutorial 1: Grids and Galaxies — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_1_introduction/tutorial_1_grids_and_galaxies.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_1_grids_and_galaxies.md))
-  - Tutorial 2: Ray Tracing — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_1_introduction/tutorial_2_ray_tracing.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_2_ray_tracing.md))
-  - Tutorial 3: More Ray Tracing — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_1_introduction/tutorial_3_more_ray_tracing.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_3_more_ray_tracing.md))
-  - Tutorial 4: Point Sources — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_1_introduction/tutorial_4_point_sources.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_4_point_sources.md))
-  - Tutorial 5: Lensing Formalism — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_1_introduction/tutorial_5_lensing_formalism.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_5_lensing_formalism.md))
-  - Tutorial 6: Data — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_1_introduction/tutorial_6_data.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_6_data.md))
-  - Tutorial 7: Fitting — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_1_introduction/tutorial_7_fitting.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_7_fitting.md))
-  - Tutorial 8: Summary — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_1_introduction/tutorial_8_summary.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_8_summary.md))
+  - Tutorial 0: Visualization — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_1_introduction/tutorial_0_visualization.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_0_visualization.md))
+  - Tutorial 1: Grids and Galaxies — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_1_introduction/tutorial_1_grids_and_galaxies.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_1_grids_and_galaxies.md))
+  - Tutorial 2: Ray Tracing — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_1_introduction/tutorial_2_ray_tracing.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_2_ray_tracing.md))
+  - Tutorial 3: More Ray Tracing — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_1_introduction/tutorial_3_more_ray_tracing.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_3_more_ray_tracing.md))
+  - Tutorial 4: Point Sources — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_1_introduction/tutorial_4_point_sources.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_4_point_sources.md))
+  - Tutorial 5: Lensing Formalism — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_1_introduction/tutorial_5_lensing_formalism.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_5_lensing_formalism.md))
+  - Tutorial 6: Data — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_1_introduction/tutorial_6_data.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_6_data.md))
+  - Tutorial 7: Fitting — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_1_introduction/tutorial_7_fitting.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_7_fitting.md))
+  - Tutorial 8: Summary — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_1_introduction/tutorial_8_summary.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_8_summary.md))
 - **[Chapter 2: Lens Modeling](scripts/chapter_2_lens_modeling/README.md)** — Bayesian inference, non-linear searches, lens modeling, search chaining, prior passing, and SLaM pipelines.
-  - Tutorial 1: Non-linear Search — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_2_lens_modeling/tutorial_1_non_linear_search.ipynb))
-  - Tutorial 2: Practicalities — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_2_lens_modeling/tutorial_2_practicalities.ipynb))
-  - Tutorial 3: Realism and Complexity — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_2_lens_modeling/tutorial_3_realism_and_complexity.ipynb))
-  - Tutorial 4: Dealing with Failure — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_2_lens_modeling/tutorial_4_dealing_with_failure.ipynb))
-  - Tutorial 5: Linear Profiles — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_2_lens_modeling/tutorial_5_linear_profiles.ipynb))
-  - Tutorial 6: Masking and Positions — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_2_lens_modeling/tutorial_6_masking_and_positions.ipynb))
-  - Tutorial 7: Results — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_2_lens_modeling/tutorial_7_results.ipynb))
-  - Tutorial 8: Need for Speed — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_2_lens_modeling/tutorial_8_need_for_speed.ipynb))
-  - Tutorial 9: Search Chaining — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_2_lens_modeling/tutorial_9_search_chaining.ipynb))
-  - Tutorial 10: Prior Passing — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_2_lens_modeling/tutorial_10_prior_passing.ipynb))
-  - Tutorial 11: SLaM — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_2_lens_modeling/tutorial_11_slam.ipynb))
+  - Tutorial 1: Non-linear Search — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_2_lens_modeling/tutorial_1_non_linear_search.ipynb))
+  - Tutorial 2: Practicalities — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_2_lens_modeling/tutorial_2_practicalities.ipynb))
+  - Tutorial 3: Realism and Complexity — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_2_lens_modeling/tutorial_3_realism_and_complexity.ipynb))
+  - Tutorial 4: Dealing with Failure — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_2_lens_modeling/tutorial_4_dealing_with_failure.ipynb))
+  - Tutorial 5: Linear Profiles — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_2_lens_modeling/tutorial_5_linear_profiles.ipynb))
+  - Tutorial 6: Masking and Positions — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_2_lens_modeling/tutorial_6_masking_and_positions.ipynb))
+  - Tutorial 7: Results — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_2_lens_modeling/tutorial_7_results.ipynb))
+  - Tutorial 8: Need for Speed — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_2_lens_modeling/tutorial_8_need_for_speed.ipynb))
+  - Tutorial 9: Search Chaining — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_2_lens_modeling/tutorial_9_search_chaining.ipynb))
+  - Tutorial 10: Prior Passing — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_2_lens_modeling/tutorial_10_prior_passing.ipynb))
+  - Tutorial 11: SLaM — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_2_lens_modeling/tutorial_11_slam.ipynb))
 - **[Chapter 3: Pixelizations](scripts/chapter_3_pixelizations/README.md)** — Pixelized source reconstructions, inversions, the Bayesian formalism, and adaptive pixelizations and regularization.
-  - Tutorial 1: Pixelizations — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_3_pixelizations/tutorial_1_pixelizations.ipynb))
-  - Tutorial 2: Mappers — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_3_pixelizations/tutorial_2_mappers.ipynb))
-  - Tutorial 3: Inversions — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_3_pixelizations/tutorial_3_inversions.ipynb))
-  - Tutorial 4: Bayesian Regularization — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_3_pixelizations/tutorial_4_bayesian_regularization.ipynb))
-  - Tutorial 5: Bayesian Formalism — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_3_pixelizations/tutorial_5_bayesian_formalism.ipynb))
-  - Tutorial 6: Borders — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_3_pixelizations/tutorial_6_borders.ipynb))
-  - Tutorial 7: Lens Modeling — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_3_pixelizations/tutorial_7_lens_modeling.ipynb))
-  - Tutorial 8: Adaptive Pixelization — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_3_pixelizations/tutorial_8_adaptive_pixelization.ipynb))
-  - Tutorial 9: Model Fit — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_3_pixelizations/tutorial_9_model_fit.ipynb))
-  - Tutorial 10: Fit Problems — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_3_pixelizations/tutorial_10_fit_problems.ipynb))
-  - Tutorial 11: Brightness Adaption — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_3_pixelizations/tutorial_11_brightness_adaption.ipynb))
-  - Tutorial 12: Adaptive Regularization — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_3_pixelizations/tutorial_12_adaptive_regularization.ipynb))
+  - Tutorial 1: Pixelizations — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_3_pixelizations/tutorial_1_pixelizations.ipynb))
+  - Tutorial 2: Mappers — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_3_pixelizations/tutorial_2_mappers.ipynb))
+  - Tutorial 3: Inversions — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_3_pixelizations/tutorial_3_inversions.ipynb))
+  - Tutorial 4: Bayesian Regularization — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_3_pixelizations/tutorial_4_bayesian_regularization.ipynb))
+  - Tutorial 5: Bayesian Formalism — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_3_pixelizations/tutorial_5_bayesian_formalism.ipynb))
+  - Tutorial 6: Borders — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_3_pixelizations/tutorial_6_borders.ipynb))
+  - Tutorial 7: Lens Modeling — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_3_pixelizations/tutorial_7_lens_modeling.ipynb))
+  - Tutorial 8: Adaptive Pixelization — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_3_pixelizations/tutorial_8_adaptive_pixelization.ipynb))
+  - Tutorial 9: Model Fit — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_3_pixelizations/tutorial_9_model_fit.ipynb))
+  - Tutorial 10: Fit Problems — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_3_pixelizations/tutorial_10_fit_problems.ipynb))
+  - Tutorial 11: Brightness Adaption — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_3_pixelizations/tutorial_11_brightness_adaption.ipynb))
+  - Tutorial 12: Adaptive Regularization — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_3_pixelizations/tutorial_12_adaptive_regularization.ipynb))
 - **[Chapter 4: Scaling Up Lensing](scripts/chapter_4_scaling_up_lensing/README.md)** — Extra galaxies, multi-galaxy lenses, scaling relations, group and cluster scales, and weak lensing.
-  - Tutorial 1: Extra Galaxies — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_4_scaling_up_lensing/tutorial_1_extra_galaxies.ipynb))
-  - Tutorial 2: Multi Galaxy — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_4_scaling_up_lensing/tutorial_2_multi_galaxy.ipynb))
-  - Tutorial 3: Scaling Relation — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_4_scaling_up_lensing/tutorial_3_scaling_relation.ipynb))
-  - Tutorial 4: Group Scale — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_4_scaling_up_lensing/tutorial_4_group_scale.ipynb))
-  - Tutorial 5: Cluster Scale — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_4_scaling_up_lensing/tutorial_5_cluster_scale.ipynb))
-  - Tutorial 6: Weak Lensing — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_4_scaling_up_lensing/tutorial_6_weak_lensing.ipynb))
+  - Tutorial 1: Extra Galaxies — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_4_scaling_up_lensing/tutorial_1_extra_galaxies.ipynb))
+  - Tutorial 2: Multi Galaxy — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_4_scaling_up_lensing/tutorial_2_multi_galaxy.ipynb))
+  - Tutorial 3: Scaling Relation — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_4_scaling_up_lensing/tutorial_3_scaling_relation.ipynb))
+  - Tutorial 4: Group Scale — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_4_scaling_up_lensing/tutorial_4_group_scale.ipynb))
+  - Tutorial 5: Cluster Scale — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_4_scaling_up_lensing/tutorial_5_cluster_scale.ipynb))
+  - Tutorial 6: Weak Lensing — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_4_scaling_up_lensing/tutorial_6_weak_lensing.ipynb))
 - **[Optional Tutorials](scripts/chapter_optional/)** — Alternative non-linear searches and advanced topics.
-  - Tutorial Optional: Searches — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.19.1/notebooks/chapter_optional/tutorial_searches.ipynb))
+  - Tutorial Optional: Searches — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.9.27.2/notebooks/chapter_optional/tutorial_searches.ipynb))
 
 Model-fits can run faster on a GPU. In Colab, enable one via *Runtime* → *Change runtime type*
 → *Hardware accelerator* before running a notebook.
 
 ### Run on your own machine
 
-You can run the tutorials on your own machine by following the
+Follow the
 [PyAutoLens installation guide](https://pyautolens.readthedocs.io/en/latest/installation/overview.html),
-then cloning this repository:
+then clone this repository:
 
 ```bash
 git clone https://github.com/PyAutoLabs/HowToLens.git
