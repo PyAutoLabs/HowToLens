@@ -187,13 +187,10 @@ If you use **HowToLens** or **PyAutoLens** in your research, please cite the ref
 
 ## Community & Contributing
 
-Questions, help with your code or your analysis, and ideas: the
-[PyAutoLabs Discussions](https://github.com/orgs/PyAutoLabs/discussions).
-Bug reports with a reproducer (a snippet, the traceback, your versions):
-an issue on the [PyAutoLens tracker](https://github.com/PyAutoLabs/PyAutoLens/issues); issues with the
-tutorial content: the [HowToLens tracker](https://github.com/PyAutoLabs/HowToLens/issues). The Slack
-is for collaborators, by invitation.
+**PyAutoLens** is built in the open by its users: everyone is welcome to ask questions,
+share what they have made with it, and contribute.
 
-Community-built tools, tutorials and how to contribute are on the [**PyAutoLens** community page](https://pyautolens.readthedocs.io/en/latest/general/community.html).
+Questions, ideas and bug reports: the [PyAutoLabs Discussions](https://github.com/orgs/PyAutoLabs/discussions).
+Chat with us on [Slack](https://join.slack.com/t/pyautolens/shared_invite/zt-2cufp4eyf-fXfgMxRGuvg~bMrI3uOAxg).
 
-Contribution guidelines: [CONTRIBUTING.md](https://github.com/PyAutoLabs/HowToLens/blob/main/CONTRIBUTING.md).
+Community-built tools and tutorials, and how to contribute: the [**PyAutoLens** community page](https://pyautolens.readthedocs.io/en/latest/general/community.html).
