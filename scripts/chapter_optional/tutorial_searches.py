@@ -214,10 +214,18 @@ There are a class of non-linear searches called `optimizers`, which seek to opti
 likelihood. They want to find the model that maximizes the log likelihood, with no regard for the errors, thus not
 wasting time mapping out in intricate detail every facet of parameter space.
 
-PyAutoFit supports the LBFGS optimizer (from scipy), which can be used as an alternative to nested sampling when
-only the maximum likelihood model is needed. However, optimizers generally need a good starting point to work well,
-and in our experience the parameter spaces fitted by lens models are often too complex for optimizers without careful
-setup of initialization priors.
+PyAutoFit supports a number of optimizers, which can be used as an alternative to nested sampling when only the
+maximum likelihood model is needed. These include `LBFGS` and `BFGS` (from scipy), which descend the likelihood from a
+single starting point. A single-start optimizer generally needs a good starting point to work well, and in our
+experience the parameter spaces fitted by lens models are often too complex for it without careful setup of initialization
+priors.
+
+PyAutoFit also supports multi-start gradient optimizers (`MultiStartProdigy`, `MultiStartAdam`, `MultiStartADABelief`
+and `MultiStartLion`), which use JAX to launch many optimizations from starting points spread across parameter space
+in parallel and return the best one. This makes them far more robust to complex parameter spaces, and
+`MultiStartProdigy` is the optimizer used by many of the `start_here.py` examples in the `autolens_workspace`. Like any optimizer, they
+return only the best-fit model with no errors. The `autolens_workspace` script `scripts/guides/modeling/searches.py` describes
+every search, including these optimizers, in detail.
 
 __MCMC__
 

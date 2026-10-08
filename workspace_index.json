@@ -728,7 +728,10 @@
       "Optimizers",
       "MCMC"
     ],
-    "cross_refs": [],
+    "cross_refs": [
+      "scripts/guides/modeling/searches.py",
+      "start_here.py"
+    ],
     "notebook": "notebooks/chapter_optional/tutorial_searches.ipynb",
     "path": "scripts/chapter_optional/tutorial_searches.py",
     "summary": "Up to now, we've always used the non-linear search Nautilus and not considered the input parameters that control its sampling. In this tutorial, we'll consider how we can change these setting to balance finding the global maxima solution with fast run time.",
