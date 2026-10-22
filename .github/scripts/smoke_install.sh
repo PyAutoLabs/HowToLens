@@ -12,6 +12,9 @@ if [ "$PYTHON_VERSION" = "3.12" ]; then
 else
   pip install ./PyAutoNerves ./PyAutoFit ./PyAutoArray ./PyAutoGalaxy ./PyAutoLens
   pip install numba
+  # chapter_optional/tutorial_searches.py constructs af.Zeus, which the Hands smoke
+  # dependency preflight requires to be importable; same pin as PyAutoFit `[optional]`.
+  pip install zeus-mcmc==2.5.4
 fi
 # NOTE: do NOT `pip install tensorflow-probability==0.25.0` here. The stable
 # release crashes at import under the resolved modern JAX
