@@ -689,7 +689,7 @@ dedicated workspace guide covers them extensively:
  - `autolens_workspace/scripts/point_source`: the galaxy-scale point-source examples (lensed quasars and
    supernovae), including the `fit.py` guide to every fit variant and the `features` folder (fluxes, time
    delays, multiple sources).
- - `autolens_workspace/scripts/guides/point_source_pairing.py`: the full matrix of position-fitting schemes
+ - `autolens_workspace/scripts/guides/point_solver/pairing.py`: the full matrix of position-fitting schemes
    and when to use each.
  - `autolens_workspace/scripts/cluster`: the cluster-scale workflow this tutorial is built on, including a
    fit to real Hubble Space Telescope data of the cluster Abell 2744 with 188 catalogue members and 7
