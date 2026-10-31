@@ -5,66 +5,37 @@
 Tutorial 4: Point Sources
 =========================
 
-In the previous tutorials, the background sources we lensed were galaxies: extended objects whose light spreads over
-many thousands of light years. When lensed, their light is warped into the arcs and Einstein rings we produced with
-the `Tracer`, spread across many pixels of the image.
+In the previous tutorials, we lensed extended galaxies, producing arcs and Einstein rings. We now turn to sources
+whose individual lensed images are too small for a telescope to resolve: **point sources**.
 
-However, not every source is a galaxy. Some of the most scientifically valuable strong lenses have a background
-source that is physically tiny: a **quasar** (the bright accretion disk around a supermassive black hole, light-days
-across) or a **supernova** (an exploding star, even smaller). These are called **point sources**.
+Two examples are quasars, whose bright central emission comes from material accreting onto a supermassive black
+hole, and supernovae, which are exploding stars. When multiply imaged by a foreground galaxy, they can appear as
+several distinct points of light.
 
-When a point source is strongly lensed, we do not see arcs. Instead, we see the same source appear multiple times,
-as two or four (or more) distinct, unresolved points of light in the image. Modeling these systems is fundamentally
-different from modeling extended sources — different enough that it deserves its own tutorial before we go any
-further.
+The lens equation is unchanged, but we use it to answer a different question. For an extended source, we took
+image-plane coordinates and ray-traced them to the source-plane. For a point source at a specified source-plane
+position, we want to find every image-plane position where it appears.
 
-In this tutorial, we will see why. The short version: for an extended source, we ray-trace light *forwards* from the
-image-plane to the source-plane, which is computationally simple. For a point source, we must go *backwards* — we
-know where the source is, and we must find every image-plane position its light appears at. That means solving the
-lens equation, an inverse problem with no analytic solution, which requires a dedicated numerical tool called the
-`PointSolver`.
-
-Only the lens equation from tutorial 2 is needed to follow this tutorial. The full lensing formalism — convergence,
-potentials, and how deflection angles arise from a mass distribution — is covered in the next tutorial.
-
-Here is an overview of what we'll cover:
-
-- **Initial Setup**: Create a strong lens with a compact extended source, showing how a small source produces
-  distinct multiple images rather than arcs.
-
-- **Point Sources**: What a point source is physically, and why quasars and supernovae appear as multiple
-  unresolved images.
-
-- **Point Source Tracer**: Represent a point source in PyAutoLens using the `Point` profile and build a `Tracer`.
-
-- **The Lens Equation**: Why finding a point source's multiple images means solving the lens equation — an inverse
-  problem with no analytic solution.
-
-- **Point Solver**: The `PointSolver`, which solves the lens equation numerically by ray-tracing triangles.
-
-- **Multiple Images and Critical Curves**: Plot the solved image positions over the lensed image and the tracer's
-  critical curves.
-
-- **Magnifications**: Compute the magnification at each multiple image, and why observed fluxes are often
-  unreliable for modeling.
-
-- **Time Delays**: The arrival-time differences between multiple images, and why they matter for cosmology.
-
-- **Extended Versus Point Computations**: A recap of why the two regimes require fundamentally different
-  calculations and fitting strategies.
+We will use the `PointSolver` to find these positions, then calculate their magnifications and time delays. The
+lens equation from Tutorial 2 is enough to follow the examples; the optional mathematics in Tutorial 3 explains
+the quantities in more detail.
 
 __Contents__
 
-- **Initial Setup:** Create a strong lens with a compact extended source, producing distinct multiple images.
-- **Point Sources:** What a point source is physically and why it appears as multiple unresolved images.
-- **Point Source Tracer:** Represent a point source with the `Point` profile and build a `Tracer`.
-- **The Lens Equation:** Finding multiple images means solving the lens equation, an inverse problem.
-- **Point Solver:** The `PointSolver` solves the lens equation numerically via triangle ray-tracing.
-- **Multiple Images and Critical Curves:** Plot the solved positions over the image and critical curves.
-- **Magnifications:** The magnification of each multiple image, and why fluxes are often unreliable.
-- **Time Delays:** The relative arrival times of the multiple images and their use in cosmology.
-- **Extended Versus Point Computations:** Why the two regimes require fundamentally different calculations.
-- **Wrap Up:** Summary of the script and next steps.
+- **Initial Setup:** Construct a lens with a compact extended source.
+- **Seeing the Compact Source:** Plot its lensed image and identify the bright regions.
+- **Point Sources:** Describe sources whose individual images cannot be resolved.
+- **Point Source Tracer:** Place a point source at the compact source's centre.
+- **The Lens Equation:** Find image positions for a specified source position.
+- **Point Solver:** Search for images by iteratively ray-tracing and refining triangles.
+- **Finding the Images:** Calculate the multiple image positions.
+- **Multiple Images and Critical Curves:** Compare the positions with the extended image.
+- **Magnifications:** Predict each image's flux from its magnification.
+- **Interpreting Fluxes:** Understand why observed flux ratios can differ from predictions.
+- **Time Delays:** Calculate relative arrival times for the multiple images.
+- **Connecting Time Delays to the Images:** Compare positions, brightness and arrival order.
+- **Extended Versus Point Computations:** Compare the two ways of predicting observations.
+- **Wrap Up:** Summarise the tutorial and continue to realistic data.
 
 
 ```python
@@ -79,34 +50,15 @@ import autolens as al
 import autolens.plot as aplt
 ```
 
-    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
-    
-    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
-    
-    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
-      warnings.warn(_missing_version_warning(root, library_version))
-    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
-    
-    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
-    
-    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
-      warnings.warn(_missing_version_warning(root, library_version))
     Working Directory has been set to `HowToLens`
-    .../PyAutoNerves/autonerves/workspace.py:206: UserWarning: Cannot verify the workspace at HowToLens/scripts/chapter_1_introduction is compatible with the installed library version (2026.7.23.1): no `version.minimum_library_version` or `version.workspace_version` key in config/general.yaml and no version.txt at the workspace root.
-    
-    If you cloned the workspace from `main` rather than a release tag, set `version.workspace_version_check: False` in config/general.yaml to silence this warning. The `main` branch updates more frequently than library releases, so version mismatches are expected and not actionable for `main`-branch users.
-    
-    You can also set the environment variable PYAUTO_SKIP_WORKSPACE_VERSION_CHECK=1 to disable temporarily.
-      warnings.warn(_missing_version_warning(root, library_version))
 
 
 __Initial Setup__
 
-Let's begin with a strong lens system like those of the previous tutorials: an elliptical isothermal mass profile
-for the lens galaxy, and an extended light profile for the source galaxy.
+Let's begin with an extended source, using the same galaxy and tracer objects as before.
 
-There is one deliberate difference: the source's `effective_radius` is just 0.1", making it far more compact than
-the sources we lensed before.
+We give the source an `effective_radius` of just 0.1 arcseconds. This makes its light more concentrated and lets
+us see how compact lensed images relate to the point sources we will introduce shortly.
 
 
 ```python
@@ -127,20 +79,25 @@ lens_galaxy = al.Galaxy(
 source_galaxy_extended = al.Galaxy(
     redshift=1.0,
     light=al.lp.ExponentialCore(
-        centre=(0.07, 0.07), intensity=0.1, effective_radius=0.1
+        centre=(0.07, 0.07),
+        intensity=0.1,
+        effective_radius=0.1,
     ),
 )
 
-tracer_extended = al.Tracer(galaxies=[lens_galaxy, source_galaxy_extended])
+tracer_extended = al.Tracer(
+    galaxies=[lens_galaxy, source_galaxy_extended]
+)
 ```
 
-When we plot the image of this system, something new happens: instead of a sweeping arc or Einstein ring, the
-source appears as distinct blobs of light — the same source, imaged multiple times at different locations in
-the image-plane.
+__Seeing the Compact Source__
 
-This is a general rule of strong lensing: the more compact the source, the more its lensed image breaks up into
-separate multiple images. An extended galaxy blurs its multiple images together into arcs; a compact source keeps
-them distinct.
+Let's plot the lensed image. Look for the bright regions around the lens: each contains light from the same
+source, reaching us along a different path.
+
+The source still has a finite extent, so its images can be stretched into arcs. Making a source smaller generally
+makes its individual images more compact, but their shapes also depend on where the source lies relative to the
+caustics.
 
 
 ```python
@@ -151,111 +108,90 @@ aplt.plot_array(
 ```
 
 
-    
+
 ![png](tutorial_4_point_sources_files/tutorial_4_point_sources_5_0.png)
-    
+
 
 
 __Point Sources__
 
-Now imagine shrinking the source further — not to 0.01", but to the physical size of a quasar accretion disk or a
-supernova photosphere. These objects are light-days to light-weeks across, which at cosmological distances
-corresponds to micro-arcseconds on the sky. That is millions of times smaller than the resolution of any telescope.
+Now imagine replacing this compact galaxy with the much smaller emitting region of a quasar or supernova.
 
-Strictly speaking, such a source still has a finite size, but the telescope cannot resolve it. Each multiple image
-appears as a single unresolved point of light, with all of its flux effectively contained within one pixel (spread
-only by the telescope's blurring, which we will meet in a later tutorial).
+If the telescope cannot resolve the extent of an individual lensed image, we can describe the source as a
+**point source**. This is an approximation: the source has a physical size, but we do not need to represent that
+size to predict its image positions.
 
-This is what we call a **point source**. Lensed quasars and lensed supernovae are the classic examples, and they
-are prized objects: the arrival-time differences between their multiple images can be used to measure the expansion
-rate of the Universe (the Hubble constant), and their fluxes are sensitive probes of small-scale dark matter
-structure.
+An unresolved image does not necessarily occupy a single detector pixel. The telescope spreads its light into
+a small pattern that can cover several pixels. We will introduce this blurring in Tutorial 5.
 
-For a point source, the extended-source picture of lensing breaks down:
+For point-source lensing, we measure the **positions** of the multiple images and may also use their **fluxes**,
+which describe how much light we receive. If the source varies over time, we can measure the **time delays**
+between the appearances of the same variation in different images.
 
-- There is no arc or ring of surface brightness to fit, just a handful of image positions.
-
-- The observable quantities are the (y,x) **positions** of the multiple images, and optionally their **fluxes**
-  and **time delays**.
-
-- The concept of evaluating a light profile's surface brightness on a ray-traced grid — the engine of the previous
-  two tutorials — no longer applies, because the source has no extent to evaluate.
+A quasar or supernova can also sit inside a visible host galaxy. Such a lens may therefore contain both
+unresolved point images and extended arcs.
 
 __Point Source Tracer__
 
-PyAutoLens represents a point source with the `Point` profile, found in the `al.ps` module (`ps` for point source).
-Unlike a light profile it has no `intensity`, `effective_radius` or elliptical components — it is fully described
-by its (y,x) centre in the source-plane.
+PyAutoLens represents a point source using the `Point` profile in `al.ps`. This profile specifies its
+source-plane centre, without an extended surface-brightness distribution.
 
-We give the point source the same centre, (0.07", 0.07"), as the compact extended source above, so its multiple
-images will coincide with the bright blobs in the image we just plotted.
+We place it at the same centre as our compact extended source, so we can compare its predicted image positions
+with the image above.
 
 
 ```python
 point_source = al.ps.Point(centre=(0.07, 0.07))
 
-source_galaxy = al.Galaxy(redshift=1.0, point_0=point_source)
+source_galaxy = al.Galaxy(
+    redshift=1.0,
+    point_0=point_source,
+)
 
 tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
 ```
 
-Note that we attached the point source to its galaxy with the name `point_0`. This name is a label that PyAutoLens
-uses when fitting real data to pair each point source in the model with the dataset containing its observed image
-positions. With one source the name is a formality, but group- and cluster-scale lenses can contain many point
-sources, and the names keep each one matched to its own data.
+The name `point_0` identifies this source within the galaxy. When fitting observations, PyAutoLens uses it to
+match the source to the dataset containing its multiple images. This becomes particularly useful when a lens
+contains several background sources.
+
+This tracer now contains the lens mass and the point-source position. Next, we will find the multiple image
+positions that this combination predicts.
 
 __The Lens Equation__
 
-In tutorial 2, we met the **lens equation**, which relates a coordinate in the image-plane to the coordinate in
-the source-plane its light ray comes from:
+In Tutorial 2, we used the lens equation to map an image-plane coordinate $\theta$ to a source-plane coordinate
+$\beta$:
 
-$\beta = \theta - \alpha(\theta)$
+$$
+\beta = \theta - \alpha(\theta).
+$$
 
-where $\theta$ is the image-plane (y,x) coordinate, $\alpha(\theta)$ is the deflection angle at that coordinate,
-and $\beta$ is the source-plane (y,x) coordinate.
+For an extended source, we evaluate this expression at every coordinate on our image grid, then calculate the
+source's surface brightness at the resulting coordinates.
 
-For the extended sources of tutorials 2 and 3, we always used this equation in the *forward* direction: take every
-image-plane coordinate $\theta$ on our grid, compute its deflection angles, and subtract to get $\beta$. This is
-easy — it is just an evaluation, one subtraction per coordinate.
+For a point source, we specify $\beta$ and ask which image-plane coordinates $\theta$ map back to it. Each
+solution is a separate image of the same source.
 
-For a point source, the question is reversed. We *know* the source's position $\beta$ (the centre of the `Point`
-profile), and we want to find every image-plane position $\theta$ that satisfies the lens equation for that
-$\beta$. Each solution is one of the multiple images.
-
-This is called **solving the lens equation**, and it is much harder than evaluating it:
-
-- The equation is non-linear, because the deflection angles $\alpha(\theta)$ vary with position in a way set by the
-  mass profile. For all but the simplest mass profiles, no analytic solution exists.
-
-- There are multiple solutions — that is the whole point! A single $\beta$ maps to two, four or more distinct
-  $\theta$ positions, and we must find all of them.
-
-We therefore need a numerical root-finding method that searches the image-plane for every position whose ray-traced
-source-plane coordinate lands on the source. (Where the deflection angles themselves come from is the subject of
-the next tutorial — for now, we just need the equation.)
+Finding these solutions is harder than evaluating the equation at a known coordinate. The deflection
+$\alpha(\theta)$ changes with position, and several different coordinates can map to the same source. Simple
+mass profiles have analytic solutions, but more general models require a numerical search.
 
 __Point Solver__
 
-PyAutoLens solves the lens equation with the `PointSolver`, which uses a triangle-based scheme:
+The `PointSolver` divides the image-plane into triangles and ray-traces their corners to the source-plane. It
+then subdivides candidate triangles whose traced counterparts contain the source centre, and repeats the
+ray-tracing with progressively smaller triangles to locate each image.
 
-1. Overlay the image-plane with a grid of triangles.
+That is enough detail to use the solver here. For more on the method, its settings and limitations, see the
+workspace's [Point Solver guide](https://github.com/PyAutoLabs/autolens_workspace/blob/main/notebooks/guides/point_solver/limitations.ipynb).
 
-2. Ray-trace the corners of every triangle to the source-plane using the lens equation, giving a set of
-   ray-traced source-plane triangles.
+We use a separate, wider grid to set the search region. The `pixel_scale_precision` of 0.001 arcseconds controls
+how finely the solver refines its triangles; it is independent of the pixel size used to display our image.
 
-3. Keep every triangle that contains the source's (y,x) centre — somewhere inside that image-plane triangle is a
-   multiple image.
-
-4. Subdivide the retained triangles into smaller triangles and repeat, homing in on each multiple image with
-   progressively finer precision.
-
-The `pixel_scale_precision` input sets the triangle size at which the solver stops refining, and therefore the
-precision of the image positions. Smaller values are more precise but cost more computation; 0.001" is a good
-balance for most lens modeling.
-
-Mass models also predict a faint "central image" near the centre of the lens, which is usually so heavily
-demagnified that real observations never detect it. The `magnification_threshold` input discards solved images
-whose magnification is below the threshold, removing this central image to match what the data would contain.
+The `magnification_threshold` excludes solutions with an absolute magnification below 0.1. This is a numerical
+selection, rather than a complete description of which images a telescope would detect: detectability also
+depends on source brightness, noise and foreground light.
 
 
 ```python
@@ -265,47 +201,52 @@ solver_grid = al.Grid2D.uniform(
 )
 
 solver = al.PointSolver.for_grid(
-    grid=solver_grid, pixel_scale_precision=0.001, magnification_threshold=0.1
+    grid=solver_grid,
+    pixel_scale_precision=0.001,
+    magnification_threshold=0.1,
 )
 ```
 
-We now solve the lens equation, passing the solver our tracer (which provides the mass model's deflection angles)
-and the source-plane centre of the point source.
+__Finding the Images__
 
-The result is the set of image-plane (y,x) coordinates of the multiple images.
+We now pass the solver our tracer and the point source's centre. The tracer supplies the deflection angles,
+and the solver searches for image-plane positions that ray-trace back to that centre.
+
+The returned coordinates are in `(y, x)` order, measured in arcseconds.
 
 
 ```python
-positions = solver.solve(tracer=tracer, source_plane_coordinate=(0.07, 0.07))
+positions = solver.solve(
+    tracer=tracer,
+    source_plane_coordinate=point_source.centre,
+)
 
-print("Multiple Image Positions (y,x) in arc-seconds:")
+print("Multiple image positions (y, x) in arcseconds:")
 print(positions)
 ```
 
-    Multiple Image Positions (y,x) in arc-seconds:
+    Multiple image positions (y, x) in arcseconds:
     Grid2DIrregular([[-1.0390625 , -1.03832837],
            [ 0.4421875 ,  1.60846177],
            [ 1.609375  ,  0.4420338 ],
            [ 1.17890625,  1.17950856]])
 
 
+Every returned position represents an image of the same point source. The number of images depends on both
+the lens mass distribution and the source position.
+
+Some mass profiles also produce a faint image near the lens centre. Our singular isothermal profile does not
+produce a finite central image, so we should not interpret the magnification threshold as removing a fifth
+image in this example.
+
 __Multiple Images and Critical Curves__
 
-For our elliptical mass profile, the solver finds four multiple images (a fifth, central image existed but was
-removed by the `magnification_threshold`). The number of images depends on the mass model:
+Let's overlay the solved positions on the compact extended source's image. The markers show where a point
+source at its centre would appear; the surrounding light shows how the source's finite extent is stretched
+by lensing.
 
-- Spherical mass profiles produce three images (including the demagnified central image).
-
-- Elliptical mass profiles produce five images (again including the central image).
-
-- More complex systems, with multiple lens galaxies, can produce even more.
-
-To see that the solver got the right answer, we plot the solved positions on top of the compact extended source's
-image from the start of the tutorial. The positions land on the centres of the bright multiple images.
-
-We also overlay the tracer's tangential critical curve (introduced in tutorial 3 — the line of infinite
-magnification in the image-plane). The multiple images of a strongly lensed point source straddle the critical
-curve, and images close to it are the most highly magnified.
+We also plot the tangential critical curve introduced in Tutorial 3. Images close to this curve can be
+strongly magnified.
 
 
 ```python
@@ -322,23 +263,34 @@ aplt.plot_array(
 ```
 
 
-    
-![png](tutorial_4_point_sources_files/tutorial_4_point_sources_13_0.png)
-    
 
+![png](tutorial_4_point_sources_files/tutorial_4_point_sources_17_0.png)
+
+
+
+Compare the markers with the bright regions of the extended image. Both calculations use the same lens mass
+and source centre: one evaluates an extended light profile across a grid, while the other finds the discrete
+image positions of a point source.
+
+**🤖 Ask AI:** For a fixed elliptical lens mass profile, why can moving a point source across a caustic change
+the number of its multiple images?
 
 __Magnifications__
 
-Lensing does not just relocate a point source's light — it magnifies it. Each multiple image has its own
-magnification, set by how strongly the mass model focuses light rays at that image-plane position, and it can make
-an image tens of times brighter than the unlensed source.
+Each multiple image has its own magnification. For an unresolved image, we measure this through its total
+**flux**, even though we cannot resolve the change in its apparent area.
 
-For an extended source, magnification stretches the source over more pixels. For a point source, the image stays
-unresolved — so the magnification instead multiplies its observed **flux**. If the source's intrinsic flux is $F$,
-the flux of a multiple image with magnification $\mu$ is $|\mu| * F$.
+If the source would have flux $F$ without lensing, an image with magnification $\mu$ has predicted flux
 
-We compute the magnification at each solved image position below (the sign of $\mu$ encodes the image's parity —
-whether it is mirror-flipped — which is why we take its absolute value for fluxes).
+$$
+F_{\mathrm{image}} = |\mu|F.
+$$
+
+The sign of $\mu$ describes the image's parity: a negative value indicates a mirror reversal. Flux is positive,
+so we use the absolute magnification.
+
+We calculate the magnification at each solved position below, then predict the image fluxes for an unlensed
+source flux of 1.0 in arbitrary units.
 
 
 ```python
@@ -346,117 +298,150 @@ magnifications = al.LensCalc.from_tracer(
     tracer=tracer
 ).magnification_2d_via_hessian_from(grid=positions)
 
-print("Magnification of each Multiple Image:")
+print("Magnification of each multiple image:")
 print(magnifications)
 
 flux = 1.0
-fluxes = [flux * np.abs(magnification) for magnification in magnifications]
+fluxes = [
+    flux * np.abs(magnification)
+    for magnification in magnifications
+]
 
-print("Flux of each Multiple Image (for a source of flux 1.0):")
+print("Predicted image fluxes for an unlensed source flux of 1.0:")
 print(fluxes)
 ```
 
-    Magnification of each Multiple Image:
-    ArrayIrregular([  -6.8235945 ,   55.19635531,   53.66786018, -100.70748948])
-    Flux of each Multiple Image (for a source of flux 1.0):
-    [np.float64(6.823594498831482), np.float64(55.1963553090608), np.float64(53.667860180048564), np.float64(100.70748948418353)]
+    Magnification of each multiple image:
+    ArrayIrregular([  -6.82359451,   55.19635552,   53.66786038, -100.70749088])
+    Predicted image fluxes for an unlensed source flux of 1.0:
+    [np.float64(6.823594511281069), np.float64(55.19635552358935), np.float64(53.66786038229487), np.float64(100.70749088178972)]
 
 
-In principle, comparing the observed flux ratios of the images to the model's magnification ratios is a powerful
-constraint on the mass model. In practice, point-source fluxes are treated with caution, because effects the smooth
-mass model does not include can change them substantially:
+The values follow the same order as `positions`. Larger absolute magnifications correspond to brighter
+predicted images; a negative magnification does not mean a negative flux.
 
-- **Microlensing**: individual stars in the lens galaxy lens the point source again on micro-arcsecond scales,
-  magnifying or demagnifying each image by unpredictable amounts that change over time.
+__Interpreting Fluxes__
 
-- **Dark matter substructure**: small invisible clumps of dark matter near an image perturb its magnification
-  (this is a systematic for mass modeling, but also exactly why lensed quasars are used to *search* for
-  substructure).
+The fluxes above are predictions from our smooth lens mass model. Observed image fluxes can differ for
+several reasons:
 
-- Dust in the lens galaxy and the source's own intrinsic variability further distort the observed flux ratios.
+- **Microlensing:** individual stars in the lens galaxy can further magnify or demagnify a compact source,
+  with changes over time.
+- **Dark matter substructure:** small concentrations of dark matter can perturb the image magnifications.
+  These differences can themselves be used to investigate dark matter.
+- **Dust:** material in the lens galaxy can absorb different amounts of light along each image's path.
+- **Source variability:** because the images have different time delays, observations taken simultaneously
+  can show the source at different stages of its variability.
 
-Image positions are essentially immune to all of these, which is why point-source lens modeling is built on
-positions first, with fluxes included only when the science demands it and the systematics are under control.
+Image positions are generally less sensitive to these effects than flux ratios, although mass perturbations
+can also shift positions. We therefore often begin point-source modelling with the positions, adding flux
+information when the relevant effects can be accounted for.
 
 __Time Delays__
 
-There is a third observable unique to point sources. The light of each multiple image travels a different path
-through the Universe, and each path takes a different time — partly because the geometric path lengths differ, and
-partly because light is slowed as it climbs through the lens galaxy's gravitational field (the Shapiro delay).
+The multiple images show light that has followed different paths through the lens system. As introduced in
+Tutorial 3, differences in both the geometry and the gravitational potential produce differences in arrival time.
 
-For an extended, steady source this is unobservable. But quasars flicker and supernovae explode: when the source
-varies, the variation appears in each multiple image at a different time. By monitoring the images, these
-**time delays** can be measured — typically days to months apart.
+If a quasar brightens, we can see the same brightening appear in its multiple images at different times. A lensed
+supernova provides another example: its rise and decline can appear with a different delay in each image.
 
-Time delays are a cosmological gold mine: their absolute scale depends on the distances between us, the lens and
-the source, so a lens model plus measured delays yields the Hubble constant. This is time-delay cosmography, one
-of the headline applications of point-source lensing.
+By monitoring these variations, we can measure **time delays** between the images. These depend on the lens
+mass distribution and the cosmological distances, so combining measured delays with a lens model can constrain
+the Hubble constant.
 
-The tracer computes the arrival time at each image position from its mass model and the galaxies' redshifts. Only
-the *differences* between images are observable — a delay of the same length along every path is invisible — so it
-is the relative values below that matter.
+The next cell calculates the model's arrival times at the solved image positions. We subtract the first value
+to express the delays relative to that image.
 
 
 ```python
 time_delays = tracer.time_delays_from(grid=positions)
 
-print("Time Delay of each Multiple Image (days):")
+print("Model arrival times (days):")
 print(time_delays)
 
-print("Time Delays relative to first image (days):")
+print("Time delays relative to the first image (days):")
 print(time_delays - time_delays[0])
 ```
 
-    Time Delay of each Multiple Image (days):
+    Model arrival times (days):
     ArrayIrregular([-136.98563013, -176.85048802, -177.0200605 , -176.7402858 ])
-    Time Delays relative to first image (days):
+    Time delays relative to the first image (days):
     ArrayIrregular([  0.        , -39.86485789, -40.03443037, -39.75465568])
 
 
+The first image in the array is simply our reference; it is not necessarily the earliest arrival. A negative
+relative delay means that image arrives before the reference image, and a positive value means it arrives afterwards.
+
+__Connecting Time Delays to the Images__
+
+The positions, magnifications and time delays describe different properties of the same multiple images. Let's
+print them together so we can compare each image's location, predicted brightness and arrival time.
+
+
+```python
+relative_time_delays = time_delays - time_delays[0]
+
+for image_index, (position, magnification, delay) in enumerate(
+    zip(positions, magnifications, relative_time_delays)
+):
+    print(
+        f"Image {image_index}: "
+        f"(y, x) = ({float(position[0]):.3f}, "
+        f"{float(position[1]):.3f}) arcsec, "
+        f"|magnification| = {float(np.abs(magnification)):.2f}, "
+        f"relative delay = {float(delay):.2f} days"
+    )
+```
+
+    Image 0: (y, x) = (-1.039, -1.038) arcsec, |magnification| = 6.82, relative delay = 0.00 days
+    Image 1: (y, x) = (0.442, 1.608) arcsec, |magnification| = 55.20, relative delay = -39.86 days
+    Image 2: (y, x) = (1.609, 0.442) arcsec, |magnification| = 53.67, relative delay = -40.03 days
+    Image 3: (y, x) = (1.179, 1.180) arcsec, |magnification| = 100.71, relative delay = -39.75 days
+
+
+Use the coordinates to identify these images in the earlier plot. The brightest predicted image has the largest
+absolute magnification; the earliest arrival has the smallest relative delay. These describe different aspects
+of the lens mapping, so brightness alone does not determine arrival order.
+
+**🤖 Ask AI:** A lensed quasar varies over time, and its images have different time delays. Why should I account
+for those delays before comparing their observed flux ratios with a lens model?
+
 __Extended Versus Point Computations__
 
-We can now state precisely why point-source lensing works so differently from everything in tutorials 2 and 3, on
-both the computation and the data.
+We have now predicted lensed images in two ways.
 
-**Extended sources are forward-modeled.** To predict the data, we ray-trace every image-plane pixel to the
-source-plane via the lens equation (an evaluation, not a solve) and compute the source light profile's surface
-brightness at each ray-traced coordinate. This is computationally cheap, requires no equation solving, and a fit
-compares the predicted and observed images pixel-by-pixel.
+For an **extended source**, we ray-trace an image-plane grid to the source-plane and evaluate the source's
+surface brightness at each traced coordinate. This produces an image that we can compare with observations
+pixel by pixel.
 
-**Point sources require solving an inverse problem.** The source has no surface brightness to evaluate — the model
-must predict the discrete positions of the multiple images, which means numerically solving the lens equation with
-the `PointSolver` every time the mass model changes. A fit then compares the predicted image positions to the
-observed ones (and optionally the predicted fluxes and time delays to their measurements) — a handful of numbers,
-rather than thousands of pixels.
+For a **point source**, we specify its source-plane position and solve the lens equation to predict its multiple
+image positions. We can then calculate magnifications and time delays at those positions, and compare these
+predictions with measurements.
 
-This trade shapes the whole analysis. The point-source dataset is tiny — a few positions with uncertainties — but
-each model evaluation involves root finding over the image plane rather than simple forward ray-tracing. Whole
-questions that never arose for extended sources, such as how to pair predicted images with observed ones when the
-model predicts too many or too few, become central to the likelihood (the workspace covers these in detail).
+Both are ways of predicting observations from a lens model. The difference is the calculation needed to make
+that prediction: evaluating light on a grid for an extended source, or searching for discrete image positions
+for a point source.
+
+When fitting image positions, we also need to associate each predicted image with an observed image. A trial
+model can predict a different number of images from those detected, so this pairing needs care. The workspace
+guides cover these fitting choices in more detail.
 
 __Wrap Up__
 
-In this tutorial, we met point sources and the tools PyAutoLens uses to model them. Let's summarise what we've
-learnt:
+In this tutorial, we used a point source to predict multiple images of a compact object such as a quasar or
+supernova.
 
-- **Point Sources**: Quasars and supernovae are so much smaller than a telescope's resolution that each of their
-  multiple images appears as a single unresolved point of light — no arcs, no rings.
+- The `Point` profile specifies the source-plane position.
+- The `PointSolver` searches for image-plane positions that ray-trace back to that source.
+- Magnifications predict the image fluxes, although additional physical effects can alter the observed flux ratios.
+- Time delays describe when the same source variation appears in each image, and can be used to constrain
+  cosmological distances.
 
-- **The Lens Equation**: Point-source modeling means solving $\beta = \theta - \alpha(\theta)$ for the image
-  positions $\theta$ given the source position $\beta$ — a non-linear inverse problem with no analytic solution,
-  in contrast to the cheap forward evaluation used for extended sources.
+The lens equation connects all of these calculations to the ray tracing in Tutorial 2. Tutorial 3 provides the
+optional mathematical description of magnification and arrival times.
 
-- **Point Solver**: The `PointSolver` solves the lens equation numerically, ray-tracing progressively finer
-  triangles until every multiple image is located to sub-pixel precision, and filtering out the demagnified
-  central image.
+For examples of fitting observed point-source data, continue to the `autolens_workspace/scripts/point_source`
+examples.
 
-- **Observables**: A point-source dataset consists of image positions, and optionally fluxes and time delays.
-  Positions are the bedrock; fluxes are often compromised by microlensing and substructure; time delays enable
-  measurement of the Hubble constant.
-
-When you are ready to model real lensed quasars and supernovae — composing mass models, fitting observed positions
-with a non-linear search, and including fluxes and time delays — the `autolens_workspace/scripts/point_source`
-package is the place to go, starting with its `start_here` example.
-
-In the next tutorial, we return to the lensing formalism itself: where deflection angles come from, and the
-quantities (convergence, potential, magnification) that describe a mass distribution's lensing power.
+In **Tutorial 5: Data**, we return to extended sources and introduce the ingredients of a realistic observation,
+including telescope blurring and noise.
