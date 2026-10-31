@@ -32,8 +32,8 @@ analysis?" below).
 ## I want to understand…
 
 - **What is a strong lens / how does ray tracing work?** → [scripts/chapter_1_introduction/tutorial_2_ray_tracing.py](scripts/chapter_1_introduction/tutorial_2_ray_tracing.py): Mass profiles deflecting light; image-plane vs source-plane.
-- **How does a telescope image (and noise/PSF) get simulated?** → [scripts/chapter_1_introduction/tutorial_6_data.py](scripts/chapter_1_introduction/tutorial_6_data.py): Optics blurring, Poisson noise, background sky, the simulator API.
-- **What does "fitting" a lens actually mean?** → [scripts/chapter_1_introduction/tutorial_7_fitting.py](scripts/chapter_1_introduction/tutorial_7_fitting.py): Masking, model images, residuals and the log likelihood.
+- **How does a telescope image (and noise/PSF) get simulated?** → [scripts/chapter_1_introduction/tutorial_5_data.py](scripts/chapter_1_introduction/tutorial_5_data.py): Optics blurring, Poisson noise, background sky, the simulator API.
+- **What does "fitting" a lens actually mean?** → [scripts/chapter_1_introduction/tutorial_6_fitting.py](scripts/chapter_1_introduction/tutorial_6_fitting.py): Masking, model images, residuals and the log likelihood.
 - **How does a non-linear search find a model?** → [scripts/chapter_2_lens_modeling/tutorial_1_non_linear_search.py](scripts/chapter_2_lens_modeling/tutorial_1_non_linear_search.py): Parameter space, priors, nested sampling with Nautilus.
 - **My fit found a wrong (local-maxima) solution — what do I do?** → [scripts/chapter_2_lens_modeling/tutorial_4_dealing_with_failure.py](scripts/chapter_2_lens_modeling/tutorial_4_dealing_with_failure.py): Prior tuning, simplifying the model, and other escapes from local maxima.
 - **What are linear light profiles / MGE?** → [scripts/chapter_2_lens_modeling/tutorial_5_linear_profiles.py](scripts/chapter_2_lens_modeling/tutorial_5_linear_profiles.py): Solving intensities linearly; the Multi-Gaussian Expansion basis.

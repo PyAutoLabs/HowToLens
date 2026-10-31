@@ -7,7 +7,7 @@ pixel-grid in the source-plane, mappers pair source-pixels with image-pixels, in
 fluxes that best fit the data, and regularization smooths the solution within a Bayesian framework.
 
 This tutorial collects the linear algebra behind all of that in one place. It is the counterpart of chapter 1's
-tutorial 5 on the lensing formalism: the hands-on tutorials built intuition, and now we write down the equations.
+tutorial 3 on the lensing formalism: the hands-on tutorials built intuition, and now we write down the equations.
 We will construct, step-by-step and in code, every matrix and vector the inversion uses, solve for the source
 reconstruction ourselves and compute the Bayesian evidence by hand, comparing our answer at the end to the
 `FitImaging` object which performs this calculation internally.

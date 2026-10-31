@@ -11,11 +11,9 @@
   max_minutes: 30
 - script: scripts/chapter_1_introduction/tutorial_4_point_sources.py
   max_minutes: 30
-- script: scripts/chapter_1_introduction/tutorial_5_lensing_formalism.py
+- script: scripts/chapter_1_introduction/tutorial_5_data.py
   max_minutes: 30
-- script: scripts/chapter_1_introduction/tutorial_6_data.py
+- script: scripts/chapter_1_introduction/tutorial_6_fitting.py
   max_minutes: 30
-- script: scripts/chapter_1_introduction/tutorial_7_fitting.py
-  max_minutes: 30
-- script: scripts/chapter_1_introduction/tutorial_8_summary.py
+- script: scripts/chapter_1_introduction/tutorial_7_summary.py
   max_minutes: 30

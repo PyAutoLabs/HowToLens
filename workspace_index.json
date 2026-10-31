@@ -48,6 +48,9 @@
       "Ray Tracing Images",
       "Galaxies",
       "Tracer",
+      "Units",
+      "More Complexity",
+      "Multi Galaxy Ray Tracing",
       "Wrap Up",
       "Env"
     ],
@@ -63,17 +66,21 @@
     "contents": [
       "Initial Setup",
       "Concise Code",
-      "Critical Curves",
-      "Caustics",
-      "Units",
-      "More Complexity",
-      "Multi Galaxy Ray Tracing",
-      "Wrap Up"
+      "Cosmological Distances",
+      "Convergence",
+      "Deflection Angles",
+      "The Lensing Potential",
+      "Shear and Magnification",
+      "Critical Curves and Caustics",
+      "Einstein Radius",
+      "Time Delays",
+      "Wrap Up",
+      "Env"
     ],
     "cross_refs": [],
     "notebook": "notebooks/chapter_1_introduction/tutorial_3_more_ray_tracing.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_3_more_ray_tracing.py",
-    "summary": "We'll now reinforce the ideas that we learnt about ray-tracing in the previous tutorial and introduce the following new concepts:",
+    "summary": "In tutorial 2, we used the lens equation to trace coordinates from the image plane to the source plane and build an image of a strong lens.",
     "title": "Tutorial 3: More Ray Tracing"
   },
   {
@@ -98,26 +105,6 @@
   {
     "contents": [
       "Initial Setup",
-      "Cosmological Distances",
-      "The Lens Equation",
-      "Convergence",
-      "Deflection Angles",
-      "The Lensing Potential",
-      "Shear and Magnification",
-      "Critical Curves and Caustics",
-      "Einstein Radius",
-      "Time Delays",
-      "Wrap Up"
-    ],
-    "cross_refs": [],
-    "notebook": "notebooks/chapter_1_introduction/tutorial_5_lensing_formalism.ipynb",
-    "path": "scripts/chapter_1_introduction/tutorial_5_lensing_formalism.py",
-    "summary": "This tutorial is the equations lecture of **HowToLens**.",
-    "title": "Tutorial 5: Lensing Formalism"
-  },
-  {
-    "contents": [
-      "Initial Setup",
       "Optics Blurring",
       "Poisson Noise",
       "Background Sky",
@@ -131,10 +118,10 @@
       "scripts/simulator/interferometer.py",
       "scripts/simulator/weak_lensing.py"
     ],
-    "notebook": "notebooks/chapter_1_introduction/tutorial_6_data.ipynb",
-    "path": "scripts/chapter_1_introduction/tutorial_6_data.py",
+    "notebook": "notebooks/chapter_1_introduction/tutorial_5_data.ipynb",
+    "path": "scripts/chapter_1_introduction/tutorial_5_data.py",
     "summary": "In the last tutorials, we use tracers to create images of strong lenses. However, those images don't accurately represent what we would observe through a telescope.",
-    "title": "Tutorial 6: Data"
+    "title": "Tutorial 5: Data"
   },
   {
     "contents": [
@@ -148,12 +135,12 @@
       "Wrap Up"
     ],
     "cross_refs": [
-      "tutorial_6_data.py"
+      "tutorial_5_data.py"
     ],
-    "notebook": "notebooks/chapter_1_introduction/tutorial_7_fitting.ipynb",
-    "path": "scripts/chapter_1_introduction/tutorial_7_fitting.py",
+    "notebook": "notebooks/chapter_1_introduction/tutorial_6_fitting.ipynb",
+    "path": "scripts/chapter_1_introduction/tutorial_6_fitting.py",
     "summary": "In previous tutorials, we used light profiles to create simulated images of a tracer and visualized how these images would appear when captured by a CCD detector on a telescope like the Hubble Space Telescope.",
-    "title": "Tutorial 7: Fitting"
+    "title": "Tutorial 6: Fitting"
   },
   {
     "contents": [
@@ -165,10 +152,10 @@
       "Wrap Up"
     ],
     "cross_refs": [],
-    "notebook": "notebooks/chapter_1_introduction/tutorial_8_summary.ipynb",
-    "path": "scripts/chapter_1_introduction/tutorial_8_summary.py",
+    "notebook": "notebooks/chapter_1_introduction/tutorial_7_summary.ipynb",
+    "path": "scripts/chapter_1_introduction/tutorial_7_summary.py",
     "summary": "In this chapter, we have learnt that:",
-    "title": "Tutorial 8: Summary"
+    "title": "Tutorial 7: Summary"
   },
   {
     "contents": [
