@@ -28,8 +28,8 @@ distant source galaxy.
 ![The COSMOS-Web Ring, labelled with the lens galaxy, lensed source galaxy and extra galaxy](https://raw.githubusercontent.com/PyAutoLabs/autolens_assistant/main/docs/images/cosmos_web_ring_rgb_labelled.png)
 
 The extra galaxy labelled in both figures is distinct from the main lens and
-lensed source. As in the previous tutorial, we leave systems with additional
-galaxies until Chapter 4 and use one lens galaxy and one source galaxy here.
+lensed source. We begin with one lens and one source, then add more galaxies
+at the end of this tutorial.
 
 These figures are also used in the [COSMOS-Web Ring guided example](https://github.com/PyAutoLabs/autolens_assistant/blob/main/docs/colab/cosmos_web_ring_colab.py).
 
@@ -52,9 +52,9 @@ on a **lens plane**. The lens and source planes are imagined sheets
 perpendicular to our line of sight, at the respective distances of the lens
 and source. They do not describe the orientations of the galaxies themselves.
 
-In this tutorial, we use one foreground lens galaxy and one background source
-galaxy. We will first trace the rays ourselves using grids, then use a `Tracer`
-to perform the same calculation for us.
+We will first trace the rays ourselves using grids, then use a `Tracer`
+to perform the same calculation for us. Finally, we will extend the tracer
+to include two lens galaxies and two source galaxies.
 
 The resulting **lensed image** shows how the foreground galaxy's gravity
 distorts the appearance of the source.
@@ -68,6 +68,9 @@ __Contents__
 - **Ray Tracing Images:** Evaluate the source's light profile on the ray-traced grid.
 - **Galaxies:** Combine light and mass profiles into lens and source galaxies.
 - **Tracer:** Perform the ray-tracing calculation using a `Tracer`.
+- **Units:** Convert angular sizes into physical sizes using redshifts and a cosmology.
+- **More Complexity:** Add lens light, elliptical mass, external shear and additional galaxies.
+- **Multi Galaxy Ray Tracing:** Combine two lens galaxies and two sources in one tracer.
 - **Wrap Up:** Review what we have learned and the next steps.
 - **Env:** Preserve the grid used by the mapping example.
 """
@@ -667,28 +670,298 @@ traced_grid_list = tracer.traced_grid_2d_list_from(
 image_plane_grid_traced = traced_grid_list[0]
 source_plane_grid_traced = traced_grid_list[1]
 
+"""
+__Units__
+
+Throughout this tutorial, we have measured positions and radii in
+arcseconds: angles on the sky. What physical size does an angle
+of one arcsecond represent?
+
+That depends on the distance to the galaxy. We express galaxy
+sizes in kiloparsecs, where one kiloparsec is 1,000 parsecs,
+or approximately 3,260 light-years.
+
+To convert an angular size into a physical size, we use the
+galaxy's redshift and a cosmology: a model of the Universe's
+expansion that relates redshifts to distances.
+
+Our tracer already has a cosmology. Unless we supply another,
+it uses the Planck 2015 cosmology.
+
+Let's calculate how many kiloparsecs correspond to one arcsecond
+at the redshifts of our lens and source.
+"""
+
+cosmology = tracer.cosmology
+
+kpc_per_arcsec_lens = cosmology.kpc_per_arcsec_from(
+    redshift=lens_galaxy.redshift
+)
+kpc_per_arcsec_source = cosmology.kpc_per_arcsec_from(
+    redshift=source_galaxy.redshift
+)
+
+print(
+    f"Lens plane: {kpc_per_arcsec_lens:.3f} kpc per arcsecond"
+)
+print(
+    f"Source plane: {kpc_per_arcsec_source:.3f} kpc per arcsecond"
+)
+
+"""
+The conversion differs between the two planes because the
+galaxies are at different distances.
+
+For example, we can multiply the lens's Einstein radius in
+arcseconds by the lens-plane conversion to express it in
+kiloparsecs.
+"""
+
+einstein_radius_kpc = (
+    sis_mass_profile.einstein_radius * kpc_per_arcsec_lens
+)
+
+print(f"Einstein radius: {einstein_radius_kpc:.3f} kpc")
+
+"""
+For a source galaxy's physical size, we use the source-plane
+conversion instead.
+
+We will continue to calculate and plot coordinates in arcseconds.
+These conversion factors let us express our model's sizes in
+physical units when needed.
+
+Tutorial 3 explains the cosmological distances behind this
+conversion, as part of its optional mathematical discussion.
+"""
+
+"""
+__More Complexity__
+
+Our tracer currently contains one spherical lens and one source.
+Let's extend this to a system with two lens galaxies and two
+source galaxies.
+
+We first add a light profile to the main lens, representing its
+central concentration of stars, or bulge. This light contributes
+to the observed image. The separate mass profile determines
+how the galaxy deflects light.
+
+We also replace the spherical mass profile with an elliptical
+one. Its projected mass contours are now ellipses, so the
+deflection pattern is no longer rotationally symmetric.
+
+Finally, we add an external shear. Surrounding matter can
+distort the lensed images even when we do not model each
+neighbouring structure individually. External shear approximates
+this effect as a directional stretching across the image.
+
+Shear treats two perpendicular directions differently, so it
+can turn a small circular source into an elongated image.
+The main lens produces shear too; "external" describes the
+additional contribution from its surroundings.
+
+We represent this contribution with a `MassField` at the lens
+redshift. Its two dimensionless components, `gamma_1` and
+`gamma_2`, specify its strength and orientation. The field
+contributes deflections but no light.
+"""
+
+lens_galaxy = al.Galaxy(
+    redshift=0.5,
+    bulge=al.lp.SersicSph(
+        centre=(0.0, 0.0),
+        intensity=2.0,
+        effective_radius=0.5,
+        sersic_index=2.5,
+    ),
+    mass=al.mp.Isothermal(
+        centre=(0.0, 0.0),
+        ell_comps=(0.0, -0.111111),
+        einstein_radius=1.6,
+    ),
+)
+
+field = al.MassField(
+    redshift=0.5,
+    shear=al.mp.ExternalShear(
+        gamma_1=0.05,
+        gamma_2=0.0,
+    ),
+)
+
+"""
+Let's add a smaller companion, or satellite galaxy, at the same
+redshift as the main lens.
+
+Its centre is at (1.0, 0.0) arcseconds, placing it one arcsecond
+from the main lens along the y direction. It has both a light
+profile and a mass profile, so it contributes visible light
+and additional deflections.
+
+Its Einstein-radius parameter is 0.4 arcseconds, compared with
+1.6 arcseconds for the main lens. This gives it a smaller lensing
+strength, although its effect can still matter for images
+passing close to it.
+
+Unlike the external shear, this galaxy is represented explicitly:
+we specify where it is and how its light and mass are distributed.
+"""
+
+lens_satellite = al.Galaxy(
+    redshift=0.5,
+    bulge=al.lp.DevVaucouleursSph(
+        centre=(1.0, 0.0),
+        intensity=2.0,
+        effective_radius=0.2,
+    ),
+    mass=al.mp.IsothermalSph(
+        centre=(1.0, 0.0),
+        einstein_radius=0.4,
+    ),
+)
+
+"""
+We also create two source galaxies at redshift 1.0.
+
+The first has two light components: a compact bulge and a more
+extended disk. Both share the same centre, so their light adds
+together to describe one galaxy. The second source has only a
+disk and lies at a different source-plane position.
+
+Names such as `bulge` and `disk` help us describe the components.
+The chosen light profiles and their parameters determine the
+actual brightness distribution.
+
+Because both sources have the same redshift, they occupy the
+same source plane. Adding a galaxy does not necessarily add
+another plane.
+"""
+
+source_0 = al.Galaxy(
+    redshift=1.0,
+    bulge=al.lp.DevVaucouleursSph(
+        centre=(0.1, 0.2),
+        intensity=0.3,
+        effective_radius=0.3,
+    ),
+    disk=al.lp.ExponentialCore(
+        centre=(0.1, 0.2),
+        ell_comps=(0.111111, 0.0),
+        intensity=3.0,
+        effective_radius=2.0,
+    ),
+)
+
+source_1 = al.Galaxy(
+    redshift=1.0,
+    disk=al.lp.ExponentialCore(
+        centre=(-0.3, -0.5),
+        ell_comps=(0.1, 0.0),
+        intensity=8.0,
+        effective_radius=1.0,
+    ),
+)
+
+"""
+__Multi Galaxy Ray Tracing__
+
+We now pass our four galaxies and external shear to a tracer.
+
+The main lens and its satellite share redshift 0.5, while both
+sources share redshift 1.0. The tracer therefore groups the
+galaxies into two planes, with two galaxies in each.
+
+To calculate the image, the tracer follows the same steps
+we used earlier:
+
+1. Evaluate the light of both foreground galaxies on the
+   image-plane grid.
+
+2. Add the deflections from the main lens, its satellite
+   and the external shear.
+
+3. Subtract these total deflections from the image-plane
+   coordinates to obtain the source-plane coordinates.
+
+4. Evaluate both source galaxies' light at those traced
+   coordinates and add their contributions.
+
+5. Add the foreground light to the lensed source light
+   to form the complete image.
+
+The next plot shows the combined image. It contains the
+foreground galaxies as well as the distorted images of
+the two sources.
+"""
+
+tracer = al.Tracer(
+    galaxies=[
+        lens_galaxy,
+        lens_satellite,
+        source_0,
+        source_1,
+    ],
+    fields=[field],
+    cosmology=cosmology,
+)
+
+image = tracer.image_2d_from(grid=image_plane_grid)
+
+aplt.plot_array(
+    array=image,
+    title="Two Lens Galaxies and Two Sources",
+)
+
+"""
+Let's separate the views using the tracer subplot.
+
+The lens-light panel shows the main lens and satellite.
+The source-plane panel shows both sources before lensing,
+while the full image combines foreground light with the
+lensed source images.
+
+To see the satellite's effect, remove `lens_satellite` from
+the tracer's galaxy list and rerun the image and subplot
+cells. Its light disappears, and the source images change
+because its deflections are also removed.
+
+Restore it to the list and rerun those cells to return
+to the original system.
+
+**🤖 Ask AI:** In this example, how could I distinguish the
+satellite galaxy's contribution to the observed light from
+its effect on the lensed source images?
+"""
+
+aplt.subplot_tracer(
+    tracer=tracer,
+    grid=image_plane_grid,
+)
+
 r"""
 __Wrap Up__
 
-In this tutorial, we built a lensed image step by step:
+We began by building a lensed image step by step: calculate
+deflections, trace coordinates with the lens equation, and
+evaluate the source's light at those coordinates.
 
-- A **mass profile** describes the lens galaxy's mass distribution
-  and lets us calculate its deflection angles.
-- The **lens equation**, $\beta = \theta - \alpha(\theta)$, maps
-  image-plane coordinates to source-plane coordinates.
-- Evaluating a source **light profile** at those mapped coordinates
-  gives the brightness of each pixel in the lensed image.
-- **Galaxy** objects hold the profiles and redshifts of the lens
-  and source.
-- A **Tracer** brings these galaxies together and performs the
-  calculation for us.
+A `Tracer` performs these steps for us. It also lets us extend
+the same calculation to several galaxies, combining their
+light and accounting for their mass.
 
-The manual calculation and the `Tracer` describe the same lens
-system. Working through both shows what happens when we ask a
-tracer to calculate an image.
+We have now built a system with two foreground galaxies,
+two sources and an external shear. The underlying idea is
+still the same coordinate mapping we started with.
 
-In Tutorial 3, we will build on this example and explore more
-of the ray-tracing calculation.
+We also used galaxy redshifts and a cosmology to connect
+angular sizes in arcseconds to physical sizes in kiloparsecs.
+
+Tutorial 3 explains the mathematics behind these calculations,
+including convergence, shear, magnification, critical curves
+and caustics. You can follow its physical explanations and
+figures without working through every equation, and return
+to the mathematics when you need it.
 """
 
 """
