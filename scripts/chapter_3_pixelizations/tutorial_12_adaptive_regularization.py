@@ -2,9 +2,8 @@
 Tutorial 12: Adaptive Regularization
 ====================================
 
-In tutorial 10, we discussed why the `Constant` regularization scheme was sub-optimal. Different regions of the source
-demand different levels of regularization, motivating a regularization scheme which adapts to the reconstructed
-source's surface brightness.
+Tutorial 2 introduced `Constant` regularization. Different regions of the source can favour different levels of
+regularization, motivating a scheme which adapts to the reconstructed source's surface brightness.
 
 This raises the same question as before, how do we adapt our regularization scheme to the source before we've
 reconstructed it? Just like in the last tutorial, we'll use a model image of a strongly lensed source from a previous

@@ -1,24 +1,17 @@
-So, we've learnt how to model strong lenses and build pipelines that customize the process to our science case.
+Look at a resolved lensed arc. Its broad shape may be smooth, but the light along it can contain bright knots, faint extensions and irregular structure. A model might reproduce the overall arc while leaving compact, coherent features in the residual image.
 
-However, we ran into a pretty huge barrier when trying to fit complex sources. It required an unwieldy number
-of non-linear parameters, and even when we included them, the results were rubbish. The non-linear parameter space
-was just too complex, and even a well crafted pipeline couldn't fix the problem.
+In Chapter 2, we introduced linear light profiles and multi-Gaussian expansions (MGEs). By combining Gaussians of different widths, an MGE can describe a much more flexible radial brightness distribution than a single Sérsic profile. Gaussian groups with different ellipticities and orientations can also describe changes in flattening and isophotal twists. Fixed widths and linearly solved intensities keep the number of non-linear parameters manageable.
 
-In this chapter, we'll learn about pixelizations and inversions. These tools allow us to reconstruct the source-galaxy's
-using a pixel-grid. This makes no assumption about the source's morphology, breaking the simplifying assumptions inherent
-to analytic light profiles (e.g. symmetry).
+That flexibility makes MGE a useful modelling tool, but consider the geometry of our worked example. Within each galaxy’s Gaussian group, the components shared a common centre and elliptical shape. Adding more Gaussians gives us finer control over how brightness changes around that centre. It does not give us separate centres for star-forming knots, off-centre clumps or several distinct source components.
 
-Remarkably, pixels grids use just a couple of non-linear parameters, meaning the 30+ non-linear parameters we required
-to fit complex-sources before are going to be reduced to just 3 or 4!
+We could add offset Gaussian groups. MGEs are not fundamentally restricted to one centre. The practical difficulty is deciding how many groups to use, where to place them and how to fit their geometry as the source becomes more complicated.
 
-In particular, you'll learn how we:
+This is where the image residuals become useful. If an MGE captures the broad light distribution but leaves compact structure along the arcs, its source description may need more spatial freedom. Those residuals are not proof of source clumpiness: errors in the mass model, foreground light subtraction, telescope blurring or other aspects of the data treatment can also produce structure. We need to investigate their origin.
 
-1) Pixelize a source-plane into a set of source-plane pixels that define mappings to image pixels.
-2) Invert this source-plane pixelization to fit the strongly lensed source and thus reconstruct its light.
-3) Apply a smoothness prior on our source reconstruction, called 'regularization', to ensure our solution is physical.
-4) Apply this prior in a Bayesian framework to objectively quantify our source reconstruction's log likelihood.
-5) Define a border in the source-plane to prevent pixels tracing outside the source reconstruction.
-6) Can use alternative pixelizations that use Delaunay pixels adapted to the lens's mass model.
-7) Use these features in PyAutoLens pipelines.
+In this chapter, we introduce pixelized source reconstruction. Instead of prescribing a light-profile centre and shape for every feature, we describe the source brightness on a mesh. Different regions of that mesh can take different brightness values, allowing the reconstruction to represent more complicated source structure.
 
-Sound good? I agree, so lets get on with it.
+The connection to Chapter 2 is direct. There, we solved for Gaussian intensities linearly. Here, for a specified mass model and mesh, we solve for source brightness values using the same underlying advantage: they enter the predicted image linearly.
+
+This additional freedom also allows the reconstruction to fit noise. We therefore introduce regularization—a prior that controls how freely neighbouring source brightnesses can vary. Pixelization is not assumption-free: the mass model, mesh geometry, resolution and regularization all affect the inferred source.
+
+MGE remains valuable, especially for foreground lens light and initial source fits. Pixelization is the next tool when the source requires more spatial freedom. We will learn how to use these tools together, inspect their reconstructions and recognise when their assumptions need revisiting.
