@@ -116,11 +116,14 @@
       "Background Sky",
       "Simulator",
       "Output",
+      "Point Source Data",
       "Interferometer Data",
       "Weak Lensing Data",
       "Wrap Up"
     ],
     "cross_refs": [
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/point_source/start_here.py",
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/start_here.py",
       "scripts/simulator/interferometer.py",
       "scripts/simulator/weak_lensing.py"
     ],

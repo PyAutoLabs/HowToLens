@@ -28,7 +28,7 @@ Here is an overview of what we'll cover in this tutorial:
 - **Poisson Noise:** We'll add Poisson noise to the image, simulating the randomness in the photon-to-electron conversion process on the CCD.
 - **Background Sky:** We'll add a background sky to the image, simulating the light from the sky that adds noise to the image.
 - **Simulator:** We'll use the `SimulatorImaging` object to simulate imaging data that includes all these effects.
-- **Other Data Types:** We'll finish with a brief look at interferometer and weak lensing data, two other types of data used to study strong lenses.
+- **Other Data Types:** We'll finish with a brief look at point-source, interferometer and weak lensing datasets.
 
 __Contents__
 
@@ -38,6 +38,7 @@ __Contents__
 - **Background Sky:** The final effect we will consider when simulating imaging data is the background sky.
 - **Simulator:** The `SimulatorImaging` object lets us create simulated imaging data while including the effects of.
 - **Output:** We will now save these simulated data to `.fits` files, the standard format used by astronomers for.
+- **Point Source Data:** Collect image positions, fluxes and time delays with their uncertainties.
 - **Interferometer Data:** Radio / sub-mm interferometers like ALMA observe visibilities in the uv-plane rather than images.
 - **Weak Lensing Data:** Weak lensing datasets are catalogues of weakly sheared background galaxy ellipticities.
 - **Wrap Up:** Summary of the script and next steps.
@@ -56,12 +57,14 @@ import autolens as al
 import autolens.plot as aplt
 ```
 
-    Working Directory has been set to `render-workspace`
+    2026-10-31 16:19:23,336 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Non-scalable fonts are not supported
+    2026-10-31 16:19:23,675 - matplotlib.font_manager - INFO - generated new fontManager
+    Working Directory has been set to `HowToLens`
 
 
 __Initial Setup__
 
-To create our simulated strong lens image, we first need a 2D grid. This grid will represent the coordinate space over 
+To create our simulated strong lens image, we first need a 2D grid. This grid will represent the coordinate space over
 which we will simulate the strong lens's light distribution.
 
 
@@ -78,8 +81,8 @@ grid = al.Grid2D.uniform(
 Next, we define the properties of our strong lens. In this tutorial, we’ll represent the lens with no luminous
 emmission and  an`Isothermal` mass profile. The source galaxy will be represented by a Sersic light profile.
 
-In the previous tutorial, the units of `intensity` were arbitrary. However, for this tutorial, where we simulate 
-realistic imaging data, the intensity must have specific units. We’ll use units of electrons per second per pixel 
+In the previous tutorial, the units of `intensity` were arbitrary. However, for this tutorial, where we simulate
+realistic imaging data, the intensity must have specific units. We’ll use units of electrons per second per pixel
 ($e- pix^-1 s^-1$), which is standard for CCD imaging data.
 
 
@@ -122,12 +125,12 @@ aplt.plot_array(
 
 __Optics Blurring__
 
-All images captured using CCDs (like those on the Hubble Space Telescope or Euclid) experience some level of blurring 
-due to the optics of the telescope. This blurring occurs because the optical system spreads out the light from each 
+All images captured using CCDs (like those on the Hubble Space Telescope or Euclid) experience some level of blurring
+due to the optics of the telescope. This blurring occurs because the optical system spreads out the light from each
 point source (e.g., a star or a part of a galaxy).
 
-The Point Spread Function (PSF) describes how the telescope blurs the image. It can be thought of as a 2D representation 
-of how a single point of light would appear in the image, spread out by the optics. In practice, the PSF is a 2D 
+The Point Spread Function (PSF) describes how the telescope blurs the image. It can be thought of as a 2D representation
+of how a single point of light would appear in the image, spread out by the optics. In practice, the PSF is a 2D
 convolution kernel that we apply to the image to simulate this blurring effect.
 
 
@@ -140,8 +143,8 @@ psf = al.Convolver.from_gaussian(
 )
 ```
 
-We can visualize the PSF to better understand how it will blur the galaxy's image. The PSF is essentially a small 
-image that represents the spreading out of light from a single point source. This kernel will be used to blur the 
+We can visualize the PSF to better understand how it will blur the galaxy's image. The PSF is essentially a small
+image that represents the spreading out of light from a single point source. This kernel will be used to blur the
 entire tracer image when we perform the convolution.
 
 
@@ -155,8 +158,8 @@ aplt.plot_array(array=psf.kernel, title="PSF 2D Kernel")
 
 
 
-The PSF is often more informative when plotted on a log10 scale. This approach allows us to clearly observe values 
-in its tail, which are much smaller than the central peak yet critical for many scientific analyses. The tail 
+The PSF is often more informative when plotted on a log10 scale. This approach allows us to clearly observe values
+in its tail, which are much smaller than the central peak yet critical for many scientific analyses. The tail
 values may significantly affect the spread and detail captured in the data.
 
 
@@ -170,17 +173,17 @@ aplt.plot_array(array=psf.kernel, title="PSF 2D Kernel (Log10)", use_log10=True)
 
 
 
-Next, we'll manually perform a 2D convolution of the PSF with the image of the galaxy. This convolution simulates the 
+Next, we'll manually perform a 2D convolution of the PSF with the image of the galaxy. This convolution simulates the
 blurring that occurs when the telescope optics spread out the galaxy's light.
 
-1. **Padding the Image**: Before convolution, we add padding (extra space with zero values) around the edges of the 
-   image. This prevents unwanted edge effects when we perform the convolution, ensuring that the image's edges don't 
+1. **Padding the Image**: Before convolution, we add padding (extra space with zero values) around the edges of the
+   image. This prevents unwanted edge effects when we perform the convolution, ensuring that the image's edges don't
    become artificially altered by the process.
 
-2. **Convolution**: Using the `Convolver` object's `convolve` method, we apply the 2D PSF convolution to the padded 
+2. **Convolution**: Using the `Convolver` object's `convolve` method, we apply the 2D PSF convolution to the padded
    image. This step combines the PSF with the galaxy's light, simulating how the telescope spreads out the light.
 
-3. **Trimming the Image**: After convolution, we trim the padded areas back to their original size, obtaining a 
+3. **Trimming the Image**: After convolution, we trim the padded areas back to their original size, obtaining a
    convolved (blurred) image that matches the dimensions of the initial tracer image.
 
 
@@ -198,11 +201,11 @@ blurred_image = convolved_image.trimmed_after_convolution_from(
 )  # Trimming back to the original size.
 ```
 
-    ~/Code/PyAutoLabs/.worktrees/howtolens-ray-tracing-merge/PyAutoArray/autoarray/operators/convolver.py:1484: UserWarning: No blurring_image provided. Only the direct image will be convolved. This may change the correctness of the PSF convolution.
+    .../PyAutoArray/autoarray/operators/convolver.py:1484: UserWarning: No blurring_image provided. Only the direct image will be convolved. This may change the correctness of the PSF convolution.
       warnings.warn(
 
 
-We can now plot the original and the blurred images side by side. This allows us to clearly see how the PSF 
+We can now plot the original and the blurred images side by side. This allows us to clearly see how the PSF
 convolution affects the appearance of the galaxy, making the image appear softer and less sharp.
 
 
@@ -227,32 +230,32 @@ aplt.plot_array(array=blurred_image, title="Tracer Image After PSF")
 
 __Poisson Noise__
 
-In addition to the blurring caused by telescope optics, we also need to consider Poisson noise when simulating imaging 
+In addition to the blurring caused by telescope optics, we also need to consider Poisson noise when simulating imaging
 data.
 
-When a telescope captures an image of a galaxy, photons from the galaxy are collected by the telescope's mirror and 
-directed onto a CCD (Charge-Coupled Device). The CCD is made up of a silicon lattice (or another material) that 
-converts incoming photons into electrons. These electrons are then gathered into discrete squares, which form the 
+When a telescope captures an image of a galaxy, photons from the galaxy are collected by the telescope's mirror and
+directed onto a CCD (Charge-Coupled Device). The CCD is made up of a silicon lattice (or another material) that
+converts incoming photons into electrons. These electrons are then gathered into discrete squares, which form the
 pixels of the final image.
 
-The process of converting photons into electrons is inherently random, following a Poisson distribution. This randomness 
-means that the number of electrons in each pixel can vary, even if the same number of photons hits the CCD. Therefore, 
-the electron count per pixel becomes a Poisson random variable. For our simulation, this means that the recorded 
+The process of converting photons into electrons is inherently random, following a Poisson distribution. This randomness
+means that the number of electrons in each pixel can vary, even if the same number of photons hits the CCD. Therefore,
+the electron count per pixel becomes a Poisson random variable. For our simulation, this means that the recorded
 number of photons in each pixel will differ slightly from the true number due to this randomness.
 
-To replicate this effect in our simulation, we can add Poisson noise to the tracer image using NumPy’s random module, 
+To replicate this effect in our simulation, we can add Poisson noise to the tracer image using NumPy’s random module,
 which generates values from a Poisson distribution.
 
-It's important to note that the blurring caused by the telescope optics occurs before the photons reach the CCD. 
+It's important to note that the blurring caused by the telescope optics occurs before the photons reach the CCD.
 Therefore, we need to add the Poisson noise after blurring the tracer image.
 
-We also need to consider the units of our image data. Let’s assume that the tracer image is measured in units of 
-electrons per second ($e^- s^{-1}$), which is standard for CCD imaging data. To simulate the number of electrons 
+We also need to consider the units of our image data. Let’s assume that the tracer image is measured in units of
+electrons per second ($e^- s^{-1}$), which is standard for CCD imaging data. To simulate the number of electrons
 actually detected in each pixel, we multiply the image by the observation’s exposure time. This conversion changes
 the units to the total number of electrons collected per pixel over the entire exposure time.
 
-Once the image is converted, we add Poisson noise, simulating the randomness in the photon-to-electron conversion 
-process. After adding the noise, we convert the image back to units of electrons per second for analysis, as 
+Once the image is converted, we add Poisson noise, simulating the randomness in the photon-to-electron conversion
+process. After adding the noise, we convert the image back to units of electrons per second for analysis, as
 this is the preferred unit for astronomers when studying their data.
 
 
@@ -282,10 +285,10 @@ aplt.plot_array(
 
 
 
-It is challenging to see the Poisson noise directly in the image above, as it is often subtle. To make the noise more 
+It is challenging to see the Poisson noise directly in the image above, as it is often subtle. To make the noise more
 visible, we can subtract the blurred image without Poisson noise from the one with noise.
 
-This subtraction yields the "Poisson noise realization" which highlights the variation in each pixel due to the Poisson 
+This subtraction yields the "Poisson noise realization" which highlights the variation in each pixel due to the Poisson
 distribution of photons hitting the CCD. It represents the noise values that were added to each pixel. We call
 it the realization because it is one possible outcome of the Poisson process, and the noise will be different each time
 we simulate the image.
@@ -310,20 +313,20 @@ __Background Sky__
 
 The final effect we will consider when simulating imaging data is the background sky.
 
-In addition to light from the strong lens, the telescope also picks up light from the sky. This background sky light is 
-primarily due to two sources: zodiacal light, which is light scattered by interplanetary dust in the solar system, 
+In addition to light from the strong lens, the telescope also picks up light from the sky. This background sky light is
+primarily due to two sources: zodiacal light, which is light scattered by interplanetary dust in the solar system,
 and the unresolved emission from distant stars and galaxies.
 
-For our simulation, we'll assume that the background sky has a uniform brightness across the image, measured at 
-0.1 electrons per second per pixel. The background sky is added to the image before applying the PSF convolution 
-and adding Poisson noise. This is important because it means that the background contributes additional noise to the 
+For our simulation, we'll assume that the background sky has a uniform brightness across the image, measured at
+0.1 electrons per second per pixel. The background sky is added to the image before applying the PSF convolution
+and adding Poisson noise. This is important because it means that the background contributes additional noise to the
 image.
 
-The background sky introduces noise throughout the entire image, including areas where the strong lens is not present. 
-This is why CCD images often appear noisy, especially in regions far from where the strong lens signal is detected. 
+The background sky introduces noise throughout the entire image, including areas where the strong lens is not present.
+This is why CCD images often appear noisy, especially in regions far from where the strong lens signal is detected.
 The sky noise can make it more challenging to observe faint details of the lens and source galaxies.
 
-To simulate this, we add a constant background sky to the tracer image and then apply Poisson noise to create the 
+To simulate this, we add a constant background sky to the tracer image and then apply Poisson noise to create the
 final simulated image as it would appear through a telescope.
 
 
@@ -375,7 +378,7 @@ aplt.plot_array(
 
 __Simulator__
 
-The `SimulatorImaging` object lets us create simulated imaging data while including the effects of PSF blurring, 
+The `SimulatorImaging` object lets us create simulated imaging data while including the effects of PSF blurring,
 Poisson noise, and background sky all at once:
 
 
@@ -390,12 +393,12 @@ simulator = al.SimulatorImaging(
 dataset = simulator.via_tracer_from(tracer=tracer, grid=grid)
 ```
 
-    ~/Code/PyAutoLabs/.worktrees/howtolens-ray-tracing-merge/PyAutoArray/autoarray/operators/convolver.py:1484: UserWarning: No blurring_image provided. Only the direct image will be convolved. This may change the correctness of the PSF convolution.
+    .../PyAutoArray/autoarray/operators/convolver.py:1484: UserWarning: No blurring_image provided. Only the direct image will be convolved. This may change the correctness of the PSF convolution.
       warnings.warn(
 
 
-By plotting the `data` from the dataset, we can see that it matches the image we simulated earlier. It includes 
-the effects of PSF blurring, Poisson noise, and noise from the background sky. This image is a realistic 
+By plotting the `data` from the dataset, we can see that it matches the image we simulated earlier. It includes
+the effects of PSF blurring, Poisson noise, and noise from the background sky. This image is a realistic
 approximation of what a telescope like the Hubble Space Telescope would capture.
 
 
@@ -411,8 +414,8 @@ aplt.plot_array(array=dataset.data, title="Simulated Imaging Data")
 
 The dataset also includes the `psf` (Point Spread Function) used to blur the strong lens image.
 
-For actual telescope data, the PSF is determined during data processing and is provided along with the observations. 
-It's crucial for accurately deconvolving the PSF from the strong lens image, allowing us to recover the true properties 
+For actual telescope data, the PSF is determined during data processing and is provided along with the observations.
+It's crucial for accurately deconvolving the PSF from the strong lens image, allowing us to recover the true properties
 of the strong lens. We'll explore this further in the next tutorial.
 
 
@@ -426,15 +429,15 @@ aplt.plot_array(array=dataset.psf.kernel, title="Simulated PSF")
 
 
 
-The dataset includes a `noise_map`, which represents the Root Mean Square (RMS) standard deviation of the noise 
-estimated for each pixel in the image. Higher noise values mean that the measurements in those pixels are 
+The dataset includes a `noise_map`, which represents the Root Mean Square (RMS) standard deviation of the noise
+estimated for each pixel in the image. Higher noise values mean that the measurements in those pixels are
 less certain, so those pixels are given less weight when analyzing the data.
 
-This `noise_map` is different from the Poisson noise arrays we plotted earlier. The Poisson noise arrays show the 
-actual noise added to the image due to the random nature of photon-to-electron conversion on the CCD, as calculated 
+This `noise_map` is different from the Poisson noise arrays we plotted earlier. The Poisson noise arrays show the
+actual noise added to the image due to the random nature of photon-to-electron conversion on the CCD, as calculated
 using the numpy random module. These noise values are theoretical and cannot be directly measured in real telescope data.
 
-In contrast, the `noise_map` is our best estimate of the noise present in the image, derived from the data itself 
+In contrast, the `noise_map` is our best estimate of the noise present in the image, derived from the data itself
 and used in the fitting process.
 
 
@@ -448,13 +451,13 @@ aplt.plot_array(array=dataset.noise_map, title="Simulated Noise Map")
 
 
 
-The `signal-to-noise_map` shows the ratio of the signal in each pixel to the noise level in that pixel. It is 
+The `signal-to-noise_map` shows the ratio of the signal in each pixel to the noise level in that pixel. It is
 calculated by dividing the `data` by the `noise_map`.
 
-This ratio helps us understand how much of the observed signal is reliable compared to the noise, allowing us to 
+This ratio helps us understand how much of the observed signal is reliable compared to the noise, allowing us to
 see where we can trust the detected signal from the strong lens and where the noise is more significant.
 
-In general, a signal-to-noise ratio greater than 3 indicates that the signal is likely real and not overwhelmed by 
+In general, a signal-to-noise ratio greater than 3 indicates that the signal is likely real and not overwhelmed by
 noise. For our datasets, the signal-to-noise ratio peaks at ~70, meaning we can trust the signal detected in the
 image.
 
@@ -469,10 +472,10 @@ aplt.plot_array(array=dataset.signal_to_noise_map, title="Signal-To-Noise Map")
 
 
 
-The `aplt.subplot_imaging_dataset` object can display all of these components together, making it a powerful tool for visualizing 
+The `aplt.subplot_imaging_dataset` object can display all of these components together, making it a powerful tool for visualizing
 simulated imaging data.
 
-It also shows the Data and PSF on a logarithmic (log10) scale, which helps highlight the faint details in these 
+It also shows the Data and PSF on a logarithmic (log10) scale, which helps highlight the faint details in these
 components.
 
 The "Over Sampling" plots on the bottom of the figures display advanced features that can be ignored for now.
@@ -514,6 +517,59 @@ aplt.fits_imaging(
 
     Dataset Path:  dataset/imaging/howtolens
 
+
+__Point Source Data__
+
+In Tutorial 4, we predicted the positions of a point source's multiple images. For real observations, we measure
+these positions from the telescope image, accounting for its blurring and the foreground galaxy's light. Each
+position also has an uncertainty.
+
+A `PointDataset` collects these measurements for lens modelling. The illustrative values below are rounded from
+Tutorial 4's predictions, rather than measured from observations. We include positions in arcseconds, fluxes in
+arbitrary units and time delays in days relative to the first image, with assumed uncertainties of 0.01 arcseconds,
+about 10 per cent in flux and one day in delay.
+
+
+```python
+point_dataset = al.PointDataset(
+    name="point_0",
+    positions=[
+        (-1.039, -1.038),
+        (0.442, 1.608),
+        (1.609, 0.442),
+        (1.179, 1.180),
+    ],
+    positions_noise_map=0.01,
+    fluxes=[6.82, 55.20, 53.67, 100.71],
+    fluxes_noise_map=[0.68, 5.52, 5.37, 10.07],
+    time_delays=[0.0, -39.86, -40.03, -39.75],
+    time_delays_noise_map=[1.0, 1.0, 1.0, 1.0],
+)
+
+print(point_dataset.info)
+```
+
+    name : point_0
+    positions : Grid2DIrregular([[-1.039, -1.038],
+           [ 0.442,  1.608],
+           [ 1.609,  0.442],
+           [ 1.179,  1.18 ]])
+    positions_noise_map : ArrayIrregular([0.01, 0.01, 0.01, 0.01])
+    fluxes : ArrayIrregular([  6.82,  55.2 ,  53.67, 100.71])
+    fluxes_noise_map : ArrayIrregular([ 0.68,  5.52,  5.37, 10.07])
+    time_delays : ArrayIrregular([  0.  , -39.86, -40.03, -39.75])
+    time_delays_noise_map : ArrayIrregular([1., 1., 1., 1.])
+    redshift : None
+
+
+
+The positions use `(y, x)` coordinates, and every list follows the same image order. Negative delays mean that
+an image arrives before the first image. The name `point_0` matches the point-source component introduced in
+Tutorial 4, connecting these measurements to that source when fitting a model.
+
+Fluxes and time delays are optional: positions alone are enough to begin modelling. For more on loading and
+fitting these datasets, continue to the workspace's
+[point-source examples](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/point_source/start_here.py).
 
 __Interferometer Data__
 
@@ -577,7 +633,7 @@ aplt.subplot_interferometer_dirty_images(dataset=dataset)
 
 
 
-![png](tutorial_5_data_files/tutorial_5_data_41_1.png)
+![png](tutorial_5_data_files/tutorial_5_data_43_1.png)
 
 
 
@@ -596,7 +652,9 @@ if it is not on your hard-disk) and plot it, just so you have seen what this dat
 
 That is deliberately all we will say for now — this glimpse is foreshadowing. Weak lensing gets a full treatment in
 the final tutorial of chapter 4, which describes what these shear measurements are, why they are made far from the
-lens centre and how they are fitted; until then, we defer all further description to that tutorial.
+lens centre and how they are fitted; until then, we defer all further description to that tutorial. For worked
+modelling examples, see the workspace
+[weak-lensing examples](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/start_here.py).
 
 
 ```python
@@ -634,13 +692,13 @@ aplt.subplot_weak_dataset(dataset=dataset)
 
 
 
-![png](tutorial_5_data_files/tutorial_5_data_43_1.png)
+![png](tutorial_5_data_files/tutorial_5_data_45_1.png)
 
 
 
 __Wrap Up__
 
-In this tutorial, you learned how CCD imaging data of a lens is collected using real telescopes like the 
+In this tutorial, you learned how CCD imaging data of a lens is collected using real telescopes like the
 Hubble Space Telescope, and how to simulate this data using the `SimulatorImaging` object.
 
 Let's summarise what we've covered:
@@ -648,13 +706,16 @@ Let's summarise what we've covered:
 - **Optics Blurring**: The optics of a telescope blur the light of the tracer, reducing the clarity and sharpness of
 the images.
 
-- **Poisson Noise**: The process of converting photons to electrons on a CCD introduces Poisson noise, which is random 
+- **Poisson Noise**: The process of converting photons to electrons on a CCD introduces Poisson noise, which is random
 variability in the number of electrons collected in each pixel.
 
-- **Background Sky**: Light from the sky is captured along with light from the lens, adding a layer of noise across 
+- **Background Sky**: Light from the sky is captured along with light from the lens, adding a layer of noise across
 the entire image.
 
-- **Simulator**: The `SimulatorImaging` object enables us to simulate realistic imaging data by including all of 
+- **Simulator**: The `SimulatorImaging` object enables us to simulate realistic imaging data by including all of
 these effects together and contains the `data`, `psf`, and `noise_map` components.
 
 - **Output**: We saved the simulated data to `.fits` files, the standard format used by astronomers for storing images.
+
+- **Point Source Data**: A `PointDataset` collects image positions and their uncertainties, with optional fluxes
+and time delays, ready for point-source modelling.
