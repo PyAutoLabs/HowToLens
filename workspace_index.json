@@ -404,22 +404,6 @@
   {
     "contents": [
       "Initial Setup",
-      "Mask",
-      "Simulator",
-      "Fitting",
-      "Fit Problems",
-      "Discussion",
-      "Wrap Up"
-    ],
-    "cross_refs": [],
-    "notebook": "notebooks/chapter_3_pixelizations/tutorial_10_fit_problems.ipynb",
-    "path": "scripts/chapter_3_pixelizations/tutorial_10_fit_problems.py",
-    "summary": "To begin, make sure you have read tutorials 4 and 5 carefully, as a clear understanding of how the Bayesian evidence works is key to understanding the adaption tutorials that close this chapter!",
-    "title": "Tutorial 10: Fit Problems"
-  },
-  {
-    "contents": [
-      "Initial Setup",
       "Adapt Image",
       "Adaption",
       "Hilbert",
@@ -442,124 +426,92 @@
     "cross_refs": [],
     "notebook": "notebooks/chapter_3_pixelizations/tutorial_12_adaptive_regularization.ipynb",
     "path": "scripts/chapter_3_pixelizations/tutorial_12_adaptive_regularization.py",
-    "summary": "In tutorial 10, we discussed why the `Constant` regularization scheme was sub-optimal. Different regions of the source demand different levels of regularization, motivating a regularization scheme which adapts to the reconstructed source's surface brightness.",
+    "summary": "Tutorial 2 introduced `Constant` regularization. Different regions of the source can favour different levels of regularization, motivating a scheme which adapts to the reconstructed source's surface brightness.",
     "title": "Tutorial 12: Adaptive Regularization"
   },
   {
     "contents": [
-      "Initial Setup",
-      "Mesh",
-      "Wrap Up"
+      "Opening \u2014 Pixelized source reconstruction",
+      "A complex source",
+      "Why a simple source model falls short",
+      "A grid for the source light",
+      "Following the same image pixels into the source plane",
+      "Where a traced image pixel meets the source mesh",
+      "One source region, several image regions",
+      "Reconstructing the source",
+      "A first look at regularization",
+      "From source indexes to reconstructed brightnesses",
+      "Turning the reconstructed source back into an image",
+      "Inspecting the reconstruction",
+      "Changing the source resolution",
+      "Wrap up"
     ],
     "cross_refs": [],
     "notebook": "notebooks/chapter_3_pixelizations/tutorial_1_pixelizations.ipynb",
     "path": "scripts/chapter_3_pixelizations/tutorial_1_pixelizations.py",
-    "summary": "In the previous chapters, we used light profiles to model the light of a strong lens's source galaxy, where the light profile was an analytic description of how the luminosity varies as a function of radius. In this chapter, we are instead going to reconstruct the source's light on a pixel-grid, and in this tutorial we will learn how to create a source-plane pixelization.",
-    "title": "Tutorial 1: Pixelizations"
+    "summary": "(no summary in script docstring)",
+    "title": "Tutorial 1: Pixelizations, Mappers and Inversions"
   },
   {
     "contents": [
-      "Initial Setup",
-      "Mappers",
-      "Mask",
-      "Wrap Up"
-    ],
-    "cross_refs": [],
-    "notebook": "notebooks/chapter_3_pixelizations/tutorial_2_mappers.ipynb",
-    "path": "scripts/chapter_3_pixelizations/tutorial_2_mappers.py",
-    "summary": "In the previous tutorial, we used a pixelization to create a `Mapper`. However, it was not clear what a `Mapper` does, why it was called a mapper and whether it was mapping anything at all!",
-    "title": "Tutorial 2: Mappers"
-  },
-  {
-    "contents": [
-      "Initial Setup",
-      "Pixelization",
-      "Positive Only Solver",
-      "Wrap Up",
-      "Detailed Explanation"
+      "Interpolation and Bayesian regularization",
+      "Interpolation and our starting reconstruction",
+      "Reducing regularization",
+      "Increasing regularization",
+      "Bayesian evidence",
+      "Exploring the regularization coefficient",
+      "Inspecting the preferred reconstruction",
+      "What is linear, and what requires a search?",
+      "Mesh resolution and regularization belong together",
+      "What we have learned, and what comes next"
     ],
     "cross_refs": [
-      "/imaging/features/pixelization/likelihood_function.ipynb"
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/imaging/features/pixelization/likelihood_function.py"
     ],
-    "notebook": "notebooks/chapter_3_pixelizations/tutorial_3_inversions.ipynb",
-    "path": "scripts/chapter_3_pixelizations/tutorial_3_inversions.py",
-    "summary": "In the previous two tutorials, we introduced:",
-    "title": "Tutorial 3: Inversions"
+    "notebook": "notebooks/chapter_3_pixelizations/tutorial_2_bayesian_regularization.ipynb",
+    "path": "scripts/chapter_3_pixelizations/tutorial_2_bayesian_regularization.py",
+    "summary": "(no summary in script docstring)",
+    "title": "Tutorial 2: Bayesian Regularization"
   },
   {
     "contents": [
-      "Initial Setup",
-      "Convenience Function",
-      "Pixelization",
-      "Regularization",
-      "Bayesian Evidence",
-      "Detailed Description"
+      "Why the extent of the source mesh matters",
+      "What we mean by a border",
+      "Starting without border relocation",
+      "Including the central image pixels",
+      "Following the central pixels into the source plane",
+      "Tracing the outer border",
+      "Switching border relocation on",
+      "What relocation changes\u2014and what it does not",
+      "The mask still needs to cover the lensed source",
+      "Wrap up"
     ],
     "cross_refs": [],
-    "notebook": "notebooks/chapter_3_pixelizations/tutorial_4_bayesian_regularization.ipynb",
-    "path": "scripts/chapter_3_pixelizations/tutorial_4_bayesian_regularization.py",
-    "summary": "So far, we have:",
-    "title": "Tutorial 4: Bayesian Regularization"
+    "notebook": "notebooks/chapter_3_pixelizations/tutorial_3_borders.ipynb",
+    "path": "scripts/chapter_3_pixelizations/tutorial_3_borders.py",
+    "summary": "(no summary in script docstring)",
+    "title": "Tutorial 3: Borders"
   },
   {
     "contents": [
-      "Initial Setup",
-      "Mesh Shape",
-      "Ray Tracing",
-      "Border Relocation",
-      "Source Pixel Centres",
-      "Interpolation",
-      "Mapper",
-      "Mapping Matrix",
-      "Blurred Mapping Matrix",
-      "Data Vector",
-      "Curvature Matrix",
-      "Unregularized Solve",
-      "Regularization Matrix",
-      "Source Reconstruction",
-      "Image Reconstruction",
-      "Likelihood Function",
-      "Chi Squared",
-      "Regularization Term",
-      "Complexity Terms",
-      "Noise Normalization Term",
-      "Log Evidence",
-      "Fit",
-      "Wrap Up"
-    ],
-    "cross_refs": [
-      "/imaging/features/pixelization/likelihood_function.ipynb"
-    ],
-    "notebook": "notebooks/chapter_3_pixelizations/tutorial_5_bayesian_formalism.ipynb",
-    "path": "scripts/chapter_3_pixelizations/tutorial_5_bayesian_formalism.py",
-    "summary": "In tutorials 1 to 4, we built an intuition for how pixelized source reconstruction works: pixelizations place a pixel-grid in the source-plane, mappers pair source-pixels with image-pixels, inversions solve for the source-pixel fluxes that best fit the data, and regularization smooths the solution within a Bayesian framework.",
-    "title": "Tutorial 5: Bayesian Formalism"
-  },
-  {
-    "contents": [
-      "Initial Setup",
-      "Borders",
-      "Wrap Up"
+      "Lens modelling with a pixelized source",
+      "Giving the inversion an incorrect mass model",
+      "Comparing with the correct mass model",
+      "Seeing how the mass model changes the mappings",
+      "Why evidence does not remove the search difficulty",
+      "Starting with a simpler source model",
+      "Running and inspecting the initial search",
+      "Requiring corresponding images to trace together",
+      "Replacing the analytic source with a pixelization",
+      "Running the pixelized-source search",
+      "Establishing the foreground light model",
+      "Using that result in the pixelized-source fit"
     ],
     "cross_refs": [],
-    "notebook": "notebooks/chapter_3_pixelizations/tutorial_6_borders.ipynb",
-    "path": "scripts/chapter_3_pixelizations/tutorial_6_borders.py",
-    "summary": "In the previous tutorials, the source-plane pixel grid perfectly mapped over the traced image-pixel $(y,x)$ coordinates in the source plane. If these pixels mapped to a larger area in the source plane, its pixel-grid would automatically increase its size so as to cover every source-plane coordinate.",
-    "title": "Tutorial 6: Borders"
-  },
-  {
-    "contents": [
-      "Initial Setup",
-      "Unphysical Solutions",
-      "Brief Description",
-      "Light Profiles",
-      "Wrap Up"
-    ],
-    "cross_refs": [],
-    "notebook": "notebooks/chapter_3_pixelizations/tutorial_7_lens_modeling.ipynb",
-    "path": "scripts/chapter_3_pixelizations/tutorial_7_lens_modeling.py",
-    "summary": "When modeling complex sources with parametric profiles, we quickly entered a regime where our non-linear search was faced with a parameter space of dimensionality N=20+ parameters. This made the model-fitting inefficient and likely to infer a local maxima.",
-    "title": "Tutorial 7: Lens Modeling"
+    "notebook": "notebooks/chapter_3_pixelizations/tutorial_4_lens_modeling.ipynb",
+    "path": "scripts/chapter_3_pixelizations/tutorial_4_lens_modeling.py",
+    "summary": "(no summary in script docstring)",
+    "title": "Tutorial 4: Lens Modeling"
   },
   {
     "contents": [
@@ -574,16 +526,6 @@
     "path": "scripts/chapter_3_pixelizations/tutorial_8_adaptive_pixelization.py",
     "summary": "In this tutorial we will introduce a new `Pixelization` object, which uses an `Overlay` image-mesh and a `Delaunay` mesh.",
     "title": "Tutorial 8: Adaptive Pixelization"
-  },
-  {
-    "contents": [],
-    "cross_refs": [
-      "/imaging/features/pixelization/modeling.py"
-    ],
-    "notebook": "notebooks/chapter_3_pixelizations/tutorial_9_model_fit.ipynb",
-    "path": "scripts/chapter_3_pixelizations/tutorial_9_model_fit.py",
-    "summary": "You should now perform lens modeling using a pixelization, which is described fully in the example:",
-    "title": "Tutorial 9: Model-Fit"
   },
   {
     "contents": [

@@ -137,7 +137,7 @@ majority of source pixels are located away from the source. By my estimate, we a
 4x4 grid) out of the 784 pixels to actually fit the data! The remaining ~750 pixels are doing nothing but fitting
 noise.
 
-This means that regularization is sub-optimal. In tutorial 4, we discussed how the Bayesian evidence of the 
+This means that regularization is sub-optimal. In tutorial 2, we discussed how the Bayesian evidence of the
 regularization favours the simplest source solution. That is, the solution which fits the data using the fewest source 
 pixels. If we are dedicating a large number of source pixels to fitting *nothing*, the source reconstruction is 
 unnecessarily complex (and therefore is lower `log_evidence` solution).
@@ -223,7 +223,7 @@ The `Overlay` image-mesh and `Delaunay` mesh is still far from optimal. There ar
 fitting just noise. We could achieve even better solutions if the central regions of the source were reconstructed
 using more pixels, and fewer source pixels were used in the outskirts of the source plane.
 
-Tutorials 10, 11 and 12 show even more advanced and adaptive pixelizations which do just this, by adapting to the
+Tutorials 11 and 12 show even more advanced and adaptive pixelizations which do just this, by adapting to the
 source galaxy's morphology rather than the mass model magnification.
 
 In the mean time, you may wish to experiment with using both rectangular and Delaunay meshes to fit
