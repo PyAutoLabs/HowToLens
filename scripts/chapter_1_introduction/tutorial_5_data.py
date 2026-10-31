@@ -25,7 +25,7 @@ Here is an overview of what we'll cover in this tutorial:
 - **Poisson Noise:** We'll add Poisson noise to the image, simulating the randomness in the photon-to-electron conversion process on the CCD.
 - **Background Sky:** We'll add a background sky to the image, simulating the light from the sky that adds noise to the image.
 - **Simulator:** We'll use the `SimulatorImaging` object to simulate imaging data that includes all these effects.
-- **Other Data Types:** We'll finish with a brief look at interferometer and weak lensing data, two other types of data used to study strong lenses.
+- **Other Data Types:** We'll finish with a brief look at point-source, interferometer and weak lensing datasets.
 
 __Contents__
 
@@ -35,6 +35,7 @@ __Contents__
 - **Background Sky:** The final effect we will consider when simulating imaging data is the background sky.
 - **Simulator:** The `SimulatorImaging` object lets us create simulated imaging data while including the effects of.
 - **Output:** We will now save these simulated data to `.fits` files, the standard format used by astronomers for.
+- **Point Source Data:** Collect image positions, fluxes and time delays with their uncertainties.
 - **Interferometer Data:** Radio / sub-mm interferometers like ALMA observe visibilities in the uv-plane rather than images.
 - **Weak Lensing Data:** Weak lensing datasets are catalogues of weakly sheared background galaxy ellipticities.
 - **Wrap Up:** Summary of the script and next steps.
@@ -376,6 +377,43 @@ aplt.fits_imaging(
 )
 
 """
+__Point Source Data__
+
+In Tutorial 4, we predicted the positions of a point source's multiple images. For real observations, we measure
+these positions from the telescope image, accounting for its blurring and the foreground galaxy's light. Each
+position also has an uncertainty.
+
+A `PointDataset` collects these measurements for lens modelling. The illustrative values below are rounded from
+Tutorial 4's predictions, rather than measured from observations. We include positions in arcseconds, fluxes in
+arbitrary units and time delays in days relative to the first image, with assumed uncertainties of 0.01 arcseconds,
+about 10 per cent in flux and one day in delay.
+"""
+point_dataset = al.PointDataset(
+    name="point_0",
+    positions=[
+        (-1.039, -1.038),
+        (0.442, 1.608),
+        (1.609, 0.442),
+        (1.179, 1.180),
+    ],
+    positions_noise_map=0.01,
+    fluxes=[6.82, 55.20, 53.67, 100.71],
+    fluxes_noise_map=[0.68, 5.52, 5.37, 10.07],
+    time_delays=[0.0, -39.86, -40.03, -39.75],
+    time_delays_noise_map=[1.0, 1.0, 1.0, 1.0],
+)
+
+print(point_dataset.info)
+
+"""
+The positions use `(y, x)` coordinates, and every list follows the same image order. Negative delays mean that
+an image arrives before the first image. The name `point_0` matches the point-source component introduced in
+Tutorial 4, connecting these measurements to that source when fitting a model.
+
+Fluxes and time delays are optional: positions alone are enough to begin modelling. For more on loading and
+fitting these datasets, continue to the workspace's
+[point-source examples](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/point_source/start_here.py).
+
 __Interferometer Data__
 
 CCD imaging is not the only type of data used to study strong lenses. Radio and sub-mm interferometers, like the
@@ -445,7 +483,9 @@ if it is not on your hard-disk) and plot it, just so you have seen what this dat
 
 That is deliberately all we will say for now — this glimpse is foreshadowing. Weak lensing gets a full treatment in
 the final tutorial of chapter 4, which describes what these shear measurements are, why they are made far from the
-lens centre and how they are fitted; until then, we defer all further description to that tutorial.
+lens centre and how they are fitted; until then, we defer all further description to that tutorial. For worked
+modelling examples, see the workspace
+[weak-lensing examples](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/start_here.py).
 """
 dataset_path = Path("dataset") / "weak_lensing" / "simple"
 
@@ -483,4 +523,7 @@ the entire image.
 these effects together and contains the `data`, `psf`, and `noise_map` components.
 
 - **Output**: We saved the simulated data to `.fits` files, the standard format used by astronomers for storing images.
+
+- **Point Source Data**: A `PointDataset` collects image positions and their uncertainties, with optional fluxes
+and time delays, ready for point-source modelling.
 """
