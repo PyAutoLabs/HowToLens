@@ -12,7 +12,7 @@
     "cross_refs": [],
     "notebook": "notebooks/chapter_1_introduction/tutorial_0_visualization.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_0_visualization.py",
-    "summary": "In this tutorial, we quickly cover visualization in **PyAutoLens** and make sure images display clearly in your Jupyter notebook and on your computer screen.",
+    "summary": "Plot a simulated image with **PyAutoLens**, compare views of the dataset, and adjust the display so you can inspect its structure. This tutorial introduces the plotting tools used throughout the course.",
     "title": "Tutorial 0: Visualization"
   },
   {
@@ -29,11 +29,14 @@
       "Over Sampling"
     ],
     "cross_refs": [
-      "/guides/advanced/over_sampling.ipynb"
+      "//github.com/PyAutoLabs/autolens_assistant/blob/main/docs/colab/cosmos_web_ring_colab.py",
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/guides/advanced/over_sampling.py",
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/guides/units/cosmology.py",
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/guides/units/flux.py"
     ],
     "notebook": "notebooks/chapter_1_introduction/tutorial_1_grids_and_galaxies.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_1_grids_and_galaxies.py",
-    "summary": "A strong gravitational lens is a system where two (or more) galaxies align perfectly down our line of sight from Earth such that the foreground galaxy's mass curves space-time in on itself, such that the light of a background source galaxy is deflected and magnified. This means we can see the background source galaxy multiple times, as multiple arcs or rings, because multiple paths through the foreground galaxy's mass are taken by the source's light.",
+    "summary": "A distant galaxy can appear as multiple images, stretched arcs or a ring when its light passes a sufficiently well-aligned foreground galaxy. The foreground galaxy\u2019s gravity deflects the light, allowing it to reach us along different paths. This is strong gravitational lensing.",
     "title": "HowToLens: Introduction"
   },
   {
@@ -41,16 +44,19 @@
       "Grid",
       "Mass Profiles",
       "Ray Tracing Grids",
+      "Mappings",
       "Ray Tracing Images",
       "Galaxies",
       "Tracer",
-      "Mappings",
-      "Wrap Up"
+      "Wrap Up",
+      "Env"
     ],
-    "cross_refs": [],
+    "cross_refs": [
+      "//github.com/PyAutoLabs/autolens_assistant/blob/main/docs/colab/cosmos_web_ring_colab.py"
+    ],
     "notebook": "notebooks/chapter_1_introduction/tutorial_2_ray_tracing.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_2_ray_tracing.py",
-    "summary": "Strong gravitational lensing occurs when the mass of a foreground galaxy (or galaxies) curves space-time around it, causing light rays from a background source to appear deflected.",
+    "summary": "Strong gravitational lensing occurs when the mass of a foreground galaxy curves space-time, bending the paths of light rays from a background source galaxy. The source can then appear as arcs, a ring or multiple images.",
     "title": "Tutorial 2: Ray Tracing"
   },
   {

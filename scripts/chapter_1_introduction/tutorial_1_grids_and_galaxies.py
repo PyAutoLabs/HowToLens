@@ -1,66 +1,70 @@
 r"""
 HowToLens: Introduction
-=======================
+======================
 
-A strong gravitational lens is a system where two (or more) galaxies align perfectly down our line of sight from Earth
-such that the foreground galaxy's mass curves space-time in on itself, such that the light of a background source galaxy
-is deflected and magnified. This means we can see the background source galaxy multiple times, as multiple arcs or rings,
-because multiple paths through the foreground galaxy's mass are taken by the source's light.
+A distant galaxy can appear as multiple images, stretched arcs or a ring when its light passes a sufficiently
+well-aligned foreground galaxy. The foreground galaxy’s gravity deflects the light, allowing it to reach us
+along different paths. This is strong gravitational lensing.
 
-Here is a schematic of a strong gravitational lens:
+We call the foreground galaxy the **lens** and the background galaxy the **source**. The side-on illustration
+below shows two paths by which light from the source can reach the observer. It illustrates the geometry;
+it is not drawn to scale.
 
-![Schematic of Gravitational Lensing](https://raw.githubusercontent.com/PyAutoLabs/PyAutoLens/main/docs/overview/images/overview_1_lensing/schematic.jpg)
-**Credit: F. Courbin, S. G. Djorgovski, G. Meylan, et al., Caltech / EPFL / WMKO**
-https://www.astro.caltech.edu/~george/qsolens/
+![Side-on illustration of light from a source galaxy passing a lens galaxy and reaching JWST](https://raw.githubusercontent.com/PyAutoLabs/autolens_assistant/main/docs/images/strong_lens_schematic.png)
 
-Today, Astronomers use computer software, statistical algorithms and image processing techniques analyse the light of
-these strong gravitational lenses. They are used for a wide range of scientific studies, including studying dark matter
-in the foreground lens galaxies, the morphology and structure of the background source galaxies, and even the expansion
-of the Universe itself.
+Looking towards the lens, we see the source’s distorted images around it. The JWST image below shows the
+COSMOS-Web Ring: the bright central galaxy is the lens, and the surrounding ring is light from the more
+distant source galaxy.
 
-The **HowToLens** series of tutorials will teach you how to perform this analysis yourself, using the open-source
-software package **PyAutoLens**. By the end of the **HowToLens** series, you'll be able to take an image of
-strong lens and study it using the same techniques that professional astronomers use today.
+![The COSMOS-Web Ring, labelled with the lens galaxy, lensed source galaxy and extra galaxy](https://raw.githubusercontent.com/PyAutoLabs/autolens_assistant/main/docs/images/cosmos_web_ring_rgb_labelled.png)
 
-Tutorial 1: Grids And Galaxies
-==============================
+Both figures label an **Extra Galaxy**. This is another galaxy visible near the ring in the image, distinct
+from the main lens and the lensed source. Its light can overlap the region we want to model. Appearing nearby
+on the sky does not by itself tell us whether it is at the same distance as the lens.
 
-In this tutorial, we will introduce the first fundamental concepts and quantities used to study strong lenses.
-These concepts will enable us to create images of galaxies and analyze how their light is distributed across space.
-Additionally, we will explore how adjusting various properties of galaxies can alter their appearance. For instance,
-we can change the size of a galaxy, rotate it, or modify its brightness.
+For now, the strong lenses we consider in this chapter have one lens galaxy. Chapter 4 introduces systems
+with additional galaxies and explains how to account for their light and, where relevant, their gravitational
+effect on the source images.
 
-To create these images, we first need to define 2D grids of \((y, x)\) coordinates. We will shift and rotate these
-grids to manipulate the appearance of the galaxy in the generated images. The grid will serve as the input for light
-profiles, which are analytic functions that describe the distribution of a galaxy's light. By evaluating these light
-profiles on the grid, we can effectively generate images that represent the structure and characteristics of galaxies.
+These figures are also used in the [COSMOS-Web Ring guided example](https://github.com/PyAutoLabs/autolens_assistant/blob/main/docs/colab/cosmos_web_ring_colab.py).
 
-This tutorial won't yet perform any lensing calculations, which are introduced in the next tutorial.
+By modelling these images, astronomers can study the distribution of mass in the lens, including dark matter,
+and reconstruct the source galaxy’s light. Some lens systems also allow measurements of the Universe’s expansion.
 
-Here is an overview of what we'll cover in this tutorial:
+**HowToLens** teaches you to build and fit these models using **PyAutoLens**. We begin with simple descriptions
+of galaxy light, then introduce gravitational lensing and the statistical methods used to compare models with data.
 
-- **Grids**: We'll create a uniform grid of $(y,x)$ coordinates and show how it can be used to measure the light of a galaxy.
-- **Geometry**: We'll show how to shift and rotate a grid, and convert it to elliptical coordinates.
-- **Light Profiles**: We'll introduce light profiles, analytic functions that describe how a galaxy's light is distributed.
-- **Galaxies**: We'll create galaxies containing light profiles and show how to compute their image.
-- **Units**: We'll show how to convert the units of a galaxy's image to physical units like kiloparsecs.
+Tutorial 1: Grids and Galaxies
+=============================
 
+In this tutorial, we will build an image of a galaxy from light profiles and explore how its appearance changes when we
+adjust its position, orientation, size and brightness.
 
-The imports below are required to run the HowToLens tutorials in a Jupiter notebook. They also import the
-`autolens` package and the `autolens.plot` module which are used throughout the tutorials.
+We start with a grid of positions on the sky, written in `(y, x)` order. A **light profile** is a mathematical
+function that describes how a galaxy’s light varies with position. It is a model: a simplified mathematical
+description of the galaxy. Evaluating it on the grid gives us a **light-profile image**. Later, we will
+include the telescope’s blurring to construct a **model image** that can be compared with observed data.
+
+To describe a profile centred and oriented anywhere in the image, we express the grid coordinates relative
+to that profile. We will work through these coordinate transformations before using the library’s light
+profiles and galaxy objects.
+
+The examples evaluate models with parameters that we choose. They do not yet fit a model to observed data.
+
+We introduce the deflection of light by gravity in the next tutorial.
 
 __Contents__
 
-- **Grids:** A `Grid2D` is a set of two-dimensional $(y,x)$ coordinates that represent points in space where we.
-- **Geometry:** The above grid is centered on the origin (0.0", 0.0").
-- **Light Profiles:** Galaxies are collections of stars, gas, dust, and other astronomical objects that emit light.
-- **One Dimension Projection:** We often want to calculative 1D quantities of a light profile, for example to plot how its light.
-- **Galaxies:** Galaxies are collections of light profiles that represent a galaxy's luminous emission.
-- **Units:** By assuming a redshift for a galaxy we can convert its quantities from arcseconds to kiloparsecs.
-- **Wrap Up:** Summary of the script and next steps.
-- **Advanced Topics:** Optional reference material for expert users, not needed on a first read.
-- **Other Unit Conversion:** Other unit conversions a galaxy's redshift enables (e.g. AB magnitudes).
-- **Over Sampling:** The adaptive over-sampling scheme used to evaluate light profiles accurately.
+- **Grids:** Create image coordinates and inspect their native and slim representations.
+- **Geometry:** Express coordinates relative to a profile’s centre, orientation and ellipticity.
+- **Light Profiles:** Calculate Sérsic intensities and build light-profile images.
+- **One Dimension Projection:** Sample intensity along a profile’s major axis.
+- **Galaxies:** Combine light profiles and galaxies, and compare their contributions.
+- **Units:** Convert angular sizes into physical sizes using a cosmology.
+- **Wrap Up:** Review the main ideas.
+- **Advanced Topics:** Optional notes on units and numerical accuracy.
+- **Other Unit Conversion:** Understand what brightness calibration requires.
+- **Over Sampling:** Improve the numerical calculation within each pixel.
 
 """
 
@@ -78,107 +82,121 @@ import autolens.plot as aplt
 """
 __Grids__
 
-A `Grid2D` is a set of two-dimensional $(y,x)$ coordinates that represent points in space where we evaluate the 
-light emitted by a galaxy.
+To build a galaxy image, we need positions at which to evaluate its light profile. A `Grid2D` stores these
+positions in `(y, x)` order. For a uniform image grid, each coordinate marks the centre of a pixel.
 
-Each coordinate on the grid is referred to as a 'pixel'. This is because we use the grid to measure the brightness of a 
-galaxy at each of these coordinates, allowing us to create an image of the galaxy.
+We express positions in **arcseconds**, a unit of angle equal to 1/3600 of a degree. This describes distances
+across the sky rather than physical distances within the galaxy.
 
-Grids are defined in units of 'arc-seconds' ("). An arc-second is a unit of angular measurement used by astronomers to 
-describe the apparent size of objects in the sky.
+The grid below has 101 rows and 101 columns. Setting `pixel_scales=0.1` gives square pixels that span
+0.1 arcseconds on each side.
 
-The `pixel_scales` parameter sets how many arc-seconds each pixel represents. For example, if `pixel_scales=0.1`, 
-then each pixel covers 0.1" of the sky.
-
-We create a uniform 2D grid of 101 x 101 pixels with a pixel scale of 0.1", corresponding to an area 
-of 10.1" x 10.1", spanning from -5.05" to 5.05" in both the y and x directions.
+The image covers 10.1 by 10.1 arcseconds, with edges at −5.05 and +5.05 arcseconds. The pixel centres run
+from −5.0 to +5.0 arcseconds along each axis, with the central pixel at `(0.0, 0.0)`.
 """
 grid = al.Grid2D.uniform(
-    shape_native=(
-        101,
-        101,
-    ),  # The dimensions of the grid, which here is 101 x 101 pixels.
-    pixel_scales=0.1,  # The conversion factor between pixel units and arc-seconds.
+    shape_native=(101, 101),
+    pixel_scales=0.1,
 )
 
 """
-We can visualize this grid as a uniform grid of dots, each representing a coordinate where the light is measured.
+Plot the grid to see where we will evaluate the light profile. Each dot marks a pixel centre, with neighbouring
+dots separated by 0.1 arcseconds horizontally and vertically.
+
+This figure shows positions only. We have not yet assigned a brightness to any pixel.
 """
 aplt.plot_grid(grid=grid, title="Uniform Grid of Coordinates")
 
 """
-Each coordinate in the grid corresponds to an arc-second position. Below, we print a few of these coordinates to see 
-the values.
+We can inspect individual coordinates using `grid.native[row, column]`. Rows and columns are numbered from
+zero, and each entry contains a `(y, x)` pair in arcseconds.
+
+The first three entries below lie along the top row: their y coordinate stays at +5.0 while x increases
+from −5.0 in steps of 0.1. The final entry starts the next row, where y decreases to +4.9.
 """
-print("(y,x) pixel 0:")
-print(grid.native[0, 0])  # The coordinate of the first pixel.
-print("(y,x) pixel 1:")
-print(grid.native[0, 1])  # The coordinate of the second pixel.
-print("(y,x) pixel 2:")
-print(grid.native[0, 2])  # The coordinate of the third pixel.
-print("(y,x) pixel 100:")
-print(grid.native[1, 0])  # The coordinate of the 100th pixel.
-print("...")
+print("Row 0, column 0 (y, x):", grid.native[0, 0])
+print("Row 0, column 1 (y, x):", grid.native[0, 1])
+print("Row 0, column 2 (y, x):", grid.native[0, 2])
+print("Row 1, column 0 (y, x):", grid.native[1, 0])
 
 """
-Grids have two internal representations, `native` and `slim`:
+The same grid coordinates can be arranged in two ways:
 
-- `native`: A 2D array with shape [total_y_pixels, total_x_pixels, 2], where the 2 corresponds to the (y,x) coordinates.
-- `slim`: A 1D array with shape [total_y_pixels * total_x_pixels, 2], where the coordinates are 'flattened' into a single list.
+- **`native`** preserves the rows and columns of the image. Use `grid.native[row, column]` to select a pixel’s `(y, x)` coordinates.
+- **`slim`** lists the coordinate pairs in row order. Use `grid.slim[index]` to select a pair from that list.
 
-These formats are useful for different calculations and plotting. Here, we show the same coordinate using both formats.
+These are different arrangements of the same positions, not different grids. The two expressions below
+return the coordinates of the same pixel.
 """
-print("(y,x) pixel 0 (accessed via native):")
-print(grid.native[0, 0])
-print("(y,x) pixel 0 (accessed via slim 1D):")
-print(grid.slim[0])
-
-"""
-We can also check the shapes of the `Grid2D` object in both `native` and `slim` formats. For this grid, 
-the `native` shape is (101, 101, 2) and the `slim` shape is (10201, 2).
-"""
-print(grid.native.shape)
-print(grid.slim.shape)
+print("First coordinate via native:", grid.native[0, 0])
+print("First coordinate via slim:", grid.slim[0])
 
 """
-For the HowToLens tutorials, you don't need to fully understand why grids have both native and slim representations. 
-Just note that both are used for calculations and plotting.
+For this unmasked grid, `native` has shape `(101, 101, 2)`: 101 rows, 101 columns and two values per pixel—the
+y and x coordinates.
 
-*Exercise*: Try creating grids with different shapes and pixel scales using the `al.Grid2D.uniform()` function above. 
-Observe how the grid coordinates change when you adjust `shape_native` and `pixel_scales`.
+The `slim` representation has shape `(10201, 2)`: one coordinate pair for each of the 101 × 101 pixels.
+The final dimension remains two because each position still needs both y and x.
+
+Print the shapes below to check how the coordinates are arranged.
+"""
+print("Native shape:", grid.native.shape)
+print("Slim shape:", grid.slim.shape)
+
+"""
+Try changing the grid definition above, then rerun the plotting and coordinate-inspection cells:
+
+- Keep `shape_native=(101, 101)` and change `pixel_scales` from `0.1` to `0.2`. The number of points stays the same, but their spacing doubles and the image covers 20.2 by 20.2 arcseconds.
+- Restore `pixel_scales=0.1`, then change `shape_native` to `(51, 51)`. The spacing stays the same, but fewer pixels cover a smaller region: 5.1 by 5.1 arcseconds.
+
+Compare the axis ranges in the plots and the printed array shapes. Changing pixel scale changes the angular
+spacing; changing the number of pixels changes how many positions we sample.
+
+Before continuing, restore `shape_native=(101, 101)` and `pixel_scales=0.1`, then rerun the grid-definition cell.
 
 __Geometry__
 
-The above grid is centered on the origin (0.0", 0.0"). Sometimes, we need to shift the grid to be centered on a 
-specific point, like the center of a galaxy.
+Our grid describes positions relative to the image centre, `(0.0, 0.0)`. To evaluate a galaxy’s light profile,
+we first express those positions relative to the galaxy’s centre.
 
-We can shift the grid to a new center, (y_c, x_c), by subtracting this center from each coordinate.
+For a galaxy centred at `(0.3, 0.5)` arcseconds, subtract 0.3 from every y coordinate and 0.5 from every
+x coordinate. The galaxy’s centre then has coordinates `(0.0, 0.0)` in this new reference frame.
+
+This changes how we describe the positions; it does not move the pixels on the sky.
 """
-centre = (0.3, 0.5)  # Shifting the grid to be centered at y=0.3", x=0.5".
+centre = (0.3, 0.5)
 
-grid_shifted = grid
-grid_shifted[:, 0] = grid_shifted[:, 0] - centre[0]  # Shift in y-direction.
-grid_shifted[:, 1] = grid_shifted[:, 1] - centre[1]  # Shift in x-direction.
+grid_shifted = grid.copy()  # Preserve the original image coordinates.
+grid_shifted[:, 0] = grid_shifted[:, 0] - centre[0]
+grid_shifted[:, 1] = grid_shifted[:, 1] - centre[1]
 
-print("(y,x) pixel 0 After Shift:")
-print(grid_shifted.native[0, 0])  # The coordinate of the first pixel after shifting.
+print("First coordinate relative to the galaxy centre:", grid_shifted.native[0, 0])
 
 """
-The grid is now centered around (0.3", 0.5"). We can plot the shifted grid to see this change.
+The first coordinate changes from `(5.0, -5.0)` to `(4.7, -5.5)` arcseconds. The grid’s spacing and shape
+are unchanged, but its coordinates now describe offsets from the galaxy’s centre.
 
-*Exercise*: Try shifting the grid to a different center, for example (0.0", 0.0") or (2.0", 3.0"). Observe how the
-center of the grid changes when you adjust the `centre` variable.
+In the plot below, the original image centre lies at `(-0.3, -0.5)`. The origin of this coordinate frame
+represents the galaxy’s centre.
+
+Try setting `centre=(0.0, 0.0)` and rerunning the shift and plot cells: the coordinates should match the
+original grid. Restore `centre=(0.3, 0.5)` and rerun both cells before continuing.
 """
-aplt.plot_grid(grid=grid_shifted, title="Grid Centered Around (0.3, 0.5)")
+aplt.plot_grid(
+    grid=grid_shifted,
+    title="Coordinates Relative to the Galaxy Centre",
+)
 
-r"""
-Next, we can rotate the grid by an angle `phi` (in degrees). The rotation is counter-clockwise from the positive x-axis.
+"""
+An elliptical light profile also has an orientation. Its **position angle** is measured anticlockwise
+from the positive x-axis to its major axis.
 
-To rotate the grid:
+To express our coordinates in a frame aligned with that profile, we apply the inverse rotation. For a
+position angle of 60 degrees, we rotate the coordinate values clockwise by 60 degrees.
 
-1. Calculate the distance `radius` of each coordinate from the origin using $r = \sqrt{y^2 + x^2}$.
-2. Determine the angle `theta` counter clockwise from the positive x-axis using $\theta = \arctan(y / x)$.
-3. Adjust `theta` by the rotation angle and convert back to Cartesian coordinates via $y = r \sin(\theta)$ and $x = r \cos(\theta)$.
+The code below finds each point’s distance and angle from the galaxy’s centre, subtracts the profile’s
+position angle, and converts back to `(y, x)` coordinates. `np.arctan2(y, x)` determines the angle while
+accounting for which quadrant contains the point.
 """
 angle_degrees = 60.0
 
@@ -188,138 +206,161 @@ x = grid_shifted[:, 1]
 radius = np.sqrt(y**2 + x**2)
 theta = np.arctan2(y, x) - np.radians(angle_degrees)
 
-grid_rotated = grid_shifted
+grid_rotated = grid_shifted.copy()  # Preserve the unrotated offsets.
 grid_rotated[:, 0] = radius * np.sin(theta)
 grid_rotated[:, 1] = radius * np.cos(theta)
 
-print("(y,x) pixel 0 After Rotation:")
-print(grid_rotated.native[0, 0])  # The coordinate of the first pixel after rotation.
+print("First coordinate in the profile frame:", grid_rotated.native[0, 0])
 
 """
-The grid has now been rotated 60 degrees counter-clockwise. We can plot it to see the change.
+The coordinates now describe positions in the profile’s reference frame, with its major axis along x.
+The transformation preserves each point’s distance from the galaxy’s centre.
 
-*Exercise*: Try rotating the grid by a different angle, for example 30 degrees or 90 degrees. Observe how the grid
-changes when you adjust the `angle_degrees` variable.
+Plot the transformed grid below. Its orientation has changed because we rotated the coordinate values
+clockwise by 60 degrees.
+
+Try setting `angle_degrees=0.0` and rerunning the rotation and plot cells. The result should match
+`grid_shifted`. Then try `30.0` to see a smaller rotation. Restore `60.0` and rerun both cells before continuing.
 """
-aplt.plot_grid(grid=grid_rotated, title="Grid Rotated 60 Degrees")
+aplt.plot_grid(
+    grid=grid_rotated,
+    title="Coordinates in the Profile Frame",
+)
 
 r"""
-Next, we convert the rotated grid to elliptical coordinates using:
+We can now assign an **elliptical radius** to each position. Points with the same elliptical radius lie
+on an ellipse centred on the galaxy.
 
-$\eta = \sqrt{(x_r)^2 + (y_r)^2/q^2}$
+Let $q=b/a$ be the ratio of the ellipse’s minor axis to its major axis. A circle has $q=1$; smaller values
+describe more elongated ellipses. In the profile frame, the major axis lies along x, and the elliptical radius is
 
-Where `q` is the axis-ratio of the ellipse and `(x_r, y_r)` are the rotated coordinates. 
+$\eta = \sqrt{x_r^2 + \left(\frac{y_r}{q}\right)^2}$.
 
-Elliptical coordinates are a system used to describe positions in relation to an ellipse rather than a circle. They 
-are particularly useful in astronomy when dealing with objects like galaxies, which often have elliptical shapes 
-due to their inclination or intrinsic shape.
+Here, $y_r$ and $x_r$ are the shifted and rotated coordinates in arcseconds, so $\eta$ is also in arcseconds.
 
-*Exercise*: Try converting the grid to elliptical coordinates using a different axis-ratio, for example 0.3 or 0.8.
-What happens to the grid when you adjust the `axis_ratio` variable?
+For $q=0.5$, a point at `(y, x) = (0, 1)` has elliptical radius 1 arcsecond, while `(1, 0)` has elliptical
+radius 2 arcseconds. Offsets along the minor axis therefore correspond to larger elliptical radii.
+
+The code below calculates one radius per grid position. It does not move the grid points. Try
+`axis_ratio=1.0` to recover ordinary distance from the centre, then restore `0.5` before continuing.
 """
 axis_ratio = 0.5
-eta = np.sqrt((grid_rotated[:, 0]) ** 2 + (grid_rotated[:, 1]) ** 2 / axis_ratio**2)
+
+y_rotated = grid_rotated[:, 0]
+x_rotated = grid_rotated[:, 1]
+
+eta = np.sqrt(x_rotated**2 + (y_rotated / axis_ratio) ** 2)
+
+print("First ten elliptical radii (arcseconds):", eta[:10])
 
 r"""
-Above, the angle $\phi$ (in degrees) was used to rotate the grid, and the axis-ratio $q$ was used to convert the grid 
-to elliptical coordinates.
+The axis ratio $q$ and position angle $\phi$ together describe the ellipse’s shape and orientation.
+The library packages the same information into two **ellipticity components**, passed as `ell_comps`:
 
-From now on, we'll describe ellipticity using "elliptical components" $\epsilon_{1}$ and $\epsilon_{2}$, calculated 
-from $\phi$ and $q$:
+$\epsilon_y = \frac{1-q}{1+q}\sin(2\phi)$,
+$\epsilon_x = \frac{1-q}{1+q}\cos(2\phi)$.
 
-$\epsilon_{1} = \frac{1 - q}{1 + q} \sin(2\phi)$  
-$\epsilon_{2} = \frac{1 - q}{1 + q} \cos(2\phi)$
+The component order is `(epsilon_y, epsilon_x)`. These are dimensionless shape parameters, not spatial coordinates.
 
-We'll refer to these as `ell_comps` in the code for brevity.
+The doubled angle reflects the symmetry of an ellipse: rotating it by 180 degrees leaves its appearance
+unchanged. For a circle, $q=1$, both components are zero and the orientation has no effect.
 
-Future tutorials will explain why $\epsilon_{1}$ and $\epsilon_{2}$ are preferred over $q$ and $\phi$.
-
-*Exercise*: Try computing the elliptical components from the axis-ratio and angle above. What happens to the elliptical
-components when you adjust the `axis_ratio` and `angle_degrees` variables?
+The code below converts our axis ratio of 0.5 and position angle of 60 degrees into approximately
+`(0.289, -0.167)`. We convert degrees to radians because NumPy’s trigonometric functions expect radians.
 """
-fac = (1 - axis_ratio) / (1 + axis_ratio)
-epsilon_y = fac * np.sin(2 * np.radians(angle_degrees))
-epsilon_x = fac * np.cos(2 * np.radians(angle_degrees))
+ellipticity = (1 - axis_ratio) / (1 + axis_ratio)
+angle_radians = np.radians(angle_degrees)
+
+epsilon_y = ellipticity * np.sin(2 * angle_radians)
+epsilon_x = ellipticity * np.cos(2 * angle_radians)
 
 ell_comps = (epsilon_y, epsilon_x)
 
-print("Elliptical Components:")
-print(ell_comps)
-
+print("Ellipticity components:", ell_comps)
 
 r"""
 __Light Profiles__
 
-Galaxies are collections of stars, gas, dust, and other astronomical objects that emit light. Astronomers study this 
-light to understand various properties of galaxies.
+We now have the geometry needed to describe an elliptical galaxy. A light profile assigns a brightness to
+each position using its distance from the galaxy’s centre.
 
-To model the light of a galaxy, we use light profiles, which are mathematical functions that describe how a galaxy's 
-light is distributed across space. By applying these light profiles to 2D grids of $(y, x)$ coordinates, we can 
-create images that represent a galaxy's luminous emission.
+A commonly used model is the **Sérsic profile**:
 
-A commonly used light profile is the `Sersic` profile, which is widely adopted in astronomy for representing galaxy 
-light. The `Sersic` profile is defined by the equation:
+$I(r)=I_e\exp\left\{-k\left[\left(\frac{r}{R_e}\right)^{1/n}-1\right]\right\}$.
 
-$I_{\rm Ser} (\eta_{\rm l}) = I \exp \left\{ -k \left[ \left( \frac{\eta}{R} \right)^{\frac{1}{n}} - 1 \right] \right\}$
+Its parameters are:
 
-In this equation:
+- $I_e$: the intensity at the effective radius, which sets the brightness scale.
+- $R_e$: the effective radius, which describes the galaxy’s size.
+- $n$: the Sérsic index, which controls the radial shape of the profile.
+- $k$: a value determined by $n$, chosen so that the effective radius encloses half the model’s total light.
 
- - $\eta$ represents the elliptical coordinates of the profile in arc-seconds (refer to earlier sections for elliptical coordinates).
- - $I$ is the intensity normalization of the profile, given in arbitrary units, which controls the overall brightness of the Sersic profile.
- - $R$ is the effective radius in arc-seconds, which determines the size of the profile.
- - $n$ is the Sersic index, which defines how 'steep' the profile is, influencing the concentration of light.
- - $k$ is a constant that ensures half the light of the profile lies within the radius $R$, where $k = 2n - \frac{1}{3}$.
+To match the library’s convention, we use the **circularised radius** $r=\sqrt{q}\,\eta$. A circle of radius
+$r$ has the same area as the ellipse with major-axis radius $\eta$ and axis ratio $q$. Accordingly, $R_e$
+is the circularised size of the half-light ellipse; it does not generally describe a circular aperture
+containing half the light.
 
-We can evaluate this function using values for $(\eta, I, R, n)$ to calculate the intensity of the profile at 
-a particular elliptical coordinate.
+For this worked calculation, we use the simple approximation $k\approx2n-1/3$. The half-light interpretation
+is therefore approximate here; the library uses a more accurate expression.
+
+The code below evaluates the profile at a circularised radius of 0.5 arcseconds, using $R_e=2.0$ arcseconds,
+$n=1.0$, and an intensity scale of 1.0 in arbitrary units.
 """
-elliptical_coordinate = (
-    0.5  # The elliptical coordinate where we compute the intensity, in arc-seconds.
-)
-intensity = 1.0  # Intensity normalization of the profile in arbitrary units.
-effective_radius = 2.0  # Effective radius of the profile in arc-seconds.
-sersic_index = 1.0  # Sersic index of the profile.
-k = 2 * sersic_index - (
-    1.0 / 3.0
-)  # Calculating the constant k, note that this is an approximation.
+radius = 0.5  # Circularised radius in arcseconds.
+intensity = 1.0
+effective_radius = 2.0
+sersic_index = 1.0
 
-# Calculate the intensity of the Sersic profile at a specific elliptical coordinate.
-sersic_value = np.exp(
-    -k * ((elliptical_coordinate / effective_radius) ** (1.0 / sersic_index) - 1.0)
+k = 2 * sersic_index - 1 / 3
+
+sersic_value = intensity * np.exp(
+    -k * ((radius / effective_radius) ** (1 / sersic_index) - 1)
 )
 
-print("Intensity of Sersic Light Profile at Elliptical Coordinate 0.5:")
-print(sersic_value)
+print("Intensity at radius 0.5 arcseconds:", sersic_value)
 
 """
-The calculation above gives the intensity of the Sersic profile at an elliptical coordinate of 0.5.
+The result is approximately 3.49 in our chosen intensity units. It exceeds `intensity=1.0` because this
+position lies inside the effective radius, where the profile is brighter.
 
-To create a complete image of the Sersic profile, we can evaluate the intensity at every point in our grid of 
-elliptical coordinates.
+To build an image, apply the same calculation at every grid position. First convert the elliptical radii
+`eta` to circularised radii, then evaluate the Sérsic function for the whole array.
 """
-sersic_image = np.exp(-k * ((eta / effective_radius) ** (1.0 / sersic_index) - 1.0))
+circularised_radii = np.sqrt(axis_ratio) * eta
+
+sersic_image = intensity * np.exp(
+    -k * ((circularised_radii / effective_radius) ** (1 / sersic_index) - 1)
+)
 
 """
-When we plot the resulting image, we can see how the properties of the grid affect its appearance:
+Plot the resulting brightness values at their original image positions. Look for a galaxy centred at
+`(0.3, 0.5)` arcseconds, with its major axis oriented 60 degrees anticlockwise from the positive x-axis
+and an axis ratio of 0.5.
 
- - The peak intensity is at the position (0.3", 0.5"), where we shifted the grid.
- - The image is elongated along a 60° counter-clockwise angle, corresponding to the rotation of the grid.
- - The image has an elliptical shape, consistent with the axis ratio of 0.5.
+The clockwise coordinate transformation lets us evaluate this anticlockwise-oriented profile. We then
+display the calculated brightnesses on the original image grid.
 
-This demonstrates how the geometry of the grid directly influences the appearance of the light profile.
+Try changing `intensity` from `1.0` to `2.0`, then rerun the intensity calculations and plot. Every calculated
+intensity should double, although automatic colour scaling may make the image look unchanged. Check the
+printed value and colour-bar labels.
 
-*Exercise*: Try changing the values of `centre`, `ell_comps`, `effective_radius`, and `sersic_index` above. 
-Observe how these adjustments change the Sersic profile image.
+Restore `intensity=1.0` and rerun those cells before continuing.
 """
 aplt.plot_array(
-    array=aa.Array2D(values=sersic_image, mask=grid.mask), title="Sersic Image"
+    array=aa.Array2D(values=sersic_image, mask=grid.mask),
+    title="Sérsic Image",
 )
 
 """
-Instead of manually handling these transformations, we can use `LightProfile` objects from the `light_profile` 
-module (`lp`) for faster and more efficient calculations.
+We have worked through the geometry and intensity calculation explicitly. A `Sersic` light-profile object
+brings these steps together: we supply its parameters, and the library evaluates the profile.
 
-Below, we define a `Sersic` light profile using the `Sersic` object. We can print the profile to display its parameters.
+The `lp` namespace contains the library’s light profiles. Below, we create a Sérsic profile centred at
+`(0.0, 0.0)`, with ellipticity components `(0.0, 0.1)`. These describe a mildly elliptical profile whose
+major axis lies along x.
+
+This is a different example from our manual calculation: its centre and ellipticity have changed.
+The intensity, effective radius and Sérsic index retain their previous values.
 """
 sersic_light_profile = al.lp.Sersic(
     centre=(0.0, 0.0),
@@ -332,132 +373,133 @@ sersic_light_profile = al.lp.Sersic(
 print(sersic_light_profile)
 
 """
-With this `Sersic` light profile, we can create an image by passing a grid to its `image_2d_from` method.
+Pass the original image grid to `image_2d_from()`. The profile handles the shift into its own reference frame,
+its orientation and the intensity calculation.
 
-The calculation will internally handle all the coordinate transformations and intensity evaluations we performed 
-manually earlier, making it much simpler.
+Use `grid`, rather than `grid_shifted` or `grid_rotated`: those transformed coordinates were part of our
+manual demonstration.
 
-The `Sersic` profile we created just above is different from the one we used to manually compute the image,
-so the image will look different. However, the process is the same.
+Look for a galaxy centred on the origin and elongated along x. Its appearance differs from the previous
+image because we changed the profile parameters. The library also uses a more accurate Sérsic constant
+and samples within pixels to improve the image calculation; the optional over-sampling section explains
+this later.
+
+This evaluates the model we specified. It does not fit the model to data.
 """
 image = sersic_light_profile.image_2d_from(grid=grid)
 
-aplt.plot_array(array=image, title="Sersic Image via Light Profile")
+aplt.plot_array(array=image, title="Sérsic Image via Light Profile")
 
 """
-The `image` is returned as an `Array2D` object. Similar to a `Grid2D`, it has two forms:
+The result is an `Array2D`, which stores one intensity value per image pixel. Like the grid, it supports
+`native` and `slim` representations:
 
- - `native`: A 2D array with shape [total_y_image_pixels, total_x_image_pixels].
- - `slim`: A 1D array that flattens this data into shape [total_y_image_pixels * total_x_image_pixels].
+- `image.native` arranges the values into image rows and columns, with shape `(101, 101)`.
+- `image.slim` lists the values in row order, with shape `(10201,)`.
 
-The `native` form is often used for visualizations, while the `slim` form can be useful for certain calculations.
+Unlike grid coordinates, image intensities do not need a final dimension of size two: each pixel contains
+a single value.
+
+The two expressions below access the same pixel, so they should print the same intensity.
 """
-print("Intensity of pixel 0:")
-print(image.native[0, 0])
-print("Intensity of pixel 1:")
-print(image.slim[1])
-
-"""
-To visualize the light profile's image, we use `aplt.plot_array`.
-
-We provide it with the light profile and the grid, which are used to create and plot the image.
-"""
-aplt.plot_array(
-    array=sersic_light_profile.image_2d_from(grid=grid), title="Image via Light Profile"
-)
+print("First pixel via native:", image.native[0, 0])
+print("First pixel via slim:", image.slim[0])
 
 """
 __One Dimension Projection__
 
-We often want to calculative 1D quantities of a light profile, for example to plot how its light changes as
-a function of radius.
+A light-profile image shows the galaxy’s two-dimensional appearance. We can also inspect how its intensity
+changes along a line through its centre.
 
-To do this, we must still input a 2D grid into the `image_2d_from` method, therefore we create a project 2D 
-radial grid as follows which has shape [Number_of_1d_coordinates, 2] and where all [:,0] entries are the same.
+We still supply `(y, x)` positions to `image_2d_from()`, but those positions now lie along a line rather than
+filling an image. The four points below lie along the positive x-axis, at distances of 0, 1, 2 and 3 arcseconds
+from the origin.
 
-A simple example of such a grid is as follows with 4 1D coordinates is:
+`Grid2DIrregular` stores a list of positions without requiring a rectangular pixel grid.
 """
 grid_2d_projected = al.Grid2DIrregular(
     [
-        [1.000000e-06, 1.000000e-06],
-        [1.000000e-06, 1.000001e00],
-        [1.000000e-06, 2.000001e00],
-        [1.000000e-06, 3.000001e00],
+        (0.0, 0.0),
+        (0.0, 1.0),
+        (0.0, 2.0),
+        (0.0, 3.0),
     ]
 )
 
 """
-As in this example, we often already have a 2D grid we are using to calculate images of a ligth profile
-and it would be convenient to simply create `grid_2d_projected` from that.
+For a smoother curve, sample more positions along the profile’s major axis. The code below places 101 points
+between the galaxy’s centre and a distance of 5 arcseconds.
 
-For example, we may want the project grid which traces it major axis in uniform radial steps.
+The position angle determines the direction of this line. Multiplying each distance by its sine and cosine
+gives the y and x offsets; adding the profile centre places the line correctly in the image.
 
-This is easily computed using the `grid_2d_radial_project_from` function and passing the `centre` and `angle`
-of a light profile we can make it align with the light profile itself.
-
-Note how in this example the two galaxy bulges are not rotationally aligned but we aligned the projected
-grid with the first galaxy. The centres are aligned, but if they were not that would cause similar
-issues.
+We then evaluate the light profile at these positions. This measures intensity along the major axis,
+rather than averaging the image in circular rings.
 """
-grid_2d_projected = grid.grid_2d_radial_projected_from(
-    centre=sersic_light_profile.centre, angle=sersic_light_profile.angle()
+radii = np.linspace(0.0, 5.0, 101)
+angle_radians = np.radians(sersic_light_profile.angle())
+
+grid_2d_projected = al.Grid2DIrregular(
+    np.column_stack(
+        (
+            sersic_light_profile.centre[0] + radii * np.sin(angle_radians),
+            sersic_light_profile.centre[1] + radii * np.cos(angle_radians),
+        )
+    )
 )
 
 image_1d = sersic_light_profile.image_2d_from(grid=grid_2d_projected)
 
 """
-We can now plot the 1D radial profile of the light profile. This profile shows how the intensity of the light 
-changes as a function of distance from the profile's center. This is a more informative way to visualize the light p
-rofile's distribution.
+Plot intensity against distance from the galaxy’s centre. The curve should fall outwards as the profile
+becomes fainter.
 
-When we plot 1D quantities, we do not use built-in plotting functions as in 2D, but instead use standard
-matplotlib functionality.
+The horizontal axis is distance along the major axis in arcseconds, not the circularised radius used earlier.
+The vertical axis is intensity in our chosen arbitrary units—not luminosity integrated over the galaxy.
 
-The reason is partly that 1D plotting is simple, but also because 1D plots have many different decisions
-about what is plotted and how they are computed, meaning its better to give the user full control.
-
-**Exercise**: Try plotting the 1D radial profile of Sersic profiles with different effective radii and Sersic indices.
-Does the 1D representation show more clearly how the light distribution changes with these parameters?
+Try changing `effective_radius` in the `Sersic` definition from `2.0` to `1.0`. Recreate the profile, then rerun
+the sampling and plotting cells. The profile should become more compact. Restore `effective_radius=2.0`
+and rerun those cells before continuing.
 """
-plt.plot(grid_2d_projected[:, 1], image_1d)
-plt.xlabel("Radius (arcseconds)")
-plt.ylabel("Luminosity")
+plt.plot(radii, image_1d)
+plt.xlabel("Distance along major axis (arcseconds)")
+plt.ylabel("Intensity (arbitrary units)")
 plt.show()
 plt.close()
 
+"""
+A galaxy’s bright centre and faint outskirts can span a wide range of intensities. On a linear colour scale,
+the bright centre can dominate the image, making the outskirts difficult to see.
 
-r"""
-Since galaxy light distributions often cover a wide range of values, they are typically better visualized on a log10 
-scale. This approach helps highlight details in the faint outskirts of a light profile.
+Logarithmic colour scaling gives more of the colour range to faint emission. Equal colour intervals represent
+equal ratios of intensity, rather than equal differences.
 
-The `plot_array`/`subplot_\*` object has a `use_log10` option that applies this transformation automatically. Below, you can see
-that the image plotted in log10 space reveals more details.
+Plot the same light-profile image with `use_log10=True` and compare it with the earlier linear-scale plot.
+Look for light extending beyond the bright centre that was difficult to distinguish before. The intensity
+values have not changed; we have changed how they are displayed.
 """
 aplt.plot_array(
-    array=sersic_light_profile.image_2d_from(grid=grid),
-    title="Sersic Image",
+    array=image,
+    title="Sérsic Light-Profile Image (Log Scale)",
     use_log10=True,
 )
 
 """
 __Galaxies__
 
-Now, let's introduce `Galaxy` objects, which are a key component in **PyAutoLens**.
+Now, let’s introduce `Galaxy` objects. A light profile can represent a component of a galaxy, such as its
+bulge or disc. By combining light profiles in a `Galaxy`, we can describe their light together.
 
-A light profile represents a single feature of a galaxy, such as its bulge or disk. To model a complete galaxy,
-we combine multiple light profiles into a `Galaxy` object. This allows us to create images that include different
-components of a galaxy.
-
-In addition to light profiles, a `Galaxy` has a `redshift`, which indicates how far away it is from Earth. The redshift
-is essential for performing unit conversions using cosmological calculations, such as converting arc-seconds into
-kiloparsecs. (A kiloparsec is a distance unit in astronomy, equal to about 3.26 million light-years.)
+A `Galaxy` also has a **redshift**, which describes how much the wavelengths of its light have increased.
+Together with a cosmological model, this lets us convert angular sizes in arcseconds into physical sizes
+in kiloparsecs. A kiloparsec is approximately 3,260 light-years.
 
 Redshifts are especially important in strong lensing, where the foreground lens galaxy and background source galaxy
 lie at two different redshifts. We are not yet performing any lensing calculations in this tutorial, so for now we
 simply use a single galaxy to build up intuition for the `Galaxy` object.
 
-Let's start by creating a galaxy with two `Sersic` light profiles, which we will consider to represent a bulge and
-disk component of the galaxy, the two most important structures seen in galaxies.
+Let’s create a galaxy with two Sérsic light profiles representing a bulge and a disc. In this example,
+the bulge is smaller and rounder, while the disc is more extended and flattened.
 """
 bulge = al.lp.Sersic(
     centre=(0.0, 0.0),
@@ -480,81 +522,89 @@ galaxy = al.Galaxy(redshift=0.5, bulge=bulge, disk=disk)
 print(galaxy)
 
 """
-We can pass a 2D grid to a light profile to compute its image using the `image_2d_from` method.
+We used `image_2d_from()` to calculate the image of a light profile. The same method works for a `Galaxy`:
+it evaluates each light profile on the grid and adds their intensities together.
 
-The same approach works for a `Galaxy` object:
+The result is an `Array2D` containing the galaxy image. Below, we print the combined intensity in each of
+the first three pixels of the top row.
 """
 image = galaxy.image_2d_from(grid=grid)
 
-print("Intensity of `Grid2D` pixel 0:")
-print(image.native[0, 0])
-print("Intensity of `Grid2D` pixel 1:")
-print(image.native[0, 1])
-print("Intensity of `Grid2D` pixel 2:")
-print(image.native[0, 2])
-print("...")
+print("Row 0, column 0 intensity:", image.native[0, 0])
+print("Row 0, column 1 intensity:", image.native[0, 1])
+print("Row 0, column 2 intensity:", image.native[0, 2])
 
 """
-We can plot the galaxy's image, just like how we did for a light profile.
+Let’s plot the galaxy image. Each pixel contains light from both the bulge and the disc.
+
+The bright central region should stand out most clearly. The disc contributes light too, but its emission
+is spread over a larger area and can be difficult to distinguish on this linear colour scale.
 """
-aplt.plot_array(array=galaxy.image_2d_from(grid=grid), title="Galaxy Bulge+Disk Image")
+aplt.plot_array(
+    array=image,
+    title="Galaxy Bulge and Disc Image",
+)
 
 """
-The bulge dominates the center of the image, and is pretty much the only luminous emission we can see on a linear
-scale. The disk's emission is present, but it is much fainter and spread over a larger area.
+To see what each component contributes, plot the bulge and disc separately using
+`aplt.subplot_galaxy_light_profiles()`.
 
-We can confirm this using the `subplot_galaxy_light_profiles` method, which plots each individual light profile
-separately.
+Look for the bulge’s concentrated centre and the disc’s broader, more flattened appearance. These are the
+two light-profile images that add together to produce the galaxy image above.
+
+Each panel chooses its own colour scale, so compare the colour-bar values as well as the colours when
+judging their relative brightness.
 """
 aplt.subplot_galaxy_light_profiles(galaxy=galaxy, grid=grid)
 
 """
-Because galaxy light distributions often follow a log10 pattern, plotting in log10 space helps reveal details in the
-outskirts of the light profile, in this case the emission of the disk.
+Now display the combined galaxy image with logarithmic colour scaling. This makes the extended, faint
+light easier to see alongside the bright centre.
 
-This is especially helpful to separate the bulge and disk profiles, which have different intensities and sizes.
+Compare the shape of the outskirts with the separate disc image. The disc’s contribution should be easier
+to recognise here, although each pixel still contains the sum of both components. Changing the colour
+scale does not separate their light.
 """
 aplt.plot_array(
-    array=galaxy.image_2d_from(grid=grid),
-    title="Galaxy Bulge+Disk Image",
+    array=image,
+    title="Galaxy Bulge and Disc Image (Log Scale)",
     use_log10=True,
 )
 
 """
-Using the tools above, we can visualize each light profile's contribution in 1D.
+A radial plot lets us compare the bulge and disc intensities directly, using the same axes.
 
-1D plots show the intensity of the light profile as a function of distance from the profile's center. The bulge
-and disk profiles in this example share the same `centre`, meaning that plotting them together on the same 1D plot
-shows how they vary relative to one another.
+Our two profiles share a centre at `(0.0, 0.0)` and have their major axes along x. We can therefore evaluate
+both at the same positions along the positive x-axis.
 
-If the `centre` of the profiles were different, when you make the 1D plot you would need to decide whether to plot the
-profiles offset from one another or plot them both from zero.
+Look for the bulge’s high central intensity and how its contribution changes relative to the disc as you
+move outwards. These curves show intensity at each position, not the total light enclosed within that radius.
 """
-grid_2d_projected = grid.grid_2d_radial_projected_from(
-    centre=galaxy.bulge.centre, angle=galaxy.bulge.angle()
-)
-bulge_image_1d = galaxy.bulge.image_2d_from(grid=grid_2d_projected)
+radii = np.linspace(0.0, 5.0, 101)
 
-grid_2d_projected = grid.grid_2d_radial_projected_from(
-    centre=galaxy.disk.centre, angle=galaxy.disk.angle()
+grid_2d_projected = al.Grid2DIrregular(
+    np.column_stack((np.zeros_like(radii), radii))
 )
+
+bulge_image_1d = galaxy.bulge.image_2d_from(grid=grid_2d_projected)
 disk_image_1d = galaxy.disk.image_2d_from(grid=grid_2d_projected)
 
-plt.plot(grid_2d_projected[:, 1], bulge_image_1d, label="Bulge")
-plt.plot(grid_2d_projected[:, 1], disk_image_1d, label="Disk")
-plt.xlabel("Radius (arcseconds)")
-plt.ylabel("Luminosity")
+plt.plot(radii, bulge_image_1d, label="Bulge")
+plt.plot(radii, disk_image_1d, label="Disc")
+plt.xlabel("Distance along major axis (arcseconds)")
+plt.ylabel("Intensity (arbitrary units)")
 plt.legend()
 plt.show()
 plt.close()
 
 """
-We can group multiple galaxies at the same redshift into a `Galaxies` object, which is created from a list of
-individual galaxies.
+Just as a `Galaxy` groups light profiles, a `Galaxies` object groups individual galaxies.
 
-In a strong lens, we ultimately group together a foreground lens galaxy and a background source galaxy. For now, we
-simply create a second galaxy and combine it with the original galaxy into a `Galaxies` object, to see how the light
-of multiple galaxies is represented.
+Let’s add a second galaxy, centred at `(0.2, 0.3)` arcseconds, and combine it with our bulge-and-disc galaxy.
+Both have `redshift=0.5` in this example.
+
+Their light overlaps in the image. Here we are simply adding their light profiles; we are not calculating
+gravitational lensing or simulating an interaction between the galaxies.
 """
 extra_galaxy = al.Galaxy(
     redshift=0.5,
@@ -570,107 +620,134 @@ extra_galaxy = al.Galaxy(
 galaxies = al.Galaxies(galaxies=[galaxy, extra_galaxy])
 
 """
-The `Galaxies` object has similar methods to those for light profiles and individual galaxies.
+The `Galaxies` object provides the same `image_2d_from()` method we used for an individual galaxy.
 
-For example, `image_2d_from` sums the images of all the galaxies.
+It calculates each galaxy’s image on the supplied grid, then adds their intensities at every position.
+The resulting image contains the light from the original bulge and disc together with the second galaxy’s
+Sérsic profile.
 """
 image = galaxies.image_2d_from(grid=grid)
 
 """
-We can plot the combined image of all the galaxies, just like with other plotters.
+Plot the combined image of our two galaxies. Their centres are close together, so their light overlaps strongly.
+
+Compare this with the original bulge-and-disc galaxy image. The additional galaxy changes the brightness
+distribution near the centre.
 """
-aplt.plot_array(array=galaxies.image_2d_from(grid=grid), title="Image")
+aplt.plot_array(
+    array=image,
+    title="Combined Galaxy Image",
+)
 
 """
-A subplot of each individual galaxy image can also be created.
+To see the contribution from each galaxy, use `aplt.subplot_galaxy_images()`. Each panel shows one galaxy
+from the collection, in the order we supplied them.
+
+The first contains our bulge and disc; the second contains the additional galaxy’s single Sérsic profile.
+Compare their positions and shapes. Each panel uses its own colour scale, so check the colour bars when
+comparing brightness.
 """
-aplt.subplot_galaxies(galaxies=galaxies, grid=grid)
+aplt.subplot_galaxy_images(galaxies=galaxies, grid=grid)
 
 """
-Because galaxy light distributions often follow a log10 pattern, plotting in log10 space helps reveal details in the
-outskirts of the light profile.
+Display the combined image with logarithmic colour scaling to make the faint, extended light easier to see.
 
-This is especially helpful when visualizing how multiple galaxies overlap.
+The galaxies’ light overlaps in the same pixels. Compare this view with the individual images to understand
+how each contributes to the combined shape.
 """
-aplt.plot_array(array=galaxies.image_2d_from(grid=grid), title="Image", use_log10=True)
+aplt.plot_array(
+    array=image,
+    title="Combined Galaxy Image (Log Scale)",
+    use_log10=True,
+)
 
 """
 __Units__
 
-Earlier, we mentioned that a galaxy's `redshift` allows us to convert between arcseconds and kiloparsecs.
+So far, we have described positions and sizes in arcseconds: angles measured on the sky. To express a
+galaxy’s size in kiloparsecs, we need its distance.
 
-A redshift measures how much a galaxy's light is stretched by the Universe's expansion. A higher redshift means the
-galaxy is further away, and its light has been stretched more. By knowing a galaxy's redshift, we can convert angular
-distances (like arcseconds) to physical distances (like kiloparsecs).
+A cosmological model relates the galaxy’s redshift to the distance used for this conversion. Here we use
+`Planck15`, a cosmology based on measurements from the Planck satellite.
 
-To perform this conversion, we use a cosmological model that describes the Universe's expansion. Below, we use
-the `Planck15` cosmology, which is based on observations from the Planck satellite.
+The code below calculates how many kiloparsecs correspond to one arcsecond at our galaxy’s redshift of 0.5.
 """
 cosmology = al.cosmo.Planck15()
 
-kpc_per_arcsec = cosmology.kpc_per_arcsec_from(redshift=galaxy.redshift)
+kpc_per_arcsec = cosmology.kpc_per_arcsec_from(
+    redshift=galaxy.redshift
+)
 
-print("Kiloparsecs per Arcsecond:")
-print(kpc_per_arcsec)
+print("Kiloparsecs per arcsecond:", kpc_per_arcsec)
 
 """
-This `kpc_per_arcsec` can be used as a conversion factor between arcseconds and kiloparsecs when plotting images of
-galaxies.
+Multiply an angular size by `kpc_per_arcsec` to express it in kiloparsecs.
 
-We compute this value and plot the image, which by default is shown in units of arcseconds.
+Our bulge has an effective radius of 1.0 arcsecond. The calculation below gives the physical size corresponding
+to that radius at the galaxy’s redshift, using the chosen cosmology.
+
+This is the same circularised effective radius expressed in different units. The conversion does not change
+the galaxy image or the profile parameters stored in `galaxy`.
 """
-aplt.plot_array(array=galaxy.image_2d_from(grid=grid), title="Image")
+effective_radius_kpc = (
+    galaxy.bulge.effective_radius * kpc_per_arcsec
+)
+
+print("Bulge effective radius (arcseconds):", galaxy.bulge.effective_radius)
+print("Bulge effective radius (kiloparsecs):", effective_radius_kpc)
 
 """
 __Wrap Up__
 
-In this tutorial, you've learnt the basic quantities used to describe the galaxies that make up a strong lens, before
-we introduce any lensing calculations.
+You have built galaxy images from light profiles and explored how their appearance depends on position,
+orientation, size and brightness.
 
-Let's summarise what we've covered:
+The main ideas are:
 
-- **Grids**: A grid is a set of 2D $(y,x)$ coordinates that represent the positions where we measure the light of a
-galaxy.
+- **Grids:** `(y, x)` coordinates specify where we evaluate the light.
+- **Geometry:** shifting and rotating coordinates lets us describe a profile relative to its own centre and orientation.
+- **Light profiles:** a Sérsic profile assigns an intensity to each position.
+- **Galaxies:** light profiles combine into a `Galaxy`, and individual galaxies combine into `Galaxies`.
+- **Visualisation:** images show spatial structure, while radial plots let us compare intensity as a function of distance.
+- **Units:** a redshift and a cosmological model let us convert angular sizes into physical sizes.
 
-- **Geometry**: We showed how to shift, rotate, and convert grids to elliptical coordinates.
-
-- **Light Profiles**: Light profiles are analytic functions that describe how a galaxy's light is distributed in
-space. We used the `Sersic` profile to create images of galaxies.
-
-- **Galaxies**: Galaxies are collections of light profiles. We created galaxies with multiple light profiles, combined
-them into a `Galaxies` object, and visualized their images.
-
-- **Units**: By assuming redshifts for galaxies we can convert their quantities from arcseconds to physical units like
-kiloparsecs.
-
-In the next tutorial, we'll introduce the mass of a galaxy and perform our first lensing calculation, whereby the
-light of a background source galaxy is deflected by the mass of a foreground lens galaxy.
+**🤖 Ask AI:** In this tutorial, why do we rotate coordinates clockwise to evaluate a galaxy whose major axis
+is oriented anticlockwise?
 
 __Advanced Topics__
 
-The following advanced topics are not important for a new user learning the software for the first time. However,
-once you are an expert user, the following guides and concepts are important for doing accurate strong lens analysis,
-and thus may be things you want to commit to memory as future references.
+The notes below give some additional context on brightness units and numerical accuracy. They are optional
+on a first reading.
 
 __Other Unit Conversion__
 
-Above, we used a redshift to convert between arcseconds and kiloparsecs. This is just one example of a unit conversion
-that can be performed using a galaxy's redshift.
+We used redshift and a cosmological model to convert angular sizes into physical sizes. Converting image
+brightness into calibrated astronomical units is a different task.
 
-There are many other unit conversions that can be performed, such as converting the units of a galaxy's image to what
-Astronomers call an AB magnitude system, which is a system used to measure the brightness of galaxies.
+Astronomers often express brightness using magnitudes, including the AB magnitude system. To calculate these
+from an observed image, we need its flux calibration or an appropriate magnitude zero point. Redshift alone
+is not enough, and the arbitrary intensity units used in this tutorial do not define an AB magnitude.
 
-The `autolens_workspace/*/guides/units` module contains many examples of unit conversions and how to use them,
-but they will not be covered in the *HowToLens* tutorials.
+The workspace’s [flux guide](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/guides/units/flux.py)
+gives examples of brightness conversions, while its
+[cosmology guide](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/guides/units/cosmology.py)
+covers cosmological distance conversions.
 
 __Over Sampling__
 
-Over sampling is a numerical technique where the images of light profiles and galaxies are evaluated
-on a higher resolution grid than the image data to ensure the calculation is accurate.
+A light profile can vary substantially across a pixel, especially near a bright galaxy centre. Evaluating
+it only at the pixel centre may not represent the light across the whole pixel accurately.
 
-For a new user, the details of over-sampling are not important, therefore just be aware that all calculations use an
-adaptive over sampling scheme with high accuracy across all use cases.
+Over-sampling evaluates the profile at several positions within each pixel and combines those values.
+This improves the numerical estimate without changing the image’s pixel size.
 
-Once you are more experienced, you should read up on over-sampling in more detail via
-the `autolens_workspace/*/guides/advanced/over_sampling.ipynb` notebook.
+The library supports both uniform over-sampling and adaptive schemes that use finer sampling where it is
+needed. Our manual calculation sampled pixel centres, whereas the library’s image calculation uses the
+grid’s over-sampling settings.
+
+Accuracy still depends on the profile and sampling choices. A useful check is to increase the sampling
+and see whether the calculated image changes appreciably.
+
+The workspace’s [over-sampling guide](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/guides/advanced/over_sampling.py)
+explains these settings and how to check their accuracy.
 """
