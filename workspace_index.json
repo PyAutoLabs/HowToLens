@@ -48,7 +48,8 @@
       "Ray Tracing Images",
       "Galaxies",
       "Tracer",
-      "Wrap Up"
+      "Wrap Up",
+      "Env"
     ],
     "cross_refs": [
       "//github.com/PyAutoLabs/autolens_assistant/blob/main/docs/colab/cosmos_web_ring_colab.py"

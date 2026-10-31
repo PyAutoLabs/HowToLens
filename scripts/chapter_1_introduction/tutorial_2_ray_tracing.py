@@ -69,6 +69,7 @@ __Contents__
 - **Galaxies:** Combine light and mass profiles into lens and source galaxies.
 - **Tracer:** Perform the ray-tracing calculation using a `Tracer`.
 - **Wrap Up:** Review what we have learned and the next steps.
+- **Env:** Preserve the grid used by the mapping example.
 """
 
 from autolens import jax_wrapper  # Sets JAX environment before other imports
@@ -688,4 +689,13 @@ tracer to calculate an image.
 
 In Tutorial 3, we will build on this example and explore more
 of the ray-tracing calculation.
+"""
+
+"""
+__Env__
+
+Keep the full 101-by-101 grid during automated runs so that the
+chosen mapping indexes refer to the same points as in the lesson.
+
+ENV: full_datasets
 """
