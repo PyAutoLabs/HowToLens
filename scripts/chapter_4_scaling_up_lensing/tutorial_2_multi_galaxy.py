@@ -412,41 +412,54 @@ single best-fit model can.
 aplt.corner_anesthetic(samples=result.samples)
 
 """
-You will see a strongly elongated, tilted degeneracy: the two Einstein radii are *anti-correlated*. When one
-galaxy's Einstein radius goes up, the other's goes down, tracing out a narrow ridge in parameter space.
+Look for an elongated distribution in the panel comparing the two Einstein-radius parameters. An anti-correlation
+indicates that increasing one galaxy's mass normalization can be compensated by decreasing the other's.
 
-The physical reason is the summed deflection field. The arcs constrain the **total** mass enclosed by the
-combined Einstein ring extremely well — move along the ridge and the sum of the two galaxies' deflections barely
-changes, so the fit to the data barely changes either. What the data constrains much more weakly is the **split**
-of that mass between the two galaxies. The closer the pair (relative to the combined Einstein radius), the less
-information the arcs carry about which galaxy the mass belongs to, and the longer the ridge grows.
+This illustrates the additional degeneracy introduced by multiple significant deflectors. The images respond to
+the combined deflection field, so different allocations of mass between the galaxies can produce similar lensed
+images.
 
-This has a real scientific cost. For a single-galaxy lens, the Einstein mass is one of the cleanest measurements
-in astrophysics. For a multi-galaxy lens, the total is still clean, but per-galaxy quantities — each galaxy's
-mass, its mass-to-light ratio, its dark matter fraction — inherit the full width of the degeneracy, and their
-error bars can be many times larger than the total's. Any interpretation built on the split (e.g. comparing the
-two galaxies' dark matter content) must honestly propagate this, which is why we fit these systems with a
-sampler that maps the full posterior rather than an optimizer that returns a single best-fit point: the best-fit
-point sits somewhere on the ridge and tells you nothing about the ridge's length.
+The combined mass distribution can therefore be better constrained than its division between individual galaxies.
+However, the strength and shape of this degeneracy depend on the configuration: arcs sampling different regions
+around each galaxy can help distinguish their contributions.
+
+Single-galaxy lenses already have degeneracies involving the mass profile and source. Multi-galaxy lenses retain
+these and introduce further freedom to redistribute mass between deflectors. Fixing their centres reduces that
+freedom, but does not eliminate the degeneracy between their mass normalizations and shapes.
+
+This matters scientifically. Measurements of each galaxy's mass, mass-to-light ratio or dark matter fraction must
+propagate the joint uncertainty, including correlations between galaxies. A single best-fit model cannot describe
+the range of mass decompositions allowed by the data.
 
 __No Shared Halo__
 
-It is worth being explicit about an assumption we did *not* make. We modeled two galaxies, each with its own
-untruncated `Isothermal` mass profile, and simply added their deflections. We did not assume the pair inhabits a
-single, large, shared dark matter halo — and because there is no host halo in the model, we also made no
-assumptions about tidal stripping or the truncation of each galaxy's individual halo.
+So far, we have represented the lens using separate galaxy-centred mass profiles, without adding a larger dark
+matter halo shared by the galaxies.
 
-At this scale, that is the right call: a pair (or triple) of comparable galaxies has no dominant halo for its
-members to be stripped by, and the data cannot demand one. But climb the mass ladder and it changes. At the
-group scale, a dominant group-sized halo enters the model as an explicit choice, and the member galaxies orbiting
-within it are tidally truncated by its potential — assumptions that reshape the entire mass model, as we will
-see later in this chapter.
+Such a model may describe an interacting or merging pair of field galaxies, where a separate group-scale halo is
+not needed to explain the lensing. This is particularly relevant for smaller-separation lens systems, with
+Einstein radii of roughly a few arcseconds or less -- around 3" as an illustrative scale, rather than a strict
+boundary.
+
+Other systems are better described as members of a **galaxy group**, embedded in a common dark matter halo. The
+Einstein radius alone does not establish which interpretation is appropriate; the galaxy environment and other
+observations also matter.
+
+In the [group-scale tutorial](https://github.com/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_4_scaling_up_lensing/tutorial_4_group_scale.ipynb),
+we extend the model by including a shared halo alongside the individual galaxies. We will explore how the lensing
+signal is divided between these components and how to keep models containing many galaxies manageable.
+
+Omitting a shared halo here is therefore a modeling choice appropriate to our example, rather than a claim that
+all galaxy pairs lack one.
 
 __Three Lens Galaxies__
 
-What happens when a third co-dominant deflector joins the system? Let us load a triple-galaxy lens, simulated
-with three `Isothermal` mass profiles of comparable Einstein radii (0.9", 0.8" and 0.7") arranged in a triangle,
-all lensing a single source.
+We now load a simulated system containing three lens galaxies, each contributing substantially to the lensing of
+one background source.
+
+Their `Isothermal` profiles have Einstein-radius parameters of 0.9", 0.8" and 0.7", with centres arranged in a
+triangle. Plot the dataset and identify the three galaxies and the lensed source emission before composing the
+model.
 """
 dataset_name = "x3_lens_galaxies"
 dataset_path = Path("dataset") / "imaging" / dataset_name
@@ -470,10 +483,16 @@ dataset = al.Imaging.from_fits(
 aplt.subplot_imaging_dataset(dataset=dataset)
 
 """
-We compose the three-deflector model with exactly the same loop as before — this is the payoff of the list-based
-API, which needs no changes as the deflector count grows. Each mass centre is again fixed to its galaxy's
-observed light centre; with three deflectors the centre degeneracies are even more severe than for the pair, so
-the standard trick matters even more.
+We build the three-deflector model using the same loop as before, now supplying three measured light positions.
+
+Each galaxy receives its own MGE light model and `Isothermal` mass profile. We again fix the mass centre to the
+supplied light position while leaving the MGE light centre free within its priors.
+
+This illustrates why measuring positions before modeling is useful: adding another galaxy does not require the
+search to discover where its mass profile belongs.
+
+The model still allows the galaxies' mass normalizations and shapes to compensate for one another. Fixing centres
+makes the problem more manageable; it does not remove the mass-decomposition degeneracies.
 """
 lens_centres = [(0.9, 0.0), (-0.6, -0.9), (-0.6, 0.9)]
 
@@ -484,6 +503,15 @@ mask = al.Mask2D.circular(
 )
 
 dataset = dataset.apply_mask(mask=mask)
+
+over_sample_size = al.util.over_sample.over_sample_size_via_radial_bins_from(
+    grid=dataset.grid,
+    sub_size_list=[4, 2, 2],
+    radial_list=[0.3, 0.6],
+    centre_list=lens_centres,
+)
+
+dataset = dataset.apply_over_sampling(over_sample_size_lp=over_sample_size)
 
 lens_dict = {}
 
@@ -521,60 +549,55 @@ model = af.Collection(galaxies=af.Collection(**lens_dict, source=source))
 print(model.info)
 
 """
-A third deflector, `lens_2`, is an identical copy of the structure above, with its own fixed mass `centre`.
+The figure now includes `lens_2`, with the same model structure as the other two deflectors but its own parameters
+and fixed mass position.
 
-Nothing about the *shape* of the model changed when we added a galaxy, which is exactly the point the
-list-based API is making. The model grows by one deflector, and the parameter count by seven.
+Each galaxy contributes four non-linear light parameters and three non-linear mass parameters. Adding the third
+galaxy therefore adds seven parameters.
+
+The code structure remains the same as the number of galaxies grows, but the inference problem becomes larger and
+can develop stronger correlations between components.
 """
 af.ModelPlotter(model).figure()
 
 print(f"Free parameters (three deflectors, fixed mass centres): {model.prior_count}")
 
 """
-The count is now **25**: even with fixed mass centres and cheap MGE light models, every deflector adds 7 free
-parameters (4 light + 3 mass), and with free centres it would be 9. The trend is linear and unforgiving:
+The three-galaxy model has **25 free non-linear parameters**: seven per lens galaxy and four for the source.
 
- - 1 deflector: 13 free parameters.
- - 2 deflectors: 18 (this tutorial's fit).
- - 3 deflectors: 25.
- - 10 deflectors: ~74. A group-scale lens can easily have this many members.
+With the same model choices and fixed mass centres throughout:
 
-And the parameter count is only half the problem. As the deflectors multiply, so do the degeneracies between
-their masses — every pair of galaxies gets its own version of the Einstein radius ridge we saw above, and the
-posterior becomes progressively harder for any sampler to map.
+- One deflector: **11** parameters.
+- Two deflectors: **18** parameters.
+- Three deflectors: **25** parameters.
+- Ten deflectors: **74** parameters.
 
-You are welcome to fit this three-galaxy model yourself — the search above works unchanged, though expect it to
-take noticeably longer than the pair. Clearly, freeing every galaxy's mass cannot scale to the tens or hundreds
-of member galaxies in groups and clusters. Something has to give.
+These counts depend on our light-model choices. Fixed-width, fixed-centre spherical MGEs would add zero non-linear
+light parameters, reducing the totals substantially where that description is appropriate.
+
+Even then, independently fitting every galaxy's mass normalization and shape becomes demanding as the population
+grows. The challenge is both the number of parameters and the degeneracies between their contributions to the
+combined deflection field.
+
+You can explore fitting the three-galaxy model by creating an `AnalysisImaging` for this newly loaded dataset and
+running a search with a distinct output name. Reusing the earlier analysis object would incorrectly fit the
+two-galaxy dataset.
 
 __Wrap Up__
 
-In this tutorial, we modeled strong lenses with multiple co-dominant deflectors. Let's summarise what we've
-learnt:
+In this tutorial, we learned:
 
-- **Co-dominant deflectors**: When two or more galaxies of comparable mass both contribute significantly to the
-  lensing, every one of them needs its own free light and mass model — unlike the nuisance neighbours of the
-  previous tutorial, none can be masked away or simplified.
+- Multiple significant deflectors require a model of their combined lensing effect.
+- Measuring galaxy positions first and fixing mass centres can reduce the search dimensionality and restrict
+  unwanted solutions.
+- MGE intensities are solved linearly. A spherical MGE with fixed widths and centre adds no non-linear parameters;
+  our more flexible light models retain four per galaxy.
+- Multiple galaxies introduce additional mass degeneracies beyond those in single-galaxy lenses. A good image fit
+  can leave substantial uncertainty in the individual galaxy masses.
+- A shared halo and tidal truncation are modeling choices to assess for the system, rather than properties
+  determined solely by how many galaxies are present.
 
-- **Physical origins**: Multi-galaxy lenses arise from merging galaxies at one redshift (single-plane, deflections
-  add) or chance line-of-sight alignments at different redshifts (multi-plane ray tracing, covered later in this
-  chapter).
-
-- **Parameter growth**: Each deflector added 9 free parameters (4 for its MGE light, 5 for its SIE mass) — and the
-  MGE is what kept it that cheap, since its Gaussian intensities are solved for by linear algebra rather than sampled.
-
-- **Fixed mass centres**: Fixing each galaxy's mass centre to its observed light centre (removing 2 parameters per
-  deflector) is the standard trick for taming the severe centre degeneracies of multi-deflector models.
-
-- **Mass degeneracies**: The data constrains the total mass well but its split between the galaxies poorly,
-  producing an anti-correlated ridge between the deflectors' Einstein radii — and inflating the uncertainties on
-  any per-galaxy science.
-
-- **No shared halo**: At this scale we do not assume the galaxies inhabit one large dark matter halo, so no tidal
-  truncation assumptions enter the model — that framing arrives at group scale.
-
-The three-galaxy model made the trajectory clear: freeing every deflector cannot scale. In the next tutorial, we
-introduce the tool that stops this growth in its tracks — scaling relations, which tie the masses of many
-galaxies to their observed luminosities so that an entire population of deflectors costs almost no extra free
-parameters.
+As the number of galaxies increases, giving every galaxy an independent mass model becomes increasingly demanding.
+In the next tutorial, we introduce **scaling relations**, which link galaxy mass properties to observed
+luminosities through shared parameters.
 """
