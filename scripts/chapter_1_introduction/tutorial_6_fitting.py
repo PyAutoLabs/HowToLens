@@ -2,46 +2,38 @@
 Tutorial 6: Fitting
 ===================
 
-In previous tutorials, we used light profiles to create simulated images of a tracer and visualized how these images
-would appear when captured by a CCD detector on a telescope like the Hubble Space Telescope.
+In the previous tutorial, we chose a lens and source, predicted their lensed
+image and simulated a telescope observation. We will now work in the other
+direction: starting with an image, we want to learn about the objects that
+produced it.
 
-However, this simulation process is the reverse of what astronomers typically do when analyzing real data. Usually,
-astronomers start with an observation—an actual image of a strong lens - and aim to infer detailed information about the
-lens’s properties, such as its mass and unlensed source properties.
+A lens model is a mathematical description of the lens and source. Its
+parameters specify properties such as the lens's mass distribution and the
+source's position, size and brightness.
 
-To achieve this, we must fit the observed image data with a model, identifying the combination of light and mass
-profiles that best matches the lens's appearance in the image. In this tutorial, we'll illustrate this process using
-the imaging data simulated in the previous tutorial. Our goal is to demonstrate how we can recover the parameters of
-the light profiles that we used to create the original simulation, as a proof of concept for the fitting procedure.
+To assess a model, we calculate the image it predicts and compare that
+prediction with the data. We account for the telescope's blurring and the
+uncertainty in each pixel, so that differences are judged relative to the
+noise.
 
-The process of fitting data introduces essential statistical concepts like the `model`, `residual_map`, `chi-squared`,
-`likelihood`, and `noise_map`. These terms are crucial for understanding how fitting works, not only in astronomy but
-also in any scientific field that involves data modeling. This tutorial will provide a detailed introduction to these
-concepts and show how they are applied in practice to analyze astronomical data.
+We will first evaluate a model using the parameters that generated our
+simulated data. We will then change those parameters and inspect how the
+agreement changes. Finally, you will try adjusting parameters yourself.
 
-Here is an overview of what we'll cover in this tutorial:
-
-- **Dataset**: Load the imaging dataset that we previously simulated, consisting of the image, noise map, and PSF.
-- **Mask**: Apply a mask to the data, excluding regions with low signal-to-noise ratios from the analysis.
-- **Masked Grid**: Create a masked grid, which contains only the coordinates of unmasked pixels, to evaluate the
-  galaxy's light profile in only unmasked regions.
-- **Fitting**: Fit the data with a galaxy model, computing key quantities like the model image, residuals,
-  chi-squared, and log likelihood to assess the quality of the fit.
-- **Bad Fits**: Demonstrate how even small deviations from the true parameters can significantly impact the fit.
-- **Model Fitting**: Perform a basic model fit on a simple dataset, adjusting the model parameters to improve the
-  fit quality.
+This introduces model fitting: finding parameter values that describe the
+data well. Creating a `FitImaging` object evaluates the parameters we supply;
+it does not search for new values automatically.
 
 __Contents__
 
-- **Dataset:** Load the imaging dataset that we previously simulated, consisting of the image, noise map, and PSF.
-- **Dataset Auto-Simulation:** Create the dataset by running the tutorial 5 script if it is not on your hard-disk.
-- **Mask:** Apply a mask to the data, excluding regions with low signal-to-noise ratios from the analysis.
-- **Masked Grid:** In tutorials 1 and 2, we emphasized that the `Grid2D` object is crucial for evaluating a lens's.
-- **Fitting:** Fit the lens model to the dataset and inspect the results.
-- **Incorrect Fit:** In the previous section, we successfully created and fitted a lens model to the image data.
-- **Model Fitting:** In the previous sections, we used the true model to fit the data, which resulted in a high log.
-- **Wrap Up:** Summary of the script and next steps.
-
+- **Dataset:** Locate the imaging data saved in Tutorial 5.
+- **Dataset Auto-Simulation:** Create the dataset if needed, then load it.
+- **Mask:** Select the region of the image used in the comparison.
+- **Masked Grid:** Inspect the coordinates of the selected pixels.
+- **Fitting:** Compare a predicted image with the data and calculate fit statistics.
+- **Incorrect Fit:** See how changing the source position affects the comparison.
+- **Model Fitting:** Experiment with adjusting parameters yourself.
+- **Likelihood Function:** Combine the calculation into a function of the model parameters.
 """
 
 from autolens import jax_wrapper  # Sets JAX environment before other imports
@@ -56,23 +48,21 @@ import autolens.plot as aplt
 """
 __Dataset__
 
-We begin by loading the imaging dataset that we will use for fitting in this tutorial. This dataset is identical to the 
-one we simulated in the previous tutorial, representing how a lens would appear if captured by a CCD camera.
+We will use the simulated imaging dataset saved in Tutorial 5. It contains
+the background-subtracted image, its noise map and the PSF.
 
-In the previous tutorial, we saved this dataset as .fits files in the `dataset/imaging/howtolens` folder of the
-HowToLens repository. The `.fits` format is commonly used in astronomy for storing image data along with metadata,
-making it a standard for CCD imaging.
-
-The `dataset_path` below specifies where these files are located: `dataset/imaging/howtolens/`.
+The files are in `dataset/imaging/howtolens/`, relative to the repository root
+from which this script is run.
 """
 dataset_path = Path("dataset") / "imaging" / "howtolens"
 
 """
 __Dataset Auto-Simulation__
 
-The `howtolens` dataset is the one built up and saved in tutorial 5 (`tutorial_5_data.py`). If it does
-not already exist on your system, it is created by running that script. This ensures every example
-script can be run without manually simulating data first.
+If the dataset is missing, the following code runs Tutorial 5 to create it.
+If you have already run that tutorial, we load the saved files.
+
+The pixel scale is 0.1 arcseconds, matching the simulation.
 """
 if al.util.dataset.should_simulate(str(dataset_path)):
     import subprocess
@@ -91,18 +81,18 @@ dataset = al.Imaging.from_fits(
 )
 
 """
-The `Imaging` object contains three key components: `data`, `noise_map`, and `psf`:
+Recall the three components of an imaging dataset:
 
-- `data`: The actual image of the lens, which we will analyze.
+- `data`: the measured brightness in each pixel.
+- `noise_map`: the estimated noise standard deviation in each pixel.
+- `psf`: the kernel describing how the telescope spreads light.
 
-- `noise_map`: A map indicating the uncertainty or noise level in each pixel of the image, reflecting how much the 
-  observed signal in each pixel might fluctuate due to instrumental or background noise.
-  
-- `psf`: The Point Spread Function, which describes how a point source of light is spread out in the image by the 
-  telescope's optics. It characterizes the blurring effect introduced by the instrument.
+The data and noise map have the same units. The PSF kernel is normalised
+to sum to one.
 
-Let's print some values from these components and plot a summary of the dataset to refresh our understanding of the 
-imaging data.
+Below, we print the first value in each array and display the dataset.
+The first image pixel and first noise-map pixel refer to the same sky
+position; the first PSF value belongs to the separate, smaller kernel.
 """
 print("Value of first pixel in imaging data:")
 print(dataset.data.native[0, 0])
@@ -116,148 +106,165 @@ aplt.subplot_imaging_dataset(dataset=dataset)
 """
 __Mask__
 
-The signal-to-noise map of the image highlights areas where the signal (light from the lens and source galaxies)
-is detected above the  background noise. Values above 3.0 indicate regions where the light is detected with a 
-signal-to-noise ratio of at least 3, while values below 3.0 are dominated by noise, where the light is not 
-clearly distinguishable.
+A mask selects which pixels we include when comparing the model with the data.
+It can exclude unrelated objects, detector defects or regions outside the
+area we want to analyse.
 
-To ensure the fitting process focuses only on meaningful data, we typically mask out regions with low signal-to-noise 
-ratios, removing areas dominated by noise from the analysis. This allows the fitting process to concentrate on the 
-regions where the lens is clearly detected.
+For this example, we keep a circular region with a radius of 3 arcseconds,
+centred on the lens. This includes the lensed arcs and some surrounding sky.
 
-Here, we create a `Mask2D` to exclude certain regions of the image from the analysis. The mask defines which parts of 
-the image will be used during the fitting process.
+We do not select individual pixels according to their measured
+signal-to-noise ratio. Faint pixels still contain useful information: a model
+that predicts bright emission where little is observed should disagree with
+those data. The noise map determines how strongly each pixel contributes to
+the comparison.
 
-For our simulated image, a circular 3" mask centered at the center of the image is appropriate, since the simulated 
-lens was positioned at the center.
+In a `Mask2D`, `True` means excluded and `False` means included.
 """
 mask = al.Mask2D.circular(
     shape_native=dataset.shape_native,
     pixel_scales=dataset.pixel_scales,
-    radius=3.0,  # The circular mask's radius in arc-seconds
-    centre=(0.0, 0.0),  # center of the image which is also the center of the lens
+    radius=3.0,  # Arcseconds.
+    centre=(0.0, 0.0),
 )
 
-print(mask)  # 1 = True, meaning the pixel is masked. Edge pixels are indeed masked.
-print(mask[48:53, 48:53])  # Central pixels are `False` and therefore unmasked.
+print(mask)
+print(mask[48:53, 48:53])
 
 """
-We can visualize the mask over the strong lens image using an `aplt.subplot_imaging_dataset`, which helps us adjust the mask as needed. 
-This is useful to ensure that the mask appropriately covers the lens and source light and does not exclude important 
-regions.
+Before applying the mask, let's display its boundary over the full image.
+The boundary marks the edge of the region we will include in the comparison.
 
-To overlay objects like a mask onto a figure, we use the `lines=`/`positions=` overlays object. This tool allows us to add custom 
-visuals to any plot, providing flexibility in creating tailored visual representations.
+Check that the lensed arcs lie inside it and that some surrounding sky is
+included. At this stage, we are only displaying the boundary; the dataset
+has not yet been masked.
 """
-
-aplt.plot_array(array=dataset.data, title="Imaging Data With Mask")
+aplt.plot_array(
+    array=dataset.data,
+    mask=mask.derive_grid.edge,
+    title="Imaging Data With Mask Boundary",
+)
 
 """
-Once we are satisfied with the mask, we apply it to the imaging data using the `apply_mask()` method. This ensures 
-that only the unmasked regions are considered during the analysis.
+We now apply the mask to the dataset. Pixels outside the circular region
+will be excluded when we compare the model with the data.
 """
 dataset = dataset.apply_mask(mask=mask)
 
 """
-When we plot the masked imaging data again, the mask is now automatically included in the plot, even though we did 
-not explicitly pass it using the `lines=`/`positions=` overlays object. The plot also zooms into the unmasked area, showing only the 
-region where we will focus our analysis. This is particularly helpful when working with large images, as it centers 
-the view on the regions where the strong lens's signal is detected.
+The plotted image now shows the selected region, with the view zoomed to
+the unmasked area. The plotting function obtains the mask boundary from
+the array itself.
 """
 aplt.plot_array(array=dataset.data, title="Masked Imaging Data")
 
 """
-The mask is now stored as an additional attribute of the `Imaging` object, meaning it remains attached to the 
-dataset. This makes it readily available when we pass the dataset to a `FitImaging` object for the fitting process.
+The mask is stored with the dataset, so later calculations can identify
+which pixels to include.
 """
 print("Mask2D:")
 print(dataset.mask)
 
 """
-In earlier tutorials, we discussed how grids and arrays have `native` and `slim` representations:
+The masked data retain the `native` and `slim` representations introduced
+earlier:
 
-- `native`: Represents the original 2D shape of the data, maintaining the full pixel array of the image.
-- `slim`: Represents a 1D array containing only the values from unmasked pixels, allowing for more efficient 
-  processing when working with large images.
+- `native` arranges the values in the original 2D image shape. Masked pixels
+  are filled with zeros.
+- `slim` contains only the unmasked pixel values in a 1D array.
 
-After applying the mask, the `native` and `slim` representations change as follows:
+Those zeros in the native representation are placeholders. They do not mean
+that zero light was measured outside the mask, and they do not contribute
+to the comparison with the model.
 
-- `native`: The 2D array keeps its original shape, [total_y_pixels, total_x_pixels], but masked pixels (those where 
-  the mask is True) are set to 0.0.
-- `slim`: This now only contains the unmasked pixel values, reducing the array size 
-  from [total_y_pixels * total_x_pixels] to just the number of unmasked pixels.
+Our original image has 101 x 101 pixels. The slim array is shorter because
+we have selected only the circular region.
+"""
+print("Native image shape:")
+print(dataset.data.native.shape)
 
-Let's verify this by checking the shape of the data in its `slim` representation.
+print("Slim image shape:")
+print(dataset.data.slim.shape)
+
+"""
+Despite its name, `pixels_in_mask` counts the unmasked pixels: those included
+in the analysis. This number should match the length of the slim array.
 """
 print("Number of unmasked pixels:")
-print(dataset.data.native.shape)
-print(
-    dataset.data.slim.shape
-)  # This should be lower than the total number of pixels, e.g., 100 x 100 = 10,000
+print(dataset.mask.pixels_in_mask)
 
 """
-The `mask` object also has a `pixels_in_mask` attribute, which gives the number of unmasked pixels. This should 
-match the size of the `slim` data structure.
-"""
-print(dataset.data.mask.pixels_in_mask)
-
-"""
-We can use the `slim` attribute to print the first unmasked values from the image and noise map:
+The image and noise map share the same mask and pixel ordering. Their first
+slim entries therefore describe the measurement and uncertainty at the same
+sky position.
 """
 print("First unmasked image value:")
 print(dataset.data.slim[0])
+
 print("First unmasked noise map value:")
 print(dataset.noise_map.slim[0])
 
 """
-Additionally, we can verify that the `native` data structure has zeros at the edges where the mask is applied and 
-retains non-zero values in the central unmasked regions.
+In the native representation, the corner pixel is masked and therefore
+contains a zero placeholder. The central pixel is unmasked and retains its
+measured value.
 """
-print("Example masked pixel in the image's native representation at its edge:")
+print("Masked corner pixel in the native image:")
 print(dataset.data.native[0, 0])
-print("Example unmasked pixel in the image's native representation at its center:")
+
 centre = tuple(s // 2 for s in dataset.data.shape_native)
+
+print("Unmasked central pixel in the native image:")
 print(dataset.data.native[centre])
 
 """
 __Masked Grid__
 
-In tutorials 1 and 2, we emphasized that the `Grid2D` object is crucial for evaluating a lens's light profile. This grid 
-contains (y, x) coordinates for each pixel in the image and is used to ray-trace to the source plane and map out the 
-positions where the source galaxy's light is calculated.
+To predict the image, we need the sky coordinates corresponding to the
+selected pixels. We obtain these from the mask as a grid of `(y, x)`
+coordinates.
 
-From a `Mask2D`, we derive a `masked_grid`, which consists only of the coordinates of unmasked pixels. This ensures 
-that light profile calculations focus exclusively on regions where the strong lens's light is detected, saving 
-computational time and improving efficiency.
-
-Below, we plot the masked grid:
+Each coordinate marks the centre of an unmasked pixel. Plotting the grid
+shows the circular region that we selected.
 """
 masked_grid = mask.derive_grid.unmasked
 
 aplt.plot_grid(grid=masked_grid, title="Masked Grid2D")
 
 """
-By plotting this masked grid over the lens image, we can see that the grid aligns with the unmasked pixels of the 
-image.
+We can overlay these coordinates on the image to see where the selected
+pixels lie. Each dot corresponds to one pixel whose measured brightness
+will be compared with the model prediction.
 
-This alignment **is crucial** for accurate fitting because it ensures that when we evaluate a strong lens's light 
-profile, the calculations occur only at positions where we have real data from.
+The grid, image and noise map use matching pixel ordering, so their slim
+entries refer to the same positions.
 """
-aplt.plot_array(array=dataset.data, title="Image Data With 2D Grid Overlaid")
+aplt.plot_array(
+    array=dataset.data,
+    grid=masked_grid,
+    title="Image Data With 2D Grid Overlaid",
+)
 
 """
 __Fitting__
 
-Now that our data is masked, we are ready to proceed with the fitting process.
+We will begin with the same lens and source parameters used to simulate the
+data. This gives us a useful reference: we know the underlying model, so we
+can see what agreement with a noisy observation should look like.
 
-Fitting the data is done using the `Galaxy` and `Tracer objects that we introduced in previous tutorials. We will start by 
-setting up a `Tracer`` object, using the same galaxy configuration that we previously used to simulate the 
-imaging data. This setup will give us what is known as a 'perfect' fit, as the simulated and fitted models are identical.
+We should not expect the predicted image to match every observed pixel
+exactly. The data contain random noise, whereas our prediction describes
+the expected brightness.
+
+As before, the lens has an Isothermal mass profile and the source has a
+Sersic light profile. The lens galaxy's light was omitted from this simulation.
 """
 lens_galaxy = al.Galaxy(
     redshift=0.5,
     mass=al.mp.Isothermal(
-        centre=(0.0, 0.0), einstein_radius=1.6, ell_comps=(0.17647, 0.0)
+        centre=(0.0, 0.0),
+        einstein_radius=1.6,
+        ell_comps=(0.17647, 0.0),
     ),
 )
 
@@ -272,74 +279,73 @@ source_galaxy = al.Galaxy(
     ),
 )
 
-
 tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
 
-aplt.plot_array(array=tracer.image_2d_from(grid=dataset.grid), title="Image")
-
 """
-Next, let's plot the image of the tracer. This should look familiar, as it is the same image we saw in 
-previous tutorials. The difference now is that we use the dataset's `grid`, which corresponds to the `masked_grid` 
-we defined earlier. This means that the tracer image is only evaluated in the unmasked region, skipping calculations 
-in masked regions.
+First, we evaluate the tracer on the dataset's grid. This calculates the
+lensed source image at the selected image-plane coordinates.
+
+The arcs should look familiar, but this image has not yet been blurred by
+the telescope's PSF. We must include that blurring before comparing it with
+the observed data.
 """
 aplt.plot_array(
-    array=tracer.image_2d_from(grid=dataset.grid), title="Tracer Image To Be Fitted"
+    array=tracer.image_2d_from(grid=dataset.grid),
+    title="Lensed Image Before PSF Blurring",
 )
 
 """
-Now, we proceed to fit the image by passing both the `Imaging` and `Tracer` objects to a `FitImaging` object. 
-This object will compute key quantities that describe the fit’s quality:
+The `FitImaging` object brings together our dataset and tracer. It calculates
+the predicted image with PSF blurring and compares it with the data.
 
-`image`: Creates an image of the tracer using their image_2d_from() method.
-`model_data`: Convolves the tracer image with the data's PSF to account for the effects of telescope optics.
-`residual_map`: The difference between the model data and observed data.
-`normalized_residual_map`: Residuals divided by noise values, giving units of noise.
-`chi_squared_map`: Squares the normalized residuals.
-`chi_squared` and `log_likelihood`: Sums the chi-squared values to compute chi_squared, and converts this into 
-a log_likelihood, which measures how well the model fits the data (higher values indicate a better fit).
+We supply the parameter values through the tracer. Creating this object
+evaluates that choice of parameters; it does not adjust them.
 
-Let's create the fit and inspect each of these attributes:
+We will inspect the predicted image first, then calculate the differences
+between it and the data. These differences will form the basis of the
+statistical quantities introduced below.
 """
 fit = al.FitImaging(dataset=dataset, tracer=tracer)
 
 """
-The `model_data` represents the tracer's image after accounting for effects like PSF convolution. 
+The fit's `model_data` is the predicted image after PSF convolution. It has
+the same units as the observed data and can be compared with them pixel
+by pixel.
 
-An important technical note is that when we mask data, we discussed above how the image of the tracer is not evaluated
-outside the mask and is set to zero. This is a problem for PSF convolution, as the PSF blurs light from these regions
-outside the mask but at its edge into the mask. They must be correctly evaluated to ensure the model image accurately
-represents the image data.
+The mask selects which observed pixels enter the comparison, but light
+outside its boundary can still be blurred into those pixels by the PSF.
+`FitImaging` therefore also evaluates the surrounding light needed for
+this convolution.
 
-The `FitImaging` object handles this internally, but evaluating the model image in the additional regions outside the mask
-that are close enough to the mask edge to be blurred into the mask. 
+This is the same principle as the padding in Tutorial 5: we must account
+for light beyond the edge of the region whose blurred image we want.
+
+Below, compare the data and model image. Their arcs should have similar
+positions, shapes and brightnesses. The model image is smooth, while the
+data include noise. We do not add a new random noise realisation to the
+model image when assessing the fit.
 """
 print("First model image pixel:")
 print(fit.model_data.slim[0])
-aplt.plot_array(array=fit.model_data, title="Model Image")
 
-"""
-Even before computing other fit quantities, we can normally assess if the fit is going to be good by visually comparing
-the `data` and `model_data` and assessing if they look similar.
-
-In this example, the tracer used to fit the data are the same as the tracer used to simulate it, so the two
-look very similar (the only difference is the noise in the image).
-"""
 aplt.plot_array(array=fit.data, title="Data")
 aplt.plot_array(array=fit.model_data, title="Model Image")
 
 r"""
-The `residual_map` is the different between the observed image and model image, showing where in the image the fit is
-good (e.g. low residuals) and where it is bad (e.g. high residuals).
+Subtracting the model image from the data gives the `residual_map`:
 
-The expression for the residual map is simply:
+\[
+\text{residual} = \text{data} - \text{model\_data}
+\]
 
-\[ \text{residual} = \text{data} - \text{model\_data} \]
+A positive residual means that the observed pixel is brighter than predicted.
+A negative residual means that it is fainter.
 
-The residual-map is plotted below, noting that all values are very close to zero because the fit is near perfect.
-The only non-zero residuals are due to noise in the image.
+We calculate this difference explicitly below and compare its first value
+with the value provided by `FitImaging`.
 """
 residual_map = dataset.data - fit.model_data
+
 print("First residual-map pixel:")
 print(residual_map.slim[0])
 
@@ -348,19 +354,42 @@ print(fit.residual_map.slim[0])
 
 aplt.plot_array(array=fit.residual_map, title="Residual Map")
 
+"""
+Because we used the parameters that generated the simulation, we expect
+the residuals to be dominated by the noise in the data.
+
+Look for positive and negative fluctuations rather than coherent arc-shaped
+features. The fluctuations can be larger in bright regions, where the
+Poisson noise is larger.
+
+To judge whether a residual is large or small, we must compare it with
+the noise expected in that pixel. This is our next step.
+
+**🤖 Ask AI:** Why can a correct lens model leave larger absolute residuals
+in bright arcs than in the faint background?
+"""
+
 r"""
-Are these residuals indicative of a good fit to the data? Without considering the noise in the data, it's difficult 
-to ascertain. That is, its hard to ascenrtain if a residual value is large or small because this depends on the
-amount of noise in that pixel.
+The size of a residual only becomes informative when compared with the
+uncertainty in that pixel. A difference of 0.1 electrons per second could
+be small in a noisy pixel but substantial in a precisely measured one.
 
-The `normalized_residual_map` divides the residual-map by the noise-map, giving the residual in units of the noise.
-Its expression is:
+The `normalized_residual_map` divides each residual by its noise standard
+deviation:
 
-\[ \text{normalized\_residual} = \frac{\text{residual\_map}}{\text{noise\_map}} = \frac{\text{data} - \text{model\_data}}{\text{noise\_map}} \]
+\[
+r_i = \frac{d_i - m_i}{\sigma_i}
+\]
 
-If you're familiar with the concept of standard deviations (sigma) in statistics, the normalized residual map represents 
-how many standard deviations the residual is from zero. For instance, a normalized residual of 2.0 (corresponding 
-to a 95% confidence interval) means that the probability of the model underestimating the data by that amount is only 5%.
+Here, \(d_i\) is the observed value, \(m_i\) is the model prediction and
+\(\sigma_i\) is the noise-map value for pixel \(i\).
+
+A normalised residual of +2 means that the observation is two noise standard
+deviations above the prediction. A value of -2 means that it is two standard
+deviations below.
+
+For a suitable model and well-estimated noise, we expect fluctuations around
+zero, typically of order one. We do not expect every pixel to be close to zero.
 """
 normalized_residual_map = residual_map / dataset.noise_map
 
@@ -370,23 +399,30 @@ print(normalized_residual_map.slim[0])
 print("First normalized residual-map pixel via fit:")
 print(fit.normalized_residual_map.slim[0])
 
-aplt.plot_array(array=fit.normalized_residual_map, title="Normalized Residual Map")
+aplt.plot_array(
+    array=fit.normalized_residual_map,
+    title="Normalized Residual Map",
+)
 
 r"""
-Next, we define the `chi_squared_map`, which is obtained by squaring the `normalized_residual_map` and serves as a 
-measure of goodness of fit.
+Squaring the normalised residuals gives the `chi_squared_map`:
 
-The chi-squared map is calculated as:
+\[
+\chi_i^2 = \left(\frac{d_i - m_i}{\sigma_i}\right)^2
+\]
 
-\[ \chi^2 = \left(\frac{\text{data} - \text{model\_data}}{\text{noise\_map}}\right)^2 \]
+Each value measures one pixel's contribution to the overall disagreement.
+The values are non-negative: residuals of +2 and -2 both contribute 4.
 
-Squaring the normalized residual map ensures all values are positive. For instance, both a normalized residual of -0.2 
-and 0.2 would square to 0.04, indicating the same quality of fit in terms of `chi_squared`.
+Look for pixels with large contributions and whether they form a coherent
+pattern. A few large values can occur through noise, especially when an image
+contains many pixels.
 
-As seen from the normalized residual map, it's evident that the model provides a good fit to the data, in this
-case because the chi-squared values are close to zero.
+For our reference model, the contributions should average approximately one,
+rather than all being close to zero.
 """
-chi_squared_map = (normalized_residual_map) ** 2
+chi_squared_map = normalized_residual_map**2
+
 print("First chi-squared pixel:")
 print(chi_squared_map.slim[0])
 
@@ -396,134 +432,145 @@ print(fit.chi_squared_map.slim[0])
 aplt.plot_array(array=fit.chi_squared_map, title="Chi Squared Map")
 
 r"""
-Now, we consolidate all the information in our `chi_squared_map` into a single measure of goodness-of-fit 
-called `chi_squared`. 
+We sum the contributions from all \(N\) unmasked pixels to obtain one number,
+the total `chi_squared`:
 
-It is defined as the sum of all values in the `chi_squared_map` and is computed as:
+\[
+\chi^2 = \sum_{i=1}^{N}
+\left(\frac{d_i - m_i}{\sigma_i}\right)^2
+\]
 
-\[ \chi^2 = \sum \left(\frac{\text{data} - \text{model\_data}}{\text{noise\_map}}\right)^2 \]
+Squaring before summing prevents positive and negative residuals from
+cancelling. Large differences relative to the noise contribute strongly.
 
-This summing process highlights why ensuring all values in the chi-squared map are positive is crucial. If we 
-didn't square the values (making them positive), positive and negative residuals would cancel each other out, 
-leading to an inaccurate assessment of the model's fit to the data.
-
-The lower the `chi_squared`, the fewer residuals exist between the model's fit and the data, indicating a better 
-overall fit!
+When comparing parameter choices using the same data, mask and noise map,
+a lower chi-squared means smaller overall noise-weighted differences.
 """
-chi_squared = np.sum(chi_squared_map)
+chi_squared = np.sum(chi_squared_map.slim)
+
 print("Chi-squared = ", chi_squared)
 print("Chi-squared via fit = ", fit.chi_squared)
 
-"""
-The reduced chi-squared is the `chi_squared` value divided by the number of data points (e.g., the number of pixels
-in the mask). 
-
-This quantity offers an intuitive measure of the goodness-of-fit, as it normalizes the `chi_squared` value by the
-number of data points. That is, a reduced chi-squared of 1.0 indicates that the model provides a good fit to the data,
-because every data point is fitted with a chi-squared value of 1.0.
-
-A reduced chi-squared value significantly greater than 1.0 indicates that the model is not a good fit to the data,
-whereas a value significantly less than 1.0 suggests that the model is overfitting the data.
-"""
-reduced_chi_squared = chi_squared / dataset.mask.pixels_in_mask
-print("Reduced Chi-squared = ", reduced_chi_squared)
-
 r"""
-Another quantity that contributes to our final assessment of the goodness-of-fit is the `noise_normalization`.
-
-The `noise_normalization` is computed by summing, over every pixel, the logarithm of 2 pi times the squared noise value:
+Dividing the total chi-squared by the number of unmasked pixels gives the
+average contribution per pixel:
 
 \[
-\text{{noise\_normalization}} = \sum \log(2 \pi \text{{noise\_map}}^2)
+\frac{\chi^2}{N}
 \]
 
-This quantity is fixed because the noise-map remains constant throughout the fitting process. Despite this, 
-including the `noise_normalization` is considered good practice due to its statistical significance.
+For the parameters that generated our simulation, we expect this to be
+approximately one if the noise estimates describe the fluctuations well.
+Individual pixels can contribute much more or much less than one.
 
-Understanding the exact meaning of `noise_normalization` isn't critical for our primary goal of successfully 
-fitting a model to a dataset. Essentially, it provides a measure of how well the noise properties of our data align 
-with a Gaussian distribution.
+A substantially larger value can indicate a mismatch between the model and
+data, underestimated noise, or both. A substantially smaller value can
+indicate overestimated noise; it does not automatically establish overfitting.
+
+You may also encounter the term "reduced chi-squared". This divides chi-squared
+by the number of degrees of freedom, often \(N-p\) when \(p\) independent
+parameters have been estimated from the data. Here, we are simply inspecting
+the average per pixel for a specified model.
 """
-noise_normalization = np.sum(np.log(2 * np.pi * dataset.noise_map**2))
+chi_squared_per_pixel = chi_squared / dataset.mask.pixels_in_mask
+
+print("Chi-squared per pixel = ", chi_squared_per_pixel)
+
+r"""
+To turn this comparison into a likelihood, we need a statistical description
+of the noise.
+
+We will treat each pixel's measurement as an independent Gaussian random
+variable, centred on the model prediction \(m_i\), with standard deviation
+\(\sigma_i\). This is an approximation to the Poisson counts used in our
+simulation, appropriate when the expected counts are sufficiently large.
+
+The probability density for a pixel value is then:
+
+\[
+p(d_i \mid m_i, \sigma_i)
+=
+\frac{1}{\sqrt{2\pi\sigma_i^2}}
+\exp\left[-\frac{1}{2}
+\left(\frac{d_i-m_i}{\sigma_i}\right)^2\right]
+\]
+
+The exponential penalises predictions far from the observed value. The factor
+in front normalises the Gaussian so that its density integrates to one.
+
+For independent pixels, we multiply these densities. Taking the natural
+logarithm turns that product into a sum:
+
+\[
+\log \mathcal{L}
+=
+-\frac{1}{2}
+\left[
+\chi^2 + \sum_{i=1}^{N}\log(2\pi\sigma_i^2)
+\right]
+\]
+
+The second term is called `noise_normalization` in PyAutoLens. It is part of
+the probability density, not a test of whether the noise is Gaussian.
+
+For our fixed dataset, mask and noise map, this term stays constant as we
+change the lens and source parameters.
+"""
+noise_normalization = np.sum(
+    np.log(2 * np.pi * dataset.noise_map.slim**2)
+)
+
 print("Noise Normalization = ", noise_normalization)
 print("Noise Normalization via fit = ", fit.noise_normalization)
 
-r"""
-From the `chi_squared` and `noise_normalization`, we can define a final goodness-of-fit measure known as 
-the `log_likelihood`. 
+"""
+We can now calculate the log likelihood and compare it with the value
+returned by `FitImaging`.
 
-This measure is calculated by taking the sum of the `chi_squared` and `noise_normalization`, and then multiplying the 
-result by -0.5:
-
-\[ \text{log\_likelihood} = -0.5 \times \left( \chi^2 + \text{noise\_normalization} \right) \]
-
-Don't worry about why we multiply by -0.5; it's a standard practice in statistics to ensure the log likelihood is
-defined correctly.
+The factor of -0.5 follows from the Gaussian expression above. With the
+noise normalisation fixed, reducing chi-squared increases the log likelihood.
 """
 log_likelihood = -0.5 * (chi_squared + noise_normalization)
+
 print("Log Likelihood = ", log_likelihood)
 print("Log Likelihood via fit = ", fit.log_likelihood)
 
-r"""
-In the previous discussion, we noted that a lower \(\chi^2\) value indicates a better fit of the model to the 
-observed data. 
-
-When we calculate the log likelihood, we take the \(\chi^2\) value and multiply it by -0.5. This means that a 
-higher log likelihood corresponds to a better model fit. Our goal when fitting models to data is to maximize the 
-log likelihood.
-
-The **reduced \(\chi^2\)** value provides an intuitive measure of goodness-of-fit. Values close to 1.0 suggest a 
-good fit, while values below or above 1.0 indicate potential underfitting or overfitting of the data, respectively. 
-In contrast, the log likelihood values can be less intuitive. For instance, a log likelihood value printed above 
-might be around 5300.
-
-However, log likelihoods become more meaningful when we compare them. For example, if we have two models, one with 
-a log likelihood of 5300 and the other with 5310 we can conclude that the first model fits the data better 
-because it has a higher log likelihood by 10.0. 
-
-In fact, the difference in log likelihood between models can often be associated with a probability indicating how 
-much better one model fits the data compared to another. This can be expressed in terms of standard deviations (sigma). 
-
-As a rule of thumb:
-
-- A difference in log likelihood of **2.5** suggests that one model is preferred at the **2.0 sigma** level.
-- A difference in log likelihood of **5.0** indicates a preference at the **3.0 sigma** level.
-- A difference in log likelihood of **10.0** suggests a preference at the **5.0 sigma** level.
-
-All these metrics can be visualized together using the `aplt.subplot_fit_imaging` object, which offers a comprehensive 
-overview of the fit quality. It also shows separate model images for the lens and source galaxies, and the appearance
-of the source galaxy in the image and source planes.
 """
-fit = al.FitImaging(dataset=dataset, tracer=tracer)
+For the same dataset, mask and noise assumptions, a higher log likelihood
+indicates better agreement between the predicted image and the data.
 
+For example, a log likelihood of 5310 is higher than 5300, so the former
+parameter choice provides the better fit under those assumptions.
+
+The absolute value is not a probability that the model is correct. Nor does
+a difference in log likelihood have a universal conversion into a number
+of standard deviations.
+
+We should also inspect where the model disagrees with the data. The subplot
+below brings together the data, model image and residual diagnostics, along
+with views of the source.
+
+Look for residuals consistent with noise rather than coherent features
+tracing the lensed arcs.
+"""
 aplt.subplot_fit_imaging(fit=fit)
 
 """
-If you're familiar with model-fitting, you've likely encountered terms like 'residuals', 'chi-squared', 
-and 'log_likelihood' before. 
-
-These metrics are standard ways to quantify the quality of a model fit. They are applicable not only to 1D data but 
-also to more complex data structures like 2D images, 3D data cubes, or any other multidimensional datasets.
-
 __Incorrect Fit__
 
-In the previous section, we successfully created and fitted a lens model to the image data, resulting in an 
-excellent fit. The residual map and chi-squared map showed no significant discrepancies, indicating that the 
-strong lens's light was accurately captured by our model. This optimal solution translates to one of the highest log 
-likelihood values possible, reflecting a good match between the model and the observed data.
+We will now change the source position while keeping the lens mass and all
+other source properties fixed.
 
-Now, let's modify our lens model to create a fit that is close to the correct solution but slightly off. 
-Specifically, we will slightly offset the center of the source galaxy by half a pixel (0.05") in both the x and y 
-directions. This change will allow us to observe how even small deviations from the true parameters can impact the 
-quality of the fit.
+The original source centre was `(0.1, 0.1)` arcseconds. We move it to
+`(0.15, 0.15)`, a displacement of 0.05 arcseconds in each source-plane
+coordinate.
+
+Although 0.05 arcseconds is half our image pixel scale, lensing maps this
+source-plane displacement into changes in the positions and shapes of the
+observed arcs. It does not simply move every image by half a pixel.
+
+The original `fit` remains our reference comparison.
 """
-lens_galaxy = al.Galaxy(
-    redshift=0.5,
-    mass=al.mp.Isothermal(
-        centre=(0.0, 0.0), einstein_radius=1.6, ell_comps=(0.17647, 0.0)
-    ),
-)
-
 source_galaxy = al.Galaxy(
     redshift=1.0,
     bulge=al.lp.Sersic(
@@ -535,42 +582,45 @@ source_galaxy = al.Galaxy(
     ),
 )
 
-
 tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
 
-aplt.plot_array(array=tracer.image_2d_from(grid=dataset.grid), title="Image")
+aplt.plot_array(
+    array=tracer.image_2d_from(grid=dataset.grid),
+    title="Lensed Image With Shifted Source",
+)
 
 """
-After implementing this slight adjustment, we can now plot the fit. In doing so, we observe that residuals have 
-emerged at the multiple images of the lensed source, which indicates a mismatch between our model and the data. 
-Consequently, this discrepancy results in increased chi-squared values, which in turn affects our log likelihood.
+We evaluate this new tracer against the same dataset and inspect the fit.
+
+Look for coherent positive and negative residuals around the arcs. These
+indicate regions where the shifted source predicts too little or too much
+light, rather than just random fluctuations about the observation.
 """
 fit_bad = al.FitImaging(dataset=dataset, tracer=tracer)
 
 aplt.subplot_fit_imaging(fit=fit_bad)
 
 """
-Next, we can compare the log likelihood of our current model to the log likelihood value we computed previously.
+Compare the log likelihood with our reference value. We expect the shifted
+source to give a lower value because its predicted image disagrees with
+the data more strongly.
 """
-print("Previous Likelihood:")
+print("Reference log likelihood:")
 print(fit.log_likelihood)
-print("New Likelihood:")
+
+print("Shifted-source log likelihood:")
 print(fit_bad.log_likelihood)
 
-"""
-As expected, we observe that the log likelihood has decreased! This decline confirms that our new model is indeed a 
-worse fit to the data compared to the original model.
+print("Change from reference:")
+print(fit_bad.log_likelihood - fit.log_likelihood)
 
-Now, let’s change our lens model once more, this time setting it to a position that is far from the true parameters. 
-We will offset the source's center significantly to see how this extreme deviation affects the fit quality.
 """
-lens_galaxy = al.Galaxy(
-    redshift=0.5,
-    mass=al.mp.Isothermal(
-        centre=(0.0, 0.0), einstein_radius=1.6, ell_comps=(0.17647, 0.0)
-    ),
-)
+Next, move the source centre to `(0.5, 0.5)` arcseconds. All other parameters
+remain unchanged.
 
+This is a much larger displacement from the original `(0.1, 0.1)` position.
+Compare the predicted arcs and residuals with the previous two examples.
+"""
 source_galaxy = al.Galaxy(
     redshift=1.0,
     bulge=al.lp.Sersic(
@@ -582,7 +632,6 @@ source_galaxy = al.Galaxy(
     ),
 )
 
-
 tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
 
 fit_very_bad = al.FitImaging(dataset=dataset, tracer=tracer)
@@ -590,33 +639,51 @@ fit_very_bad = al.FitImaging(dataset=dataset, tracer=tracer)
 aplt.subplot_fit_imaging(fit=fit_very_bad)
 
 """
-It is now evident that this model provides a terrible fit to the data. The tracer does not resemble a plausible
-representation of our simulated strong lens dataset, which we already anticipated given that we generated the data ourselves!
+Print the three log likelihoods together and compare their ordering with
+what you saw in the residual plots.
 
-As expected, the log likelihood has dropped dramatically with this poorly fitting model.
+For this example, the larger source displacement should produce the strongest
+disagreement and the lowest log likelihood.
 """
-print("Previous Likelihoods:")
+print("Reference source centre (0.1, 0.1):")
 print(fit.log_likelihood)
+
+print("Source centre (0.15, 0.15):")
 print(fit_bad.log_likelihood)
-print("New Likelihood:")
+
+print("Source centre (0.5, 0.5):")
 print(fit_very_bad.log_likelihood)
+
+"""
+We have evaluated three choices of parameters, rather than searched for
+the best-fitting values.
+
+The parameters used to generate the simulation provide a useful reference,
+but they need not give the highest possible likelihood for one noisy
+observation. Small parameter changes can sometimes improve agreement with
+that particular noise realisation.
+
+To restore the original comparison, rerun the first tracer and `FitImaging`
+cells in the Fitting section.
+
+**🤖 Ask AI:** Why might the parameters that maximise the likelihood of a
+noisy simulated image differ slightly from those used to generate it?
+"""
 
 """
 __Model Fitting__
 
-In the previous sections, we used the true model to fit the data, which resulted in a high log likelihood and minimal 
-residuals. We also demonstrated how even small deviations from the true parameters can significantly degrade the fit 
-quality, reducing the log likelihood.
+So far, we have compared parameter choices with a known reference model.
+For a real observation, we do not know the lens and source parameters in
+advance. Finding values that describe the data well is the task of model
+fitting.
 
-In practice, however, we don't know the "true" model. For example, we might have an image of a strong lens observed with 
-the Hubble Space Telescope, but the values for parameters like its `einstein_radius` and others are 
-unknown. The process of determining the best-fit model is called model fitting, and it is the main topic of
-Chapter 2 of **HowToLens**.
+Let's try this manually using a new simulated dataset. It contains an
+`IsothermalSph` lens mass profile and an `ExponentialCoreSph` source light
+profile, with no light from the lens galaxy.
 
-To conclude this section, let's perform a basic, hands-on model fit to develop some intuition about how we can find 
-the best-fit model. We'll start by loading a simple dataset that was simulated without any lens light, using 
-an `IsothermalSph` lens  mass profile and `ExponentialCoreSph` source light profile, but the true parameters of these 
-profiles are unknown.
+For this exercise, treat the parameters used to generate the data as unknown.
+We load the image and apply a circular mask as before.
 """
 dataset_name = "simple__no_lens_light__mass_sis"
 dataset_path = Path("dataset") / "imaging" / dataset_name
@@ -648,28 +715,20 @@ dataset = dataset.apply_mask(mask=mask)
 aplt.subplot_imaging_dataset(dataset=dataset)
 
 """
-Now, you'll try to determine the best-fit model for this image, corresponding to the parameters used to simulate the 
-dataset.
+The parameters below are a starting guess. Run the cell and inspect the
+predicted image, residuals and log likelihood.
 
-We'll use the simplest possible approach: try different combinations of light and mass profile parameters and adjust 
-them based on how well each model fits the data. You’ll quickly find that certain parameters produce a much better fit 
-than others. For example, determining the correct values of the `centre` should not take too long.
-
-Pay attention to the `log_likelihood` and the `residual_map` as you adjust the parameters. These will guide you in 
-determining if your model is providing a good fit to the data. Aim to increase the log likelihood and reduce the 
-residuals.
-
-Keep experimenting with different values for a while, seeing how small you can make the residuals and how high you 
-can push the log likelihood. Eventually, you’ll likely reach a point where further improvements become difficult, 
-even after trying many different parameter values. This is a good point to stop and reflect on your first experience 
-with model fitting.
+The lens and source centres are `(y, x)` coordinates in arcseconds.
+The Einstein radius, effective radius and break radius are also in
+arcseconds. The source intensity uses the image's units of electrons
+per second per pixel.
 """
-
 lens_galaxy = al.Galaxy(
     redshift=0.5,
     mass=al.mp.IsothermalSph(
-        centre=(1.0, 1.0), einstein_radius=1.0
-    ),  # These are the lens parameters you need to adjust
+        centre=(1.0, 1.0),
+        einstein_radius=1.0,
+    ),
 )
 
 source_galaxy = al.Galaxy(
@@ -678,7 +737,7 @@ source_galaxy = al.Galaxy(
         centre=(1.0, 1.0),
         intensity=1.0,
         effective_radius=1.0,
-        radius_break=0.025,  # These are the source parameters you need to adjust
+        radius_break=0.025,
     ),
 )
 
@@ -691,40 +750,188 @@ aplt.subplot_fit_imaging(fit=fit)
 print("Log Likelihood:")
 print(fit.log_likelihood)
 
+"""
+Try changing one parameter at a time and rerunning the cell above. Record
+the log likelihood for each choice and use the residual plots to understand
+what changed.
+
+Start with the lens centre. Try `(0.5, 0.5)` and `(0.0, 0.0)` instead of
+`(1.0, 1.0)`. This changes the location about which the lens deflects light.
+
+Next, try changing the source centre in the same way. This changes how the
+source is positioned behind the lens and therefore the arrangement of its
+multiple images.
+
+You can then explore:
+
+- `einstein_radius`: try 1.3 and 1.6 arcseconds instead of 1.0. This changes
+  the characteristic angular scale of the lensing.
+- `effective_radius`: try 0.5 and 0.2 arcseconds instead of 1.0. This changes
+  the source size and the extent of its lensed features.
+- `intensity`: try 0.5 and 0.2 instead of 1.0. With the other parameters
+  fixed, this scales the predicted brightness.
+
+Keep `radius_break=0.025` and both redshifts fixed for this exercise.
+
+Retain changes that improve the log likelihood, but continue inspecting
+the residuals. The parameters interact, so a useful change at one stage
+may need revisiting after another parameter changes.
+
+To restore the original starting point, set both centres to `(1.0, 1.0)`,
+and set `einstein_radius`, `effective_radius` and `intensity` to 1.0, then
+rerun the cell.
+"""
 
 """
-Manually guessing model parameters repeatedly is a very inefficient and slow way to find the best fit. If the model 
-were more complex—say, if the source galaxy had additional light profile components beyond just its `bulge` (like a 
-second `Sersic` profile representing a `disk`)—the model would become so intricate that this manual approach 
-would be practically impossible. This is definitely not how model fitting is done in practice.
+You have now performed a simple manual search: choose parameters, predict
+an image, compare it with the data, then use that comparison to choose
+another set of parameters.
 
-However, this exercise has given you a basic intuition for how model fitting works. The statistical inference tools 
-that are actually used for model fitting will be introduced in Chapter 2. Interestingly, these tools are not entirely 
-different from the approach you just tried. Essentially, they also involve iteratively testing models until those 
-with high log likelihoods are found. The key difference is that a computer can perform this process thousands of 
-times, and it does so in a much more efficient and strategic way.
+The aim is not to make every residual vanish. A suitable prediction should
+leave fluctuations consistent with the noise, without substantial coherent
+structure.
 
-__Wrap Up__
+Nor does finding a good-looking result establish that it is the best possible
+solution or tell us the uncertainty in its parameters. Several parameter
+combinations may describe the data similarly well.
 
-In this tutorial, you have learned how to fit a lens model to imaging data, a fundamental process in astronomy
-and statistical inference. 
+Manual exploration becomes difficult as the number of parameters grows.
+Chapter 2 introduces methods that explore parameter choices systematically
+and quantify what we can infer from the data.
 
-Let's summarise what we have covered:
+**🤖 Ask AI:** How could changing both the source size and its intensity
+make it difficult to determine either parameter by adjusting them manually?
+"""
 
-- **Dataset**: We loaded the imaging dataset that we previously simulated, consisting of the tracer image, noise map,
-  and PSF.
-  
-- **Mask**: We applied a circular mask to the data, excluding regions with low signal-to-noise ratios from the analysis.
+r"""
+__Likelihood Function__
 
-- **Masked Grid**: We created a masked grid, which contains only the coordinates of unmasked pixels, to evaluate the
-  tracer's light profile.
-  
-- **Fitting**: We fitted the data with a lens model, computing key quantities like the model image, residuals,
-  chi-squared, and log likelihood to assess the quality of the fit.
-  
-- **Bad Fits**: We demonstrated how even small deviations from the true parameters can significantly impact the fit
-  quality, leading to decreased log likelihood values.
-  
-- **Model Fitting**: We performed a basic model fit on a simple dataset, adjusting the model parameters to improve the
-  fit quality.  
+Everything we have learned can now be put into a single sequence:
+
+1. Choose the lens and source parameters.
+2. Construct their profiles and ray-trace the source to predict a lensed image.
+3. Convolve that image with the telescope's PSF.
+4. Subtract the prediction from the observed data.
+5. Divide the residuals by the noise standard deviations and sum their squares.
+6. Include the Gaussian normalisation to calculate the log likelihood.
+
+For a fixed dataset, this sequence defines a function of the model parameters:
+the likelihood function. We usually work with its natural logarithm, the
+log-likelihood function.
+
+Writing the parameters collectively as \(\boldsymbol{\theta}\), we have:
+
+\[
+\log \mathcal{L}(\boldsymbol{\theta})
+=
+-\frac{1}{2}
+\sum_{i=1}^{N}
+\left[
+\frac{(d_i-m_i(\boldsymbol{\theta}))^2}{\sigma_i^2}
++
+\log(2\pi\sigma_i^2)
+\right]
+\]
+
+The data, mask, PSF and noise map remain fixed. Changing the parameters changes
+the predicted image \(m_i(\boldsymbol{\theta})\), and therefore the value
+returned by the function.
+
+The function below implements this sequence for our exercise. `FitImaging`
+handles the image prediction and PSF convolution, including light that blurs
+across the mask boundary. We then write out the statistical calculation
+explicitly using the unmasked pixels.
+
+The redshifts and source break radius remain fixed, as in the exercise.
+"""
+def log_likelihood_function(
+    dataset,
+    lens_centre,
+    einstein_radius,
+    source_centre,
+    intensity,
+    effective_radius,
+):
+    lens_galaxy = al.Galaxy(
+        redshift=0.5,
+        mass=al.mp.IsothermalSph(
+            centre=lens_centre,
+            einstein_radius=einstein_radius,
+        ),
+    )
+
+    source_galaxy = al.Galaxy(
+        redshift=1.0,
+        bulge=al.lp.ExponentialCoreSph(
+            centre=source_centre,
+            intensity=intensity,
+            effective_radius=effective_radius,
+            radius_break=0.025,
+        ),
+    )
+
+    tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
+    fit = al.FitImaging(dataset=dataset, tracer=tracer)
+
+    model_image = fit.model_data.slim
+    residuals = dataset.data.slim - model_image
+    normalized_residuals = residuals / dataset.noise_map.slim
+
+    chi_squared = np.sum(normalized_residuals**2)
+    noise_normalization = np.sum(
+        np.log(2 * np.pi * dataset.noise_map.slim**2)
+    )
+
+    return -0.5 * (chi_squared + noise_normalization)
+
+
+"""
+Evaluate the function using your current exercise parameters. Its result
+should agree with the log likelihood from the corresponding `FitImaging`
+object.
+"""
+exercise_log_likelihood = log_likelihood_function(
+    dataset=dataset,
+    lens_centre=lens_galaxy.mass.centre,
+    einstein_radius=lens_galaxy.mass.einstein_radius,
+    source_centre=source_galaxy.bulge.centre,
+    intensity=source_galaxy.bulge.intensity,
+    effective_radius=source_galaxy.bulge.effective_radius,
+)
+
+print("Log likelihood from our function:")
+print(exercise_log_likelihood)
+
+print("Log likelihood from FitImaging:")
+print(fit.log_likelihood)
+
+"""
+Each call evaluates one choice of parameters and returns one number. It does
+not search for better parameters, and it does not generate new random noise.
+
+The notion of a likelihood function is central to Chapter 2. The search
+methods introduced there repeatedly supply different parameter choices to
+this function and use the returned likelihoods to explore which choices
+describe the data well. Understanding this sequence is therefore the
+foundation for understanding how automated lens modelling works.
+
+The interferometer, point-source, weak-lensing, group-scale and cluster-scale
+examples shown in Tutorial 5 each have their own bespoke likelihood
+functions, tailored to their measurements and analysis. They follow the
+same principle: predict the observables from a set of parameters, then compare
+those predictions with the data using the appropriate uncertainties.
+
+The `autolens_workspace` provides step-by-step guides to every likelihood
+function in PyAutoLens. These unpack the calculations for different dataset
+types and analysis methods, just as we have done here.
+
+For the imaging calculation introduced in this tutorial, see the workspace's
+[imaging likelihood-function guide](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/imaging/likelihood_function.py).
+The corresponding sections of the workspace provide guides for the other
+likelihood functions.
+
+You have now followed the full path from a lens and source description to a
+quantitative comparison with an observation. In Chapter 2, we will use this
+likelihood function to move from trying parameters by hand to exploring them
+systematically.
 """
