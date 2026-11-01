@@ -401,39 +401,61 @@ differences between the model image and the data.
 aplt.plot_array(array=dataset.noise_map, title="Simulated Noise Map")
 
 """
-The `signal-to-noise_map` shows the ratio of the signal in each pixel to the noise level in that pixel. It is 
-calculated by dividing the `data` by the `noise_map`.
+The `signal_to_noise_map` compares each pixel's measured brightness with its
+estimated noise level. It is calculated by dividing `data` by `noise_map`,
+giving a dimensionless ratio.
 
-This ratio helps us understand how much of the observed signal is reliable compared to the noise, allowing us to 
-see where we can trust the detected signal from the strong lens and where the noise is more significant.
+For example, a value of 5 means that the pixel's measured brightness is five
+times its estimated noise standard deviation. Look for high values along the
+bright arcs and lower values where the source is faint.
 
-In general, a signal-to-noise ratio greater than 3 indicates that the signal is likely real and not overwhelmed by 
-noise. For our datasets, the signal-to-noise ratio peaks at ~70, meaning we can trust the signal detected in the
-image.
+PyAutoLens sets negative ratios to zero in this map. The negative values in
+the background-subtracted data are still present in `dataset.data`; this
+operation only affects the signal-to-noise map.
+
+A high value indicates that a pixel stands out relative to its estimated
+noise. A single threshold does not, by itself, establish that a feature is
+real: its spatial structure and the properties of the noise also matter.
 """
-aplt.plot_array(array=dataset.signal_to_noise_map, title="Signal-To-Noise Map")
+aplt.plot_array(
+    array=dataset.signal_to_noise_map,
+    title="Signal-To-Noise Map",
+)
 
 """
-The `aplt.subplot_imaging_dataset` object can display all of these components together, making it a powerful tool for visualizing 
-simulated imaging data.
+We can display the dataset's main components together using
+`aplt.subplot_imaging_dataset`.
 
-It also shows the Data and PSF on a logarithmic (log10) scale, which helps highlight the faint details in these 
-components.
+Compare the data, noise map and signal-to-noise map. The bright arcs have
+larger absolute noise than the faint background, but they also have a stronger
+signal relative to that noise.
 
-The "Over Sampling" plots on the bottom of the figures display advanced features that can be ignored for now.
+The figure includes logarithmic views of the data and PSF to help show faint
+structure. These change how the values are displayed, not the underlying data.
+
+Any panels labelled "Over Sample Size" describe how finely the model is
+evaluated within pixels. We can leave these numerical settings aside here.
 """
 aplt.subplot_imaging_dataset(dataset=dataset)
 
 """
 __Output__
 
-We will now save these simulated data to `.fits` files, the standard format used by astronomers for storing images.
-Most imaging data from telescopes like the Hubble Space Telescope (HST) are stored in this format.
+We will save the simulated imaging dataset in FITS format, which is widely
+used in astronomy for images and related data.
 
-The `dataset_path` specifies where the data will be saved, in this case the `dataset/imaging/howtolens/`
-directory of the HowToLens repository (paths are relative to the repository root, from which scripts are run).
+The files contain:
 
-The files are named `data.fits`, `noise_map.fits`, and `psf.fits`, and will be used in the next tutorial.
+- `data.fits`: the simulated image after subtraction of the mean sky level.
+- `noise_map.fits`: the estimated noise standard deviation in each pixel.
+- `psf.fits`: the PSF kernel used to blur the image.
+
+They are written to `dataset/imaging/howtolens/`, relative to the repository
+root from which this script is run. The next tutorial will load these files
+and compare the data with a lens model.
+
+With `overwrite=True`, rerunning this cell replaces any existing files with
+these names.
 """
 dataset_path = Path("dataset") / "imaging" / "howtolens"
 print("Dataset Path: ", dataset_path)
@@ -449,14 +471,24 @@ aplt.fits_imaging(
 """
 __Point Source Data__
 
-In Tutorial 4, we predicted the positions of a point source's multiple images. For real observations, we measure
-these positions from the telescope image, accounting for its blurring and the foreground galaxy's light. Each
-position also has an uncertainty.
+In Tutorial 4, we predicted the positions of a point source's multiple images.
+For an observed lens, we can measure these positions from the telescope image,
+accounting for the PSF and light from the foreground galaxy. Each measured
+position has an uncertainty.
 
-A `PointDataset` collects these measurements for lens modelling. The illustrative values below are rounded from
-Tutorial 4's predictions, rather than measured from observations. We include positions in arcseconds, fluxes in
-arbitrary units and time delays in days relative to the first image, with assumed uncertainties of 0.01 arcseconds,
-about 10 per cent in flux and one day in delay.
+A `PointDataset` stores these measurements for analysis. It can also
+include the images' fluxes and, for a variable source, the time delays between
+them. Time delays are measured by monitoring how the source's variations
+appear at different times in its multiple images.
+
+The example below uses values rounded from Tutorial 4's predictions, with
+assumed measurement uncertainties. These are illustrative data, not
+measurements from a real observation.
+
+Positions are in arcseconds, fluxes are in arbitrary units and time delays
+are in days relative to the first image. We assume positional uncertainties
+of 0.01 arcseconds, flux uncertainties of about 10 per cent and time-delay
+uncertainties of one day.
 """
 point_dataset = al.PointDataset(
     name="point_0",
@@ -476,14 +508,23 @@ point_dataset = al.PointDataset(
 print(point_dataset.info)
 
 """
-The positions use `(y, x)` coordinates, and every list follows the same image order. Negative delays mean that
-an image arrives before the first image. The name `point_0` matches the point-source component introduced in
-Tutorial 4, connecting these measurements to that source when fitting a model.
+Inspect the printed dataset summary. Positions use `(y, x)` coordinates, and
+the position, flux and time-delay lists all follow the same image order.
 
-Fluxes and time delays are optional: positions alone are enough to begin modelling. For more on loading and
-fitting these datasets, continue to the workspace's
+The first image defines the zero of the time delays. A negative delay means
+that the corresponding image arrives before this reference image. The zero
+entry is a reference choice, not an independently measured delay.
+
+The name `point_0` identifies the source associated with these measurements,
+matching the point-source component introduced in Tutorial 4.
+
+Fluxes and time delays are optional: a dataset can contain only positions
+and their uncertainties. For further examples of working with these data,
+see the workspace's
 [point-source examples](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/point_source/start_here.py).
+"""
 
+"""
 __Interferometer Data__
 
 CCD imaging is not the only type of data used to study strong lenses. Radio and sub-mm interferometers, like the
