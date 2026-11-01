@@ -2,40 +2,38 @@ r"""
 Tutorial 3: Scaling Relations
 =============================
 
-The previous tutorial ended on a warning: every deflector we add to a lens model brings its own free parameters.
-Two galaxies were manageable, but each one cost us a mass profile's worth of dimensions, and the arithmetic only
-gets worse. A group-scale lens may have ten member galaxies, a cluster hundreds. If every member keeps its own
-free mass, the parameter space explodes — a 100-galaxy cluster with 5 free mass parameters per galaxy is a
-500-dimensional model, which no non-linear search can sample and no dataset can constrain anyway.
+In the previous tutorial, we saw how adding significant deflectors increases both the number of parameters and
+the degeneracies between galaxy masses. Independently fitting the mass of every member becomes increasingly
+demanding for groups and clusters.
 
-This tutorial introduces the tool that stops the explosion: the **scaling relation**. Instead of giving every
-galaxy its own mass freedom, we set each galaxy's mass from something we can *measure* — its luminosity — via a
-relation shared by the whole population. The relation itself has only a few global parameters (in this tutorial,
-zero new ones!), so the dimensionality of the model stops growing with the number of galaxies. Ten members or a
-hundred, the parameter space stays the same size.
+A **scaling relation** reduces this freedom by linking galaxy mass properties to measured luminosities through
+a relation shared by the population.
 
-This pairs beautifully with a tool we already have. In chapter 2, we saw that a Multi-Gaussian Expansion (MGE)
-fits a galaxy's light using linear algebra, so its intensities add no non-linear parameters. Put the two
-together and the recipe for a many-galaxy lens model emerges:
+Here, one galaxy anchors the relation: its Einstein radius remains free, while the other galaxies' Einstein
+radii follow from their luminosity ratios. With fixed positions, spherical mass profiles and a fixed scaling
+exponent, each additional tied galaxy adds **zero non-linear mass parameters**.
 
-- **Light:** MGE for every galaxy — flexible light models at (almost) no non-linear cost.
-- **Mass:** a scaling relation tying every galaxy's mass to its measured luminosity — a whole population of
-  mass profiles at no non-linear cost.
+The light-model choices still matter. As we discussed in Tutorial 2, a spherical MGE with fixed widths and centre
+adds zero non-linear light parameters. An elliptical MGE with a fixed centre and free shared elliptical
+components adds two, as in this tutorial.
 
-The entire many-galaxy system then costs barely more than a single-lens fit. This tutorial builds that model on
-the two-lens dataset from the previous tutorial, verifies the parameter counting explicitly, and is honest about
-what a scaling relation assumes and when it can bite you.
+Scaling relations therefore control the growth of the mass model; they do not automatically make every part of
+a many-galaxy model independent of galaxy count. More galaxies also increase the computational work required to
+evaluate the model.
+
+We will introduce the method using the familiar two-galaxy dataset, compare parameter counts and examine the
+assumptions we impose when tying galaxy masses together.
 
 __Overview__
 
 In this tutorial, we will:
 
-- Explain the physics of why luminosity predicts lensing mass (mass-follows-light and the Faber-Jackson relation).
+- Explain the assumptions linking luminosity to mass normalization through the Faber-Jackson relation.
 
 - Compose a lens model where one galaxy "anchors" the relation and the other galaxy's Einstein radius is tied to
   it via the ratio of their measured luminosities.
 
-- Verify by explicit parameter counting that tied galaxies add zero free parameters, however many there are.
+- Verify by explicit parameter counting that tied galaxies add zero additional non-linear mass parameters.
 
 - Fit the model and inspect how a tied parameter appears in the results.
 
@@ -63,41 +61,54 @@ __Contents__
 
 __Mass Follows Light__
 
-Why should a galaxy's luminosity tell us anything about its lensing mass?
+Galaxy luminosity provides useful information about mass, but it does not determine an individual galaxy's mass
+exactly.
 
-The starting point is that light traces stars and stars trace mass. A more luminous elliptical galaxy contains
-more stars, sits in a deeper potential well, and its stars therefore move faster. This is quantified by the
-**Faber-Jackson relation**, an empirical scaling law for elliptical galaxies which states that luminosity grows
-steeply with the velocity dispersion \sigma of the stars:
+For early-type galaxies, the empirical **Faber-Jackson relation** links luminosity to stellar velocity dispersion.
+A commonly used approximate form is:
 
-    L ~ \sigma^4
+$$
+L \propto \sigma_\star^4.
+$$
 
-Lensing connects \sigma to the deflection of light. For the isothermal mass profiles we have used throughout
-these tutorials, the Einstein radius is set directly by the velocity dispersion:
+For a spherical isothermal lens, the Einstein radius is related to its mass-model velocity-dispersion parameter by:
 
-    \theta_E = 4 \pi (\sigma / c)^2 (D_ls / D_s)
+$$
+\theta_{\rm E}
+=4\pi\left(\frac{\sigma_{\rm SIS}}{c}\right)^2
+\frac{D_{\rm ls}}{D_{\rm s}},
+$$
 
-where the D's are distances between observer, lens and source. So \theta_E ~ \sigma^2, and combining the two
-scalings gives us a relation between the two things we care about — the Einstein radius we want to know and the
-luminosity we can measure:
+where $D_{\rm ls}$ and $D_{\rm s}$ are angular-diameter distances from lens to source and observer to source.
 
-    \theta_E ~ \sigma^2 ~ (L^{1/4})^2 = L^{1/2}
+Assuming that the mass-model velocity dispersion scales with the measured stellar velocity dispersion, galaxies
+at the same lens redshift lensing the same source approximately satisfy:
 
-If one galaxy in a lens system has a measured luminosity L_anchor and Einstein radius \theta_E_anchor, every
-other galaxy's Einstein radius follows from its own luminosity:
+$$
+\theta_{\rm E}\propto L^{1/2}.
+$$
 
-    \theta_E_i = \theta_E_anchor * (L_i / L_anchor)^{0.5}
+We therefore adopt:
 
-This is the scaling relation we will build into the model below. The exponent 0.5 is the Faber-Jackson value;
-more sophisticated versions exist (the "fundamental plane" adds a dependence on galaxy size and surface
-brightness, tightening the relation), but the Faber-Jackson form captures the essential physics and is the
-standard workhorse for lens modeling. It is the same idea that cluster lensing studies have used for decades:
-tie the hundreds of cluster member galaxies to their luminosities via a scaling relation, so the model stays
-tractable.
+$$
+\theta_{{\rm E},i}
+=\theta_{{\rm E},{\rm anchor}}
+\left(\frac{L_i}{L_{\rm anchor}}\right)^{0.5}.
+$$
 
-The crucial property is that only *ratios* of luminosity enter the relation. The absolute calibration, the
-units, even the waveband cancel out (so long as all galaxies are measured consistently) — which is what makes
-the relation so easy to apply in practice.
+This is a population-level modeling assumption. The exponent need not be universal, individual galaxies scatter
+around the relation, and stellar and mass-model velocity dispersions are not automatically identical.
+
+The phrase "mass follows light" here refers to linking mass normalization to luminosity. We are not requiring
+the spatial mass distribution to have the same shape as the observed light.
+
+Only luminosity ratios enter this expression, so a common multiplicative calibration cancels. However, the
+measurements must use a consistent waveband and luminosity definition. Changing waveband can change the ratios
+because galaxies have different stellar populations and colours.
+
+For galaxies at different redshifts, observed flux ratios are not directly luminosity ratios, and the
+lensing-distance factors also differ. Our example avoids these complications by placing both deflectors at the
+same redshift.
 """
 
 from autolens import jax_wrapper  # Sets JAX environment before other imports
@@ -113,11 +124,17 @@ import autolens.plot as aplt
 """
 __Initial Setup__
 
-We use the same two-lens-galaxy imaging dataset as the previous tutorial, where:
+We use the same two-galaxy imaging dataset as in Tutorial 2:
 
- - Both lens galaxies' light are `Sersic` profiles.
- - Both lens galaxies' mass distributions are `Isothermal` profiles.
- - The source galaxy's light is an `ExponentialCoreSph`.
+- Both lens galaxies have `Sersic` light profiles.
+- Both have `Isothermal` mass profiles.
+- The source light follows an `ExponentialCoreSph` profile.
+
+Reusing this dataset lets us compare independently fitted galaxy masses with masses linked through a scaling
+relation.
+
+The simulated masses were specified independently, so we should check how closely they satisfy our adopted
+relation rather than assume that they do.
 """
 dataset_name = "x2_lens_galaxies"
 dataset_path = Path("dataset") / "imaging" / dataset_name
@@ -149,10 +166,12 @@ aplt.subplot_imaging_dataset(dataset=dataset)
 """
 __Mask__
 
-We define a 3.0" circular mask, which contains both lens galaxies (centred at (0.0", -1.0") and (0.0", 1.0"))
-and the lensed source emission.
+We use the same 4.0" circular mask as in Tutorial 2, centred between the two lens galaxies.
+
+Keeping the fitting region consistent helps us compare the effects of changing the model. Inspect the masked
+subplot to check that the lensed emission we want to analyze is retained.
 """
-mask_radius = 3.0
+mask_radius = 4.0
 
 mask = al.Mask2D.circular(
     shape_native=dataset.shape_native,
@@ -164,22 +183,37 @@ dataset = dataset.apply_mask(mask=mask)
 
 aplt.subplot_imaging_dataset(dataset=dataset)
 
-"""
+r"""
 __Measured Luminosities__
 
-The scaling relation needs two inputs for every galaxy it touches: its centre and its luminosity. Neither is a
-free parameter of the model — both are **measurements**, made from the imaging data before the mass model is
-ever fitted.
+Our relation uses a measured position and luminosity estimate for each galaxy. We treat these as fixed inputs
+in this example.
 
-In a real analysis these come from a light-only fit performed first: for example, fitting an MGE to every
-galaxy and integrating it to a total flux (the `autolens_workspace`'s scaling-relation SLaM pipeline does exactly
-this). Because only luminosity *ratios* enter the relation, a magnitude catalogue from any survey works just as
-well, converting via `L_i / L_anchor = 10 ** (0.4 * (m_anchor - m_i))`.
+For real observations, positions and luminosities can come from a preliminary light-profile fit or a suitable
+photometric catalogue. In blended systems, separating each galaxy's light from its neighbours and the lensed
+source is an important part of this measurement.
 
-In this tutorial we take a shortcut available only with simulated data: the simulator saved the true galaxies to
-a `tracer.json` file, so we load it and integrate each lens galaxy's true light profile directly. This keeps the
-tutorial self-contained, but keep in mind that on real data this step is a fit to the data, with its own
-(small) uncertainties.
+Magnitudes measured consistently in the same band can be converted to flux ratios using:
+
+$$
+\frac{F_i}{F_{\rm anchor}}
+=10^{0.4(m_{\rm anchor}-m_i)}.
+$$
+
+For galaxies at the same distance, with consistent photometric treatment, these provide the luminosity ratios
+used here.
+
+Because this dataset is simulated, we can load the true light profiles from `tracer.json`. We obtain each
+galaxy's centre and integrate its profile within a circular aperture of radius `mask_radius`, centred on that
+galaxy.
+
+These are **aperture luminosities**, not integrals over the entire profile. Using the same aperture definition
+makes the measurements consistent, but does not guarantee that the aperture contains the same fraction of every
+galaxy's total light.
+
+This shortcut isolates the scaling-relation machinery. Real measurements have uncertainties from noise, blending
+and light-model choices; treating their values as fixed does not propagate those uncertainties into the inferred
+masses.
 """
 tracer_true = al.from_json(file_path=dataset_path / "tracer.json")
 
