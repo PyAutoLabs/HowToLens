@@ -6,14 +6,15 @@ Tutorial 2 introduced `Constant` regularization. Different regions of the source
 regularization, motivating a scheme which adapts to the reconstructed source's surface brightness.
 
 This raises the same question as before, how do we adapt our regularization scheme to the source before we've
-reconstructed it? Just like in the last tutorial, we'll use a model image of a strongly lensed source from a previous
-model that we've begun calling the `adapt-image`.
+reconstructed it? Just like in the last tutorial, we'll use a model image of a strongly lensed source from a
+previous model that we've begun calling the `adapt-image`.
 
 __Contents__
 
 - **Initial Setup:** we'll use the same strong lensing data as the previous tutorial, where.
 - **Convenience Function:** We are going to fit the image using a magnification based grid.
-- **Adaptive Regularization:** Lets now look at adaptive regularization in action, by setting up a adapt-image and using the.
+- **Adaptive Regularization:** Lets now look at adaptive regularization in action, by setting up a adapt-image and
+  using the.
 - **Wrap Up:** Summary of the script and next steps.
 
 """
@@ -25,11 +26,13 @@ from autolens import jax_wrapper  # Sets JAX environment before other imports
 from pathlib import Path
 import autolens as al
 import autolens.plot as aplt
+import autoarray.plot as aaplt
 
 """
 __Initial Setup__
 
-we'll use the same strong lensing data as the previous tutorial, where:
+Tutorial 8's compactness experiment motivates the need for resolution and smoothing checks. As in tutorial 11, this
+standalone example uses `simple__no_lens_light`, rather than the progressively compact simulations, where:
 
  - The lens galaxy's light is omitted.
  - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.
@@ -41,8 +44,8 @@ dataset_path = Path("dataset") / "imaging" / dataset_name
 """
 __Dataset Auto-Simulation__
 
-If the dataset does not already exist on your system, it will be created by running the corresponding
-simulator script. This ensures that all example scripts can be run without manually simulating data first.
+If the dataset does not already exist on your system, it will be created by running the corresponding simulator
+script. This ensures that all example scripts can be run without manually simulating data first.
 """
 if al.util.dataset.should_simulate(str(dataset_path)):
     import subprocess
@@ -71,7 +74,7 @@ dataset = dataset.apply_mask(mask=mask)
 """
 __Convenience Function__
 
-We are going to fit the image using a magnification based grid. 
+We are going to fit the image using a magnification based grid.
 
 To perform the fits, we'll use a convenience function to fit the lens data we simulated above.
 """
@@ -105,7 +108,8 @@ pixelization = al.Pixelization(
 
 source_magnification = al.Galaxy(redshift=1.0, pixelization=pixelization)
 
-fit = fit_via_source_galaxy_from(dataset=dataset, source_galaxy=source_magnification)
+constant_fit = fit_via_source_galaxy_from(dataset=dataset, source_galaxy=source_magnification)
+fit = constant_fit
 
 mapper = fit.inversion.cls_list_from(al.Mapper)[0]
 
@@ -114,20 +118,23 @@ aplt.subplot_fit_imaging(fit=fit)
 aplt.plot_array(array=fit.model_data, title="Plane 1 Image")
 
 """
-The fit looks just like it did in the previous tutorials (residuals in the centre due to a lack of source pixels). 
-
-Lets quickly remind ourselves that the effective regularization weight of each source pixel is our input coefficient 
-value of 3.3.
+Inspect the residuals before changing the prior. We can display the actual regularization weights on the source
+mesh: Constant gives every source value the input coefficient of 3.3. These are weights, rather than source
+brightnesses or an image-plane reconstruction.
 """
-aplt.plot_array(
-    array=fit.inversion.mapped_reconstructed_operated_data, title="Inversion"
+constant_weights = mapper.regularization.regularization_weights_from(linear_obj=mapper)
+aaplt.plot_mapper(
+    mapper=mapper, solution_vector=constant_weights,
+    mesh_grid=mapper.source_plane_mesh_grid, zoom_to_brightest=False,
+    vmin=0.0, vmax=4.0, title="Constant Regularization Weights",
 )
+print("Constant weight range:", float(min(constant_weights)), float(max(constant_weights)))
 
 """
 __Adaptive Regularization__
 
-Lets now look at adaptive regularization in action, by setting up a adapt-image and using the `Adapt` 
-regularization scheme. 
+Lets now look at adaptive regularization in action, by setting up a adapt-image and using the `Adapt`
+regularization scheme.
 
 This introduces additional parameters, that are explained below.
 """
@@ -143,7 +150,6 @@ pixelization = al.Pixelization(
 source_adapt_regularization = al.Galaxy(
     redshift=1.0,
     pixelization=pixelization,
-    adapt_galaxy_image=adapt_image,
 )
 
 adapt_images = al.AdaptImages(
@@ -156,51 +162,59 @@ fit = fit_via_source_galaxy_from(
     adapt_images=adapt_images,
 )
 
-aplt.plot_array(
-    array=fit.inversion.mapped_reconstructed_operated_data,
-    title="Inversion Reconstruction",
+adaptive_fit = fit
+mapper = fit.inversion.cls_list_from(al.Mapper)[0]
+adaptive_weights = mapper.regularization.regularization_weights_from(linear_obj=mapper)
+aaplt.plot_mapper(
+    mapper=mapper, solution_vector=adaptive_weights,
+    mesh_grid=mapper.source_plane_mesh_grid, zoom_to_brightest=False,
+    vmin=0.0, vmax=4.0, title="Adaptive Regularization Weights",
 )
+aaplt.plot_mapper(
+    mapper=mapper, solution_vector=fit.inversion.reconstruction,
+    mesh_grid=mapper.source_plane_mesh_grid, title="Adaptively Regularized Source",
+)
+print("Adaptive weight range:", float(min(adaptive_weights)), float(max(adaptive_weights)))
 
 """
-As expected, we now have a variable regularization scheme. 
+The weights now vary across the source mesh. Compare their locations with the reconstructed source, using the same
+weight colour scale as the Constant example. These weights enter the regularization matrix; they are not
+uncertainties on the reconstructed brightnesses.
 
-The regularization of the source's brightest regions is much lower than that of its outer regions. As discussed 
-before, this is what we want. Lets quickly check that this does, indeed, increase the Bayesian log evidence:
+Let us compare the evidence measured from these two fits:
 """
-print("Evidence using constant regularization. ", 4216)
-print("Evidence using adaptive regularization. ", fit.log_evidence)
+print("Evidence using constant regularization:", constant_fit.log_evidence)
+print("Evidence using adaptive regularization:", adaptive_fit.log_evidence)
+print("Difference in log evidence:", adaptive_fit.log_evidence - constant_fit.log_evidence)
 
-"""
-Yes, it does! 
-
-Combining the adaptive mesh and regularization will only further benefit lens modeling!
-
-However, as shown below, we don't fit the source as well as the morphology based mesh did in the previous tutorial.
-This is because although the adaptive regularization scheme improves the fit, the magnification based
-mesh simply does not have sufficient resolution to resolve the source's cuspy central light.
-"""
 aplt.subplot_fit_imaging(fit=fit)
 
 """
+An evidence increase is something to measure, rather than assume. The mesh is unchanged here, so this comparison
+examines the regularization choice. These hand-chosen settings are not optimized, and varying the smoothing cannot
+supply resolution that the source mesh lacks. Inspect the source and residuals alongside the evidence.
+
 __How does adaptive regularization work?__
 
-For every source-pixel, we have a mapping between that pixel and a set of pixels in the adapt-image. Therefore, for 
-every source-pixel, if we sum the values of all adapt-image pixels that map to it we get an estimate of how much of 
+For every source-pixel, we have a mapping between that pixel and a set of pixels in the adapt-image. Therefore, for
+every source-pixel, if we sum the values of all adapt-image pixels that map to it we get an estimate of how much of
 the lensed source's signal we expect will be reconstructed. We call this each pixel's `pixel signal`.
 
-If a source-pixel has a higher pixel-signal, we anticipate that it`ll reconstruct more flux and we use this information 
-to regularize it less. Conversely, if the pixel-signal is close to zero, the source pixel will reconstruct near-zero 
-flux and regularization will smooth over these pixels by using a high regularization coefficient.
+If a source-pixel has a higher pixel-signal, we anticipate that it`ll reconstruct more flux and we use this
+information to regularize it less. Conversely, if the pixel-signal is close to zero, the source pixel will
+reconstruct near-zero flux and regularization will smooth over these pixels by using a high regularization
+coefficient.
 
 This works as follows:
 
  1) For every source pixel, compute its pixel-signal, the summed flux of all corresponding image-pixels in the 
  adapt-galaxy-image.
     
- 2) Divide every pixel-signal by the number of image-pixels that map directly to that source-pixel. In doing so, all 
+ 2) Divide every pixel-signal by the number of image-pixels that map directly to that source-pixel. In doing so,
+ all
  pixel-signals are 'relative'. This means that source-pixels which by chance map to more image-pixels than their 
  neighbors will not have a higher pixel-signal, and visa versa. This ensures the specific pixelization
- does impact the adaptive regularization pattern.
+ does not by itself determine the adaptive regularization pattern.
     
  3) Divide the pixel-signals by the maximum pixel signal so that they range between 0.0 and 1.0.
     
@@ -212,22 +226,23 @@ This works as follows:
     
  (inner_coefficient * pixel_signals + outer_coefficient * (1.0 - pixel_signals)) ** 2.0
     
- This uses two regularization coefficient parameters, one which is applied to pixels with high pixel-signals and one to 
+ This uses two regularization coefficient parameters, one which is applied to pixels with high pixel-signals and
+ one to
  pixels with low pixel-signals. Thus, pixels in the inner regions of the source may be given a lower level of 
  regularization than pixels further away, as desired.
 
-Thus, we now adapt our regularization scheme to the source's surface brightness. Where its brighter (and therefore 
-has a steeper flux gradient) we apply a lower level of regularization than further out. Furthermore, in the edges of 
-the source-plane where no source-flux is present we will assume a high regularization coefficient that smooths over 
-all of the source-pixels.
+Thus, we now adapt our regularization scheme to the source's surface brightness. Where its brighter (and therefore
+has a steeper flux gradient) we apply a lower level of regularization than further out. Furthermore, in the edges
+of the source-plane where no source-flux is present we will assume a high regularization coefficient that smooths
+over all of the source-pixels.
 
-Try looking at a couple of extra solutions which use with different inner and outer regularization coefficients or 
-signal scales. I doubt you'll notice a lot change visually, but the log evidence certainly has a lot of room for 
+Try looking at a couple of extra solutions which use with different inner and outer regularization coefficients or
+signal scales. I doubt you'll notice a lot change visually, but the log evidence certainly has a lot of room for
 manuveur with different values.
 
-You may find solutions that raise an `InversionException`. These solutions mean that the matrix used during the 
-linear algebra calculation was ill-defined, and could not be inverted. These solutions are removed 
-during lens modeling.
+You may find solutions that raise an `InversionException`. These solutions mean that the matrix used during the
+linear algebra calculation was ill-defined, and could not be inverted. These solutions are removed during lens
+modeling.
 """
 pixelization = al.Pixelization(
     mesh=al.mesh.RectangularBilinearAdaptDensity(shape=(24, 24)),
@@ -239,7 +254,6 @@ pixelization = al.Pixelization(
 source_adapt_regularization = al.Galaxy(
     redshift=1.0,
     pixelization=pixelization,
-    adapt_galaxy_image=adapt_image,
 )
 
 adapt_images = al.AdaptImages(
@@ -262,31 +276,30 @@ aplt.plot_array(
     title="Inversion Reconstruction",
 )
 
-print("Evidence using adaptive regularization. ", fit.log_evidence)
+alternative_weights = mapper.regularization.regularization_weights_from(linear_obj=mapper)
+aaplt.plot_mapper(
+    mapper=mapper, solution_vector=alternative_weights,
+    mesh_grid=mapper.source_plane_mesh_grid, zoom_to_brightest=False,
+    vmin=0.0, vmax=4.0, title="Alternative Adaptive Regularization Weights",
+)
+print("Evidence using alternative adaptive regularization:", fit.log_evidence)
+print("Difference from constant regularization:", fit.log_evidence - constant_fit.log_evidence)
+print("Difference from first adaptive example:", fit.log_evidence - adaptive_fit.log_evidence)
 
 """
 __Wrap Up__
 
-To end, lets consider what this adaptive regularization scheme means in the context of maximizing the Bayesian
-evidence. In the previous tutorial, we noted that by using a brightness-based adaptive pixelization we increased
-the Bayesian evidence by allowing for new solutions which fit the data using fewer source pixels; the key criteria
-in making a source reconstruction 'more simple' and 'less complex'.
+Adaptive regularization lets bright and faint parts of the source receive different smoothing weights. Lower
+weights can preserve sharp structure where the data support it; higher weights can correlate values in faint
+regions that would otherwise fit noise. The adapt image guides that distinction and must itself be checked.
 
-As you might have guessed, adaptive regularization increases the Bayesian log evidence by making the source
-reconstruction simpler:
+The evidence comparisons quantify the outcomes for our chosen settings. They do not guarantee an increase for every
+dataset, a unique maximum, or recovery of arbitrary source detail. Mesh resolution, the adapt image and the lens
+model still limit the reconstruction. In a scientific analysis, explore the regularization parameters and inspect
+the source and residuals together.
 
- 1) Reducing regularization in the source's brightest regions produces a `simpler` solution in that we are not
- over-smoothing our reconstruction of its brightest regions.
-
- 2) Increasing regularization in the outskirts produces a simpler solution by correlating more source-pixels,
- effectively reducing the number of pixels used by the reconstruction.
-
-Together, brightness based pixelizations and regularization allow us to find the objectively `simplest` source
-solution possible and therefore ensure that our Bayesian evidence has a well defined maximum value. This was not the
-case for magnification based pixelizations and constant regularization schemes.
-
-That completes this chapter on pixelized source reconstruction. You can now reconstruct sources of arbitrary
-complexity and adapt every part of the analysis to the data itself. In chapter 4, `Scaling Up Lensing`, we take these
-tools to bigger systems: lenses with extra galaxies along the line of sight, multi-galaxy lenses, scaling relations,
-group and cluster scale lenses and weak lensing.
+That completes this chapter on pixelized source reconstruction. You can now investigate flexible source
+reconstructions while checking the assumptions that shape them. In chapter 4, `Scaling Up Lensing`, we take these
+tools to bigger systems: lenses with extra galaxies along the line of sight, multi-galaxy lenses, scaling
+relations, group and cluster scale lenses and weak lensing.
 """

@@ -209,11 +209,10 @@ positions = al.Grid2DIrregular(
 )
 
 """
-To check the image-positions are accurate we can plot them using the `lines=`/`positions=` overlays object (they are the magenta dots on 
-the image).
+To check that the image positions are accurate, we plot them as marked points on the image using `positions=`.
 """
 
-aplt.subplot_imaging_dataset(dataset=dataset)
+aplt.subplot_imaging_dataset(dataset=dataset, positions=positions)
 
 """
 For the positions to be used in a model-fit, we create a `PositionsLH` object which we pass to 
@@ -243,9 +242,8 @@ analysis = al.AnalysisImaging(
 """
 __Run Time__
 
-The likelihood evaluation time of the position threshold is below 0.001 seconds, meaning that the initial parameter 
-space sampling is extremely efficient leading to a significant speed up of the model-fit (not accounted for in
-the run-time estimate below).
+Checking a few positions is cheaper than evaluating the full image likelihood. Rejecting unsuitable mass models early
+can therefore speed up the initial exploration of parameter space; the benefit depends on the model and dataset.
 
 __Search__
 

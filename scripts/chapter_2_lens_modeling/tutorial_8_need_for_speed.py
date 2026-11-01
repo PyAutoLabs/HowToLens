@@ -10,17 +10,17 @@ up in a situation where a model-fit takes days, or longer, to fit just one image
 resolution datasets this is somewhat unavoidable. However, it is worth us discussing what drives the long run-times of
 the lens modeling process and how we might speed it up.
 
-We have carefully tracked the log likelihood evaluation times and therefore expected overall run-time of every
-fit performed in this chapter. Lets quickly remind ourselves of the main factors that drive the run-time, and
-how we might reduce it.
+The preceding tutorials discussed the costs contributing to a fit's elapsed time. Lets remind ourselves of the main
+factors that drive the run-time and how we might reduce it.
 
-The overall run-time of a model-fit is, to a good approximation, a simple product of two numbers:
+For sequential likelihood evaluations, the search's evaluation cost is approximately the product of two numbers:
 
  - The number of log likelihood evaluations the non-linear search performs before it converges.
 
  - The time each individual log likelihood evaluation takes.
 
-Everything we discuss below reduces one (or both) of these numbers.
+Batching evaluates several models together, so this product does not directly predict GPU elapsed time. Compilation
+and saving output also add time. The approaches below address these costs or reduce the exploration needed.
 
 __Contents__
 
@@ -120,20 +120,17 @@ writing the code in a different language.
 
 __Run Time Estimation__
 
-Because run-time is the product of the two numbers above, we can estimate it before committing to a fit:
+Tutorial 2 explains how likelihood cost, the number of evaluations, compilation and output contribute to elapsed time.
+It does not measure a likelihood evaluation time or predict a fixed duration for the fit.
 
- - Time the log likelihood evaluation: perform a fit of the model to the data once (e.g. via a `FitImaging`) and
-   time it, remembering to discard the first call, which includes JIT compilation.
+An estimate needs measurements from the actual likelihood calculation, using the intended model, dataset, hardware
+and batch size. A standalone `FitImaging` calculation need not follow the same compiled and batched path as the search.
+JAX measurements must wait for device calculations to finish, with compilation considered separately from repeated
+evaluations.
 
- - Estimate the number of evaluations: for `Nautilus` a reasonable rule of thumb is of order 10000 evaluations per
-   free parameter, with simpler parameter spaces (e.g. linear light profiles, chained searches with tight priors)
-   converging in fewer.
-
-Multiplying the two gives a ballpark overall run-time. In tutorial 2 we used exactly this arithmetic: a log
-likelihood evaluation time below 0.01 seconds on CPU (below 0.001 seconds on GPU) and 50000-100000 evaluations gave
-expected run-times of roughly 30 minutes on CPU and 10 minutes on GPU. If your own estimate comes out at days or
-weeks, that is the moment to simplify the model, tighten the search settings, reach for search chaining or find
-a GPU -- before starting the fit, not after.
+The number of evaluations needed also depends on the parameter space and search settings. Compare the saved durations
+of representative completed fits, as in Tutorial 3, before extrapolating to a larger analysis. If those runs suggest
+that a fit will take days or weeks, consider simplifying the model, search chaining or different hardware.
 
 On a GPU, tutorial 2 also showed the other pre-flight check: `analysis.print_vram_use` estimates whether the fit
 will fit within the GPU's memory for your chosen batch size.

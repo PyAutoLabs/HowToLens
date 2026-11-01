@@ -14,18 +14,22 @@ __Contents__
 - What relocation changes—and what it does not
 - The mask still needs to cover the lensed source
 - Wrap up
-"""
 
-"""
 __Why the extent of the source mesh matters__
 
-In the previous tutorials, we chose how many points our rectangular source mesh contained. However, the number of points is only part of what determines its resolution. We also need to consider how much of the source plane those points cover.
+In the previous tutorials, we chose how many points our rectangular source mesh contained. However, the number of
+points is only part of what determines its resolution. We also need to consider how much of the source plane those
+points cover.
 
-A `(25, 25)` mesh spread across a small source region can describe finer structure than the same mesh spread across a much larger region. If a few ray-traced coordinates extend far beyond the source, the mesh can expand to accommodate them, leaving fewer points where we actually need to reconstruct the galaxy.
+A `(25, 25)` mesh spread across a small source region can describe finer structure than the same mesh spread across
+a much larger region. If a few ray-traced coordinates extend far beyond the source, the mesh can expand to
+accommodate them, leaving fewer points where we actually need to reconstruct the galaxy.
 
-This tutorial examines how that happens and introduces the border relocator, which provides a practical way to control these extreme coordinates.
+This tutorial examines how that happens and introduces the border relocator, which provides a practical way to
+control these extreme coordinates.
 
-We return to a simpler simulated source so that its morphology does not distract from the geometry. The image contains lensed source light but no foreground lens light.
+We return to a simpler simulated source so that its morphology does not distract from the geometry. The image
+contains lensed source light but no foreground lens light.
 """
 
 from autolens import jax_wrapper
@@ -61,13 +65,16 @@ dataset_unmasked = dataset_unmasked.apply_over_sampling(
 aplt.subplot_imaging_dataset(dataset=dataset_unmasked)
 
 """
-We will compare two masks with the same outer radius. One includes the centre of the image; the other excludes it. This lets us see what happens when the central image pixels enter the reconstruction.
+We will compare two masks with the same outer radius. One includes the centre of the image; the other excludes it.
+This lets us see what happens when the central image pixels enter the reconstruction.
 
 __What we mean by a border__
 
 The border is the outermost boundary of the unmasked image region.
 
-For a circular mask, this is straightforward: the border follows the outside of the circle. An annular mask has an inner and an outer edge, but the border used here follows the outer edge. The hole in the middle does not become a second outer border.
+For a circular mask, this is straightforward: the border follows the outside of the circle. An annular mask has an
+inner and an outer edge, but the border used here follows the outer edge. The hole in the middle does not become a
+second outer border.
 
 Let’s plot both masks and mark their border coordinates.
 """
@@ -101,15 +108,20 @@ aplt.plot_array(
 )
 
 """
-The outer borders should coincide because the masks share the same outer radius. The difference is inside: the circular mask includes image pixels near the lens centre that the annular mask removes.
+The outer borders should coincide because the masks share the same outer radius. The difference is inside: the
+circular mask includes image pixels near the lens centre that the annular mask removes.
 
-We will keep the masks fixed while comparing the source-plane grids. Choosing the mask and relocating a border are different operations: the mask selects which image pixels enter the fit, while relocation changes how certain coordinates are treated when constructing the source reconstruction.
+We will keep the masks fixed while comparing the source-plane grids. Choosing the mask and relocating a border are
+different operations: the mask selects which image pixels enter the fit, while relocation changes how certain
+coordinates are treated when constructing the source reconstruction.
 
 __Starting without border relocation__
 
 First, let’s reconstruct the source using the annular mask with border relocation explicitly switched off.
 
-We use the mass model that generated the simulation and a uniform rectangular source mesh. The helper below lets us change the mask and relocation setting while keeping the lens model, mesh shape and regularization coefficient unchanged.
+We use the mass model that generated the simulation and a uniform rectangular source mesh. The helper below lets us
+change the mask and relocation setting while keeping the lens model, mesh shape and regularization coefficient
+unchanged.
 """
 
 # Match mesh size to capped smoke data; normal tutorial runs retain 25 x 25.
@@ -184,15 +196,18 @@ aaplt.plot_mapper(
 )
 
 """
-The first plot shows where the image coordinates land after ray tracing. The second shows the source mesh and the brightnesses inferred on it.
+The first plot shows where the image coordinates land after ray tracing. The second shows the source mesh and the
+brightnesses inferred on it.
 
-Look at the coordinate ranges as well as the source itself. These tell us how much source-plane area the mesh is covering. We will use this reconstruction as a reference when we add the central image pixels.
+Look at the coordinate ranges as well as the source itself. These tell us how much source-plane area the mesh is
+covering. We will use this reconstruction as a reference when we add the central image pixels.
 
 __Including the central image pixels__
 
 Now repeat the calculation with the circular mask, still without border relocation.
 
-The outer image boundary is unchanged. We are adding the pixels within the central hole of the annulus, rather than extending the image to larger radii.
+The outer image boundary is unchanged. We are adding the pixels within the central hole of the annulus, rather than
+extending the image to larger radii.
 """
 
 fit_circular = fit_with_mask_and_border(
@@ -228,19 +243,24 @@ for label, mapper in [
     )
 
 """
-Compare the source-plane extent with the annular case. The added image pixels can trace outside the compact region occupied by the other coordinates, causing the rectangular mesh to cover a larger area.
+Compare the source-plane extent with the annular case. The added image pixels can trace outside the compact region
+occupied by the other coordinates, causing the rectangular mesh to cover a larger area.
 
-Both reconstructions still use the same number of mesh points. If the mesh expands, their spacing increases, reducing the resolution available to describe the central source.
+Both reconstructions still use the same number of mesh points. If the mesh expands, their spacing increases,
+reducing the resolution available to describe the central source.
 
-This illustrates why increasing the number of image pixels does not automatically improve a reconstruction with a fixed mesh. We must also consider how those pixels affect the source-plane coverage.
+This illustrates why increasing the number of image pixels does not automatically improve a reconstruction with a
+fixed mesh. We must also consider how those pixels affect the source-plane coverage.
 
-The two masks contain different data, so this is a geometric comparison—not a direct evidence comparison between otherwise identical fits.
+The two masks contain different data, so this is a geometric comparison—not a direct evidence comparison between
+otherwise identical fits.
 
 __Following the central pixels into the source plane__
 
 Let’s confirm where the extra source-plane coordinates come from.
 
-We select two small groups of image pixels: one close to the lens centre and another near the lensed arc. As in tutorial 1, we use the same index groups in both planes, so matching colours identify the same light paths.
+We select two small groups of image pixels: one close to the lens centre and another near the lensed arc. As in
+tutorial 1, we use the same index groups in both planes, so matching colours identify the same light paths.
 """
 
 image_coordinates = np.asarray(
@@ -280,25 +300,38 @@ for index in central_indexes[:4]:
     )
 
 """
-The central image coordinates need not map close to the source-plane origin. Their source positions depend on the difference between their image positions and the lens deflections.
+The central image coordinates need not map close to the source-plane origin. Their source positions depend on the
+difference between their image positions and the lens deflections.
 
-Near the centre of a cuspy mass distribution, a small image region can correspond to a much larger source region. This is demagnification: the image occupies less area than the corresponding source region. It does not require the deflection angle itself to become arbitrarily large.
+Near the centre of a cuspy mass distribution, a small image region can correspond to a much larger source region.
+This is demagnification: the image occupies less area than the corresponding source region. It does not require the
+deflection angle itself to become arbitrarily large.
 
-For our reconstruction, the practical consequence is that central image pixels can map well outside the region traced by the arcs. The mesh then spends some of its resolution covering those distant positions.
+For our reconstruction, the practical consequence is that central image pixels can map well outside the region
+traced by the arcs. The mesh then spends some of its resolution covering those distant positions.
 
-There is another concern. Source structure reconstructed at those positions may predict other images outside our chosen mask, where we are not comparing the model with the data. The reconstruction is then missing some of the observational constraints that would otherwise act on that structure.
+There is another concern. Source structure reconstructed at those positions may predict other images outside our
+chosen mask, where we are not comparing the model with the data. The reconstruction is then missing some of the
+observational constraints that would otherwise act on that structure.
 
-In the next blocks, we will trace the outer border into the source plane and examine how border relocation handles coordinates beyond it. We will compare the same circularly masked dataset with relocation switched off and on, so that the effect of relocation is isolated.
+In the next blocks, we will trace the outer border into the source plane and examine how border relocation handles
+coordinates beyond it. We will compare the same circularly masked dataset with relocation switched off and on, so
+that the effect of relocation is isolated.
 
-**🤖 Ask AI:** Why can a small group of central image pixels change the resolution of a rectangular source mesh, even when most of the observed source light lies in the arcs?
+**🤖 Ask AI:** Why can a small group of central image pixels change the resolution of a rectangular source mesh,
+even when most of the observed source light lies in the arcs?
 
 __Tracing the outer border__
 
-We have seen that some central image pixels trace beyond the compact source region. To decide how to handle those coordinates, we first need a reference boundary in the source plane.
+We have seen that some central image pixels trace beyond the compact source region. To decide how to handle those
+coordinates, we first need a reference boundary in the source plane.
 
-We obtain this from the outer border of the image mask. These are ordinary image coordinates, so we can ray-trace them through the same lens model as every other pixel. Their traced positions describe where the edge of our fitted image region maps into the source plane.
+We obtain this from the outer border of the image mask. These are ordinary image coordinates, so we can ray-trace
+them through the same lens model as every other pixel. Their traced positions describe where the edge of our fitted
+image region maps into the source plane.
 
-Let’s highlight the border pixels in the image and follow the same indexes into the source plane. Border relocation is still switched off here, so we are looking at the original ray-traced coordinates.
+Let’s highlight the border pixels in the image and follow the same indexes into the source plane. Border relocation
+is still switched off here, so we are looking at the original ray-traced coordinates.
 """
 
 border_indexes = mask_circular.derive_indexes.border_slim.tolist()
@@ -316,17 +349,22 @@ aaplt.plot_grid(
 )
 
 """
-Compare the highlighted border with the central image pixels traced in the previous block. Some image coordinates that were well inside the image mask can land beyond the traced outer border in the source plane.
+Compare the highlighted border with the central image pixels traced in the previous block. Some image coordinates
+that were well inside the image mask can land beyond the traced outer border in the source plane.
 
-This is the important geometric distinction: being inside the image-plane border does not guarantee that a coordinate remains inside its traced counterpart.
+This is the important geometric distinction: being inside the image-plane border does not guarantee that a
+coordinate remains inside its traced counterpart.
 
-The border relocator uses the traced outer-border coordinates to estimate a source-plane boundary. In the current implementation, this is an ellipse. Coordinates beyond that boundary are moved inward for the source reconstruction, preventing them from extending its coverage unchecked.
+The border relocator uses the traced outer-border coordinates to estimate a source-plane boundary. In the current
+implementation, this is an ellipse. Coordinates beyond that boundary are moved inward for the source
+reconstruction, preventing them from extending its coverage unchecked.
 
 __Switching border relocation on__
 
 Let’s repeat the circular-mask fit with border relocation enabled.
 
-The data, mask, lens mass, mesh shape and regularization coefficient all remain unchanged. This time, the source mesh is constructed using the relocated coordinates.
+The data, mask, lens mass, mesh shape and regularization coefficient all remain unchanged. This time, the source
+mesh is constructed using the relocated coordinates.
 """
 
 fit_relocated = fit_with_mask_and_border(
@@ -355,9 +393,11 @@ for label, mapper in [
     )
 
 """
-Follow the same coloured coordinate groups through the two plots. Coordinates outside the estimated boundary are relocated towards it; those inside remain unchanged.
+Follow the same coloured coordinate groups through the two plots. Coordinates outside the estimated boundary are
+relocated towards it; those inside remain unchanged.
 
-If relocation reduces the mesh extent, the same number of source points now covers a smaller area. This can restore resolution in the region where the source is being reconstructed, without increasing the mesh dimensions.
+If relocation reduces the mesh extent, the same number of source points now covers a smaller area. This can restore
+resolution in the region where the source is being reconstructed, without increasing the mesh dimensions.
 
 We can also identify which coordinates moved and display their positions before and after relocation.
 """
@@ -391,13 +431,17 @@ if moved_indexes:
     )
 
 """
-These are still the same image pixels with the same measured brightnesses. Relocation changes their source-plane mapping coordinates; it does not remove them from the fit or move their positions in the observed image.
+These are still the same image pixels with the same measured brightnesses. Relocation changes their source-plane
+mapping coordinates; it does not remove them from the fit or move their positions in the observed image.
 
 __What relocation changes—and what it does not__
 
-Border relocation is a numerical treatment of the source reconstruction. It does not change the lens mass profile or the physical deflection calculation.
+Border relocation is a numerical treatment of the source reconstruction. It does not change the lens mass profile
+or the physical deflection calculation.
 
-That distinction matters. If we ray-trace the image grid directly through the tracer, we recover the original source coordinates. The mapper used by the relocated inversion instead contains the coordinates after the border treatment.
+That distinction matters. If we ray-trace the image grid directly through the tracer, we recover the original
+source coordinates. The mapper used by the relocated inversion instead contains the coordinates after the border
+treatment.
 
 Let’s compare these explicitly.
 """
@@ -427,9 +471,11 @@ if moved_indexes:
     print("Position used after relocation:", coordinates_after[index])
 
 """
-We should therefore understand relocation as a practical boundary treatment, not an alternative physical lens equation. It controls how extreme coordinates participate in a reconstruction whose image coverage is finite.
+We should therefore understand relocation as a practical boundary treatment, not an alternative physical lens
+equation. It controls how extreme coordinates participate in a reconstruction whose image coverage is finite.
 
-The next step is to inspect its effect on the inferred source and the model image. We use a common source colour scale so that changes in brightness are not hidden by separately scaled figures.
+The next step is to inspect its effect on the inferred source and the model image. We use a common source colour
+scale so that changes in brightness are not hidden by separately scaled figures.
 """
 
 source_vmax = max(
@@ -461,19 +507,25 @@ for label, current_fit in [
     )
 
 """
-Look for changes in the mesh coverage, the source structure and the residuals. A more compact mesh alone does not prove that the model is accurate, and relocation does not guarantee freedom from systematic errors.
+Look for changes in the mesh coverage, the source structure and the residuals. A more compact mesh alone does not
+prove that the model is accurate, and relocation does not guarantee freedom from systematic errors.
 
-We have also kept the regularization coefficient fixed to isolate the change in configuration. As tutorial 2 showed, changing mesh geometry can alter how regularization acts, so this is a diagnostic comparison rather than a complete optimization of both reconstructions.
+We have also kept the regularization coefficient fixed to isolate the change in configuration. As tutorial 2
+showed, changing mesh geometry can alter how regularization acts, so this is a diagnostic comparison rather than a
+complete optimization of both reconstructions.
 
 __The mask still needs to cover the lensed source__
 
 Border relocation does not replace choosing an appropriate image mask.
 
-If the mask excludes part of an arc or another image of the source, those pixels do not constrain the reconstruction. Relocating source coordinates cannot recover information that we have excluded from the fit.
+If the mask excludes part of an arc or another image of the source, those pixels do not constrain the
+reconstruction. Relocating source coordinates cannot recover information that we have excluded from the fit.
 
-The mask also determines the border from which the source-plane boundary is estimated. Changing its size therefore changes both the image pixels being fitted and the boundary treatment.
+The mask also determines the border from which the source-plane boundary is estimated. Changing its size therefore
+changes both the image pixels being fitted and the boundary treatment.
 
-Let’s inspect several circular masks before fitting them. We plot their borders on the full image so that any source light outside the selected region remains visible.
+Let’s inspect several circular masks before fitting them. We plot their borders on the full image so that any
+source light outside the selected region remains visible.
 """
 
 mask_radii = [2.0, 2.5, 3.0]
@@ -494,7 +546,8 @@ for radius in mask_radii:
     )
 
 """
-Check whether each border encloses the visible lensed emission with some surrounding background. A mask that follows only the brightest parts can exclude faint extensions that still matter to the reconstruction.
+Check whether each border encloses the visible lensed emission with some surrounding background. A mask that
+follows only the brightest parts can exclude faint extensions that still matter to the reconstruction.
 
 Now compare the resulting fits with relocation enabled.
 """
@@ -521,21 +574,32 @@ for radius, mask in masks_by_radius.items():
     aplt.subplot_fit_imaging(fit=current_fit)
 
 """
-Compare the source structure and residuals, especially where a smaller mask approaches the arcs. If the reconstruction changes substantially as clearly relevant source light enters the mask, the smaller-mask result deserves closer inspection.
+Compare the source structure and residuals, especially where a smaller mask approaches the arcs. If the
+reconstruction changes substantially as clearly relevant source light enters the mask, the smaller-mask result
+deserves closer inspection.
 
-Do not rank these masks by their raw evidence values: they contain different sets of image pixels. The purpose here is to examine coverage and stability, not to select whichever mask produces the largest number.
+Do not rank these masks by their raw evidence values: they contain different sets of image pixels. The purpose here
+is to examine coverage and stability, not to select whichever mask produces the largest number.
 
-**🤖 Ask AI:** Why can a reconstruction appear satisfactory inside a small mask while failing to explain other visible parts of the same lensed source?
+**🤖 Ask AI:** Why can a reconstruction appear satisfactory inside a small mask while failing to explain other
+visible parts of the same lensed source?
 
 __Wrap up__
 
-We began with a rectangular source mesh whose resolution depended on both its number of points and the area they covered. A small number of extreme ray-traced coordinates could expand that area and reduce the resolution available for the source.
+We began with a rectangular source mesh whose resolution depended on both its number of points and the area they
+covered. A small number of extreme ray-traced coordinates could expand that area and reduce the resolution
+available for the source.
 
-The border relocator uses the traced outer image border to estimate a source-plane boundary, then moves coordinates beyond that boundary inward for the reconstruction. The observed image pixels remain in the fit, and the physical lens model is unchanged.
+The border relocator uses the traced outer image border to estimate a source-plane boundary, then moves coordinates
+beyond that boundary inward for the reconstruction. The observed image pixels remain in the fit, and the physical
+lens model is unchanged.
 
-In routine modelling, we normally leave this treatment enabled. Knowing what it does is useful when a source mesh extends unexpectedly far from the reconstructed galaxy, or when a reconstruction changes strongly with the mask.
+In routine modelling, we normally leave this treatment enabled. Knowing what it does is useful when a source mesh
+extends unexpectedly far from the reconstructed galaxy, or when a reconstruction changes strongly with the mask.
 
-These issues can also occur in systems with several lens galaxies. Extreme coordinates need not originate only near the centre of the image; they can be associated with other mass concentrations. The same diagnostic applies: follow the image coordinates into the source plane and inspect the boundary and mesh coverage.
+These issues can also occur in systems with several lens galaxies. Extreme coordinates need not originate only near
+the centre of the image; they can be associated with other mass concentrations. The same diagnostic applies: follow
+the image coordinates into the source plane and inspect the boundary and mesh coverage.
 
 For subsequent inspection, return to our circular mask with radius `2.5` arcsec and relocation enabled.
 """
@@ -555,7 +619,10 @@ aaplt.plot_mapper(
 )
 
 """
-We have now examined the source mesh, interpolation, regularization and border treatment while holding the lens mass fixed.
+We have now examined the source mesh, interpolation, regularization and border treatment while holding the lens
+mass fixed.
 
-In the next tutorial, we let the mass model vary. We will see how a pixelized source participates in lens modelling, why its flexibility can admit misleading solutions, and how a sensible starting model helps the search find the relevant region of parameter space.
+In the next tutorial, we let the mass model vary. We will see how a pixelized source participates in lens
+modelling, why its flexibility can admit misleading solutions, and how a sensible starting model helps the search
+find the relevant region of parameter space.
 """

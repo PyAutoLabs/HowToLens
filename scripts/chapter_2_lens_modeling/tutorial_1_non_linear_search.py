@@ -35,9 +35,7 @@ __Contents__
 - **Other Searches:** Find the optional optimisation and MCMC examples.
 - **Wrap Up:** Review the lesson and its connection to the next topic.
 
-"""
 
-"""
 __Overview__
 
 This tutorial introduces the main pieces of an automated model fit:
@@ -49,9 +47,7 @@ This tutorial introduces the main pieces of an automated model fit:
 
 We will explain parameter spaces, likelihood surfaces and priors, then use Nautilus to fit the model and inspect its
 inferred parameters and uncertainties.
-"""
 
-"""
 __Parameter Space__
 
 Imagine varying just two properties of a lens model: the lens’s Einstein radius and the source’s effective radius. Each
@@ -71,9 +67,7 @@ also consistent with the observations.
 
 **🤖 Ask AI:** In strong-lens modeling, why might changing the lens mass and the source size together produce similar
 images, and how could this appear on a likelihood surface?
-"""
 
-"""
 __Automated Exploration__
 
 A non-linear search automates the exploration you performed manually in Chapter 1.
@@ -84,9 +78,7 @@ a log likelihood. The search then uses its algorithm to decide which parameter v
 Automating this process allows us to evaluate many more models than we could inspect by hand. It does not guarantee
 that every search finds the best solution: its starting conditions, settings and the structure of parameter space all
 matter. We will see examples of this later in the chapter.
-"""
 
-"""
 __Deeper Background__
 
 The explanations here introduce what the search does and how to interpret its results. You do not need to understand
@@ -354,9 +346,7 @@ range of possible solutions, allowing us to find a best-fitting model and estima
 
 Nautilus uses a method called **nested sampling**. You do not need to understand its statistical details to work
 through HowToLens. Here, we will focus on configuring a fit and interpreting what it returns.
-"""
 
-"""
 __Search Settings__
 
 One of Nautilus’s main settings is `n_live`, the number of “live points”. Each live point represents a set of model
@@ -444,9 +434,7 @@ running a more thorough Nautilus search.
 
 You can explore these alternatives in the optional searches tutorial after completing HowToLens. For now, focus on
 building appropriate models and assessing how well they explain the data.
-"""
 
-"""
 __Wrap Up__
 
 You have now fitted a lens model automatically, using the same image prediction and likelihood calculation that you

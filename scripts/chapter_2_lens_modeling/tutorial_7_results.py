@@ -7,7 +7,7 @@ fit each model-fit. In this tutorial, we'll take a look at the result object in 
 
 __Contents__
 
-- **Initial Setup:** Lets use the model-fit performed in tutorial 1 to get a `Result` object.
+- **Initial Setup:** Run a separate fit to the Tutorial 1 dataset to obtain a `Result` object.
 - **Dataset Auto-Simulation:** Simulate the dataset via its simulator script if it is not on your hard-disk.
 - **Tracer & Fit:** In the previous tutorials, we saw that this result contains the maximum log likelihood fit, which.
 - **Samples:** The result contains a lot more information about the model-fit.
@@ -29,7 +29,9 @@ import autofit as af
 """
 __Initial Setup__
 
-Lets use the model-fit performed in tutorial 1 to get a `Result` object.
+We use the same dataset as Tutorial 1 and run a separate fit to obtain a `Result` object. Here, the source uses an
+ordinary light profile, so its intensity is explored by the non-linear search. This setup does not reload the
+Tutorial 1 result.
 """
 dataset_name = "simple__no_lens_light__mass_sis"
 dataset_path = Path("dataset") / "imaging" / dataset_name
