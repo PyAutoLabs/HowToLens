@@ -462,36 +462,44 @@ model = af.Collection(
 print(model.info)
 
 """
-The same model can also be visualized as a figure, making its structure easier to understand at a glance.
+The figure shows the model's independent priors, fixed values and linked expressions.
 
-The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
-fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
-corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
-parameter.
+Each main galaxy has its own free `sigma` and `r_cut`. The host halo has one free mass parameter, and the ten
+scaling members share one `scaling_sigma_ref` prior.
 
-Thirteen galaxies and two sources are modelled with six free parameters. That compression — main galaxies and
-sources sharing priors, one halo, and a scaling relation tying ten members to a single free prior — is what makes
-a cluster-scale model tractable at all.
+The source positions are solved within the selected likelihood rather than sampled independently.
+
+These choices give six non-linear parameters across fifteen `Galaxy` objects. The small parameter count comes
+from the restrictions and shared relations we imposed, rather than from the catalogue format itself.
 """
 af.ModelPlotter(model).figure()
 
 """
 __Analysis + Factor Graph__
 
-Each source's dataset gets its own `AnalysisPoint`, which defines the log likelihood for that source: how
-well do the model's predictions match this source's observed image positions?
+We create one `AnalysisPoint` for each source's dataset. Each analysis evaluates how well the same cluster mass
+model explains that source's observed multiple-image positions.
 
-`fit_positions_cls=al.FitPositionsSourceSolved` selects the **solved source-plane** likelihood — the default
-cluster configuration. Rather than forward-solving the lens equation for the model's image positions on every
-likelihood evaluation (accurate but expensive), it ray-traces the *observed* positions back to the source
-plane and measures how tightly they converge around the analytically-solved source centre, with a weighting
-that maps source-plane scatter back to image-plane precision. No lens-equation solve per evaluation makes
-cluster-scale inference fast; the `PointSolver` is reserved for validating the final model below.
+We select `FitPositionsSourceSolved`, which:
 
-The analyses are then combined through a **factor graph**, the same multi-dataset machinery used for
-multi-wavelength imaging: each analysis becomes a factor sharing the one global model, and the total log
-likelihood is the sum over the per-source likelihoods. This is what lets every source — each at its own
-redshift, each with its own multi-plane geometry — constrain the same cluster mass model simultaneously.
+1. Traces the observed image positions back to the source's redshift plane.
+2. Solves for a common source position under the adopted weighting.
+3. Evaluates the scatter around that position using the positional uncertainties and the likelihood's
+   source-plane weighting.
+
+This avoids solving for predicted image positions at every likelihood evaluation. It is a source-plane fitting
+approach, rather than a direct comparison between observed and forward-solved image positions.
+
+We will use the `PointSolver` afterwards to inspect the predicted images. That check is important because a
+compact set of back-traced positions does not by itself establish that the model predicts the observed image
+configuration.
+
+We combine the analyses using a **factor graph**. Each source contributes a likelihood factor, and all factors
+share the same global mass model.
+
+Assuming the datasets are conditionally independent given that model, the total log likelihood is the sum of
+their individual log likelihoods. The shared parameters are sampled once, with every source contributing
+constraints through its own positions and redshift.
 """
 analysis_list = [
     al.AnalysisPoint(
@@ -513,8 +521,13 @@ factor_graph = af.FactorGraphModel(*analysis_factor_list, use_jax=True)
 """
 __Search__
 
-We fit the model with Nautilus. The parameter space is only 6-dimensional, so a modest number of live points
-suffices; a richer cluster with several individually-modelled galaxies would warrant more.
+We use `Nautilus` with 100 live points as the starting configuration for this six-parameter example.
+
+A low parameter count helps, but does not guarantee a simple posterior. Correlations between the halo, main
+galaxies and member normalization can still make inference challenging.
+
+Inspect the resulting fits and posterior distributions, and assess whether important conclusions remain stable
+under repeated runs or more demanding search settings.
 """
 search = af.Nautilus(
     path_prefix=Path("howtolens", "chapter_4"),
@@ -528,35 +541,39 @@ search = af.Nautilus(
 """
 __Model Fit__
 
-We pass the factor graph's global model and the factor graph itself (as the analysis) to the search. Because
-the likelihood involves no pixel-level computation, a full cluster point-source fit takes minutes — this is
-the payoff of point-source modeling, given that a pixel-level fit of the same system would take days.
+We pass the factor graph's global model and combined analysis to the search.
+
+Each proposed parameter set defines one cluster mass model, which is evaluated against both source datasets.
+Their log likelihoods combine to guide the search.
+
+The position-based likelihood avoids constructing a full model image at each evaluation. Runtime nevertheless
+depends on the model, number of images and members, hardware and search settings.
+
+When the search finishes, we will inspect both the global mass parameters and the fit to each source.
 """
 print(
-    """
-    The non-linear search has begun running.
-
-    This Jupyter notebook cell will progress once the search has completed - this could take a few minutes!
-
-    On-the-fly updates every iterations_per_quick_update are printed to the notebook.
-    """
+    "The non-linear search has begun. "
+    "Progress updates are printed during the search. "
+    "This cell will finish when the search completes."
 )
 
 result_list = search.fit(model=factor_graph.global_prior_model, analysis=factor_graph)
 
-print("The search has finished run - you may now continue the notebook.")
+print("The search has finished — you may now continue the notebook.")
 
 """
 __Results__
 
-A cluster fit produces the most complex results object we have met: many galaxies across multiple planes,
-tiers whose parameters are derived rather than sampled, and one result per source dataset. This section tours
-how to pull out each quantity you will actually need — it is worth working through slowly, because navigating
-results is half the practical skill of cluster modeling.
+The factor-graph fit returns one result per source dataset, in the same order as `dataset_list`.
 
-A factor-graph fit returns one `Result` per dataset (in the same order as `dataset_list`). All results share
-the same global model — and therefore the same samples and maximum likelihood model — but each carries its own
-dataset and its own maximum likelihood `FitPointDataset`.
+These results come from **one joint inference**, not separate searches. They share the global mass model and
+posterior, while each provides access to its own dataset and corresponding `FitPointDataset`.
+
+We first use one result to inspect the shared model parameters and tracer. We then loop over the results to
+examine each source's inferred position and fit diagnostics.
+
+This separates two useful questions: what mass distribution describes the cluster, and how well does that
+distribution explain each observed multiple-image system?
 """
 print(f"Number of results (one per source dataset): {len(result_list)}")
 
