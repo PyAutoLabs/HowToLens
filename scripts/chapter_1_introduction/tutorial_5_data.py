@@ -132,102 +132,121 @@ from the centre.
 aplt.plot_array(array=psf.kernel, title="PSF 2D Kernel")
 
 """
-The PSF is often more informative when plotted on a log10 scale. This approach allows us to clearly observe values 
-in its tail, which are much smaller than the central peak yet critical for many scientific analyses. The tail 
-values may significantly affect the spread and detail captured in the data.
+The PSF becomes much fainter away from its centre. On the previous plot's linear
+colour scale, these faint outer regions can be difficult to see.
+
+A logarithmic colour scale makes them more visible. The kernel values are
+unchanged; only the way we display them changes.
 """
-aplt.plot_array(array=psf.kernel, title="PSF 2D Kernel (Log10)", use_log10=True)
+aplt.plot_array(
+    array=psf.kernel,
+    title="PSF 2D Kernel (Log10)",
+    use_log10=True,
+)
 
 """
-Next, we'll manually perform a 2D convolution of the PSF with the image of the galaxy. This convolution simulates the 
-blurring that occurs when the telescope optics spread out the galaxy's light.
+We will now convolve the lensed image with the PSF to calculate how it appears
+after the telescope has blurred it.
 
-1. **Padding the Image**: Before convolution, we add padding (extra space with zero values) around the edges of the 
-   image. This prevents unwanted edge effects when we perform the convolution, ensuring that the image's edges don't 
-   become artificially altered by the process.
+Light just outside the image can be spread into pixels near its edges. To
+include this light, we first evaluate the tracer on a larger grid, extending
+beyond the region we want to observe. This produces a padded image containing
+the model's predicted light in the surrounding pixels.
 
-2. **Convolution**: Using the `Convolver` object's `convolve` method, we apply the 2D PSF convolution to the padded 
-   image. This step combines the PSF with the galaxy's light, simulating how the telescope spreads out the light.
-
-3. **Trimming the Image**: After convolution, we trim the padded areas back to their original size, obtaining a 
-   convolved (blurred) image that matches the dimensions of the initial tracer image.
+We then convolve this larger image with the PSF and trim away the extra border.
+The result has the same dimensions as our original image.
 """
-image = tracer.image_2d_from(grid=grid)  # The original unblurred image of the galaxy.
+image = tracer.image_2d_from(grid=grid)
+
 padded_image = tracer.padded_image_2d_from(
     grid=grid,
-    psf_shape_2d=psf.kernel.shape_native,  # Adding padding based on the PSF size.
+    psf_shape_2d=psf.kernel.shape_native,
 )
+
 convolved_image = psf.convolved_image_from(
-    image=padded_image, blurring_image=None
-)  # Applying the PSF convolution.
+    image=padded_image,
+    blurring_image=None,
+)
+
 blurred_image = convolved_image.trimmed_after_convolution_from(
     kernel_shape=psf.kernel.shape_native
-)  # Trimming back to the original size.
+)
 
 """
-We can now plot the original and the blurred images side by side. This allows us to clearly see how the PSF 
-convolution affects the appearance of the galaxy, making the image appear softer and less sharp.
+Compare the lensed image before and after convolution. Look at the narrow
+features in the arcs: the PSF spreads their light over neighbouring pixels,
+making them less sharp. With our small PSF, the difference may be subtle.
+
+To make the effect easier to see, change `sigma` in the PSF definition from
+0.1 to 0.2 arcseconds. Rerun the PSF definition, convolution and plots below.
+You should see stronger blurring in the second image.
+
+Afterwards, restore `sigma=0.1` and rerun those cells before continuing.
 """
 aplt.plot_array(array=image, title="Tracer Image Before PSF")
 
 aplt.plot_array(array=blurred_image, title="Tracer Image After PSF")
 
+"""
+**🤖 Ask AI:** How does blurring by a telescope's PSF affect our ability to
+distinguish two nearby features in a gravitationally lensed arc?
+"""
 
 """
 __Poisson Noise__
 
-In addition to the blurring caused by telescope optics, we also need to consider Poisson noise when simulating imaging 
-data.
+Even if a galaxy's brightness remains constant, repeated observations do not
+collect exactly the same number of photons in each pixel. Photon arrivals
+fluctuate randomly, and the detector records these arrivals as electrons.
 
-When a telescope captures an image of a galaxy, photons from the galaxy are collected by the telescope's mirror and 
-directed onto a CCD (Charge-Coupled Device). The CCD is made up of a silicon lattice (or another material) that 
-converts incoming photons into electrons. These electrons are then gathered into discrete squares, which form the 
-pixels of the final image.
+For this simulation, we describe the number of electrons collected in each
+pixel using a Poisson distribution. Its mean is the expected electron count.
+Drawing a value from this distribution gives one possible observed count,
+which can be above or below that expectation.
 
-The process of converting photons into electrons is inherently random, following a Poisson distribution. This randomness 
-means that the number of electrons in each pixel can vary, even if the same number of photons hits the CCD. Therefore, 
-the electron count per pixel becomes a Poisson random variable. For our simulation, this means that the recorded 
-number of photons in each pixel will differ slightly from the true number due to this randomness.
+Our blurred image gives the expected electron rate in each pixel. Multiplying
+it by an exposure time of 300 seconds gives the expected counts for that
+exposure. We use these counts as the means of the Poisson distributions.
 
-To replicate this effect in our simulation, we can add Poisson noise to the tracer image using NumPy’s random module, 
-which generates values from a Poisson distribution.
+The telescope spreads the light before the detector collects it, so we draw
+the counts from the blurred image.
 
-It's important to note that the blurring caused by the telescope optics occurs before the photons reach the CCD. 
-Therefore, we need to add the Poisson noise after blurring the tracer image.
-
-We also need to consider the units of our image data. Let’s assume that the tracer image is measured in units of 
-electrons per second ($e^- s^{-1}$), which is standard for CCD imaging data. To simulate the number of electrons 
-actually detected in each pixel, we multiply the image by the observation’s exposure time. This conversion changes
-the units to the total number of electrons collected per pixel over the entire exposure time.
-
-Once the image is converted, we add Poisson noise, simulating the randomness in the photon-to-electron conversion 
-process. After adding the noise, we convert the image back to units of electrons per second for analysis, as 
-this is the preferred unit for astronomers when studying their data.
+Finally, we divide the randomly drawn counts by the exposure time to return
+the image to electrons per second per pixel.
 """
-exposure_time = 300.0  # Units of seconds
-blurred_image_counts = (
-    blurred_image * exposure_time
-)  # Convert to total electrons detected over the exposure time.
+exposure_time = 300.0  # Seconds.
+
+blurred_image_counts = blurred_image * exposure_time
+
 blurred_image_with_poisson_noise = (
-    np.random.poisson(blurred_image_counts, blurred_image_counts.shape) / exposure_time
-)  # Add Poisson noise and convert back to electrons per second.
+    np.random.poisson(blurred_image_counts, blurred_image_counts.shape)
+    / exposure_time
+)
 
 """
-Here is what the blurred image with Poisson noise looks like.
+Let's plot the resulting image. It contains the same lensed structure as
+before, with random fluctuations around the expected brightness in each pixel.
+These fluctuations may be difficult to distinguish at this display scale.
 """
 aplt.plot_array(
-    array=aa.Array2D(values=blurred_image_with_poisson_noise, mask=blurred_image.mask),
+    array=aa.Array2D(
+        values=blurred_image_with_poisson_noise,
+        mask=blurred_image.mask,
+    ),
     title="Image With Poisson Noise",
 )
 
 """
-It is challenging to see the Poisson noise directly in the image above, as it is often subtle. To make the noise more 
-visible, we can subtract the blurred image without Poisson noise from the one with noise.
+We can isolate the fluctuations by subtracting the expected blurred image from
+the simulated observation.
 
-This subtraction yields the "Poisson noise realization" which highlights the variation in each pixel due to the Poisson 
-distribution of photons hitting the CCD. It represents the noise values that were added to each pixel. We call
-it the realization because it is one possible outcome of the Poisson process, and the noise will be different each time
-we simulate the image.
+This difference is called a noise realisation: one particular outcome of the
+random process. Positive values indicate pixels that collected more electrons
+than expected; negative values indicate pixels that collected fewer.
+
+Rerunning the Poisson draw produces a different realisation. We can calculate
+the exact difference here because we know the image used to generate the
+simulation. For a real observation, that underlying image is unknown.
 """
 poisson_noise_realization = blurred_image_with_poisson_noise - blurred_image
 
