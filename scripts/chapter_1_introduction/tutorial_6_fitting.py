@@ -673,19 +673,17 @@ noisy simulated image differ slightly from those used to generate it?
 """
 __Model Fitting__
 
-In the previous sections, we used the true model to fit the data, which resulted in a high log likelihood and minimal 
-residuals. We also demonstrated how even small deviations from the true parameters can significantly degrade the fit 
-quality, reducing the log likelihood.
+So far, we have compared parameter choices with a known reference model.
+For a real observation, we do not know the lens and source parameters in
+advance. Finding values that describe the data well is the task of model
+fitting.
 
-In practice, however, we don't know the "true" model. For example, we might have an image of a strong lens observed with 
-the Hubble Space Telescope, but the values for parameters like its `einstein_radius` and others are 
-unknown. The process of determining the best-fit model is called model fitting, and it is the main topic of
-Chapter 2 of **HowToLens**.
+Let's try this manually using a new simulated dataset. It contains an
+`IsothermalSph` lens mass profile and an `ExponentialCoreSph` source light
+profile, with no light from the lens galaxy.
 
-To conclude this section, let's perform a basic, hands-on model fit to develop some intuition about how we can find 
-the best-fit model. We'll start by loading a simple dataset that was simulated without any lens light, using 
-an `IsothermalSph` lens  mass profile and `ExponentialCoreSph` source light profile, but the true parameters of these 
-profiles are unknown.
+For this exercise, treat the parameters used to generate the data as unknown.
+We load the image and apply a circular mask as before.
 """
 dataset_name = "simple__no_lens_light__mass_sis"
 dataset_path = Path("dataset") / "imaging" / dataset_name
@@ -717,28 +715,20 @@ dataset = dataset.apply_mask(mask=mask)
 aplt.subplot_imaging_dataset(dataset=dataset)
 
 """
-Now, you'll try to determine the best-fit model for this image, corresponding to the parameters used to simulate the 
-dataset.
+The parameters below are a starting guess. Run the cell and inspect the
+predicted image, residuals and log likelihood.
 
-We'll use the simplest possible approach: try different combinations of light and mass profile parameters and adjust 
-them based on how well each model fits the data. You’ll quickly find that certain parameters produce a much better fit 
-than others. For example, determining the correct values of the `centre` should not take too long.
-
-Pay attention to the `log_likelihood` and the `residual_map` as you adjust the parameters. These will guide you in 
-determining if your model is providing a good fit to the data. Aim to increase the log likelihood and reduce the 
-residuals.
-
-Keep experimenting with different values for a while, seeing how small you can make the residuals and how high you 
-can push the log likelihood. Eventually, you’ll likely reach a point where further improvements become difficult, 
-even after trying many different parameter values. This is a good point to stop and reflect on your first experience 
-with model fitting.
+The lens and source centres are `(y, x)` coordinates in arcseconds.
+The Einstein radius, effective radius and break radius are also in
+arcseconds. The source intensity uses the image's units of electrons
+per second per pixel.
 """
-
 lens_galaxy = al.Galaxy(
     redshift=0.5,
     mass=al.mp.IsothermalSph(
-        centre=(1.0, 1.0), einstein_radius=1.0
-    ),  # These are the lens parameters you need to adjust
+        centre=(1.0, 1.0),
+        einstein_radius=1.0,
+    ),
 )
 
 source_galaxy = al.Galaxy(
@@ -747,7 +737,7 @@ source_galaxy = al.Galaxy(
         centre=(1.0, 1.0),
         intensity=1.0,
         effective_radius=1.0,
-        radius_break=0.025,  # These are the source parameters you need to adjust
+        radius_break=0.025,
     ),
 )
 
@@ -760,40 +750,188 @@ aplt.subplot_fit_imaging(fit=fit)
 print("Log Likelihood:")
 print(fit.log_likelihood)
 
+"""
+Try changing one parameter at a time and rerunning the cell above. Record
+the log likelihood for each choice and use the residual plots to understand
+what changed.
+
+Start with the lens centre. Try `(0.5, 0.5)` and `(0.0, 0.0)` instead of
+`(1.0, 1.0)`. This changes the location about which the lens deflects light.
+
+Next, try changing the source centre in the same way. This changes how the
+source is positioned behind the lens and therefore the arrangement of its
+multiple images.
+
+You can then explore:
+
+- `einstein_radius`: try 1.3 and 1.6 arcseconds instead of 1.0. This changes
+  the characteristic angular scale of the lensing.
+- `effective_radius`: try 0.5 and 0.2 arcseconds instead of 1.0. This changes
+  the source size and the extent of its lensed features.
+- `intensity`: try 0.5 and 0.2 instead of 1.0. With the other parameters
+  fixed, this scales the predicted brightness.
+
+Keep `radius_break=0.025` and both redshifts fixed for this exercise.
+
+Retain changes that improve the log likelihood, but continue inspecting
+the residuals. The parameters interact, so a useful change at one stage
+may need revisiting after another parameter changes.
+
+To restore the original starting point, set both centres to `(1.0, 1.0)`,
+and set `einstein_radius`, `effective_radius` and `intensity` to 1.0, then
+rerun the cell.
+"""
 
 """
-Manually guessing model parameters repeatedly is a very inefficient and slow way to find the best fit. If the model 
-were more complex—say, if the source galaxy had additional light profile components beyond just its `bulge` (like a 
-second `Sersic` profile representing a `disk`)—the model would become so intricate that this manual approach 
-would be practically impossible. This is definitely not how model fitting is done in practice.
+You have now performed a simple manual search: choose parameters, predict
+an image, compare it with the data, then use that comparison to choose
+another set of parameters.
 
-However, this exercise has given you a basic intuition for how model fitting works. The statistical inference tools 
-that are actually used for model fitting will be introduced in Chapter 2. Interestingly, these tools are not entirely 
-different from the approach you just tried. Essentially, they also involve iteratively testing models until those 
-with high log likelihoods are found. The key difference is that a computer can perform this process thousands of 
-times, and it does so in a much more efficient and strategic way.
+The aim is not to make every residual vanish. A suitable prediction should
+leave fluctuations consistent with the noise, without substantial coherent
+structure.
 
-__Wrap Up__
+Nor does finding a good-looking result establish that it is the best possible
+solution or tell us the uncertainty in its parameters. Several parameter
+combinations may describe the data similarly well.
 
-In this tutorial, you have learned how to fit a lens model to imaging data, a fundamental process in astronomy
-and statistical inference. 
+Manual exploration becomes difficult as the number of parameters grows.
+Chapter 2 introduces methods that explore parameter choices systematically
+and quantify what we can infer from the data.
 
-Let's summarise what we have covered:
+**🤖 Ask AI:** How could changing both the source size and its intensity
+make it difficult to determine either parameter by adjusting them manually?
+"""
 
-- **Dataset**: We loaded the imaging dataset that we previously simulated, consisting of the tracer image, noise map,
-  and PSF.
-  
-- **Mask**: We applied a circular mask to the data, excluding regions with low signal-to-noise ratios from the analysis.
+r"""
+__Likelihood Function__
 
-- **Masked Grid**: We created a masked grid, which contains only the coordinates of unmasked pixels, to evaluate the
-  tracer's light profile.
-  
-- **Fitting**: We fitted the data with a lens model, computing key quantities like the model image, residuals,
-  chi-squared, and log likelihood to assess the quality of the fit.
-  
-- **Bad Fits**: We demonstrated how even small deviations from the true parameters can significantly impact the fit
-  quality, leading to decreased log likelihood values.
-  
-- **Model Fitting**: We performed a basic model fit on a simple dataset, adjusting the model parameters to improve the
-  fit quality.  
+Everything we have learned can now be put into a single sequence:
+
+1. Choose the lens and source parameters.
+2. Construct their profiles and ray-trace the source to predict a lensed image.
+3. Convolve that image with the telescope's PSF.
+4. Subtract the prediction from the observed data.
+5. Divide the residuals by the noise standard deviations and sum their squares.
+6. Include the Gaussian normalisation to calculate the log likelihood.
+
+For a fixed dataset, this sequence defines a function of the model parameters:
+the likelihood function. We usually work with its natural logarithm, the
+log-likelihood function.
+
+Writing the parameters collectively as \(\boldsymbol{\theta}\), we have:
+
+\[
+\log \mathcal{L}(\boldsymbol{\theta})
+=
+-\frac{1}{2}
+\sum_{i=1}^{N}
+\left[
+\frac{(d_i-m_i(\boldsymbol{\theta}))^2}{\sigma_i^2}
++
+\log(2\pi\sigma_i^2)
+\right]
+\]
+
+The data, mask, PSF and noise map remain fixed. Changing the parameters changes
+the predicted image \(m_i(\boldsymbol{\theta})\), and therefore the value
+returned by the function.
+
+The function below implements this sequence for our exercise. `FitImaging`
+handles the image prediction and PSF convolution, including light that blurs
+across the mask boundary. We then write out the statistical calculation
+explicitly using the unmasked pixels.
+
+The redshifts and source break radius remain fixed, as in the exercise.
+"""
+def log_likelihood_function(
+    dataset,
+    lens_centre,
+    einstein_radius,
+    source_centre,
+    intensity,
+    effective_radius,
+):
+    lens_galaxy = al.Galaxy(
+        redshift=0.5,
+        mass=al.mp.IsothermalSph(
+            centre=lens_centre,
+            einstein_radius=einstein_radius,
+        ),
+    )
+
+    source_galaxy = al.Galaxy(
+        redshift=1.0,
+        bulge=al.lp.ExponentialCoreSph(
+            centre=source_centre,
+            intensity=intensity,
+            effective_radius=effective_radius,
+            radius_break=0.025,
+        ),
+    )
+
+    tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
+    fit = al.FitImaging(dataset=dataset, tracer=tracer)
+
+    model_image = fit.model_data.slim
+    residuals = dataset.data.slim - model_image
+    normalized_residuals = residuals / dataset.noise_map.slim
+
+    chi_squared = np.sum(normalized_residuals**2)
+    noise_normalization = np.sum(
+        np.log(2 * np.pi * dataset.noise_map.slim**2)
+    )
+
+    return -0.5 * (chi_squared + noise_normalization)
+
+
+"""
+Evaluate the function using your current exercise parameters. Its result
+should agree with the log likelihood from the corresponding `FitImaging`
+object.
+"""
+exercise_log_likelihood = log_likelihood_function(
+    dataset=dataset,
+    lens_centre=lens_galaxy.mass.centre,
+    einstein_radius=lens_galaxy.mass.einstein_radius,
+    source_centre=source_galaxy.bulge.centre,
+    intensity=source_galaxy.bulge.intensity,
+    effective_radius=source_galaxy.bulge.effective_radius,
+)
+
+print("Log likelihood from our function:")
+print(exercise_log_likelihood)
+
+print("Log likelihood from FitImaging:")
+print(fit.log_likelihood)
+
+"""
+Each call evaluates one choice of parameters and returns one number. It does
+not search for better parameters, and it does not generate new random noise.
+
+The notion of a likelihood function is central to Chapter 2. The search
+methods introduced there repeatedly supply different parameter choices to
+this function and use the returned likelihoods to explore which choices
+describe the data well. Understanding this sequence is therefore the
+foundation for understanding how automated lens modelling works.
+
+The interferometer, point-source, weak-lensing, group-scale and cluster-scale
+examples shown in Tutorial 5 each have their own bespoke likelihood
+functions, tailored to their measurements and analysis. They follow the
+same principle: predict the observables from a set of parameters, then compare
+those predictions with the data using the appropriate uncertainties.
+
+The `autolens_workspace` provides step-by-step guides to every likelihood
+function in PyAutoLens. These unpack the calculations for different dataset
+types and analysis methods, just as we have done here.
+
+For the imaging calculation introduced in this tutorial, see the workspace's
+[imaging likelihood-function guide](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/imaging/likelihood_function.py).
+The corresponding sections of the workspace provide guides for the other
+likelihood functions.
+
+You have now followed the full path from a lens and source description to a
+quantitative comparison with an observation. In Chapter 2, we will use this
+likelihood function to move from trying parameters by hand to exploring them
+systematically.
 """

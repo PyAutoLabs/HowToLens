@@ -142,7 +142,9 @@
       "Model Fitting",
       "Likelihood Function"
     ],
-    "cross_refs": [],
+    "cross_refs": [
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/imaging/likelihood_function.py"
+    ],
     "notebook": "notebooks/chapter_1_introduction/tutorial_6_fitting.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_6_fitting.py",
     "summary": "In the previous tutorial, we chose a lens and source, predicted their lensed image and simulated a telescope observation. We will now work in the other direction: starting with an image, we want to learn about the objects that produced it.",
