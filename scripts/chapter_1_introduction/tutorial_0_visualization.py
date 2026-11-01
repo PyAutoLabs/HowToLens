@@ -62,15 +62,9 @@ __Dataset Auto-Simulation__
 The next cell runs the simulator if the example dataset needs to be generated. You do not need to run the
 simulator separately.
 """
-if al.util.dataset.should_simulate(str(dataset_path)):
-    import subprocess
-    import sys
-
-    # Use the same Python interpreter as this tutorial.
-    subprocess.run(
-        [sys.executable, "scripts/simulator/no_lens_light.py"],
-        check=True,
-    )
+al.util.dataset.simulate_if_needed(
+    dataset_path, simulator="scripts/simulator/no_lens_light.py"
+)
 
 """
 We now load three FITS files into an `Imaging` object: the image, its noise map and the point-spread function

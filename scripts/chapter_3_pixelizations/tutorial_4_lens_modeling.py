@@ -62,11 +62,9 @@ import autoarray.plot as aaplt
 
 dataset_path = Path("dataset") / "imaging" / "simple__no_lens_light"
 
-if al.util.dataset.should_simulate(str(dataset_path)):
-    subprocess.run(
-        [sys.executable, "scripts/simulator/no_lens_light.py"],
-        check=True,
-    )
+al.util.dataset.simulate_if_needed(
+    dataset_path, simulator="scripts/simulator/no_lens_light.py"
+)
 
 dataset = al.Imaging.from_fits(
     data_path=dataset_path / "data.fits",
@@ -702,11 +700,9 @@ import autolens.plot as aplt
 
 foreground_dataset_path = Path("dataset") / "imaging" / "lens_sersic"
 
-if al.util.dataset.should_simulate(str(foreground_dataset_path)):
-    subprocess.run(
-        [sys.executable, "scripts/simulator/lens_sersic.py"],
-        check=True,
-    )
+al.util.dataset.simulate_if_needed(
+    foreground_dataset_path, simulator="scripts/simulator/lens_sersic.py"
+)
 
 foreground_dataset = al.Imaging.from_fits(
     data_path=foreground_dataset_path / "data.fits",

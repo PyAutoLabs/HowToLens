@@ -563,14 +563,9 @@ of sky used for these images.
 """
 dataset_path = Path("dataset") / "interferometer" / "simple"
 
-if al.util.dataset.should_simulate(str(dataset_path)):
-    import subprocess
-    import sys
-
-    subprocess.run(
-        [sys.executable, "scripts/simulator/interferometer.py"],
-        check=True,
-    )
+al.util.dataset.simulate_if_needed(
+    dataset_path, simulator="scripts/simulator/interferometer.py"
+)
 
 real_space_mask = al.Mask2D.circular(
     shape_native=(100, 100),
@@ -622,14 +617,9 @@ We load this catalogue, creating it first if needed, and plot its contents.
 """
 dataset_path = Path("dataset") / "weak_lensing" / "simple"
 
-if al.util.dataset.should_simulate(str(dataset_path)):
-    import subprocess
-    import sys
-
-    subprocess.run(
-        [sys.executable, "scripts/simulator/weak_lensing.py"],
-        check=True,
-    )
+al.util.dataset.simulate_if_needed(
+    dataset_path, simulator="scripts/simulator/weak_lensing.py"
+)
 
 dataset = al.from_json(file_path=dataset_path / "dataset.json")
 
@@ -663,14 +653,9 @@ our earlier galaxy-scale example.
 """
 group_dataset_path = Path("dataset") / "group" / "simple"
 
-if al.util.dataset.should_simulate(str(group_dataset_path)):
-    import subprocess
-    import sys
-
-    subprocess.run(
-        [sys.executable, "scripts/simulator/group.py"],
-        check=True,
-    )
+al.util.dataset.simulate_if_needed(
+    group_dataset_path, simulator="scripts/simulator/group.py"
+)
 
 group_dataset = al.Imaging.from_fits(
     data_path=group_dataset_path / "data.fits",
