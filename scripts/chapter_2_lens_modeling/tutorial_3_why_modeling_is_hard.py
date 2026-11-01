@@ -17,39 +17,40 @@ repeatedly changing settings until a fit looks convincing.
 
 __Contents__
 
-- **Overview**
-- **Dataset and Mask**
-- **Model and Analysis**
-- **A Less Thorough Search**
-- **Inspecting the Result**
-- **Comparing Searches**
-- **Why Modeling Is Hard**
-- **Three Ways Forward**
-- **Prior Tuning**
-- **Profile Centres**
-- **Lens-Light Shape**
-- **Mass Shape**
-- **Lens-Light Size**
-- **Light Concentration**
-- **Einstein Radius**
-- **Source and Shear Priors**
-- **Inspecting the Tuned Model**
-- **Prior-Tuned Fit**
-- **Assessing the Improvement**
-- **Prior Tuning: Benefits and Limitations**
-- **Reducing Complexity**
-- **Linking Parameters**
-- **Inspecting the Simpler Model**
-- **Fitting the Simpler Model**
-- **Reducing Complexity: Benefits and Limitations**
-- **Search More Thoroughly**
-- **Original Model**
-- **More Thorough Search**
-- **Comparing the Approaches**
-- **Benefits and Weaknesses**
-- **Run Times**
-- **Model Mismatch**
-- **Wrap Up**
+- **Overview:** Introduce the experiment and the results to inspect.
+- **Dataset and Mask:** Load the imaging data and select the region to fit.
+- **Model and Analysis:** Reconstruct the reference model and its likelihood calculation.
+- **A Less Thorough Search:** Explore the model with a deliberately small live-point population.
+- **Inspecting the Result:** Inspect the result summary, fitted image and residuals.
+- **Comparing Searches:** Compare the small search with the reference fit.
+- **Why Modeling Is Hard:** Understand why different parameter combinations can explain similar images.
+- **Three Ways Forward:** Introduce prior tuning, simpler models and more thorough searches.
+- **Prior Tuning:** Use the image and justified assumptions to narrow the priors.
+- **Profile Centres:** Use the observed light centre to motivate centre priors.
+- **Lens-Light Shape:** Estimate the lens-light ellipticity from the image.
+- **Mass Shape:** Distinguish an assumed mass shape from the directly observed light.
+- **Lens-Light Size:** Use the visible extent of the light to guide its size prior.
+- **Light Concentration:** Motivate a prior for the Sersic index.
+- **Einstein Radius:** Use the arc separation to guide the Einstein-radius prior.
+- **Source and Shear Priors:** Explain why the source and shear priors remain unchanged.
+- **Inspecting the Tuned Model:** Check the revised priors before fitting.
+- **Prior-Tuned Fit:** Fit the model with the revised priors.
+- **Assessing the Improvement:** Compare the tuned fit with the initial result.
+- **Prior Tuning: Benefits and Limitations:** Assess the benefits and risks of narrowing priors.
+- **Reducing Complexity:** Consider which model parameters could be linked.
+- **Linking Parameters:** Link light and mass centres and elliptical components.
+- **Inspecting the Simpler Model:** Check the reduced number of independent parameters.
+- **Fitting the Simpler Model:** Fit the reduced-complexity model.
+- **Reducing Complexity: Benefits and Limitations:** Balance easier exploration against restrictive assumptions.
+- **Search More Thoroughly:** Return to the original model and give the search more resources.
+- **Original Model:** Restore independent model components and their default priors.
+- **More Thorough Search:** Run the original model with more live points.
+- **Comparing the Approaches:** Compare the fitted images and residuals across experiments.
+- **Benefits and Weaknesses:** Compare the practical trade-offs of the three approaches.
+- **Run Times:** Understand the costs that determine how long a fit takes.
+- **Model Mismatch:** Distinguish insufficient exploration from an inadequate model.
+- **Wrap Up:** Review the lesson and its connection to the next topic.
+
 """
 
 """
