@@ -176,26 +176,30 @@ The plot provides an initial view of the measurements. Later, we will compare th
 aplt.plot_shear_yx_2d(shear_yx=dataset.shear_yx)
 
 """
-`aplt.subplot_weak_dataset` summarises the full dataset as a 2x2 mosaic: the whisker map, the per-galaxy noise-map,
-the shear magnitude |gamma| and the position angle phi at every galaxy.
+`aplt.subplot_weak_dataset` summarizes the catalogue in four panels: the shear whiskers, the per-galaxy uncertainties, the measured shear magnitudes and their position angles.
+
+Our simulation assigns the same uncertainty to every galaxy. Real catalogues generally have varying uncertainties because galaxies differ in brightness, size and the quality of their shape measurements.
+
+The magnitude and position-angle panels describe the noisy measurements. They should not be interpreted as direct maps of the underlying lensing field.
 """
 aplt.subplot_weak_dataset(dataset=dataset)
 
 """
 __Mass Map__
 
-A remarkable property of weak lensing is that the shear catalogue can be inverted directly into a map of the
-convergence `kappa` — the dimensionless projected mass density we have used throughout the series — *without
-assuming any mass model at all*. In Fourier space, shear and convergence are related algebraically, so two FFTs
-turn the catalogue into a "dark matter map". This is the Kaiser-Squires technique, and it produced some of the most
-famous images in cosmology, such as the mass map of the Bullet Cluster showing dark matter offset from the
-colliding gas.
+The shear field contains information about the convergence `kappa`, the dimensionless projected mass density introduced earlier in the series.
 
-`aplt.plot_convergence_map` bins the catalogue onto a regular grid, applies a small Gaussian smoothing (per-cell
-shears are shape-noise dominated) and plots the reconstruction. For our simulated cluster it peaks at the lens
-centre at (0.0", 0.0"). Two caveats: the map's mean is unconstrained (the mass-sheet degeneracy, which chapter 3
-met in its strong-lensing form) and FFT periodicity produces edge artefacts — for quantitative masses we fit a
-mass model, which is what the rest of this tutorial does.
+The **Kaiser–Squires** method uses the relationship between shear and convergence in Fourier space to reconstruct a convergence map without choosing a parametric mass profile such as an Isothermal or NFW.
+
+`aplt.plot_convergence_map` bins the catalogue onto a regular grid, smooths the binned shear field and performs this reconstruction.
+
+The resulting map provides a useful view of the projected mass structure. It traces the total lensing mass, including both dark matter and baryons; identifying a feature specifically with dark matter requires additional information.
+
+Avoid interpreting every peak as a real mass concentration. Shape noise, smoothing, the finite field and gaps in the catalogue all affect the reconstruction. Our catalogue has no measurements inside its central hole, so the displayed map there is not a direct local measurement.
+
+Shear also leaves an additive constant in the reconstructed convergence unconstrained. This is related to the mass-sheet degeneracy discussed in Chapter 3.
+
+Use this map as an exploratory diagnostic. Quantitative measurements require uncertainty estimates and careful treatment of the survey geometry. Here, we proceed by fitting a parametric mass model directly to the catalogue.
 """
 aplt.plot_convergence_map(
     shear_yx=dataset.shear_yx,
@@ -206,21 +210,21 @@ aplt.plot_convergence_map(
 """
 __Fitting__
 
-We now fit the catalogue, following the same pattern as every fit in this series: build a model `Tracer`, pass it
-with the dataset to a `Fit` object, and inspect residuals and the log likelihood. For weak lensing the fit object
-is `FitWeak`, and because we simulated the data ourselves we can hand it the *true* tracer and see what a perfect
-model looks like.
+We now follow the fitting workflow introduced in Chapter 1: specify a model `Tracer`, combine it with the dataset in a fit object, and inspect the residuals and log likelihood.
 
-`FitWeak` evaluates the model tracer's shear field at the dataset's galaxy positions and compares it with the
-measured shears, assuming each component is independently Gaussian-distributed around the model with the
-per-galaxy noise. Each galaxy contributes **two** independent data points (gamma_1 and gamma_2), so the number of
-degrees of freedom is 2 * n_galaxies, and for a good fit whose residuals are pure shape noise the chi-squared
-should be close to that number.
+For this dataset, the fit object is `FitWeak`. It evaluates the predicted shear at each observed galaxy position and compares its two components with the catalogue measurements.
 
-Compare this to the imaging fits of chapter 1: there, the fit convolved a model image with the PSF and compared
-tens of thousands of pixels; here there is no convolution, no mask and only a few thousand numbers. A weak-lensing
-likelihood is orders of magnitude cheaper — which is precisely why it is so inexpensive to add to a strong-lensing
-analysis, as discussed at the end of this tutorial.
+Our likelihood assumes independent Gaussian errors for the two components, using the supplied uncertainties. This matches the way we generated this simulated catalogue.
+
+We first supply the input tracer used by the simulator. Its predictions describe the underlying shear field, while the residuals contain the Gaussian noise added during simulation.
+
+There are two measured components per galaxy, giving 3000 scalar measurements. At this fixed input model, the expected chi-squared is therefore 3000, with statistical fluctuations between noise realizations.
+
+This count should not be confused with the residual degrees of freedom after estimating parameters from the same data. We will shortly allow the mass parameters to vary in a non-linear search.
+
+Unlike an imaging likelihood, this calculation does not generate and convolve a model image or reconstruct source surface brightness. Its main task is evaluating the lensing field at the catalogue positions and calculating the likelihood.
+
+The computational cost depends on the catalogue size, mass model and implementation, but this makes catalogue fitting a useful complement to the imaging and point-source analyses explored earlier.
 """
 fit = al.FitWeak(dataset=dataset, tracer=tracer)
 
@@ -228,13 +232,18 @@ print()
 print("Fit Summary (true model)")
 print("------------------------")
 print(f"n_galaxies        : {dataset.n_galaxies}")
-print(f"degrees_of_freedom: {2 * dataset.n_galaxies}")
+print(f"n_data_components: {2 * dataset.n_galaxies}")
 print(f"chi_squared       : {fit.chi_squared:.3f}")
 print(f"log_likelihood    : {fit.log_likelihood:.3f}")
 
 """
-As always, an incorrect mass model produces a worse fit. Halving the Einstein radius halves the predicted shear
-everywhere, leaving coherent tangential residuals across the field, and the log likelihood drops accordingly.
+We next halve the model’s Einstein radius while keeping its centre and ellipticity fixed.
+
+For this Isothermal profile, that change halves the predicted shear at every catalogue position. The model therefore underpredicts the coherent signal present in the simulated data.
+
+Compare the two printed log likelihoods. This deliberately large change illustrates how the catalogue distinguishes different mass normalizations, even though individual galaxy measurements are noisy.
+
+The likelihood combines information from the whole catalogue: the preference does not require every individual measurement to lie closer to the input model.
 """
 tracer_wrong = al.Tracer(
     galaxies=[
@@ -257,10 +266,15 @@ print(f"log_likelihood (true model) : {fit.log_likelihood:.3f}")
 print(f"log_likelihood (wrong model): {fit_wrong.log_likelihood:.3f}")
 
 """
-`aplt.subplot_fit_weak` visualises a weak-lensing fit as a 2x2 mosaic: the observed shear field, the model shear
-field, the two overlaid on one axes (data in black, model in red), and the per-galaxy chi-squared map. For the true
-model the overlay's residuals are short and randomly oriented — the shape-noise floor — and the chi-squared map is
-spatially uniform.
+`aplt.subplot_fit_weak` displays the observed shear field, the model field, an overlay of the two and the per-galaxy chi-squared contributions.
+
+The input model produces a smooth, coherent pattern. The observed whiskers scatter around that pattern because of shape noise, so a good fit does not require close agreement for every galaxy.
+
+Likewise, the chi-squared map need not look uniform. Individual galaxies can have large contributions simply because their noise realizations are large.
+
+Look for coherent discrepancies across the field, alongside the overall likelihood and residual statistics. Such patterns can indicate missing mass structure, an inadequate model or problems with the measurements.
+
+For this simulation, the input model and noise assumptions match the data-generation process, providing a reference for interpreting these diagnostics.
 """
 aplt.subplot_fit_weak(fit=fit)
 
