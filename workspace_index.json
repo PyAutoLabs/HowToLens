@@ -644,10 +644,7 @@
       "Wrap Up"
     ],
     "cross_refs": [
-      "autolens_workspace/scripts/guides/point_solver/pairing.py",
-      "csv_api.py",
-      "fit.py",
-      "likelihood_function.py"
+      "autolens_workspace/scripts/guides/point_solver/pairing.py"
     ],
     "notebook": "notebooks/chapter_4_scaling_up_lensing/tutorial_5_cluster_scale.ipynb",
     "path": "scripts/chapter_4_scaling_up_lensing/tutorial_5_cluster_scale.py",
