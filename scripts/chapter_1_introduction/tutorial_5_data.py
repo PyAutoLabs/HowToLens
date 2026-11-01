@@ -2,43 +2,32 @@
 Tutorial 5: Data
 ================
 
-In the last tutorials, we use tracers to create images of strong lenses. However, those images don't accurately
-represent what we would observe through a telescope.
+In the previous tutorials, we used tracers to create images of strong lenses.
+We will now use one of these images to simulate an observation through a telescope.
 
-Real telescope images, like those taken with the Charge Coupled Device (CCD) imaging detectors on the Hubble Space
-Telescope, include several factors that affect what we see:
+A telescope spreads light over neighbouring pixels, making fine details less
+sharp. Its detector collects light for a finite exposure time, and the number
+of photons detected fluctuates from one observation to another. Light from the
+background sky also contributes to the recorded image.
 
-**Telescope Optics:** The optical components of the telescope can blur the light, influencing the image's sharpness.
+We will introduce these effects separately so that you can see what each one
+does, then combine them using PyAutoLens's `SimulatorImaging` object.
 
-**Exposure Time:** The time the detector collects light, affecting the clarity of the image. Longer exposure times
-gather more light, improving the signal-to-noise ratio and creating a clearer image.
-
-**Background Sky:** Light from the sky itself, such as distant stars or zodiacal light, adds additional noise to
-the image.
-
-In this tutorial, we'll simulate a strong lens image by applying these real-world effects to the light and mass
-profiles and images we created earlier.
-
-Here is an overview of what we'll cover in this tutorial:
-
-- **Optics Blurring:** We'll simulate how the telescope optics blur the galaxy's light, making the images appear blurred.
-- **Poisson Noise:** We'll add Poisson noise to the image, simulating the randomness in the photon-to-electron conversion process on the CCD.
-- **Background Sky:** We'll add a background sky to the image, simulating the light from the sky that adds noise to the image.
-- **Simulator:** We'll use the `SimulatorImaging` object to simulate imaging data that includes all these effects.
-- **Other Data Types:** We'll finish with a brief look at point-source, interferometer and weak lensing datasets.
+Our example uses a charge-coupled device (CCD), a detector that records incoming
+light as electrons collected in its pixels.
 
 __Contents__
 
-- **Initial Setup:** To create our simulated strong lens image, we first need a 2D grid.
-- **Optics Blurring:** All images captured using CCDs (like those on the Hubble Space Telescope or Euclid) experience some.
-- **Poisson Noise:** In addition to the blurring caused by telescope optics, we also need to consider Poisson noise when.
-- **Background Sky:** The final effect we will consider when simulating imaging data is the background sky.
-- **Simulator:** The `SimulatorImaging` object lets us create simulated imaging data while including the effects of.
-- **Output:** We will now save these simulated data to `.fits` files, the standard format used by astronomers for.
-- **Point Source Data:** Collect image positions, fluxes and time delays with their uncertainties.
-- **Interferometer Data:** Radio / sub-mm interferometers like ALMA observe visibilities in the uv-plane rather than images.
-- **Weak Lensing Data:** Weak lensing datasets are catalogues of weakly sheared background galaxy ellipticities.
-- **Wrap Up:** Summary of the script and next steps.
+- **Initial Setup:** Create the lensed image that we will use for the simulation.
+- **Optics Blurring:** Describe the telescope's blurring with a point spread function.
+- **Poisson Noise:** Simulate fluctuations in the number of electrons collected.
+- **Background Sky:** Include sky light and the additional noise it produces.
+- **Simulator:** Combine these effects into an imaging dataset.
+- **Output:** Save the data, noise map and point spread function to FITS files.
+- **Point Source Data:** Introduce measured positions, fluxes and time delays.
+- **Interferometer Data:** Introduce measurements made by radio interferometers.
+- **Weak Lensing Data:** Introduce catalogues of background galaxy shapes.
+- **Wrap Up:** Review what we have learned.
 
 """
 
@@ -55,29 +44,33 @@ import autolens.plot as aplt
 """
 __Initial Setup__
 
-To create our simulated strong lens image, we first need a 2D grid. This grid will represent the coordinate space over 
-which we will simulate the strong lens's light distribution.
+We begin with a grid of 101 x 101 pixels, with each pixel spanning 0.1 arcseconds
+on the sky. As in the earlier tutorials, the grid supplies the coordinates at
+which we calculate the lensed image.
 """
 grid = al.Grid2D.uniform(
-    shape_native=(
-        101,
-        101,
-    ),  # The dimensions of the grid, which here is 101 x 101 pixels.
-    pixel_scales=0.1,  # The conversion factor between pixel units and arc-seconds.
+    shape_native=(101, 101),
+    pixel_scales=0.1,
 )
 
 """
-Next, we define the properties of our strong lens. In this tutorial, we’ll represent the lens with no luminous
-emmission and  an`Isothermal` mass profile. The source galaxy will be represented by a Sersic light profile.
+Our lens galaxy has an `Isothermal` mass profile. We omit its light so that we
+can focus on how the observation changes the appearance of the lensed source.
+The source galaxy has a Sersic light profile.
 
-In the previous tutorial, the units of `intensity` were arbitrary. However, for this tutorial, where we simulate 
-realistic imaging data, the intensity must have specific units. We’ll use units of electrons per second per pixel 
-($e- pix^-1 s^-1$), which is standard for CCD imaging data.
+For this simulation, image values represent electrons per second in each pixel.
+Multiplying a pixel's value by the exposure time will therefore give the
+expected number of electrons collected in that pixel.
+
+We use the same units for the light profile's `intensity`, which sets its
+brightness at the effective radius.
 """
 lens_galaxy = al.Galaxy(
     redshift=0.5,
     mass=al.mp.Isothermal(
-        centre=(0.0, 0.0), einstein_radius=1.6, ell_comps=(0.17647, 0.0)
+        centre=(0.0, 0.0),
+        einstein_radius=1.6,
+        ell_comps=(0.17647, 0.0),
     ),
 )
 
@@ -86,7 +79,7 @@ source_galaxy = al.Galaxy(
     bulge=al.lp.Sersic(
         centre=(0.1, 0.1),
         ell_comps=(0.0, 0.111111),
-        intensity=1.0,  # in units of e- pix^-1 s^-1
+        intensity=1.0,  # Electrons per second per pixel.
         effective_radius=1.0,
         sersic_index=2.5,
     ),
@@ -95,35 +88,46 @@ source_galaxy = al.Galaxy(
 tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
 
 """
-Lets look at the tracer's image, which is the image we'll be simulating.
+First, let's look at the lensed image. The telescope's blurring, background sky
+and random noise have not yet been included.
 
+Look at the sharpness of the arcs and the faint light around them. This is our
+starting image for seeing how each observational effect changes their appearance.
 """
 aplt.plot_array(
-    array=tracer.image_2d_from(grid=grid), title="Tracer Image Before Simulating"
+    array=tracer.image_2d_from(grid=grid),
+    title="Lensed Image Before Simulating the Observation",
 )
 
 """
 __Optics Blurring__
 
-All images captured using CCDs (like those on the Hubble Space Telescope or Euclid) experience some level of blurring 
-due to the optics of the telescope. This blurring occurs because the optical system spreads out the light from each 
-point source (e.g., a star or a part of a galaxy).
+A point source does not appear as a single perfectly sharp point in a telescope
+image. The telescope spreads its light over a small region. The shape of this
+response is called the point spread function, or PSF.
 
-The Point Spread Function (PSF) describes how the telescope blurs the image. It can be thought of as a 2D representation 
-of how a single point of light would appear in the image, spread out by the optics. In practice, the PSF is a 2D 
-convolution kernel that we apply to the image to simulate this blurring effect.
+An extended image is blurred in the same way: light from every position is
+spread according to the PSF. We calculate this using an operation called
+convolution.
+
+For our example, we will use a circular Gaussian PSF. Its `sigma` is
+0.1 arcseconds, equal to one pixel on our grid. A larger sigma would spread the
+light over a wider region.
+
+The PSF is represented by an 11 x 11 array called a kernel. We normalise its
+values to sum to one, so that it describes how light is redistributed.
 """
 psf = al.Convolver.from_gaussian(
-    shape_native=(11, 11),  # The size of the PSF kernel, represented as an 11x11 grid.
-    sigma=0.1,  # Controls the width of the Gaussian PSF, which determines the level of blurring.
-    pixel_scales=grid.pixel_scales,  # Maintains consistency with the scale of the image grid.
-    normalize=True,  # Normalizes the PSF kernel so that its values sum to 1.
+    shape_native=(11, 11),
+    sigma=0.1,  # Arcseconds.
+    pixel_scales=grid.pixel_scales,
+    normalize=True,
 )
 
 """
-We can visualize the PSF to better understand how it will blur the galaxy's image. The PSF is essentially a small 
-image that represents the spreading out of light from a single point source. This kernel will be used to blur the 
-entire tracer image when we perform the convolution.
+Plotting the kernel shows how the light from a point source is distributed:
+the central pixels receive the most light, with progressively less farther
+from the centre.
 """
 aplt.plot_array(array=psf.kernel, title="PSF 2D Kernel")
 

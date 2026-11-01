@@ -129,7 +129,7 @@
     ],
     "notebook": "notebooks/chapter_1_introduction/tutorial_5_data.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_5_data.py",
-    "summary": "In the last tutorials, we use tracers to create images of strong lenses. However, those images don't accurately represent what we would observe through a telescope.",
+    "summary": "In the previous tutorials, we used tracers to create images of strong lenses. We will now use one of these images to simulate an observation through a telescope.",
     "title": "Tutorial 5: Data"
   },
   {
