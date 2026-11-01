@@ -165,45 +165,39 @@ print(f"Galaxies in lens plane: {len(tracer_true.planes[0])}")
 """
 __Point Source Modeling__
 
-In every previous tutorial we fitted the data pixel-by-pixel: a model image of the lens and source light was
-computed, convolved with the PSF and compared to every image pixel. For a cluster this becomes computationally
-prohibitive:
+We now describe each multiply imaged source using a set of image positions rather than fitting its full
+surface-brightness distribution.
 
-- Every one of the tens of sources needs its own light model (or pixelization), each adding parameters (or an
-  expensive linear inversion) to the fit.
+For extended galaxies, these positions should identify **corresponding features** in the different images -- for
+example, recognizable knots that represent the same source structure. Selecting each image's brightest pixel
+independently does not necessarily identify matching features.
 
-- The image is enormous — our modest simulated cluster already spans 500 x 500 pixels — and the deflection
-  angles of hundreds of member galaxies would need evaluating at every one of them, for every likelihood
-  evaluation.
+This reduces the amount of data evaluated during the fit and avoids constructing a light-profile or pixelized
+reconstruction for every source. It is a widely used approach for building cluster mass models.
 
-The standard approach in cluster lensing therefore simplifies the data dramatically: each multiply-imaged
-source is reduced to the **positions of its multiple images** — the (y,x) coordinates of the brightest pixel
-of each image, measured from the imaging. The model then only has to answer a much cheaper question: does this
-mass model ray-trace all of a source's observed image positions back to the same source-plane location?
+The trade-off is that position fitting does not use the full information in the extended arcs. Surface-brightness
+modeling can provide complementary constraints and remains possible for selected systems or more detailed analyses.
 
-This is **point-source modeling**. We are deliberately discarding the information in the arcs' extended light
-in exchange for a likelihood that is fast enough to evaluate with hundreds of galaxies and tens of sources.
-(For lensed quasars and supernovae — genuine point sources — nothing is even discarded.) Extended-source
-cluster modeling, where individual arcs are fitted at pixel level with the pixelizations of the previous
-chapter, does exist in **PyAutoLens** as a specialised follow-up analysis — see the `autolens_workspace`
-cluster examples — but position fitting is the workhorse that published cluster mass models are built on.
+For genuine point sources such as quasars or supernovae, image positions are natural measurements, although
+fluxes, time delays and other observables can provide additional information.
 
 __Point Datasets__
 
-The positions of each source's multiple images are stored in a single CSV file, `point_datasets.csv`, with
-one row per observed multiple image:
+We load the multiple-image measurements from `point_datasets.csv`, with one row per observed image:
 
- - `name`: the source identifier (e.g. `point_0`). All rows sharing a `name` belong to the same source.
- - `y`, `x`: the image-plane position of the multiple image, in arc-seconds.
- - `positions_noise`: the positional uncertainty in arc-seconds — how precisely the image's centroid is
-   measured (for space-telescope imaging ~0.005", set by PSF-fitting precision, not the pixel scale).
- - `redshift`: the source redshift, which every row of a group must share. This column is what makes the
-   multi-plane geometry reproducible from the file alone.
+- `name`: identifies the source or matched source feature. Rows sharing a name form one multiple-image system.
+- `y`, `x`: its observed image-plane coordinates in arcseconds.
+- `positions_noise`: the positional uncertainty adopted by the likelihood, in arcseconds.
+- `redshift`: the source redshift, shared by the rows belonging to that system.
 
-This CSV is the recommended input format for cluster datasets because it is hand-editable: measuring your own
-cluster's multiple images means filling in a spreadsheet, not writing Python.
+The positional uncertainty should reflect the measurement and modeling assumptions. Precise centroid measurements
+do not imply that a simplified cluster mass model predicts positions to the same precision; unresolved structure
+and other modeling limitations can also matter.
 
-`al.list_from_csv` loads the file into a list of `PointDataset` objects, one per source.
+For this simulation, we use the supplied uncertainties. For real observations, choose and justify them rather
+than adopting a universal value from the pixel scale or telescope resolution.
+
+`al.list_from_csv` loads the file into a list of `PointDataset` objects, one per named system.
 """
 dataset_list = al.list_from_csv(file_path=dataset_path / "point_datasets.csv")
 
@@ -213,10 +207,15 @@ for dataset in dataset_list:
     print(f"Redshift: {dataset.redshift}")
 
 """
-Plotting each dataset shows just how sparse point-source data is: a handful of (y,x) coordinates per source.
-That a full cluster mass model can be constrained by so few numbers is because each coordinate is measured to
-milli-arcsecond precision, and because every source at its own redshift probes the mass distribution
-differently.
+Plot each dataset to inspect its multiple-image positions.
+
+Each system supplies a small set of coordinates that must be consistent with a common source position under the
+lens model. Systems distributed across the cluster probe different parts of its deflection field, while their
+redshifts determine the appropriate lensing geometry.
+
+The information available depends on the number and configuration of images, their uncertainties and the model's
+flexibility. A small number of precise positions does not automatically determine a unique cluster mass
+distribution.
 """
 for dataset in dataset_list:
     aplt.plot_grid(
@@ -227,36 +226,29 @@ for dataset in dataset_list:
 """
 __The CSV Interface__
 
-With hundreds of member galaxies, composing the lens model in Python — one `af.Model(al.Galaxy)` per galaxy,
-as in every previous tutorial — stops being sensible. The cluster workflow therefore defines the model in CSV
-files as well, which the simulator wrote alongside the data:
+CSV files provide a convenient way to organize a model containing many components. They separate the measured
+catalogue and profile choices from the Python code that assembles the model.
 
- - `mass.csv`: every individually-modelled mass profile — the two main lens galaxies' `dPIEMassSph` profiles
-   and the host halo's `NFWMCRLudlowSph`.
- - `light.csv`: the light profiles (not used in point-source modeling, since light does not lens).
- - `point.csv`: the source galaxies' `Point` components.
+The simulator supplies:
 
-Each row of these CSVs carries:
+- `mass.csv`: the individually described mass profiles, including the main galaxies and shared dark matter halo.
+- `light.csv`: light-profile descriptions, which are not needed for this positions-only likelihood.
+- `point.csv`: the source point components.
 
- - `galaxy`: a galaxy name (e.g. `lens_0`, `host_halo`, `source_0`). Rows sharing a name compose into one
-   galaxy.
- - `attr_name`: the attribute the profile is bound to on the galaxy (e.g. `mass`, `dark`, `point_0`).
- - `profile_class`: the profile class name (e.g. `dPIEMassSph`), looked up in `al.mp` / `al.lp` / `al.ps`.
- - The profile's constructor parameters as columns (tuples like `centre` split into `y` / `x`); parameters a
-   row's class does not use are left blank.
- - `redshift`: the galaxy's redshift.
+Each profile row specifies a galaxy name, attribute name, profile class, redshift and relevant profile parameters.
+Rows with the same galaxy name are assembled into one `Galaxy`.
 
-The lower-mass member population lives in a fourth, simpler catalogue, `scaling_galaxies.csv`, with one row
-per member and columns `y, x, luminosity`. No profile class, no mass parameters — because, as the previous
-tutorial showed, the members' masses are not free parameters but derive from their luminosities via a scaling
-relation. The catalogue is exactly what an observer measures: where each member is and how bright it is.
+The lower-mass member population is listed separately in `scaling_galaxies.csv`, with measured positions and
+luminosities. We assign its mass profiles and shared scaling relation in Python.
 
-This is the key scaling property of the CSV interface: modeling a richer cluster means appending rows to
-`scaling_galaxies.csv` (and, for another individually-modelled galaxy or halo, to `mass.csv`) — the Python
-below does not change, and the number of free parameters does not grow with the member count.
+Adding members to this catalogue does not add independent mass parameters **under our fixed-centre,
+spherical-profile and shared-relation assumptions**. Adding an individually modeled galaxy or halo can add
+parameters, depending on which quantities we allow to vary.
 
-We load the mass and point families (`al.galaxy_models_from_csv`) and the member catalogue
-(`al.galaxy_table_from_csv`):
+The catalogue format makes a larger model easier to assemble; the modeling assumptions determine its
+dimensionality.
+
+We now load the mass and point-profile tables, followed by the member catalogue.
 """
 mass_table = al.galaxy_models_from_csv(
     file_path=dataset_path / "mass.csv", family="mass"
@@ -274,24 +266,37 @@ scaling_galaxies_luminosity_list = scaling_galaxies_table.luminosities
 print(f"Scaling galaxies in catalogue: {len(scaling_galaxies_luminosity_list)}")
 
 """
-In a real analysis the member centres and luminosities come from light fits to the imaging data (or an
-external photometric catalogue), and the main-galaxy centres in `mass.csv` are pinned to the observed light
-centres. Fixing the centres to observed values is essential at cluster scale: a handful of multiple-image
-positions cannot constrain hundreds of free centre coordinates, but the imaging measures them for free.
+In real observations, member positions and luminosities can come from preliminary light fits or a suitable
+catalogue. As in earlier tutorials, fixing member mass centres to measured light positions is a useful way to
+limit the model's freedom.
+
+These measurements are not exact, and selected galaxies can be given positional freedom where the data and
+scientific question justify it.
 
 __Point Solver__
 
-Point-source modeling needs one new piece of machinery: given a mass model and a source-plane (y,x)
-coordinate, where in the image plane do its multiple images appear? Answering this means solving the lens
-equation *backwards*, which has no analytic solution.
+We met the `PointSolver` earlier when finding the multiple images of a point source, such as a lensed quasar,
+behind a single lens galaxy.
 
-The `PointSolver` solves it numerically: it tiles the image plane with triangles, ray-traces each triangle's
-corners to the source plane, keeps the triangles that land on the source-plane coordinate, and subdivides
-them repeatedly until the image positions are located to a precision of `pixel_scale_precision`.
+We use exactly the same tool here. Given a mass model and a source position, it solves the lens equation
+numerically to locate the multiple images. The difference is that our mass model now contains a cluster halo
+and many galaxies, and we repeat the calculation for sources at their respective redshifts.
 
-The solver's grid must span the full 100" cluster field — the multiple images sit tens of arc-seconds from
-the cluster centre. The `magnification_threshold` discards heavily demagnified images (e.g. the faint central
-image of a typical lens configuration, which real observations do not detect).
+Recall that the solver divides the image plane into triangles, maps them to the source plane and refines
+candidate regions until the requested positional resolution is reached.
+
+The grid should cover the region in which we want to search for images. Here, it spans the same approximate 100"
+field as the simulated imaging. Images outside that search region will not be found.
+
+`pixel_scale_precision` sets the solver's numerical resolution in arcseconds; it is separate from the
+observational uncertainties in `positions_noise`.
+
+`magnification_threshold` filters out predicted images with low absolute magnification. This is a numerical
+selection rule, not a complete model of detectability, which also depends on source brightness, noise and blending.
+
+Unlike an image-plane position likelihood that uses the solver during fitting, our chosen cluster likelihood
+back-traces the observed positions without solving for predicted images at every evaluation. We will use the
+familiar `PointSolver` after fitting to check the predicted image configuration for each source.
 """
 grid = al.Grid2D.uniform(
     shape_native=(100, 100),
@@ -305,38 +310,30 @@ solver = al.PointSolver.for_grid(
 """
 __Model__
 
-We now compose the cluster model, which has four tiers of component — the same four tiers every published
-cluster mass model is built from:
+Our example combines four types of component:
 
- - **Main lens galaxies (2)**: the BCG and satellite, modelled individually with `dPIEMassSph` profiles. As
-   the previous tutorial on group-scale lenses discussed, the dPIE is the standard truncated profile of this
-   regime: members orbiting in the cluster's shared potential have their outer dark matter tidally stripped,
-   so their mass genuinely ends at a finite truncation radius `r_cut`. Each main galaxy has free `sigma` (its
-   fiducial velocity dispersion, setting the lens strength) and free `r_cut`, with its centre fixed to the
-   observed light centre [4 free parameters].
+- **Two main lens galaxies:** each has a spherical dPIE mass profile with fixed centre and core radius, but free
+  `sigma` and `r_cut`. Together they contribute **four parameters**.
+- **Ten scaling-relation members:** their positions and core radii are fixed. Their velocity-dispersion
+  normalizations depend on one shared `sigma_ref`; their truncation radii follow a fixed luminosity prescription.
+  This population contributes **one parameter**.
+- **One shared dark matter halo:** an `NFWMCRLudlowSph` profile with fixed centre and free `mass_at_200`.
+  Its mass-concentration prescription supplies additional structure without an independent concentration
+  parameter. It contributes **one parameter**.
+- **Two background sources:** `PointSolved` components whose source positions are solved within the selected
+  likelihood rather than sampled independently. They contribute **zero non-linear sampling parameters**.
 
- - **Scaling-tier members (10)**: `dPIEMassSph` profiles with centres fixed from the catalogue and `sigma` /
-   `r_cut` derived from each member's luminosity via the scaling relation introduced earlier in this chapter:
-   sigma = sigma_ref * (L / L_ref)^0.25 and r_cut = r_cut_ref * (L / L_ref)^0.7. Only the normalization
-   `sigma_ref` — the velocity dispersion of a member at the reference luminosity — is free. Whether the
-   catalogue holds 10 members or 300, the tier costs [1 free parameter].
+The total is therefore **six free non-linear parameters**.
 
- - **Host dark matter halo (1)**: a standalone galaxy carrying the cluster's `NFWMCRLudlowSph` halo, centred
-   on the BCG, with a free total mass `mass_at_200` [1 free parameter].
+This small count reflects strong restrictions on the model: spherical profiles, fixed positions and redshifts,
+a prescribed halo mass-concentration relation, and a deterministic member scaling relation. It is not a claim
+that real cluster mass distributions generally require only six parameters.
 
- - **Source galaxies (2)**: parameter-free `PointSolved` components. Rather than sampling each source's
-   (y,x) source-plane centre as free parameters, the fit solves for the centre analytically — the
-   precision-weighted mean of the back-traced image positions. With tens of sources this matters: it removes
-   two parameters per source from the search [0 free parameters].
+The model contains twelve lens galaxies, one mass-only halo component and two source objects. Adding more tied
+members preserves the parameter count only while those restrictions remain in place.
 
-**Total: N = 6 free parameters** — for a model containing 13 galaxies and 2 sources. This is the punchline of
-the cluster workflow: catalogues and scaling relations decouple the model's physical richness from the
-dimensionality of the non-linear search.
-
-`al.galaxy_af_models_from_csv_tables` converts the CSV tables into a dictionary of `af.Model(Galaxy)` objects
-keyed by galaxy name, with every CSV value fixed as a default. We then selectively promote parameters to free
-priors — exactly the `af.Model` customization API used throughout the earlier chapters, just applied to
-models built from files instead of Python.
+`al.galaxy_af_models_from_csv_tables` builds the named galaxy models from the CSV tables, initially fixing their
+supplied values. We then assign priors to the particular parameters we want the search to vary.
 """
 redshift_lens = 0.5
 source_redshifts = [dataset.redshift for dataset in dataset_list]
