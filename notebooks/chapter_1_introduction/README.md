@@ -4,9 +4,9 @@ In chapter 1, we introduce you to strong gravitational lensing and the core **Py
 
 # Files
 
-- [Tutorial 0: Visualization](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.10.29.1/notebooks/chapter_1_introduction/tutorial_0_visualization.ipynb) — Setting up **PyAutoLens**'s visualization library.
+- [Tutorial 0: Visualization](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_1_introduction/tutorial_0_visualization.ipynb) — Setting up **PyAutoLens**'s visualization library.
 
-- [Tutorial 1: Grids And Galaxies](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.10.29.1/notebooks/chapter_1_introduction/tutorial_1_grids_and_galaxies.ipynb) — Using grids of (y,x) coordinates with galaxies made up of light profiles.
+- [Tutorial 1: Grids And Galaxies](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_1_introduction/tutorial_1_grids_and_galaxies.ipynb) — Using grids of (y,x) coordinates with galaxies made up of light profiles.
 
 - [Tutorial 2: Ray Tracing](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_1_introduction/tutorial_2_ray_tracing.ipynb) — Using grids, galaxies and mass profiles to perform strong lens ray-tracing.
 
