@@ -258,61 +258,79 @@ aplt.plot_array(
 """
 __Background Sky__
 
-The final effect we will consider when simulating imaging data is the background sky.
+The telescope collects light from the surrounding sky as well as from the
+strong lens. Sources of this background include sunlight scattered by dust
+in the Solar System, known as zodiacal light, and unresolved distant objects.
 
-In addition to light from the strong lens, the telescope also picks up light from the sky. This background sky light is 
-primarily due to two sources: zodiacal light, which is light scattered by interplanetary dust in the solar system, 
-and the unresolved emission from distant stars and galaxies.
+We will represent the background as a uniform brightness of 0.1 electrons
+per second per pixel. We add this to the blurred lensed image before drawing
+the Poisson counts, so that both the source and sky contribute to the noise.
 
-For our simulation, we'll assume that the background sky has a uniform brightness across the image, measured at 
-0.1 electrons per second per pixel. The background sky is added to the image before applying the PSF convolution 
-and adding Poisson noise. This is important because it means that the background contributes additional noise to the 
-image.
+A uniform background remains uniform when convolved with a normalised PSF,
+so we can add it after blurring the lensed image.
 
-The background sky introduces noise throughout the entire image, including areas where the strong lens is not present. 
-This is why CCD images often appear noisy, especially in regions far from where the strong lens signal is detected. 
-The sky noise can make it more challenging to observe faint details of the lens and source galaxies.
-
-To simulate this, we add a constant background sky to the tracer image and then apply Poisson noise to create the 
-final simulated image as it would appear through a telescope.
+Even where the source contributes very little light, sky photons are still
+collected. Their fluctuating counts make faint features harder to distinguish.
 """
 background_sky_level = 0.1
 
-# Add background sky to the blurred tracer image.
 blurred_image_with_sky = blurred_image + background_sky_level
 blurred_image_with_sky_counts = blurred_image_with_sky * exposure_time
 
-# Apply Poisson noise to the image with the background sky.
 blurred_image_with_sky_poisson_noise = (
     np.random.poisson(
-        blurred_image_with_sky_counts, blurred_image_with_sky_counts.shape
+        blurred_image_with_sky_counts,
+        blurred_image_with_sky_counts.shape,
     )
     / exposure_time
 )
 
-# Visualize the image with background sky and Poisson noise.
+"""
+This image includes the mean sky brightness as well as the random fluctuations
+in the collected counts. Regions away from the lensed source therefore have
+a background level around which their pixel values fluctuate.
+"""
 aplt.plot_array(
     array=aa.Array2D(
-        values=blurred_image_with_sky_poisson_noise, mask=blurred_image.mask
+        values=blurred_image_with_sky_poisson_noise,
+        mask=blurred_image.mask,
     ),
     title="Image With Background Sky",
 )
 
-# Create a noise map showing the differences between the blurred image with and without noise.
+"""
+Subtracting the expected source-plus-sky image isolates the noise realisation.
+Look for fluctuations even in regions where the lensed source is faint:
+the background sky contributes noise there too.
+"""
 poisson_noise_realization = (
     blurred_image_with_sky_poisson_noise - blurred_image_with_sky
 )
 
 aplt.plot_array(
-    array=aa.Array2D(values=poisson_noise_realization, mask=blurred_image.mask),
+    array=aa.Array2D(
+        values=poisson_noise_realization,
+        mask=blurred_image.mask,
+    ),
     title="Poisson Noise Realization",
 )
 
 """
 __Simulator__
 
-The `SimulatorImaging` object lets us create simulated imaging data while including the effects of PSF blurring, 
-Poisson noise, and background sky all at once:
+We have now built up the observation one step at a time. The `SimulatorImaging`
+object combines these steps: it blurs the lensed image with the PSF, adds the
+background sky and draws the Poisson counts for the chosen exposure time.
+
+By default, it also subtracts the mean background sky level from the resulting
+image. This represents an observation whose background has been removed during
+data processing.
+
+Subtracting the mean sky level does not remove the random fluctuations caused
+by sky photons. That noise remains in the image.
+
+The simulator returns an `Imaging` dataset containing the simulated image,
+the PSF and a noise map. We will inspect each of these below.
 """
 simulator = al.SimulatorImaging(
     exposure_time=300.0,
@@ -324,32 +342,61 @@ simulator = al.SimulatorImaging(
 dataset = simulator.via_tracer_from(tracer=tracer, grid=grid)
 
 """
-By plotting the `data` from the dataset, we can see that it matches the image we simulated earlier. It includes 
-the effects of PSF blurring, Poisson noise, and noise from the background sky. This image is a realistic 
-approximation of what a telescope like the Hubble Space Telescope would capture.
+The dataset's `data` contains the simulated observation, in electrons per
+second per pixel.
+
+It shows the same lensed structure as our manual simulation, but uses a new
+noise realisation and has the mean sky level subtracted. Pixels far from the
+source should therefore fluctuate around zero. Some can be negative: after
+sky subtraction, a pixel that collected fewer sky photons than expected can
+have a negative value.
+
+These negative values do not represent negative light. They arise from
+subtracting the estimated background from a noisy measurement.
 """
 aplt.plot_array(array=dataset.data, title="Simulated Imaging Data")
 
 """
-The dataset also includes the `psf` (Point Spread Function) used to blur the strong lens image.
+**🤖 Ask AI:** Why does subtracting the mean background sky from an astronomical
+image leave the sky's Poisson noise behind?
+"""
 
-For actual telescope data, the PSF is determined during data processing and is provided along with the observations. 
-It's crucial for accurately deconvolving the PSF from the strong lens image, allowing us to recover the true properties 
-of the strong lens. We'll explore this further in the next tutorial.
+"""
+The dataset also stores the PSF used to simulate the observation.
+
+For real observations, we need an estimate of the PSF, which can come from
+stars in the image or a model of the instrument.
+
+When comparing a lens model with the data, we blur its predicted image using
+this PSF. This lets us compare the model and observation at the same resolution.
+The next tutorial will show this comparison in practice.
 """
 aplt.plot_array(array=dataset.psf.kernel, title="Simulated PSF")
 
 """
-The dataset includes a `noise_map`, which represents the Root Mean Square (RMS) standard deviation of the noise 
-estimated for each pixel in the image. Higher noise values mean that the measurements in those pixels are 
-less certain, so those pixels are given less weight when analyzing the data.
+The `noise_map` gives an estimated standard deviation for each pixel, in the
+same units as the data. It describes the typical size of the random
+fluctuations expected in that pixel.
 
-This `noise_map` is different from the Poisson noise arrays we plotted earlier. The Poisson noise arrays show the 
-actual noise added to the image due to the random nature of photon-to-electron conversion on the CCD, as calculated 
-using the numpy random module. These noise values are theoretical and cannot be directly measured in real telescope data.
+This is different from the noise realisation we plotted earlier. A realisation
+records the particular positive or negative fluctuation drawn for each pixel;
+the noise map describes the scale of those fluctuations.
 
-In contrast, the `noise_map` is our best estimate of the noise present in the image, derived from the data itself 
-and used in the fitting process.
+For Poisson counts, the standard deviation is the square root of the expected
+number of counts. The simulator estimates this using the simulated counts
+before sky subtraction, then divides by the exposure time to return to
+electrons per second per pixel.
+
+The noise map therefore includes contributions from both the source and sky,
+even though the mean sky level has been removed from the data.
+
+Look for larger noise values in the bright arcs, where more photons are
+collected, and a background noise level elsewhere. More collected photons
+produce larger absolute count fluctuations, but smaller fluctuations relative
+to their mean.
+
+In the next tutorial, the noise map will set the scale against which we judge
+differences between the model image and the data.
 """
 aplt.plot_array(array=dataset.noise_map, title="Simulated Noise Map")
 
