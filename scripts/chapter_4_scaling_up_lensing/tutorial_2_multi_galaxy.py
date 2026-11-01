@@ -2,31 +2,25 @@
 Tutorial 2: Multi-Galaxy Lenses
 ===============================
 
-In the previous tutorial, we learned how to deal with extra galaxies near a strong lens — nuisance objects whose
-light contaminates the data but which play no meaningful role in the lensing itself. We removed their emission
-from the analysis, or gave them a heavily restricted model, and the single dominant lens galaxy remained the
-star of the show.
+In the previous tutorial, we modeled a system with one dominant lens galaxy and a smaller nearby galaxy.
+We saw that the extra galaxy's light and gravitational deflections required separate consideration.
 
-In this tutorial, we meet systems where that picture breaks down entirely: **multi-galaxy lenses**, where two
-(or more) galaxies of comparable mass both contribute significantly to the lensing of a single background source.
-Neither galaxy is a minor perturber we can mask away or simplify — they are **co-dominant deflectors**, and every
-one of them needs its own free light and mass model.
+We now consider **multi-galaxy lenses**, where two or more galaxies contribute substantially to the lensing of a
+background source. Each significant deflector needs to be represented in the mass model, although we can still
+fix or link appropriate parameters.
 
-How do such systems arise physically? There are two main channels:
+Such configurations can arise when galaxies at similar redshifts lie close together in projection, including
+interacting or merging systems. They can also arise through chance alignments of galaxies at different redshifts.
 
-- **Merging galaxies**: two galaxies at the same redshift caught in the act of merging, or orbiting one another
-  in close proximity. Their projected separation is small compared to the Einstein radius of their combined mass,
-  so the source's light rays feel both galaxies' gravity at once. Because both deflectors are at one redshift,
-  ray tracing is single-plane: their deflection angles simply add.
+When we approximate the deflectors as lying at the same redshift, their deflection angles add on a single lens
+plane. Deflectors at different redshifts require multi-plane ray-tracing, which accounts for how earlier deflections
+change a ray's position at subsequent planes.
 
-- **Chance line-of-sight alignments**: two physically unrelated galaxies at *different* redshifts that happen to
-  lie along the same line of sight. Light from the source is deflected first by the more distant galaxy, and the
-  already-deflected rays are deflected again by the nearer one. This is compound, multi-plane ray tracing — the
-  `Tracer` handles it natively by simply assigning each galaxy its redshift, and we will defer its details to
-  later in this chapter, where multi-plane lensing becomes the default at cluster scale.
+In this tutorial, both lens galaxies are at the same redshift. We therefore focus on two modeling challenges:
+the growing number of parameters and the degeneracies between the galaxies' mass distributions.
 
-In this tutorial, both lens galaxies are at the same redshift, so we stay in the simpler single-plane regime and
-focus on the modeling challenge that defines multi-galaxy lensing: the growth of the model's parameter space.
+We will also reuse the practical workflow introduced in Tutorial 1: measure galaxy light centres first, then
+use those positions to constrain the model.
 
 __Contents__
 
@@ -55,13 +49,16 @@ import autolens.plot as aplt
 """
 __Initial Setup__
 
-We begin with `Imaging` of a strong lens where **two** lens galaxies, separated by 2.0", both deflect the light
-of a single background source:
+We begin with an `Imaging` dataset containing two lens galaxies, separated by 2.0", which both deflect light from
+a single background source.
 
- - The two lens galaxies' light are `Sersic` profiles, centred at (0.0", -1.0") and (0.0", 1.0").
- - The two lens galaxies' mass distributions are `Isothermal` profiles with comparable Einstein radii (1.0" and
-   0.8") — this comparability is what makes them co-dominant.
- - The source galaxy's light is an `ExponentialCoreSph`.
+- Their light follows `Sersic` profiles centred at `(0.0, -1.0)` and `(0.0, 1.0)`, using our usual `(y, x)`
+  coordinates in arcseconds.
+- Their mass follows `Isothermal` profiles with Einstein-radius parameters of 1.0" and 0.8".
+- The source light follows an `ExponentialCoreSph` profile.
+
+Both galaxies contribute substantially to the deflection field. Their individual Einstein-radius parameters
+describe the two mass profiles; neither alone describes the critical curves of the combined system.
 
 __Dataset Auto-Simulation__
 
@@ -88,20 +85,24 @@ dataset = al.Imaging.from_fits(
 )
 
 """
-When we plot the data, the difference from every lens we have modeled so far is obvious: there are two bright
-lens galaxies, and the lensed source's arcs wrap around the *pair as a whole* rather than around either galaxy
-individually. The mass distribution the source's light responds to is the sum of both galaxies' mass.
+Plot the dataset and identify the two lens galaxies and the surrounding lensed source emission.
+
+The source is lensed by their combined deflection field, so we must interpret the image configuration using both
+galaxies together. We cannot treat it as two independent single-galaxy lenses.
+
+Notice where the galaxies' light overlaps the source emission: our model will need to separate these contributions
+while fitting the data.
 """
 aplt.subplot_imaging_dataset(dataset=dataset)
 
 """
 __Mask__
 
-We define a 3.0" circular mask. For a multi-galaxy lens, sizing the mask needs more care than at galaxy scale:
-the Einstein radius that matters is that of the *combined* mass distribution, not either galaxy's individually.
-A mask sized by eye from one galaxy's light would clip the arcs, which extend beyond both galaxies' centres.
+We use a circular mask with radius 4.0", centred between the two lens galaxies. Inspect the masked dataset to check
+that it retains the lensed source emission, including its fainter outskirts. For multi-galaxy lenses, choose the
+fitting region from the full image configuration rather than either galaxy's individual Einstein radius.
 """
-mask_radius = 3.0
+mask_radius = 4.0
 
 mask = al.Mask2D.circular(
     shape_native=dataset.shape_native,
@@ -114,14 +115,19 @@ dataset = dataset.apply_mask(mask=mask)
 """
 __Over Sampling__
 
-We use the adaptive over sampling scheme introduced in earlier chapters, which evaluates the steep central
-regions of the lens galaxies' light at high resolution. The one multi-galaxy specific point is that the adaptive
-grid is centred on **every** deflector, not just one — each galaxy has its own steep central light profile
-needing accurate evaluation, and `centre_list` takes as many centres as we give it.
+We use the adaptive over-sampling method introduced in earlier chapters to evaluate the galaxies' steep central
+light profiles accurately.
 
-The two centres below are the observed centres of the two lens galaxies, which for this simulated dataset we
-know exactly. For real data you would measure them from the image itself (the `autolens_workspace` provides a
-GUI which writes them from mouse clicks).
+Here, we supply both galaxy centres through `centre_list`, so the higher-resolution sampling covers the central
+region of each galaxy.
+
+This reuses the measured-position workflow from Tutorial 1. For real data, we can obtain the light centres using
+a GUI, a source-detection tool or a preliminary light-profile fit. For this simulated dataset, we use the known
+input positions.
+
+These positions currently determine where the grid receives finer sampling; supplying them to the over-sampling
+function does **not** fix any model parameters. Later, we will explicitly fix the galaxies' mass centres to
+these positions.
 """
 lens_centres = [(0.0, -1.0), (0.0, 1.0)]
 
