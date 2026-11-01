@@ -16,24 +16,25 @@ process before tackling the additional challenges of real observations.
 
 __Contents__
 
-- **Overview**
-- **Parameter Space**
-- **Automated Exploration**
-- **Deeper Background**
-- **PyAutoFit**
-- **Initial Setup**
-- **Dataset Auto-Simulation**
-- **Mask**
-- **Model**
-- **Priors**
-- **Analysis**
-- **Non-linear Search**
-- **Search Settings**
-- **Model Fit**
-- **Result**
-- **Inspecting the Fit**
-- **Other Searches**
-- **Wrap Up**
+- **Overview:** Introduce the experiment and the results to inspect.
+- **Parameter Space:** Understand how free parameters define the models a search can explore.
+- **Automated Exploration:** Use a non-linear search to explore possible model parameters.
+- **Deeper Background:** Find further explanations of likelihoods and Bayesian inference.
+- **PyAutoFit:** Introduce the tools used to define models, priors and searches.
+- **Initial Setup:** Introduce the simulated imaging dataset.
+- **Dataset Auto-Simulation:** Create missing simulated data and load the imaging files.
+- **Mask:** Select the image pixels used in the fit.
+- **Model:** Define the components and free parameters of the model.
+- **Priors:** Describe the allowed values of each free parameter.
+- **Analysis:** Connect model predictions to the data and evaluate their likelihood.
+- **Non-linear Search:** Introduce the search used to explore the model parameters.
+- **Search Settings:** Choose live-point, batching and output settings.
+- **Model Fit:** Run the search using the model and analysis.
+- **Result:** Inspect the inferred parameters and fitted image.
+- **Inspecting the Fit:** Compare the predicted image with the data and residuals.
+- **Other Searches:** Find the optional optimisation and MCMC examples.
+- **Wrap Up:** Review the lesson and its connection to the next topic.
+
 """
 
 """

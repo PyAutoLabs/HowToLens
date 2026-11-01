@@ -17,29 +17,31 @@ for each one.
 
 __Contents__
 
-- **Overview**
-- **Dataset and Mask**
-- **Linear Light Profiles**
-- **Why This Helps**
-- **Model**
-- **Search and Run Time**
-- **Result**
-- **Intensities**
-- **Visualisation**
-- **Basis**
-- **A First Gaussian Basis**
-- **Evaluating the Basis**
-- **Inspecting the Basis Fit**
-- **Lens MGE**
-- **Source MGE**
-- **Combined Model**
-- **Inspecting the Model**
-- **Model Fit**
-- **Multi-Gaussian Expansion Benefits**
-- **Benefits Have Costs**
-- **Positive Intensities**
-- **Other Basis Functions**
-- **Wrap Up**
+- **Overview:** Introduce the experiment and the results to inspect.
+- **Dataset and Mask:** Load the imaging data and select the region to fit.
+- **Linear Light Profiles:** Solve intensities linearly for a given profile geometry.
+- **Why This Helps:** Remove intensities from the non-linear parameter search.
+- **Model:** Define the components and free parameters of the model.
+- **Search and Run Time:** Configure the linear-profile fit and examine its computational cost.
+- **Result:** Inspect the inferred parameters and fitted image.
+- **Intensities:** Retrieve the solved intensities from the fitted profiles.
+- **Visualisation:** Plot profiles with their solved intensities and inspect the fit.
+- **Basis:** Combine Gaussian profiles into a flexible light model.
+- **A First Gaussian Basis:** Build a fixed-geometry Gaussian basis before fitting its shape.
+- **Evaluating the Basis:** Solve the basis intensities at fixed geometry without a new search.
+- **Inspecting the Basis Fit:** Assess the residual structure left by circular Gaussians.
+- **Lens MGE:** Fit shared geometry for the lens galaxy’s Gaussian profiles.
+- **Source MGE:** Give the source an independent Gaussian light model.
+- **Combined Model:** Combine lens light, mass, shear and source light.
+- **Inspecting the Model:** Check the free parameters and linked Gaussian geometry.
+- **Model Fit:** Run the search using the model and analysis.
+- **Result:** Inspect the inferred parameters and fitted image.
+- **Multi-Gaussian Expansion Benefits:** Explain the flexibility gained from Gaussian light profiles.
+- **Benefits Have Costs:** Consider computational cost, interpretation and geometric limits.
+- **Positive Intensities:** Require light profiles to contribute non-negative brightness.
+- **Other Basis Functions:** Find other ways to expand a galaxy’s light distribution.
+- **Wrap Up:** Review the lesson and its connection to the next topic.
+
 """
 
 """

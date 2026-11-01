@@ -16,27 +16,28 @@ examines why more complex models can be difficult to fit and what to do when a s
 
 __Contents__
 
-- **Dataset**
-- **Mask**
-- **Model**
-- **Analysis**
-- **Search**
-- **Search Settings**
-- **Output Updates**
-- **VRAM Use**
-- **Run Times**
-- **Notebooks and Scripts**
-- **Model Fit**
-- **Result Info**
-- **Output Folder**
-- **Unique Identifier**
-- **Resuming and Loading**
-- **Output Folder Contents**
-- **Parameter Uncertainties**
-- **Plot Labels**
-- **Configuration**
-- **Further Results**
-- **Wrap Up**
+- **Dataset:** Load and inspect the simulated imaging data.
+- **Mask:** Select the image pixels used in the fit.
+- **Model:** Define the components and free parameters of the model.
+- **Analysis:** Connect model predictions to the data and evaluate their likelihood.
+- **Search:** Configure Nautilus and the location of its saved output.
+- **Search Settings:** Choose live-point, batching and output settings.
+- **Output Updates:** Follow the best-fitting model while the search runs.
+- **VRAM Use:** Estimate memory requirements and adjust the batch size.
+- **Run Times:** Understand the costs that determine how long a fit takes.
+- **Notebooks and Scripts:** Choose how to run a fit and inspect its progress.
+- **Model Fit:** Run the search using the model and analysis.
+- **Result Info:** Read the inferred parameter values and uncertainties.
+- **Output Folder:** Locate saved models, results, figures and search checkpoints.
+- **Unique Identifier:** Understand how model and search settings identify saved fits.
+- **Resuming and Loading:** Resume an interrupted search or load its completed result.
+- **Output Folder Contents:** Inspect the files used to assess and reload a fit.
+- **Parameter Uncertainties:** Read parameter ranges and relationships in corner plots.
+- **Plot Labels:** Interpret abbreviated and latent-parameter labels.
+- **Configuration:** Find the settings controlling searches, plotting and output.
+- **Further Results:** Find the workspace guides for more detailed result analysis.
+- **Wrap Up:** Review the lesson and its connection to the next topic.
+
 """
 
 """
