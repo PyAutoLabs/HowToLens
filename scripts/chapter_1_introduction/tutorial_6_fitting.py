@@ -2,46 +2,38 @@
 Tutorial 6: Fitting
 ===================
 
-In previous tutorials, we used light profiles to create simulated images of a tracer and visualized how these images
-would appear when captured by a CCD detector on a telescope like the Hubble Space Telescope.
+In the previous tutorial, we chose a lens and source, predicted their lensed
+image and simulated a telescope observation. We will now work in the other
+direction: starting with an image, we want to learn about the objects that
+produced it.
 
-However, this simulation process is the reverse of what astronomers typically do when analyzing real data. Usually,
-astronomers start with an observation—an actual image of a strong lens - and aim to infer detailed information about the
-lens’s properties, such as its mass and unlensed source properties.
+A lens model is a mathematical description of the lens and source. Its
+parameters specify properties such as the lens's mass distribution and the
+source's position, size and brightness.
 
-To achieve this, we must fit the observed image data with a model, identifying the combination of light and mass
-profiles that best matches the lens's appearance in the image. In this tutorial, we'll illustrate this process using
-the imaging data simulated in the previous tutorial. Our goal is to demonstrate how we can recover the parameters of
-the light profiles that we used to create the original simulation, as a proof of concept for the fitting procedure.
+To assess a model, we calculate the image it predicts and compare that
+prediction with the data. We account for the telescope's blurring and the
+uncertainty in each pixel, so that differences are judged relative to the
+noise.
 
-The process of fitting data introduces essential statistical concepts like the `model`, `residual_map`, `chi-squared`,
-`likelihood`, and `noise_map`. These terms are crucial for understanding how fitting works, not only in astronomy but
-also in any scientific field that involves data modeling. This tutorial will provide a detailed introduction to these
-concepts and show how they are applied in practice to analyze astronomical data.
+We will first evaluate a model using the parameters that generated our
+simulated data. We will then change those parameters and inspect how the
+agreement changes. Finally, you will try adjusting parameters yourself.
 
-Here is an overview of what we'll cover in this tutorial:
-
-- **Dataset**: Load the imaging dataset that we previously simulated, consisting of the image, noise map, and PSF.
-- **Mask**: Apply a mask to the data, excluding regions with low signal-to-noise ratios from the analysis.
-- **Masked Grid**: Create a masked grid, which contains only the coordinates of unmasked pixels, to evaluate the
-  galaxy's light profile in only unmasked regions.
-- **Fitting**: Fit the data with a galaxy model, computing key quantities like the model image, residuals,
-  chi-squared, and log likelihood to assess the quality of the fit.
-- **Bad Fits**: Demonstrate how even small deviations from the true parameters can significantly impact the fit.
-- **Model Fitting**: Perform a basic model fit on a simple dataset, adjusting the model parameters to improve the
-  fit quality.
+This introduces model fitting: finding parameter values that describe the
+data well. Creating a `FitImaging` object evaluates the parameters we supply;
+it does not search for new values automatically.
 
 __Contents__
 
-- **Dataset:** Load the imaging dataset that we previously simulated, consisting of the image, noise map, and PSF.
-- **Dataset Auto-Simulation:** Create the dataset by running the tutorial 5 script if it is not on your hard-disk.
-- **Mask:** Apply a mask to the data, excluding regions with low signal-to-noise ratios from the analysis.
-- **Masked Grid:** In tutorials 1 and 2, we emphasized that the `Grid2D` object is crucial for evaluating a lens's.
-- **Fitting:** Fit the lens model to the dataset and inspect the results.
-- **Incorrect Fit:** In the previous section, we successfully created and fitted a lens model to the image data.
-- **Model Fitting:** In the previous sections, we used the true model to fit the data, which resulted in a high log.
-- **Wrap Up:** Summary of the script and next steps.
-
+- **Dataset:** Locate the imaging data saved in Tutorial 5.
+- **Dataset Auto-Simulation:** Create the dataset if needed, then load it.
+- **Mask:** Select the region of the image used in the comparison.
+- **Masked Grid:** Inspect the coordinates of the selected pixels.
+- **Fitting:** Compare a predicted image with the data and calculate fit statistics.
+- **Incorrect Fit:** See how changing the source position affects the comparison.
+- **Model Fitting:** Experiment with adjusting parameters yourself.
+- **Likelihood Function:** Combine the calculation into a function of the model parameters.
 """
 
 from autolens import jax_wrapper  # Sets JAX environment before other imports
@@ -56,23 +48,21 @@ import autolens.plot as aplt
 """
 __Dataset__
 
-We begin by loading the imaging dataset that we will use for fitting in this tutorial. This dataset is identical to the 
-one we simulated in the previous tutorial, representing how a lens would appear if captured by a CCD camera.
+We will use the simulated imaging dataset saved in Tutorial 5. It contains
+the background-subtracted image, its noise map and the PSF.
 
-In the previous tutorial, we saved this dataset as .fits files in the `dataset/imaging/howtolens` folder of the
-HowToLens repository. The `.fits` format is commonly used in astronomy for storing image data along with metadata,
-making it a standard for CCD imaging.
-
-The `dataset_path` below specifies where these files are located: `dataset/imaging/howtolens/`.
+The files are in `dataset/imaging/howtolens/`, relative to the repository root
+from which this script is run.
 """
 dataset_path = Path("dataset") / "imaging" / "howtolens"
 
 """
 __Dataset Auto-Simulation__
 
-The `howtolens` dataset is the one built up and saved in tutorial 5 (`tutorial_5_data.py`). If it does
-not already exist on your system, it is created by running that script. This ensures every example
-script can be run without manually simulating data first.
+If the dataset is missing, the following code runs Tutorial 5 to create it.
+If you have already run that tutorial, we load the saved files.
+
+The pixel scale is 0.1 arcseconds, matching the simulation.
 """
 if al.util.dataset.should_simulate(str(dataset_path)):
     import subprocess
@@ -91,18 +81,18 @@ dataset = al.Imaging.from_fits(
 )
 
 """
-The `Imaging` object contains three key components: `data`, `noise_map`, and `psf`:
+Recall the three components of an imaging dataset:
 
-- `data`: The actual image of the lens, which we will analyze.
+- `data`: the measured brightness in each pixel.
+- `noise_map`: the estimated noise standard deviation in each pixel.
+- `psf`: the kernel describing how the telescope spreads light.
 
-- `noise_map`: A map indicating the uncertainty or noise level in each pixel of the image, reflecting how much the 
-  observed signal in each pixel might fluctuate due to instrumental or background noise.
-  
-- `psf`: The Point Spread Function, which describes how a point source of light is spread out in the image by the 
-  telescope's optics. It characterizes the blurring effect introduced by the instrument.
+The data and noise map have the same units. The PSF kernel is normalised
+to sum to one.
 
-Let's print some values from these components and plot a summary of the dataset to refresh our understanding of the 
-imaging data.
+Below, we print the first value in each array and display the dataset.
+The first image pixel and first noise-map pixel refer to the same sky
+position; the first PSF value belongs to the separate, smaller kernel.
 """
 print("Value of first pixel in imaging data:")
 print(dataset.data.native[0, 0])
@@ -116,30 +106,30 @@ aplt.subplot_imaging_dataset(dataset=dataset)
 """
 __Mask__
 
-The signal-to-noise map of the image highlights areas where the signal (light from the lens and source galaxies)
-is detected above the  background noise. Values above 3.0 indicate regions where the light is detected with a 
-signal-to-noise ratio of at least 3, while values below 3.0 are dominated by noise, where the light is not 
-clearly distinguishable.
+A mask selects which pixels we include when comparing the model with the data.
+It can exclude unrelated objects, detector defects or regions outside the
+area we want to analyse.
 
-To ensure the fitting process focuses only on meaningful data, we typically mask out regions with low signal-to-noise 
-ratios, removing areas dominated by noise from the analysis. This allows the fitting process to concentrate on the 
-regions where the lens is clearly detected.
+For this example, we keep a circular region with a radius of 3 arcseconds,
+centred on the lens. This includes the lensed arcs and some surrounding sky.
 
-Here, we create a `Mask2D` to exclude certain regions of the image from the analysis. The mask defines which parts of 
-the image will be used during the fitting process.
+We do not select individual pixels according to their measured
+signal-to-noise ratio. Faint pixels still contain useful information: a model
+that predicts bright emission where little is observed should disagree with
+those data. The noise map determines how strongly each pixel contributes to
+the comparison.
 
-For our simulated image, a circular 3" mask centered at the center of the image is appropriate, since the simulated 
-lens was positioned at the center.
+In a `Mask2D`, `True` means excluded and `False` means included.
 """
 mask = al.Mask2D.circular(
     shape_native=dataset.shape_native,
     pixel_scales=dataset.pixel_scales,
-    radius=3.0,  # The circular mask's radius in arc-seconds
-    centre=(0.0, 0.0),  # center of the image which is also the center of the lens
+    radius=3.0,  # Arcseconds.
+    centre=(0.0, 0.0),
 )
 
-print(mask)  # 1 = True, meaning the pixel is masked. Edge pixels are indeed masked.
-print(mask[48:53, 48:53])  # Central pixels are `False` and therefore unmasked.
+print(mask)
+print(mask[48:53, 48:53])
 
 """
 We can visualize the mask over the strong lens image using an `aplt.subplot_imaging_dataset`, which helps us adjust the mask as needed. 

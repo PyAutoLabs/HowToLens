@@ -140,14 +140,12 @@
       "Fitting",
       "Incorrect Fit",
       "Model Fitting",
-      "Wrap Up"
+      "Likelihood Function"
     ],
-    "cross_refs": [
-      "tutorial_5_data.py"
-    ],
+    "cross_refs": [],
     "notebook": "notebooks/chapter_1_introduction/tutorial_6_fitting.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_6_fitting.py",
-    "summary": "In previous tutorials, we used light profiles to create simulated images of a tracer and visualized how these images would appear when captured by a CCD detector on a telescope like the Hubble Space Telescope.",
+    "summary": "In the previous tutorial, we chose a lens and source, predicted their lensed image and simulated a telescope observation. We will now work in the other direction: starting with an image, we want to learn about the objects that produced it.",
     "title": "Tutorial 6: Fitting"
   },
   {
