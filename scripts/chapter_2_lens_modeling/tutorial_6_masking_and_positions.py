@@ -8,7 +8,7 @@ We'll also learn a neat trick to improve the speed and accuracy of a non-linear 
 
 __Contents__
 
-- **Initial Setup:** we'll use the same strong lensing data as tutorials 1 & 2, where.
+- **Initial Setup:** we'll use the same strong lensing data as tutorial 1, where.
 - **Dataset Auto-Simulation:** Simulate the dataset via its simulator script if it is not on your hard-disk.
 - **Mask:** Define the 2D mask applied to the dataset for the model-fit.
 - **Model + Analysis:** Compose the lens model and create the analysis that fits it using the chosen mask.
@@ -32,7 +32,7 @@ import autofit as af
 """
 __Initial Setup__
 
-we'll use the same strong lensing data as tutorials 1 & 2, where:
+we'll use the same strong lensing data as tutorial 1, where:
 
  - The lens galaxy's total mass distribution is a `IsothermalSph`.
  - The source galaxy's light is a `ExponentialCoreSph`.

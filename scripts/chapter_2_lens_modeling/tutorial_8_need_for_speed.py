@@ -42,7 +42,7 @@ The time it takes for the non-linear search to sample parameter space and find t
 
 When we use only one search to fit a lens model, we are somewhat restricted in how we can try to achieve faster run
 times by changing these 3 aspects of the search. We have already seen one powerful exception: the linear light
-profiles of tutorial 5 remove every `intensity` parameter from the non-linear parameter space, reducing its
+profiles of tutorial 4 remove every `intensity` parameter from the non-linear parameter space, reducing its
 dimensionality and removing some of its most difficult degeneracies at the same time.
 
 The final three tutorials of this chapter (tutorials 9, 10 and 11) introduce 'non-linear search chaining', which fits
@@ -69,12 +69,12 @@ The second number is the time a single log likelihood evaluation takes, which is
    centre of the lens galaxy), which multiplies the number of intensity evaluations performed.
  - Convolving the image that comes from the tracer with the telescope's PSF to compare it to the data. The larger
    the PSF, the more expensive this convolution becomes.
- - For linear light profiles, basis functions like the MGE of tutorial 5 and the pixelizations of chapter 3, solving
+ - For linear light profiles, basis functions like the MGE of tutorial 4 and the pixelizations of chapter 3, solving
    the linear algebra of the inversion, which computes the `intensity` values that best fit the data.
 
 More complex fitting techniques therefore cost more per evaluation: a couple of standard light profiles are cheap,
 an MGE costs more (its inversion solves for many Gaussians), and pixelized source reconstructions cost the most.
-As we saw in tutorial 5, this trade often still favours the more advanced technique, because the simpler parameter
+As we saw in tutorial 4, this trade often still favours the more advanced technique, because the simpler parameter
 space it produces reduces the number of evaluations the search needs.
 
 __JAX__

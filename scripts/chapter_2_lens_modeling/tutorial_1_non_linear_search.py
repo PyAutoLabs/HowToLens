@@ -1,164 +1,102 @@
-r"""
+"""
 Tutorial 1: Non-linear Search
 =============================
 
-The starting point for most scientific analysis conducted by an Astronomer is that they have observations of a strong lens
-using a telescope like the Hubble Space Telescope, and seek to learn about the lens galaxy, source galaxy and the
-Universe from these observations. With **PyAutoLens**, we seek to learn about the lens's mass and ray-tracing, asking questions like
-how big is the lens galaxy and what does the unlensed source galaxy look like?
+In Chapter 1, we predicted what a strong lens would look like for a given set of model parameters and compared that
+prediction with an observed image.
 
-To answer these questions, we must therefore fit the dataset with a lens model, where the lens model defines the
-light and mass profiles that make up the lens and source galaxies we fit. Our goal is the find the combination of
-light and mass profile parameters that best-fit the data, such that the model represents the strong lens, and therefore
-the Universe, as well as possible.
+By changing the parameters yourself, you could improve the fit and increase its log likelihood. This demonstrated how
+the data constrain a lens model, but manually adjusting parameters becomes difficult as the model grows.
 
-This process is called model-fitting, or "modeling" for short, and we actually did our first example of this in the
-previous chapter. If you recall, in the fitting tutorial we set up a fit to a simulated dataset where the parameter
-used to simulate the data were unknown, and you guessed the values of the parameters that best fit the data. You
-iteratively improved the model-fit by guessing new parameters, over and over, finding solutions which produced
-higher `log_likelihood` values.
+In this chapter, we use a non-linear search to explore possible parameter values automatically. We will learn how to
+find models that explain the observations, assess their uncertainties and recognise when a fit needs further attention.
 
-However, this approach was not optimal: it was manual and slow, we had no certainty that we had found the best
-(e.g. maximum likelihood) solution and for more complex models, with more parameters and profiles, it would
-have been completely unfeasible.
-
-In this chapter, we perform modeling as a scientist would actually do it, and introduce the statistical inference
-techniques that will ultimately allow us to fit complex models made of many light profiles to real strong lens data,
-and begin learning about real galaxies in the Universe.
-
-This first tutorial introduces a number of key statistical concepts that are fundamental to understanding how
-model-fitting works, both for **PyAutoLens** and in general.
-
-__Overview__
-
-In this tutorial, we will use a non-linear search to fit a lens model to simulated imaging of strong lens. We will:
-
-- Introduce concept like a "parameter space", "likelihood surface" and "priors", and relate them to how a non-linear
-  search works.
-
-- Introduce the `Analysis` class, which defines the `log_likelihood_function` that quantifies the goodness of fit of a
-  model instance to the data.
-
-- Fit datasets with different non-linear searches, including a maximum likelihood estimator (MLE),
-  Markov Chain Monte Carlo (MCMC) and nested sampling.
+We begin with simulated imaging, where we know the model used to generate the data. This lets us examine the fitting
+process before tackling the additional challenges of real observations.
 
 __Contents__
 
-- **Overview:** In this tutorial, we will use a non-linear search to fit a lens model to simulated imaging of.
-- **Parameter Space:** In mathematics, a function is defined by its parameters, which map inputs to outputs.
-- **Non-Linear Search:** The method used to fit the model to the data, by sampling the non-linear parameter space.
-- **Search Types:** There are different types of non-linear searches, each of which explores parameter space in a.
-- **Deeper Background:** **The descriptions of how searches work in this example are simplified and phenomenological and do.
-- **PyAutoFit:** Modeling uses the probabilistic programming language.
-- **Initial Setup:** Let's first load the `Imaging` dataset, which we will use to fit a model with a non-linear search.
-- **Dataset Auto-Simulation:** Simulate the dataset via its simulator script if it is not on your hard-disk.
-- **Mask:** Define the 2D mask applied to the dataset for the model-fit.
-- **Model:** Compose the lens model fitted to the data.
-- **Priors:** When we examine the `.info` of our model, we notice that each parameter (like `centre`.
-- **Analysis:** Create the Analysis object that defines how the model is fitted to the data.
-- **Searches:** To perform a non-linear search, we create an instance of a `NonLinearSearch` object.
-- **Maximum Likelihood Estimation (MLE):** The simplest search type, which moves "up" the likelihood gradient.
-- **Markov Chain Monte Carlo (MCMC):** Walkers explore parameter space, mapping out the likelihood surface.
-- **Nested Sampling:** **Nested Sampling** is an advanced method for model-fitting that excels in handling complex models.
-- **What is The Best Search To Use?:** Choosing between MLE, MCMC and nested sampling for lens modeling.
-- **Wrap Up:** Summary of the script and next steps.
+- **Overview**
+- **Parameter Space**
+- **Automated Exploration**
+- **Deeper Background**
+- **PyAutoFit**
+- **Initial Setup**
+- **Dataset Auto-Simulation**
+- **Mask**
+- **Model**
+- **Priors**
+- **Analysis**
+- **Non-linear Search**
+- **Search Settings**
+- **Model Fit**
+- **Result**
+- **Inspecting the Fit**
+- **Other Searches**
+- **Wrap Up**
+"""
 
+"""
+__Overview__
+
+This tutorial introduces the main pieces of an automated model fit:
+
+- The **dataset** contains the measurements and their uncertainties.
+- The **model** describes the physical components and identifies which parameters are free to vary.
+- The **Analysis** object connects the model to the dataset: it predicts the observables for a particular set of parameter values and evaluates their log likelihood.
+- The **search** explores parameter space using this likelihood and the specified priors.
+
+We will explain parameter spaces, likelihood surfaces and priors, then use Nautilus to fit the model and inspect its
+inferred parameters and uncertainties.
+"""
+
+"""
 __Parameter Space__
 
-In mathematics, a function is defined by its parameters, which map inputs to outputs. For example, consider the simple function:
+Imagine varying just two properties of a lens model: the lens’s Einstein radius and the source’s effective radius. Each
+possible pair of values represents a different model and corresponds to a point in a two-dimensional **parameter
+space**.
 
-\[
-f(x) = x^2
-\]
+Adding another free parameter adds another dimension. Although we cannot easily draw a space with many dimensions, the
+idea remains the same: each point specifies a complete set of values for the model’s free parameters.
 
-Here, \(x\) is the input parameter, and \(f(x)\) returns the output \(x^2\). This relationship defines
-the "parameter space" of the function, which in this case forms a parabola.
+For each point, we can predict an image and compare it with the data to calculate a log likelihood. Plotting this value
+above each point gives a **log likelihood surface**. High regions correspond to models that explain the data better
+than models in lower regions.
 
-Functions can also have multiple parameters, such as:
+The surface can have several peaks, curved ridges and broad regions where different parameter combinations produce
+similar images. These features make it difficult to find the best-fitting model and establish which other models are
+also consistent with the observations.
 
-\[
-f(x, y, z) = x + y^2 - z^3
-\]
+**🤖 Ask AI:** In strong-lens modeling, why might changing the lens mass and the source size together produce similar
+images, and how could this appear on a likelihood surface?
+"""
 
-This defines a parameter space in three dimensions, representing the relationships between \(x\), \(y\), \(z\),
-and the output \(f(x, y, z)\).
+"""
+__Automated Exploration__
 
-This concept of parameter space is closely related to how we approach model-fitting. For instance, in chapter 1,
-we created instances of `Galaxy` objects with
-parameters like \( (\text{`centre_0`}, \text{`centre_1`}, \text{`ell_comps_0`}, \text{`ell_comps_1`}, \text{`intensity`}, \text{`effective_radius`}, \text{`sersic_index`}) \).
-These parameters were used to fit data and compute a log likelihood.
+A non-linear search automates the exploration you performed manually in Chapter 1.
 
-We can think of this process as analogous to the function \(f(\( (\text{`centre_0`}, \text{`centre_1`}, \text{`ell_comps_0`}, \text{`ell_comps_1`}, \text{`intensity`}, \text{`effective_radius`}, \text{`sersic_index`}) \))\),
-where the output is the log likelihood. This function, which maps parameter values to a log likelihood, is known
-as the "likelihood function" in statistical inference. To be explicit, we’ll refer to it as the `log_likelihood_function`
-since it deals with the log of the likelihood function.
+The search proposes parameter values. The Analysis object uses the corresponding model to predict the data and returns
+a log likelihood. The search then uses its algorithm to decide which parameter values to evaluate next.
 
-By framing the likelihood this way, we can think of our model as having its own parameter space—a multidimensional
-surface defined by all possible values of the
-parameters \( (\text{`centre_0`}, \text{`centre_1`}, \text{`ell_comps_0`}, \text{`ell_comps_1`}, \text{`intensity`}, \text{`effective_radius`}, \text{`sersic_index`}) \).
-This surface, known as the "likelihood surface," represents how the log likelihood changes across different parameter
-values. During model-fitting, our goal is to find the peak of this surface, where the fit to the data is optimal.
+Automating this process allows us to evaluate many more models than we could inspect by hand. It does not guarantee
+that every search finds the best solution: its starting conditions, settings and the structure of parameter space all
+matter. We will see examples of this later in the chapter.
+"""
 
-This parameter space is "non-linear," meaning the relationship between the model parameters and the log likelihood is
-not a simple linear one. Because of this non-linearity, we cannot predict the log likelihood from a given set of model
-parameters without actually performing a fit to the data, as we did in tutorial 1.
-
-__Non-Linear Search__
-
-Now that we understand our problem in terms of a non-linear parameter space with a likelihood surface, we can
-introduce the method used to fit the model to the data —- the "non-linear search".
-
-Previously, our approach involved manually guessing models until finding one with a good fit and high log likelihood.
-Surprisingly, this random guessing forms the basis of how model-fitting using a non-linear search actually works!
-
-A non-linear search involves systematically guessing many models while tracking their log likelihoods. As the
-algorithm progresses, it tends to favor models with parameter combinations that have previously yielded higher
-log likelihoods. This iterative refinement helps to efficiently explore the vast parameter space.
-
-There are two key differences between guessing random models and using a non-linear search:
-
-- **Computational Efficiency**: The non-linear search can evaluate the log likelihood of a model parameter
-  combinations in milliseconds and therefore many thousands of models in minutes. This computational speed enables
-  it to thoroughly sample potential solutions, which would be impractical for a human.
-
-- **Effective Sampling**: The search algorithm maintains a robust memory of previously guessed models and their log
-  likelihoods. This allows it to sample potential solutions more thoroughly and converge on the highest
-  likelihood solutions more efficiently, which is again impractical for a human.
-
-Think of the non-linear search as systematically exploring parameter space to pinpoint regions with the highest log
-likelihood values. Its primary goal is to identify and converge on the parameter values that best describe the data.
-
-__Search Types__
-
-There are different types of non-linear searches, each of which explores parameter space in a unique way.
-In this example, we will use three types of searches, which broadly represent the various approaches to non-linear
-searches used in statistical inference.
-
-These are:
-
-- **Maximum Likelihood Estimation (MLE)**: This method aims to find the model that maximizes the likelihood function.
-  It does so by testing nearby models and adjusting parameters in the direction that increases the likelihood.
-
-- **Markov Chain Monte Carlo (MCMC)**: This approach uses a group of "walkers" that explore parameter space randomly.
-  The likelihood at each walker's position influences the probability of the walker moving to a new position.
-
-- **Nested Sampling**: This technique samples points from the parameter space iteratively. Lower likelihood points
-  are replaced by higher likelihood ones, gradually concentrating the samples in regions of high likelihood.
-
-We will provide more details on each of these searches below.
-
+"""
 __Deeper Background__
 
-**The descriptions of how searches work in this example are simplified and phenomenological and do not give a full
-description of how they work at a deep statistical level. The goal is to provide you with an intuition for how to use
-them and when different searches are appropriate for different problems. Later tutorials will provide a more formal
-description of how these searches work.**
+The explanations here introduce what the search does and how to interpret its results. You do not need to understand
+every detail of an algorithm to start using it, but you should understand what it estimates and how it can fail.
 
-If you're interested in learning more about these principles, you can explore resources such as:
+For now, work through the example and inspect its fit. After completing HowToLens, the optional searches tutorial and
+the background resources linked below provide further detail on the methods.
 
+- [Nested Sampling](https://www.imperial.ac.uk/media/imperial-college/research-centres-and-groups/astrophysics/public/icic/data-analysis-workshop/2016/NestedSampling_JRP.pdf)
 - [Markov Chain Monte Carlo (MCMC)](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo)
 - [Introduction to MCMC Sampling](https://twiecki.io/blog/2015/11/10/mcmc-sampling/)
-- [Nested Sampling](https://www.imperial.ac.uk/media/imperial-college/research-centres-and-groups/astrophysics/public/icic/data-analysis-workshop/2016/NestedSampling_JRP.pdf)
 - [A Zero-Math Introduction to MCMC Methods](https://towardsdatascience.com/a-zero-math-introduction-to-markov-chain-monte-carlo-methods-dcba889e0c50)
 """
 
@@ -173,47 +111,53 @@ import autolens.plot as aplt
 """
 __PyAutoFit__
 
-Modeling uses the probabilistic programming language
-[PyAutoFit](https://github.com/PyAutoLabs/PyAutoFit), an open-source project that allows complex model
-fitting techniques to be straightforwardly integrated into scientific modeling software. 
+PyAutoLens uses [PyAutoFit](https://github.com/PyAutoLabs/PyAutoFit) to define free parameters and priors, run non-linear searches and organise their results.
 
-**PyAutoFit** is actually a spin-off project of **PyAutoLens**, whereby we found that the statistical techniques and
-methods we applied to model galaxies could be used in a more general setting to many different scientific 
-problems. Check it out if you are interested in developing your own software to perform advanced model-fitting!
+We import PyAutoFit as `af`. Its modeling and search tools work alongside the lensing components and Analysis objects
+provided by PyAutoLens, which we import as `al`.
 
-We import this library separately from **PyAutoLens**.
+The same PyAutoFit tools can be used for other scientific problems by supplying a suitable model and Analysis object.
 """
+
 import autofit as af
 
 """
 __Initial Setup__
 
-Let's first load the `Imaging` dataset, which we will use to fit a model with a non-linear search.
+We begin with a simulated image containing a lensed source and no foreground lens light. The simulation uses an
+`IsothermalSph` mass profile for the lens and an `ExponentialCoreSph` light profile for the source.
 
-The strong lens in this image was generated using an `IsothermalSph` lens mass profile and `ExponentialCoreSph` source light profile,
-which we'll also use in our model fitting  in this tutorial. This means the model we are going to fit is identical to 
-the one used to simulate the data, allowing us to assess the fitting process under controlled conditions.
+We will fit the same profile families, allowing their parameters to vary. This gives us a controlled example: the model
+can represent the system that generated the data, so we can focus on how the search explores its parameters.
 
-The dataset, as well as all subsequent datasets used in future tutorials, is stored in the HowToLens
-repository's `dataset/imaging` folder (simulated at runtime by the simulator scripts, as shown below).
+Noise still affects the inferred values. Even a successful search need not recover the simulation’s input parameters
+exactly.
+
+The following code selects the dataset folder. The next cell generates the data if needed and loads the image, noise
+map and point-spread function (PSF).
 """
+
 dataset_name = "simple__no_lens_light__mass_sis"
 dataset_path = Path("dataset") / "imaging" / dataset_name
 
 """
 __Dataset Auto-Simulation__
 
-If the dataset does not already exist on your system, it will be created by running the corresponding
-simulator script. This ensures that all example scripts can be run without manually simulating data first.
+If the dataset is missing, this cell runs the simulator to create it. It then loads the files into an `Imaging` object
+and plots the dataset.
+
+Inspect the lensed emission in the image and its strength relative to the noise map. The PSF describes the telescope’s
+blurring, which must be included when predicting the observed image.
+
+Loading the dataset does not fit a model. It supplies the measurements and observational information that the Analysis
+object will use later.
 """
+
 if al.util.dataset.should_simulate(str(dataset_path)):
     import subprocess
     import sys
 
-    subprocess.run(
-        [sys.executable, "scripts/simulator/no_lens_light__mass_sis.py"],
-        check=True,
-    )
+    subprocess.run([sys.executable, "scripts/simulator/no_lens_light__mass_sis.py"], check=True)
 
 dataset = al.Imaging.from_fits(
     data_path=dataset_path / "data.fits",
@@ -227,120 +171,115 @@ aplt.subplot_imaging_dataset(dataset=dataset)
 """
 __Mask__
 
-The fit requires a mask, which we define as a 3.0" circle.
-"""
-mask_radius = 3.0
+We apply a circular mask with a radius of 3.0 arcseconds to select the region used for the fit.
 
+Check the plotted mask against the image: the selected region should contain the lensed emission whose structure we
+want to explain.
+
+Masking changes which measurements enter the fit. It does not change the lens model or fix any of its parameters. Later
+in this chapter, *Data and Likelihoods* explores mask choices and the treatment of contaminating objects.
+"""
+
+mask_radius = 3.0
 mask = al.Mask2D.circular(
     shape_native=dataset.shape_native,
     pixel_scales=dataset.pixel_scales,
     radius=mask_radius,
 )
-
 dataset = dataset.apply_mask(mask=mask)
-
 aplt.subplot_imaging_dataset(dataset=dataset)
 
 """
 __Model__
 
-To compose a lens model, we will set up each `Galaxy` using a `af.Model`. Instead of manually specifying every parameter 
-for the galaxy's light and mass profiles (as we did before), we will now define each galaxy using only the class of each 
-profile. Using a `Model` object tells **PyAutoLens** that the parameters of the profiles should be fitted for 
-during the non-linear search.
+In Chapter 1, we created profile instances by supplying specific parameter values. To fit those parameters, we instead
+wrap the profile class in `af.Model`.
 
-In this case, we'll model the lens galaxy with an `IsothermalSph` mass profile and no light component (what it
-was simulated with). 
+For example, `af.Model(al.mp.IsothermalSph)` describes a spherical isothermal mass profile whose centre and Einstein
+radius are free to vary. During the search, specific values are supplied to create an instance of this profile.
+
+We place the mass profile inside a lens galaxy at a fixed redshift of 0.5. We do not include lens light because this
+simulated image contains only the lensed source.
 """
-# Lens:
 
 mass = af.Model(al.mp.IsothermalSph)
-
 lens = af.Model(al.Galaxy, redshift=0.5, mass=mass)
 
 """
-We model the source galaxy with a linear `ExponentialCoreSph` light profile (again, what it was simulated with).
-"""
-bulge = af.Model(al.lp_linear.ExponentialCoreSph)
+We describe the source with an `ExponentialCoreSph` light profile at a fixed redshift of 1.0.
 
+Here, we use the profile from `al.lp_linear`. Its centre and effective radius are explored by the non-linear search,
+while its intensity is calculated by a linear solve for each proposed model.
+
+The intensity is therefore still fitted to the data, but it does not add a dimension to the non-linear search. Tutorial
+4, *Linear Profiles*, explains this distinction and how it helps us fit more flexible light distributions.
+"""
+
+bulge = af.Model(al.lp_linear.ExponentialCoreSph)
 source = af.Model(al.Galaxy, redshift=1.0, bulge=bulge)
 
 """
-We now have multiple `Model` components, which we bring together into a final lens model via the `Collection` object.
+We combine the lens and source into an `af.Collection`, giving each galaxy a descriptive name.
 
-Just like we are used to giving profiles descriptive names, like `bulge`, `disk` and `mass` we also name the galaxies 
-that make up our model. Of course, its good practise for us to give them descriptive names and we'll use `lens` and
-`source` to do this throughout the tutorials.
+The resulting structure lets us refer to individual components through paths such as `model.galaxies.lens.mass` and
+`model.galaxies.source.bulge`. We will use these paths shortly to customise their priors.
 
-It may seem odd that we define two `Collections`, with the `Collection` in the outer loop only having a `galaxies`
-attribute. In future tutorials, we'll see that we can add additional model-components to a model other than just
-galaxies, and the API below therefore makes it simple to extend the model to include these components.
+The outer collection contains a `galaxies` collection. Keeping galaxies together leaves room for other kinds of
+components, such as external shear fields, alongside them in later models.
 """
-# Overall Lens Model:
 
 model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
 
 """
-The `info` attribute shows the model in a readable format.
+The `model.info` attribute summarises the model before we fit it.
 
-[The `info` below may not display optimally on your computer screen, for example the whitespace between parameter
-names on the left and parameter priors on the right may lead them to appear across multiple lines. This is a
-common issue in Jupyter notebooks.
+Look for the lens mass and source light components, the priors assigned to their free parameters and the fixed galaxy
+redshifts. Notice that the source intensity is treated as a linear parameter rather than assigned a prior for the
+non-linear search.
 
-The`info_whitespace_length` parameter in the file `config/general.yaml` in the [output] section can be changed to 
-increase or decrease the amount of whitespace (The Jupyter notebook kernel will need to be reset for this change to 
-appear in a notebook).]
+This describes what we intend to fit. It contains no inferred parameter values yet, because the search has not run.
 """
+
 print(model.info)
 
 """
-The same model can also be visualized as a figure, making its structure easier to understand at a glance.
+The model diagram shows the same structure visually. Follow the branches from `galaxies` to the lens and source, then
+to their mass and light profiles.
 
-The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
-fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
-corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
-parameter.
+Compare the free profile parameters with the fixed redshifts and the linearly solved source intensity. These
+distinctions determine which quantities the non-linear search must explore.
 
-Each galaxy is labelled with its redshift, `redshift = 0.5` for the lens and `redshift = 1.0` for the source.
-That is how **PyAutoLens** knows which galaxy does the lensing and which one is lensed.
+The lens redshift of 0.5 places it in front of the source at redshift 1.0. PyAutoLens uses these redshifts to establish
+the ordering and distances needed for ray tracing.
+
+Like `model.info`, this diagram describes the model’s structure; it does not show whether the model fits the data.
 """
+
 af.ModelPlotter(model).figure()
 
 """
 __Priors__
 
-When we examine the `.info` of our model, we notice that each parameter (like `centre`, `effective_radius`, 
-and `sersic_index` in our `Sersic` model) is associated with priors, such as `UniformPrior`. Priors define the 
-range of permissible values that each parameter can assume during the model fitting process, for example a uniform
-prior means that a parameter is equally likely to be any value within the given range, but cannot be outside of it.
+Each free parameter in `model.info` has a **prior**, which describes the probability assigned to its possible values
+before using this dataset’s likelihood.
 
-The priors displayed above use default values defined in the `config/priors` directory. These default values have
-been chosen to be broad, and contain the breadth of plausible solutions one should expect when fitting light and mass
-profiles of a real galaxy.
+A `UniformPrior` assigns equal probability density within specified limits and excludes values outside them. A
+`GaussianPrior` places more probability near its mean, with its width controlled by `sigma`.
 
-For instance, consider the `centre` parameter of our `IsothermalSph` mass profile. In theory, it could take on any value from
-negative to positive infinity. However, imaging datasets are typically reduced such that the galaxy centre is close
-to (0.0", 0.0"). Therefore, a `GaussianPrior` with `mean=0.0` and `sigma=0.1` is a good description of where the
-galaxy `centre` is.
+PyAutoLens supplies default priors, but we should check whether they are appropriate for our dataset. For example, a
+prior centred on zero is suitable for a galaxy’s position only if the image coordinates place it near the origin.
 
-If the galaxy had a different centre in the dataset, we would change the mean of the prior to reflect this.
-However, in general, we advise all galaxy images are reduced such that the galaxy is at (0.0", 0.0").
+Below, we assign Gaussian priors to the lens and source centres and uniform priors to the Einstein radius and source
+effective radius. Positions and radii are expressed in arcseconds.
 
-Priors serve two primary purposes:
+These choices are part of our inference assumptions. A narrow prior can exclude plausible solutions, while a broad
+prior gives the search more parameter space to explore. Priors should therefore reflect justified information about the
+system, rather than simply being adjusted until a preferred answer appears.
 
-**Defining Valid Parameter Space:** Priors specify the range of parameter values that constitute valid solutions. 
-This ensures that our model explores only those solutions that are consistent with our observed data and physical 
-constraints.
-
-**Incorporating Prior Knowledge:** Priors also encapsulate our prior beliefs or expectations about the model 
-parameters. For instance, if we have previously fitted a similar model to another dataset and obtained certain 
-parameter values, we can incorporate this knowledge into our priors for a new dataset. This approach guides the 
-model fitting process towards parameter values that are more probable based on our prior understanding.
-
-Below, we manually specify the priors on all parameter of our lens model. The custom priors below are
-close to the default priors drawn via configfiles, with the main purpose of the code below to show you how to
-customize priors yourself.
+Combining the priors with the likelihood gives the **posterior distribution**: the probability distribution of the
+parameters given the data and our modeling assumptions.
 """
+
 model.galaxies.lens.mass.centre.centre_0 = af.GaussianPrior(mean=0.0, sigma=0.1)
 model.galaxies.lens.mass.centre.centre_1 = af.GaussianPrior(mean=0.0, sigma=0.1)
 model.galaxies.lens.mass.einstein_radius = af.UniformPrior(
@@ -356,412 +295,172 @@ model.galaxies.source.bulge.effective_radius = af.UniformPrior(
 model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
 
 """
-By reprinting the `model.info`, we can see that the priors have been updated to the values we specified.
+Print `model.info` again and find the priors we have changed.
+
+The lens-centre coordinates now have Gaussian priors with a mean of 0.0 and a standard deviation of 0.1 arcseconds. The
+source-centre priors are broader, with a standard deviation of 0.3 arcseconds.
+
+The Einstein radius has a uniform prior between 0.0 and 8.0 arcseconds, and the source effective radius has a uniform
+prior between 0.0 and 1.0 arcseconds. These are inputs to the fit, not uncertainties measured from the data.
 """
+
 print(model.info)
 
 """
-Customizing priors changes many numbers in the `info` and nothing at all about the model itself. When you tune
-priors you are changing where the search looks, not what it is looking for.
+The model diagram still contains the same galaxies, profiles and free parameters.
+
+Changing the priors has not changed how those profiles predict an image. It has changed the probability assigned to
+their parameter values, which can affect both the search and the inferred posterior.
+
+This is different from changing the model’s physical components—for example, replacing a spherical mass profile with an
+elliptical one.
 """
+
 af.ModelPlotter(model).figure()
 
 """
 __Analysis__
 
-The `AnalysisImaging` object defines how an instance of a model, consisting of a set of parameters values for the 
-light and mass profiles, is fitted to the `Imaging` dataset.
+We have defined the dataset and the model separately. The `AnalysisImaging` object provides the interface between them.
 
-The fit is performed using the analysis class's `log_likelihood_function`, which in model-fitting is a commonly used 
-term to describe a function that given a model and data, fits the model to the data to return a value of log 
-likelihood. 
+When the search supplies a model instance with specific parameter values, the analysis constructs its predicted image,
+including ray tracing and PSF convolution. It compares that prediction with the masked imaging data, using the noise
+map to evaluate the log likelihood.
 
-In the fitting tutorial in chapter 1 you essentially performed this likelihood function yourself by hand, when you 
-entered different models to a `FitImaging` object and used its `log_likelihood` property to quantify how well it 
-fitted the data.
+For our linear source profile, this evaluation also solves for the intensity before calculating the likelihood.
 
-A detailed step-by-step visual guide of the likelihood function is provided 
-at `autolens_workspace/*/imaging/likelihood_function.ipynb`.
+You performed the same essential comparison in Chapter 1 when you created a `FitImaging` object and inspected its
+`log_likelihood`. The Analysis object makes that calculation available to the search so it can be repeated for many
+model instances.
+
+Creating the Analysis object does not start a search. It defines how proposed models will be evaluated.
+
+A detailed step-by-step visual guide is provided at `autolens_workspace/scripts/imaging/likelihood_function.py`.
 """
+
 analysis = al.AnalysisImaging(dataset=dataset)
 
 """
-__Searches__
+__Non-linear Search__
 
-To perform a non-linear search, we create an instance of a `NonLinearSearch` object. **PyAutoFit** offers many options 
-for this. A detailed description of each search method and guidance on when to use them can be found in 
-the [search cookbook](https://pyautofit.readthedocs.io/en/latest/cookbooks/search.html).
+We are ready to fit the lens model using **Nautilus**, a non-linear search.
 
-In this tutorial, we’ll focus on three searches that represent different approaches to model fitting:
+Nautilus explores combinations of parameter values within the priors. For each combination, the Analysis object
+predicts the image and calculates its log likelihood. This tells the search how well that model explains the data.
 
-1. **Maximum Likelihood Estimation (MLE)** using the `LBFGS` non-linear search.
-2. **Markov Chain Monte Carlo (MCMC)** using the `Emcee` non-linear search.
-3. **Nested Sampling** using the `Nautilus` non-linear search.
+As the search progresses, it concentrates its exploration on regions containing higher-likelihood models. It explores a
+range of possible solutions, allowing us to find a best-fitting model and estimate how uncertain its parameters are.
 
-In this example, non-linear search results are stored in memory rather and not written to hard disk because the fits 
-are fast and can therefore be easily regenerated. The next tutorial will perform fits which write results to the
-hard-disk and discuss the outputs that are generated.
-
-__Maximum Likelihood Estimation (MLE)__
-
-Maximum likelihood estimation (MLE) is the most straightforward type of non-linear search. Here is a simplified 
-overview of how it works:
-
-1. Starts at a point in parameter space with a set of initial values for the model parameters.
-2. Calculates the likelihood of the model at this starting point.
-3. Evaluates the likelihood at nearby points to estimate the gradient, determining the direction in which to move "up" in parameter space.
-4. Moves to a new point where, based on the gradient, the likelihood is higher.
-
-This process repeats until the search finds a point where the likelihood can no longer be improved, indicating that 
-the maximum likelihood has been reached.
-
-The `LBFGS` search is an example of an MLE algorithm that follows this iterative procedure. Let’s see how it 
-performs on our Sersic model.
-
-In the example below, we do not specify a starting point for the MLE, so it begins at the center of the prior 
-range for each parameter.
+Nautilus uses a method called **nested sampling**. You do not need to understand its statistical details to work
+through HowToLens. Here, we will focus on configuring a fit and interpreting what it returns.
 """
-search = af.LBFGS()
 
 """
-To begin the model-fit via the non-linear search, we pass it our model and analysis and begin the fit.
+__Search Settings__
 
-The fit will take a few minutes on GPU to run.
+One of Nautilus’s main settings is `n_live`, the number of “live points”. Each live point represents a set of model
+parameters being used to explore parameter space.
 
-**Run Time Error:** On certain operating systems (e.g. Windows, Linux) and Python versions, the code below may produce 
-an error. If this occurs, see the `autolens_workspace/guides/modeling/bug_fix` example for a fix.
+Using more live points generally allows a more thorough exploration, but requires more computation. Too few can leave
+important regions unexplored, particularly for complex models.
+
+We use 100 live points for this introductory example. This is a starting setting, not a guarantee that every fit will
+succeed. The following tutorials explain how to recognise difficulties and adjust the search.
+
+The `n_batch` setting controls how many proposed models are evaluated together. It affects computational speed and
+memory use, rather than setting the number of live points.
 """
-print(
-    """
-    The non-linear search has begun running.
-    
-    This Jupyter notebook cell with progress once the search has completed - this could take a few minutes!
-    
-    On-the-fly updates every iterations_per_quick_update are printed to the notebook.
-    """
-)
 
-result = search.fit(model=model, analysis=analysis)
-
-print("The search has finished run - you may now continue the notebook.")
-
-"""
-Upon completion the non-linear search returns a `Result` object, which contains information about the model-fit.
-
-The `info` attribute shows the result in a readable format.
-
-[Above, we discussed that the `info_whitespace_length` parameter in the config files could b changed to make 
-the `model.info` attribute display optimally on your computer. This attribute also controls the whitespace of the
-`result.info` attribute.]
-"""
-print(result.info)
-
-
-"""
-One thing the result contains we'll use now is the `FitImaging` object that corresponds to the set of model
-parameters that gave the maximum log likelihood solution. 
-
-We plot this object to inspect how good our fit was.
-"""
-aplt.subplot_fit_imaging(fit=result.max_log_likelihood_fit)
-
-"""
-The fit quality is poor, with significant residuals, meaning that the MLE failed to identify the correct model. 
-
-This happened because the starting point of the search was a poor match to the data, placing it far from the true 
-solution in parameter space. As a result, after moving "up" the likelihood gradient several times, the search 
-settled into a "local maximum", a local peak in the likelihood surface that was better than models that surrounded
-it in parameter space, but far from the global maximum solution.
-
-To achieve a better fit with MLE, the search needs to begin in a region of parameter space where the log likelihood 
-is higher. This process is known as "initialization" and it involves providing the search with an 
-appropriate "starting point" in parameter space.
-
-The code below shows how we can customize the starting point of the search to provide a better initialization,
-with the values input below close to the true values used to simulate the dataset.
-"""
-initializer = af.InitializerParamStartPoints(
-    {
-        model.galaxies.lens.mass.centre.centre_0: 0.0,
-        model.galaxies.lens.mass.centre.centre_1: 0.0,
-        model.galaxies.lens.mass.einstein_radius: 1.55,
-        model.galaxies.source.bulge.centre.centre_0: 0.0,
-        model.galaxies.source.bulge.centre.centre_1: 0.0,
-        model.galaxies.source.bulge.effective_radius: 0.1,
-    }
-)
-
-search = af.LBFGS(initializer=initializer)
-
-print(
-    """
-    The non-linear search has begun running.
-    This Jupyter notebook cell with progress once the search has completed - this could take a few minutes!
-    """
-)
-
-model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
-
-result = search.fit(model=model, analysis=analysis)
-
-print("The search has finished run - you may now continue the notebook.")
-
-"""
-By printing `result.info` and looking at the maximum log likelihood model, we can confirm the search provided a
-good model fit with a much higher likelihood than the incorrect model above.
-"""
-print(result.info)
-
-aplt.subplot_fit_imaging(fit=result.max_log_likelihood_fit)
-
-"""
-The MLE is a great starting point for model-fitting because it’s fast, conceptually simple, and often yields 
-accurate results. It is especially effective if you can provide a good initialization, allowing it to find the 
-best-fit solution quickly.
-
-However, MLE has its limitations. As seen above, it can get "stuck" in a local maximum, particularly if the 
-starting point is poorly chosen. In complex model-fitting problems, providing a suitable starting point can be 
-challenging. While MLE performed well in the example with just three parameters, it struggles with models that have 
-many parameters, as the complexity of the likelihood surface makes simply moving "up" the gradient less effective.
-
-The MLE also does not provide any information on the errors on the parameters, which is a significant limitation.
-The next two types of searches "map out" the likelihood surface, such that they not only infer the maximum likelihood
-solution but also quantify the errors on the parameters.
-
-__Markov Chain Monte Carlo (MCMC)__
-
-Markov Chain Monte Carlo (MCMC) is a more powerful method for model-fitting, though it is also more computationally 
-intensive and conceptually complex. Here’s a simplified overview:
-
-1. Place a set of "walkers" in parameter space, each with random parameter values.
-2. Calculate the likelihood of each walker's position.
-3. Move the walkers to new positions, guided by the likelihood of their current positions. Walkers in high-likelihood 
-regions encourage those in lower regions to move closer to them.
-
-This process repeats, with the walkers converging on the highest-likelihood regions of parameter space.
-
-Unlike MLE, MCMC thoroughly explores parameter space. While MLE moves a single point up the likelihood gradient, 
-MCMC uses many walkers to explore high-likelihood regions, making it more effective at finding the global maximum, 
-though slower. 
-
-There is a reduced risk of getting stuck in local maxima, because whilst some walkers may temporarily get stuck in 
-one, other walkers will explore other regions of parameter space and encourage the walker in local maxima to move 
-away from it and head towards higher likelihood regions.
-
-In the example below, we use the `Emcee` MCMC search to fit the strong lens. The search starts with walkers
-initialized in a "ball" around the center of the model’s priors, similar to the MLE search that failed earlier.
-"""
-search = af.Emcee(
-    nwalkers=20,  # The number of walkers we'll use to sample parameter space.
-    nsteps=300,  # The number of steps each walker takes, after which 20 * 300 = 6000 steps the non-linear search ends.
-)
-
-print(
-    """
-    The non-linear search has begun running.
-    This Jupyter notebook cell with progress once the search has completed - this could take a few minutes!
-    """
-)
-
-model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
-
-result = search.fit(model=model, analysis=analysis)
-
-print("The search has finished run - you may now continue the notebook.")
-
-print(result.info)
-
-aplt.subplot_fit_imaging(fit=result.max_log_likelihood_fit)
-
-"""
-The MCMC search succeeded, finding the same high-likelihood model that the MLE search with a good starting point 
-identified, even without a good initialization. Its use of multiple walkers exploring parameter space allowed it to 
-avoid the local maxima that had trapped the MLE search.
-
-A major advantage of MCMC is that it provides estimates of parameter uncertainties by "mapping out" the likelihood 
-surface, unlike MLE, which only finds the maximum likelihood solution. These error estimates are accessible in 
-the `result.info` string and through the `result.samples` object, which is explained fully in tutorial 7.
-
-While a good starting point wasn't necessary for this simple model, it becomes essential for efficiently mapping the 
-likelihood surface in more complex models with many parameters. The code below shows an MCMC fit using a good starting 
-point, with two key differences from the MLE initialization:
-
-1. Instead of single starting values, we provide bounds for each parameter. MCMC initializes each walker in a 
-small "ball" in parameter space, requiring a defined range for each parameter from which values are randomly drawn.
-
-2. We do not specify a starting point for the `ell_comps` parameters, allowing its initial values to be drawn from its 
-priors. This illustrates that with MCMC, it’s not necessary to know a good starting point for every parameter.
-"""
-initializer = af.InitializerParamBounds(
-    {
-        model.galaxies.lens.mass.centre.centre_0: (-0.01, 0.01),
-        model.galaxies.lens.mass.centre.centre_1: (-0.01, 0.01),
-        model.galaxies.source.bulge.centre.centre_0: (-0.01, 0.01),
-        model.galaxies.source.bulge.centre.centre_1: (-0.01, 0.01),
-        model.galaxies.source.bulge.effective_radius: (0.05, 0.15),
-    }
-)
-
-search = af.Emcee(
-    nwalkers=20,  # The number of walkers we'll use to sample parameter space.
-    nsteps=300,  # The number of steps each walker takes, after which 10 * 200 = 2000 steps the non-linear search ends.
-    initializer=initializer,
-)
-
-print(
-    """
-    The non-linear search has begun running.
-    This Jupyter notebook cell with progress once the search has completed - this could take a few minutes!
-    """
-)
-
-model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
-
-result = search.fit(model=model, analysis=analysis)
-
-print("The search has finished run - you may now continue the notebook.")
-
-print(result.info)
-
-"""
-MCMC is a powerful tool for model-fitting, providing accurate parameter estimates and uncertainties. For simple models
-without a starting point, MCMC can still find the correct solution, and if a good starting point is provided, it can
-efficiently scale to more complex models with more parameters.
-
-The main limitation of MCMC is that one has to supply the number of steps the walkers take (`nsteps`). If this value 
-is too low, the walkers may not explore the likelihood surface sufficiently. It can be challenging to know the right 
-number of steps, especially if models of different complexity are being fitted or if datasets of varying quality are 
-used. One often ends up having to perform "trial and error" to verify a sufficient number of steps are used.
-
-MCMC can perform badly in parameter spaces with certain types of complexity, for example when there are
-are many local maxima "peaks" that many of the walkers can become stuck walking around them, so many walkers that
-when they communicate with one another they cannot gain enough information to move away from the local peak.
-
-__Nested Sampling__
-
-**Nested Sampling** is an advanced method for model-fitting that excels in handling complex models with intricate 
-parameter spaces. Here’s a simplified overview of its process:
-
-1. Start with a set of "live points" in parameter space, each initialized with random parameter values drawn from their respective priors.
-
-2. Compute the log likelihood for each live point.
-
-3. Draw a new point based on the likelihood of the current live points, favoring regions of higher likelihood.
-
-4. If the new point has a higher likelihood than any existing live point, it becomes a live point, and the lowest likelihood live point is discarded.
-
-This iterative process continues, gradually focusing the live points around higher likelihood regions of parameter 
-space until they converge on the highest likelihood solution.
-
-Like MCMC, Nested Sampling effectively maps out parameter space, providing accurate estimates of parameters and 
-their uncertainties.
-"""
 search = af.Nautilus(
     n_live=100,
-    n_batch=50,  # Explained in next tutorial
-    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
+    n_batch=50,
+    iterations_per_quick_update=2500,
 )
 
 """
-To begin the model-fit via the non-linear search, we pass it our model and analysis and begin the fit.
+__Model Fit__
 
-The fit will take a minute or so to run.
+We start the fit by passing our model and analysis to the search.
+
+The model supplies the components, free parameters and priors. The analysis defines how each proposed model is compared
+with the data. Nautilus controls which parameter values are explored.
+
+When using JAX, the numerical computing library used by PyAutoLens, the calculations are first compiled for repeated
+use. You may therefore see an initial pause before the search begins reporting progress.
+
+Let the search finish before continuing. Its completion means that it has met its stopping criteria; we must still
+inspect the result to assess whether the fit is satisfactory.
 """
-print(
-    """
-    The non-linear search has begun running.
-    This Jupyter notebook cell with progress once the search has completed - this could take a few minutes!
-    """
-)
-
-model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
 
 result = search.fit(model=model, analysis=analysis)
 
-print("The search has finished run - you may now continue the notebook.")
+"""
+__Result__
+
+The search returns a `Result` object. Print its `info` attribute to see the inferred parameter values and their
+estimated uncertainties.
+
+Compare this with the earlier `model.info`: that described what we allowed to vary, whereas `result.info` summarises
+what we have inferred from the data.
+
+An uncertainty describes the range of parameter values supported by the fit. For example, the data might constrain the
+Einstein radius closely while allowing a wider range of source sizes.
+
+These estimates depend on our model, priors and noise assumptions, as well as the search having explored the relevant
+solutions. We should inspect the fit before trusting the reported values.
+"""
 
 print(result.info)
+
+"""
+__Inspecting the Fit__
+
+Plot the highest-likelihood model found by the search alongside the data and residuals.
+
+Check whether it reproduces the position, shape and brightness of the lensed emission. Then examine the normalised
+residuals for coherent patterns, such as an arc that the model has failed to reproduce.
+
+Our simulated data were generated using the same profile families we fitted. A successful fit should therefore leave
+residuals broadly consistent with the noise. We do not expect every pixel to have a residual of zero.
+
+Good residuals and sensible parameter estimates provide useful checks, but neither guarantees that every relevant
+solution has been explored. The next tutorials develop the practical skills needed to assess this.
+
+**🤖 Ask AI:** My fitted lens model leaves an arc-shaped pattern in the normalised residuals. What could cause this, and
+what should I check before trusting the inferred parameters?
+"""
 
 aplt.subplot_fit_imaging(fit=result.max_log_likelihood_fit)
 
 """
-The **Nested Sampling** search was successful, identifying the same high-likelihood model as the MLE and MCMC searches. 
-One of the main benefits of Nested Sampling is its ability to provide accurate parameter estimates and uncertainties, 
-similar to MCMC. Additionally, it features a built-in stopping criterion, which eliminates the need for users to 
-specify the number of steps the search should take. 
+__Other Searches__
 
-This method also excels in handling complex parameter spaces, particularly those with multiple local peaks. This is because
-the live points will identify each peak and converge around them, but then begin to be discarded from a peak if higher
-likelihood points are found elsewhere in parameter space. In MCMC, the walkers can get stuck indefinitely in
-peaks, causing the method to stall.
+Nautilus provides the model fit and parameter uncertainties we need for this introductory example. We will continue
+using it throughout much of HowToLens.
 
-Another significant advantage is that Nested Sampling estimates an important statistical quantity 
-known as "evidence." This value quantifies how well the model fits the data while considering the model's complexity,
-making it essential for Bayesian model comparison, which will be covered in later tutorials. 
+Other searches can also be useful. Later in this chapter, we will use a fast optimiser for an initial fit before
+running a more thorough Nautilus search.
 
-Nested sampling cannot use a starting point, as it always samples parameter space from scratch by drawing live points
-from the priors. This is both good and bad, depending on if you have access to a good starting point or not. If you do
-not, your MCMC / MLE fit will likely struggle with initialization compared to Nested Sampling. Conversely, if you do 
-possess a robust starting point, it can significantly enhance the performance of MCMC, allowing it to begin closer to 
-the highest likelihood regions of parameter space. This proximity can lead to faster convergence and more reliable results.
+You can explore these alternatives in the optional searches tutorial after completing HowToLens. For now, focus on
+building appropriate models and assessing how well they explain the data.
+"""
 
-However, Nested Sampling does have limitations; it often scales poorly with increased model complexity. For example, 
-once a model has around 50 or more parameters, Nested Sampling can become very slow, whereas MCMC remains efficient 
-even in such complex parameter spaces.
-
-__What is The Best Search To Use?__
-
-In statistical inference, the choice of the best search method depends on several factors specific to the problem, 
-such as model complexity, availability of a starting point, and whether error estimates are required. More subtle 
-aspects, like the shape of the likelihood surface and the presence of multiple peaks, also play a role, as you'll 
-explore in later tutorials.
-
-When approaching a model-fitting problem, it's usually advisable to try various search methods to find the most 
-effective one. 
-
-However, after extensive testing within **PyAutoLens**, a clear recommendation has emerged for fitting strong lens models.
-The nested sampling method `Nautilus` consistently proves to be the most  effective. It requires fewer iterations than 
-MCMC or MLE methods (when no starting point is used), provides robust  sampling even for complex models, includes a 
-built-in stopping criterion, and delivers reliable error estimates.
-
-All examples in the `autolens_workspace` use the `Nautilus` search, and future tutorials in the **HowToLens**
-series will also use it. We strongly recommend using `Nautilus` from now on.
-
-That said, MLE and MCMC searches can still be effective, and you're encouraged to experiment with them. If you have 
-a reliable starting point, MLE and MCMC can outperform `Nautilus` in terms of speed and efficiency. Additionally, 
-for very complex models (e.g., with 30+ parameters), `Nautilus` may struggle, while MCMC might handle the complexity 
-better—though you're unlikely to encounter that level of complexity soon.
-
-Lastly, MLE, MCMC, and nested sampling are just three categories of non-linear searches, each containing different 
-algorithms with their own strengths and weaknesses. Exploring these options could help you find the best approach 
-for your model-fitting needs. For more details on each method, see the [search cookbook](https://pyautofit.readthedocs.io/en/latest/cookbooks/search.html).
-
+"""
 __Wrap Up__
 
-This tutorial has laid the foundation with several fundamental concepts in model fitting and statistical inference:
+You have now fitted a lens model automatically, using the same image prediction and likelihood calculation that you
+explored manually in Chapter 1.
 
-1. **Parameter Space**: This refers to the range of possible values that each parameter in a model can take. It 
-defines the dimensions over which the likelihood of different parameter values is evaluated.
+The fit brings together four pieces:
 
-2. **Likelihood Function**: This function receives as input a model with specific parameter values and returns a
-log likelihood value that quantifies how well the model describes the data.
+- **Data:** the measurements, uncertainties and observational information.
+- **Model:** the physical components, their free parameters and their priors.
+- **Analysis:** the connection between model and data, predicting the observations and evaluating their likelihood.
+- **Search:** the method that explores parameter values and returns the inferred results.
 
-3. **Likelihood Surface**: This surface represents how the likelihood of the model varies across the parameter space. 
-It helps in identifying the best-fit parameters that maximize the likelihood of the model given the data.
+Keeping these pieces separate lets us change the model, dataset or search while retaining the same overall approach.
+Later in the chapter, we will see how this applies to the other types of lensing data introduced in Chapter 1.
 
-4. **Non-linear Search**: This is an optimization technique used to explore the parameter space and find the 
-combination of parameter values that best describe the data. It iteratively adjusts the parameters to maximize the 
-likelihood. Many different search algorithms exist, each with their own strengths and weaknesses, and this tutorial
-used the MLE, MCMC, and nested sampling searches.
-
-5. **Priors**: Priors are probabilities assigned to different values of parameters before considering the data. 
-They encapsulate our prior knowledge or assumptions about the parameter values. Priors can constrain the parameter 
-space, making the search more efficient and realistic.
-
-6. **Model Fitting**: The process of adjusting model parameters to minimize the difference between model predictions 
-and observed data, quantified by the likelihood function.
-
-Understanding these concepts is crucial as they form the backbone of model fitting and parameter estimation in 
-scientific research and data analysis. In the next tutorials, these concepts will be further expanded upon to 
-deepen your understanding and provide more advanced techniques for model fitting and analysis.
+In the next tutorial, *Practicalities*, we include the foreground lens galaxy’s light and fit a more complex model. We
+will also learn how to follow a search’s progress, navigate its output folder and inspect its saved results.
 """

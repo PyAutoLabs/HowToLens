@@ -12,7 +12,7 @@ model using a sequence of non-linear searches. The initial searches fit simpler 
 be more accurately and efficiently sampled. The results of this search are then passed to later searches which fit
 lens models of gradually increasing complexity.
 
-Lets think back to tutorial 4 of this chapter. We learnt there were three approaches one could take fitting a lens
+Lets think back to tutorial 3 of this chapter. We learnt there were three approaches one could take fitting a lens
 model accurately if we found that a model fit failed. These were:
 
  1) Tuning our priors to the strong lens we're fitting.
@@ -28,7 +28,7 @@ complex and realistic lens models in a way that that can be generalized to many 
 we'll run 2 searches, and chain the lens model inferred in the first search to the priors of the second search`s lens
 model.
 
-Our first search will make the same light-traces-mass assumption we made in tutorial 4. We saw that this
+Our first search will make the same light-traces-mass assumption we made in tutorial 3. We saw that this
 gives a reasonable lens model. However, we'll make a couple of extra simplifying assumptions, to really try and bring
 our lens model complexity down and get the non-linear search running fast.
 
@@ -69,7 +69,7 @@ import autofit as af
 """
 __Initial Setup__
 
-we'll use the same strong lensing data as tutorials 3, 4 and 5 of this chapter, where:
+we'll use the same strong lensing data as tutorials 2, 3 and 4 of this chapter, where:
 
  - The lens galaxy's light is an `Sersic`.
  - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.

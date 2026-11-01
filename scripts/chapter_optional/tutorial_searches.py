@@ -2,19 +2,16 @@
 Tutorial: Alternative Searches
 ==============================
 
-Up to now, we've always used the non-linear search Nautilus and not considered the input parameters that control its
-sampling. In this tutorial, we'll consider how we can change these setting to balance finding the global maxima
-solution with fast run time.
+Chapter 2 introduces lens modeling using Nautilus. This optional tutorial explores alternative search settings,
+optimisation and Markov chain Monte Carlo (MCMC) after you have completed HowToLens.
 
-We will also discuss other types of non-linear searches, such as MCMC and optimizers, which we can use to perform lens
-modeling. So far, we have no found any of these alternatives to give anywhere near as robust and efficient results as
-Nautilus, and we recommend users use Nautilus unless they are particularly interested in investigating different
-model-fitting techniques.
+The dataset, model and Analysis object retain the same roles. Changing the search changes how parameter space is
+explored and which information is returned. Inspect the fits and assess the exploration before trusting the results.
 
 __Contents__
 
 - **Nested Sampling:** Lets first perform the model-fit using Nautilus, but look at different parameters that control how.
-- **Optimizers:** There are a class of non-linear searches called optimizers, which seek to optimize the log likelihood.
+- **Optimisation:** Improve parameter values from multiple starting points using Prodigy.
 - **MCMC:** For users familiar with Markov Chain Monte Carlo (MCMC) non-linear samplers, PyAutoFit supports the.
 
 """
@@ -197,35 +194,55 @@ print(result_slow.samples.total_samples)
 print("Fast settings: ", result_fast.samples.total_samples)
 
 """
-__Optimizers__
+__Optimisation__
 
-Nested sampling algorithms like Nautilus provides the errors on all of the model parameters, by fully mapping out all 
-of the high likelihood regions of parameter space. This provides knowledge on the complete *range* of models that do 
-and do not provide high likelihood fits to the data, but takes many extra iterations to perform. If we require precise 
-error estimates (perhaps this is our final lens model fit before we publish the results in a paper), these extra
-iterations are acceptable. 
+An optimiser repeatedly tries to improve a model. Starting from one set of parameter values, it works out which
+changes are likely to produce a better fit, updates the parameters and evaluates the new model. Repeating this process
+moves it towards a peak: a region where nearby parameter values no longer improve the fit.
 
-However, we often don't care about the errors. For example, in chapter 2's search chaining tutorial, the only
-result we used from the fit performed in the first search was the maximum log likelihood model, omitting the errors
-entirely! Its seems wasteful to use a nested sampling algorithm like Nautilus to map out the entirity of parameter
-space when we don't use this information!
+You can think of this as making increasingly informed guesses, aiming for higher-likelihood solutions. Prodigy also
+takes the priors into account, so it balances how well the model fits with the probability assigned to its parameter
+values. This is maximum a posteriori (MAP) optimisation.
 
-There are a class of non-linear searches called `optimizers`, which seek to optimize just one thing, the log
-likelihood. They want to find the model that maximizes the log likelihood, with no regard for the errors, thus not
-wasting time mapping out in intricate detail every facet of parameter space.
+A peak need not be the best solution overall. Prodigy therefore repeats this process from several starting points,
+giving it more opportunities to find a good model.
 
-PyAutoFit supports a number of optimizers, which can be used as an alternative to nested sampling when only the
-maximum likelihood model is needed. These include `LBFGS` and `BFGS` (from scipy), which descend the likelihood from a
-single starting point. A single-start optimizer generally needs a good starting point to work well, and in our
-experience the parameter spaces fitted by lens models are often too complex for it without careful setup of initialization
-priors.
+Prodigy uses gradients to guide its updates: these describe how changing each parameter affects the posterior
+probability. PyAutoLens calculates these gradients automatically using a numerical computing library called **JAX**.
+You do not need to use JAX directly to run this example.
 
-PyAutoFit also supports multi-start gradient optimizers (`MultiStartProdigy`, `MultiStartAdam`, `MultiStartADABelief`
-and `MultiStartLion`), which use JAX to launch many optimizations from starting points spread across parameter space
-in parallel and return the best one. This makes them far more robust to complex parameter spaces, and
-`MultiStartProdigy` is the optimizer used by many of the `start_here.py` examples in the `autolens_workspace`. Like any optimizer, they
-return only the best-fit model with no errors. The `autolens_workspace` script `scripts/guides/modeling/searches.py` describes
-every search, including these optimizers, in detail.
+We use 48 starting points, with up to 300 optimisation steps for each. The search can stop earlier when its stopping
+criteria are met. Increasing either setting allows more exploration but also requires more computation. The batch size
+of 4 limits how many starts are processed together; it does not reduce the total number of starts.
+"""
+search = af.MultiStartProdigy(
+    path_prefix=Path("howtolens") / "chapter_optional",
+    name="tutorial_searches_prodigy",
+    unique_tag=dataset_name,
+    n_starts=48,
+    n_steps=300,
+    batch_size=4,
+)
+
+result_prodigy = search.fit(model=model, analysis=analysis)
+
+print(result_prodigy.info)
+
+aplt.subplot_fit_imaging(fit=result_prodigy.max_log_likelihood_fit)
+
+"""
+Prodigy finds a best-fitting set of parameter values, but it does not tell us how uncertain those values are. An
+Einstein radius of 1.6 arcseconds, for example, does not tell us whether values of 1.5 or 1.7 arcseconds would also be
+consistent with the data.
+
+Look for whether the model reproduces the location, shape and brightness of the lensed emission. In the normalised
+residuals, inspect whether coherent structures remain that the model has failed to explain.
+
+A plausible parameter value does not establish that the fit is good. Likewise, small residuals do not prove that the
+search has found the best possible solution or measured parameter uncertainty.
+
+**🤖 Ask AI:** My optimised lens model leaves an arc-shaped pattern in the normalised residuals. What should I
+investigate before trusting its inferred parameters?
 
 __MCMC__
 

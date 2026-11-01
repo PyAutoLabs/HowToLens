@@ -2,78 +2,56 @@
 Tutorial 2: Practicalities
 ==========================
 
-In the last tutorial, we introduced foundational statistical concepts essential for model-fitting, such as parameter
-spaces, likelihoods, priors, and non-linear searches. Understanding these statistical concepts is crucial for
-performing model fits effectively.
+In the previous tutorial, we fitted a simple lens model using Nautilus. We now move to a more realistic image,
+containing both the foreground lens galaxy’s light and the lensed source.
 
-However, achieving successful model-fitting also requires practical skills, including how to manage outputs,
-review results, interpret model quality, and ensure run-times are efficient enough for your scientific needs.
+Fitting this image requires additional model components and more free parameters. Alongside building that model, we
+will learn how to configure the search, follow its progress, find its saved output and inspect the resulting fit.
 
-This tutorial will focus on these practical aspects of model-fitting, including:
+The overall approach remains the same: the dataset holds the observations, the model describes the physical components,
+and the Analysis object connects them. Nautilus explores the model parameters using the likelihood and priors.
 
-- How to save results to your hard disk.
-- How to navigate the output folder and examine model-fit results to assess quality.
-- How to estimate the run-time of a model-fit before initiating it, and change settings to make it faster or run the analysis in parallel.
+By the end, you should be comfortable running a fit and finding the information needed to assess it. The next tutorial
+examines why more complex models can be difficult to fit and what to do when a search struggles.
 
 __Contents__
 
-- **PyAutoFit:** Modeling uses the probabilistic programming language.
-- **Initial Setup:** Lets first load the `Imaging` dataset we'll fit a model with using a non-linear search.
-- **Dataset Auto-Simulation:** Simulate the dataset via its simulator script if it is not on your hard-disk.
-- **Mask:** Define the 2D mask applied to the dataset for the model-fit.
-- **Model:** Compose the lens model fitted to the data.
-- **Search:** Configure the non-linear search used to fit the model.
-- **Search Settings:** Nautilus samples parameter space by placing "live points" representing different galaxy models.
-- **Iterations Per Update:** Every N iterations, the non-linear search outputs the current results to the folder.
-- **Analysis:** Create the Analysis object that defines how the model is fitted to the data.
-- **VRAM Use:** When running AutoLens with JAX on a GPU, the analysis must fit within the GPU’s available VRAM.
-- **Run Times:** Profiling the expected run time of the model-fit.
-- **Model-Fit:** Begin the model-fit by passing the model and analysis to the search.
-- **Result Info:** A concise readable summary of the results is given by printing its `info` attribute.
-- **Output Folder:** Now checkout the `output` folder.
-- **Unique Identifier:** In the output folder, you will note that results are in a folder which is a collection of random.
-- **Output Folder Contents:** Now this is running you should checkout the `output` folder.
-- **Result:** Overview of the results of the model-fit.
-- **Other Practicalities:** The following are examples of other practicalities which I will document fully in this example.
-- **Wrap Up:** Summary of the script and next steps.
+- **Dataset**
+- **Mask**
+- **Model**
+- **Analysis**
+- **Search**
+- **Search Settings**
+- **Output Updates**
+- **VRAM Use**
+- **Run Times**
+- **Notebooks and Scripts**
+- **Model Fit**
+- **Result Info**
+- **Output Folder**
+- **Unique Identifier**
+- **Resuming and Loading**
+- **Output Folder Contents**
+- **Parameter Uncertainties**
+- **Plot Labels**
+- **Configuration**
+- **Further Results**
+- **Wrap Up**
+"""
 
-__Search Settings__
+"""
+__Dataset__
 
-Nautilus samples parameter space by placing "live points" representing different galaxy models. Each point has an
-associated `log_likelihood` that reflects how well it fits the data. By mapping where high-likelihood solutions are
-located, it can focus on searching those regions.
+Our new simulated image contains a bright foreground lens galaxy as well as the lensed source.
 
-The main setting to balance is the **number of live points**. More live points allow Nautilus to map parameter space
-more thoroughly, increasing accuracy but also runtime. Fewer live points reduce run-time but may make the search less
-reliable, possibly getting stuck in local maxima.
+The simulation uses a Sérsic light profile for the lens galaxy, an elliptical isothermal mass profile, external shear
+and an exponential light profile for the source. We will build a model with these components shortly.
 
-The ideal number of live points depends on model complexity. More parameters generally require more live points, but
-the default of 200 is sufficient for most lens models. Lower values can still yield reliable results, particularly
-for simpler models. For this example (6 parameters), we reduce the live points to 100 to speed up runtime without
-compromising accuracy.
+As before, the dataset includes the image, its noise map and the telescope’s point-spread function (PSF). If the files
+are missing, the following cell runs the simulator before loading them.
 
-Tuning non-linear search settings (e.g., the number of live points) to match model complexity is essential. We aim
-for enough live points to ensure accurate results (i.e., finding a global maximum) but not so many that runtime
-is excessive.
-
-In practice, the optimal number of live points is often found through trial and error, guided by summary statistics
-on how well the search is performing, which we’ll cover below. For the simple model fitted here, with a linear light
-profile, 100 live points is sufficient to achieve reliable results.
-
-__Iterations Per Update__
-
-Every N iterations, the non-linear search outputs the current results to the folder `output`,
-which includes producing visualization.
-
-Depending on how long it takes for the model to be fitted to the data (see discussion about run times below),
-this can take up a large fraction of the run-time of the non-linear search.
-
-For this fit, the fit is very fast, thus we set a high value of `iterations_per_quick_update=2500` to ensure these updates
-do not slow down the overall speed of the model-fit.
-
-**If the iteration per update is too low, the model-fit may be significantly slowed down by the time it takes to
-output results and visualization frequently to hard-disk. If your fit is consistent displaying a log saying that it
-is outputting results, try increasing this value to ensure the model-fit runs efficiently.**
+In the plotted image, look for the central lens galaxy and the extended lensed emission around it. Both contribute to
+the measured light, so our model must account for both.
 """
 
 from autolens import jax_wrapper  # Sets JAX environment before other imports
@@ -81,46 +59,18 @@ from autolens import jax_wrapper  # Sets JAX environment before other imports
 # from autolens import setup_notebook; setup_notebook()
 
 from pathlib import Path
+import autofit as af
 import autolens as al
 import autolens.plot as aplt
 
-"""
-__PyAutoFit__
-
-Modeling uses the probabilistic programming language
-[PyAutoFit](https://github.com/PyAutoLabs/PyAutoFit), an open-source project that allows complex model
-fitting techniques to be straightforwardly integrated into scientific modeling software.
-
-The majority of tools that make model-fitting practical are provided by PyAutoFit, for example it handles
-all output of the non-linear search to hard-disk, the visualization of results and the estimation of run-times.
-"""
-import autofit as af
-
-"""
-__Initial Setup__
-
-Lets first load the `Imaging` dataset we'll fit a model with using a non-linear search.
-
-This is the same dataset we fitted in the previous tutorial, and we'll repeat the same fit, as we simply want
-to illustrate the practicalities of model-fitting in this tutorial.
-"""
-dataset_name = "simple__no_lens_light__mass_sis"
+dataset_name = "lens_sersic"
 dataset_path = Path("dataset") / "imaging" / dataset_name
 
-"""
-__Dataset Auto-Simulation__
-
-If the dataset does not already exist on your system, it will be created by running the corresponding
-simulator script. This ensures that all example scripts can be run without manually simulating data first.
-"""
 if al.util.dataset.should_simulate(str(dataset_path)):
     import subprocess
     import sys
 
-    subprocess.run(
-        [sys.executable, "scripts/simulator/no_lens_light__mass_sis.py"],
-        check=True,
-    )
+    subprocess.run([sys.executable, "scripts/simulator/lens_sersic.py"], check=True)
 
 dataset = al.Imaging.from_fits(
     data_path=dataset_path / "data.fits",
@@ -134,304 +84,463 @@ aplt.subplot_imaging_dataset(dataset=dataset)
 """
 __Mask__
 
-The non-linear fit also needs a `Mask2D`, lets use a 3.0" circle.
-"""
-mask_radius = 3.0
+We use a circular mask with a radius of 2.5 arcseconds to select the central region for this fit.
 
+Inspect the masked image: the selected region should contain the lensed emission and enough of the lens galaxy’s light
+to constrain its profile. The mask changes which measurements contribute to the fit; it does not change the physical
+model.
+
+Later in this chapter, *Data and Likelihoods* examines mask choices and how to handle contaminating objects.
+"""
+
+mask_radius = 2.5
 mask = al.Mask2D.circular(
     shape_native=dataset.shape_native,
     pixel_scales=dataset.pixel_scales,
     radius=mask_radius,
 )
-
 dataset = dataset.apply_mask(mask=mask)
-
 aplt.subplot_imaging_dataset(dataset=dataset)
 
 """
 __Model__
 
-We compose the model using the same API as the previous tutorial.
+The previous model contained a spherical lens mass profile and a spherical source-light profile, with no foreground
+lens light. We now include four components:
 
-This model is the same as the previous tutorial, an `IsothermalSph` spherical mass profile representing the lens
-galaxy and a `ExponentialCoreSph` light profile representing the source galaxy.
+- A **Sérsic light profile** to describe the foreground lens galaxy.
+- An **elliptical isothermal mass profile** to describe its gravitational lensing.
+- An **external shear field** to describe an additional tidal contribution to the lensing.
+- An **exponential light profile** to describe the source galaxy.
+
+The lens galaxy’s light and mass are separate components. Fitting its brightness does not, by itself, determine its
+mass distribution.
+
+These additions let the model describe more structure in the image, but introduce more free parameters for the search
+to explore. This is a recurring balance in modeling: we need enough flexibility to explain the data, while recognising
+that a more complex model can be harder to fit.
+
+We use the model construction from the previous tutorial, adding the lens-light profile and placing external shear in a
+separate `fields` component.
 """
-# Lens:
 
-mass = af.Model(al.mp.IsothermalSph)
+"""
+We construct the model using the same approach as Tutorial 1. Passing a profile class into `af.Model` makes its
+parameters available for fitting; supplying a value, such as a galaxy’s redshift, keeps that quantity fixed.
 
-lens = af.Model(al.Galaxy, redshift=0.5, mass=mass)
+The lens galaxy contains both a light profile and a mass profile. The external shear is a separate field at the lens
+redshift, and the source galaxy contains its own light profile.
 
-# Source:
+Here, we use ordinary light profiles from `al.lp`, so their intensities are also free parameters explored by Nautilus.
+Tutorial 1 used a linear source-light profile, whose intensity was solved separately. In *Linear Profiles*, we will
+return to that approach and see how it simplifies more complex models.
+"""
 
-bulge = af.Model(al.lp_linear.ExponentialCoreSph)
+field = af.Model(
+    al.MassField,
+    redshift=0.5,
+    shear=al.mp.ExternalShear,
+)
 
-source = af.Model(al.Galaxy, redshift=1.0, bulge=bulge)
+model = af.Collection(
+    galaxies=af.Collection(
+        lens=af.Model(
+            al.Galaxy,
+            redshift=0.5,
+            bulge=al.lp.Sersic,
+            mass=al.mp.Isothermal,
+        ),
+        source=af.Model(
+            al.Galaxy,
+            redshift=1.0,
+            bulge=al.lp.ExponentialCore,
+        ),
+    ),
+    fields=field,
+)
 
-# Overall Lens Model:
+"""
+Print `model.info` and examine the model diagram below.
 
-model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
+Find the lens-light, lens-mass, source-light and shear components. Notice how each contributes free parameters, while
+the galaxy and field redshifts remain fixed.
+
+The parameter count tells us how many quantities the non-linear search must explore. More parameters generally make
+exploration harder, but their relationships matter too: different combinations can produce similar images.
+
+These displays describe the model we are about to fit. They do not yet tell us whether it explains the data.
+"""
 
 print(model.info)
 
-"""
-The same model can also be visualized as a figure, making its structure easier to understand at a glance.
-
-The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
-fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
-corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
-parameter.
-
-Nothing in this tutorial changes the model — every setting we discuss below belongs to the search.
-"""
 af.ModelPlotter(model).figure()
-
-"""
-__Search__
-
-We again use the `Nautilus` non-linear search, with settings chosen following the Search Settings discussion above.
-"""
-search = af.Nautilus(
-    path_prefix=Path("howtolens") / "chapter_2",
-    name="tutorial_2_practicalities",
-    unique_tag=dataset_name,
-    n_live=100,
-    n_batch=50,  # GPU batching and VRAM use explained in VRAM section below.
-    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
-)
 
 """
 __Analysis__
 
-We again create the `AnalysisImaging` object which contains the `log_likelihood_function` that the non-linear search
-calls to fit the model to the data.
+We again use `AnalysisImaging` to connect the model to the dataset.
+
+For each proposed model, the analysis predicts the combined lens and lensed-source light, accounts for PSF blurring and
+evaluates the log likelihood using the selected image pixels and their noise values.
+
+Although our model has become more complex, the interface is unchanged: the analysis receives a model instance and
+returns its log likelihood.
 """
+
 analysis = al.AnalysisImaging(dataset=dataset)
+
+"""
+__Search__
+
+We configure Nautilus with a location for its saved output as well as settings controlling the search.
+
+- `path_prefix` groups the results under `output/howtolens/chapter_2`.
+- `name` identifies this tutorial’s fit.
+- `unique_tag` distinguishes the dataset being fitted.
+
+Together, these organise our results so that fits to different datasets do not become mixed together. PyAutoFit also
+adds an automatically generated identifier, explained in the **Unique Identifier** section below.
+"""
+
+search = af.Nautilus(
+    path_prefix=Path("howtolens") / "chapter_2",
+    name="tutorial_2_practicalities",
+    unique_tag=dataset_name,
+    n_live=200,
+    n_batch=50,
+    iterations_per_quick_update=2500,
+)
+
+"""
+__Search Settings__
+
+We increase `n_live` from 100 in Tutorial 1 to 200 for this more complex model. More live points generally allow a more
+thorough exploration, at the cost of additional computation. We must still inspect the result rather than assume this
+setting guarantees a successful fit.
+
+`n_batch=50` allows likelihood evaluations to be processed in batches. Evaluating several models together can improve
+performance, particularly on a GPU, but also requires more memory.
+
+These settings serve different purposes: `n_live` controls the live-point population used to explore parameter space,
+whereas `n_batch` controls how evaluations are grouped for computation.
+
+Keep these values for the initial run. The following **VRAM Use** section explains how to check memory requirements and
+when to reduce the batch size.
+"""
+
+"""
+__Output Updates__
+
+While the search runs, PyAutoLens can save updated figures showing the best-fitting model found so far. These let you
+follow its progress without waiting for the fit to finish.
+
+We set `iterations_per_quick_update=2500` to request a quick update approximately every 2,500 likelihood evaluations.
+This counts evaluated models, not seconds.
+
+Producing figures takes time. If updates occur almost continuously, increasing this value lets the search spend more
+time exploring models between updates. Decreasing it gives more frequent views of progress.
+
+Quick updates are intended for monitoring. More extensive output is controlled separately by
+`iterations_per_full_update`, and final results are produced when the search finishes.
+
+Keep the current setting for the first run. If you experiment with a different update frequency, restore it to 2,500
+afterwards.
+"""
 
 """
 __VRAM Use__
 
-When running AutoLens with JAX on a GPU, the analysis must fit within the GPU’s
-available VRAM. If insufficient VRAM is available, the analysis will fail with an
-out-of-memory error, typically during JIT compilation or the first likelihood call.
+If you run the fit on a GPU, its calculations must fit within the GPU’s memory, usually called **VRAM**. Insufficient
+memory can cause an out-of-memory error during compilation or evaluation.
 
-Two factors dictate the VRAM usage of an analysis:
+Memory requirements depend on the dataset, the model and how many models are evaluated together. Larger images and more
+demanding calculations can require more memory. Increasing Nautilus’s `n_batch` also increases the amount of work held
+in memory at once.
 
-- The number of arrays and other data structures JAX must store in VRAM to fit the model
-  to the data in the likelihood function. This is dictated by the model complexity and dataset size.
+The following call estimates the memory used by the batched likelihood calculation. `search.batch_size` reports the
+batch size set through Nautilus’s `n_batch` argument.
 
-- The `batch_size` sets how many likelihood evaluations are performed simultaneously.
-  Increasing the batch size increases VRAM usage but can reduce overall run time,
-  while decreasing it lowers VRAM usage at the cost of slower execution.
+Compare the estimate with the GPU memory available, leaving room for other allocations and applications. This is an
+estimate for the likelihood calculation, rather than a guarantee of the total memory used by the process.
 
-Before running an analysis, users should check that the estimated VRAM usage for the
-chosen batch size is comfortably below their GPU’s total VRAM.
+If memory is insufficient, try reducing `n_batch` from 50 to 10 and recreate the search before checking again. This
+keeps the same model and live-point setting, but evaluates fewer models together.
 
-The method below prints the VRAM usage estimate for the analysis and model with the specified batch size,
-it takes about 20-30 seconds to run so you may want to comment it out once you are familiar with your GPU's VRAM limits.
-
-For the simple model and low resolution dataset fitted in this example VRAM use is relatively low (~0.027GB). For other
-models (e.g. pixelized sources) and higher resolution datasets it can be much higher (> 1GB going beyond 10GB).
+The estimate itself requires some preparation and may take time. Once you understand the requirements of an unchanged
+setup, you can skip this diagnostic on subsequent runs. On a CPU, the relevant limit is system memory rather than GPU
+VRAM.
 """
-analysis.print_vram_use(model=model, batch_size=search.batch_size)
+
+analysis.print_vram_use(
+    model=model,
+    batch_size=search.batch_size,
+)
 
 """
 __Run Times__
 
-Lens modeling can be a computationally expensive process. When fitting complex models to high resolution datasets 
-run times can be of order hours, days, weeks or even months.
+Two main factors determine how much computation a fit requires:
 
-Run times are dictated by two factors:
+- How expensive it is to predict the data and calculate the likelihood for a proposed model.
+- How many models the search must evaluate before it finishes.
 
- - **The log likelihood evaluation time:** the time it takes for a single `instance` of the model to be fitted to 
-   the dataset such that a log likelihood is returned.
+Adding lens light and allowing elliptical profiles increases the work involved in each prediction. The additional free
+parameters can also make parameter space harder to explore, requiring more evaluations.
 
- - **The number of iterations (e.g. log likelihood evaluations) performed by the non-linear search:** more complex lens
-   models require more iterations to converge to a solution (and as discussed above, settings like the number of live
-   points also control this).
+With JAX, the initial compilation takes time before repeated evaluations become faster. On a GPU, several evaluations
+can run together, so multiplying a single-model evaluation time by the number of models does not necessarily predict
+the total run time.
 
-For this analysis, the log likelihood evaluation time is < 0.01 seconds on CPU, < 0.001 seconds on GPU, which is 
-extremely fast for lens modeling. 
+Saving figures and results adds further time. The elapsed time therefore includes compilation, searching and output—not
+just the likelihood calculation.
 
-The more advanced fitting techniques discussed at the end of chapter 1 (e.g. shapelets, multi Gaussian expansions, 
-pixelizations) have longer log likelihood evaluation times. However, on GPU, they can be so fast they may not produce
-significantly longer overall run-time feasible.
-
-To estimate the expected overall run time of the model-fit we multiply the log likelihood evaluation time by an 
-estimate of the number of iterations the non-linear search will perform, which is around 50000 to 100000 for this model.
-
-Tests thus far reveal CPU run times are around 30 minutes, and GPU run times around 10 minutes.
-
-__Model-Fit__
-
-To begin the model-fit, we pass the model and analysis objects to the search, which performs a non-linear search to 
-identify models that best fit the data.
-
-Running model fits via non-linear search can take significant time. While the fit in this tutorial should 
-complete in a few minutes, more complex models may require longer run times. In Jupyter notebooks, this can be 
-limiting, as the notebook cell will only complete once the fit finishes, preventing you from advancing through the 
-tutorial or running additional code.
-
-To work around this, we recommend running tutorial scripts as standalone Python scripts, found
-in the `scripts/` folder of the HowToLens repository. These scripts mirror the notebook tutorials but run independently of
-Jupyter notebooks. For example, you can start a script with:
-
-`python3 scripts/chapter_2_lens_modeling/tutorial_2_practicalities.py`
-
-Using scripts allows results to be saved to the hard drive in the `output` folder, enabling you to inspect results 
-immediately once the script completes. When rerun, the script loads results directly from disk, so any Jupyter 
-notebook cells will quickly load and display the complete model-fit results if they’re already saved.
-
-This approach not only avoids the slowdowns associated with notebook cells during lengthy runs but is also essential 
-for using super-computers for fitting tasks, as they require separate Python scripts.
-
-For tasks like loading results, inspecting data, plotting, and interpreting results, Jupyter notebooks remain ideal.
+Watch the progress of your first run to develop an expectation for your computer. The optional *Need for Speed*
+tutorial explains how to investigate performance in more detail.
 """
-print(
-    "The non-linear search has begun running - checkout the output/howtolens/chapter_2/tutorial_2_practicalities"
-    " folder for live output of the results, images and lens model."
-    " This Jupyter notebook cell with progress once search has completed - this could take some time!"
-)
+
+"""
+__Notebooks and Scripts__
+
+In a notebook, the cell containing `search.fit` remains busy until the search finishes. You can inspect files already
+written to the output folder while it runs, but later cells in the same notebook kernel must wait.
+
+For a longer fit, you may prefer to run the corresponding Python script from the HowToLens repository root:
+
+```bash
+python3 scripts/chapter_2_lens_modeling/tutorial_2_practicalities.py
+```
+
+The notebook and script perform the same analysis, and both save results using the output settings we supplied. Running
+a script does not inherently make the search faster; it lets the fit run separately from your interactive notebook.
+
+Notebooks remain useful for inspecting data, plotting results and exploring their interpretation. Scripts are
+convenient for unattended runs and computing clusters.
+
+Once the fit has completed, rerunning the same setup can load its saved result. We will explain how PyAutoFit
+recognises that setup in **Unique Identifier**.
+"""
+
+"""
+__Model Fit__
+
+We now pass the model and analysis to Nautilus and begin the fit.
+
+Expect an initial compilation stage, followed by search progress and periodic output updates. Use those updates to
+follow how the predicted image improves, but wait for completion before interpreting the final parameter uncertainties.
+
+The output is organised beneath `output/howtolens/chapter_2/lens_sersic/tutorial_2_practicalities`. The dataset tag and
+automatically generated identifier distinguish this particular fit within that folder.
+"""
 
 result = search.fit(model=model, analysis=analysis)
-
-print("Search has finished run - you may now continue the notebook.")
 
 """
 __Result Info__
 
-A concise readable summary of the results is given by printing its `info` attribute.
+Once the search finishes, print `result.info` to inspect the inferred parameter values and their uncertainties.
 
-[Above, we discussed that the `info_whitespace_length` parameter in the config files could b changed to make 
-the `model.info` attribute display optimally on your computer. This attribute also controls the whitespace of the
-`result.info` attribute.]
+Compare the lens-light, mass, shear and source-light parameters with the model we defined earlier. Then inspect the fit
+image and residuals, as in Tutorial 1. Sensible-looking parameter values alone do not establish that the model explains
+the data.
+
+The same fit summary is saved as `model.results`, so you can read it without rerunning the notebook.
 """
+
 print(result.info)
+
+aplt.subplot_fit_imaging(fit=result.max_log_likelihood_fit)
 
 """
 __Output Folder__
 
-Now checkout the `output` folder.
+Open the `output` directory inside your HowToLens repository. Our search settings organise this fit beneath:
 
-This is where the results of the search are written to hard-disk (in the `tutorial_2_practicalities` folder). 
+```text
+output/howtolens/chapter_2/lens_sersic/tutorial_2_practicalities/
+```
 
-Once completed images, results and information about the fit appear in this folder, meaning that you don't need 
-to keep running Python code to see the result.
+Inside is a folder with a long identifier as its name. This contains the saved model, results, figures and information
+needed to load or resume the fit.
 
+The tree below shows the main output structure. Some products appear only after completion or when enabled in the
+output and plotting configuration.
+
+```text
+output/
+`-- howtolens/
+    `-- chapter_2/
+        `-- lens_sersic/                   # unique_tag: the dataset name
+            `-- tutorial_2_practicalities/ # name: this analysis
+                `-- <identifier>/
+                    |-- model.info         # Model components and priors
+                    |-- model.results      # Inferred parameters and uncertainties
+                    |-- search.summary     # Search progress and timing summary
+                    |-- search.log         # Messages written during the run
+                    |
+                    |-- image/
+                    |   |-- dataset.fits   # Saved imaging data, noise map and PSF
+                    |   |-- dataset.png    # Dataset visualisation
+                    |   |-- fit.fits       # Model and residual-related arrays
+                    |   |-- fit.png        # Visual comparison of model and data
+                    |   `-- ...            # Additional configured figures and FITS
+                    |
+                    `-- files/
+                        |-- model.json            # Saved model definition
+                        |-- tracer.json           # Highest-likelihood tracer
+                        |-- search.json           # Saved search configuration
+                        |-- samples.csv           # Parameter samples and weights
+                        |-- samples_info.json     # Information about the samples
+                        |-- samples_summary.json  # Summary of inferred parameters
+                        |-- covariance.csv        # Parameter covariance matrix
+                        |-- dataset_identity.json # Record of the input dataset
+                        `-- search_internal/      # Search checkpoints, when retained
+```
+"""
+
+"""
 __Unique Identifier__
 
-In the output folder, you will note that results are in a folder which is a collection of random characters. This acts 
-as a `unique_identifier` of the model-fit, where this identifier is generated based on the model, search and dataset 
-that are used in the fit.
- 
-An identical combination of model, search and dataset generates the same identifier, meaning that rerunning the
-script will use the existing results to resume the model-fit. In contrast, if you change the model, search or dataset,
-a new unique identifier will be generated, ensuring that the model-fit results are output into a separate folder. 
+The identifier looks like a random string, but it is calculated from the model, the identifying search settings and the
+`unique_tag`.
 
-We additionally want the unique identifier to be specific to the dataset fitted, so that if we fit different datasets
-with the same model and search results are output to a different folder. We achieved this for the fit above by passing 
-the `dataset_name` to the search's `unique_tag`.
+Rerunning an unchanged setup produces the same identifier and points PyAutoFit to the existing output. Changing the
+model or a search setting that contributes to the identifier produces a different identifier.
 
+The `unique_tag` lets us distinguish datasets fitted with the same model and search. Here, we set it to `dataset_name`,
+giving the tag `lens_sersic`.
+
+Do not assume that editing a data file, changing a mask or changing every analysis option automatically creates a new
+identifier. When deliberately fitting a revised dataset or analysis, use a descriptive new tag or search name to keep
+its results separate.
+
+Display settings, such as how often progress figures are produced, need not define a scientifically different fit and
+do not necessarily change the identifier.
+"""
+
+"""
+__Resuming and Loading__
+
+If a Nautilus run is interrupted, rerun the same setup with its output and checkpoint files intact. The search can
+resume from its saved state, rather than starting from scratch. Work performed since the latest checkpoint may need to
+be repeated.
+
+If the fit has already completed, rerunning the same setup loads the saved result instead of repeating the search. This
+is useful when reopening a notebook to inspect or plot a completed analysis.
+
+Keep the output files together. The human-readable summaries are useful for inspection, but they do not replace the
+saved samples and other files used to reconstruct results.
+
+The `search_internal` directory contains search-specific state. This tutorial’s output configuration removes it after
+completion to save space; that does not prevent the completed result from being loaded.
+"""
+
+"""
 __Output Folder Contents__
 
-Now this is running you should checkout the `output` folder. This is where the results of the
-search are written to hard-disk (in the `tutorial_2_practicalities` folder), where all outputs are human readable
-(e.g. as .json, .csv or text files).
+Begin with `image/fit.png`. Inspect whether the predicted image reproduces the lens and source light, and whether
+coherent structures remain in the residuals.
 
-As the fit progresses, results are written to the `output` folder on the fly using the highest likelihood model found
-by the non-linear search so far. This means you can inspect the results of the model-fit as it runs, without having to
-wait for the non-linear search to terminate.
- 
-The `output` folder includes:
+Then open `model.results` for the inferred parameters and uncertainties. Use `model.info` alongside it to remind
+yourself which components, fixed values and priors were specified.
 
- - `model.info`: Summarizes the model, its parameters and their priors discussed in the next tutorial.
- 
- - `model.results`: Summarizes the highest likelihood model inferred so far including errors.
- 
- - `images`: Visualization of the highest likelihood model-fit to the dataset, (e.g. a fit subplot showing the 
- galaxies, model data and residuals).
- 
- - `files`: A folder containing .fits files of the dataset, the model as a human-readable .json file, 
- a `.csv` table of every non-linear search sample and other files containing information about the model-fit.
- 
- - `search.summary`: A file providing summary statistics on the performance of the non-linear search.
- 
- - `search_internal`: Internal files of the non-linear search (in this case Nautilus) used for resuming the fit and
-  visualizing the search.
+`search.summary` and `search.log` help you understand the run’s progress and timing. While the search is still running,
+treat saved fits and summaries as provisional.
 
-__Result__
+The `files` directory supports more detailed analysis in Python. You do not need to manipulate these files to continue
+HowToLens; later we will point you to the workspace examples for loading and analysing completed results.
 
-The `search.fit` method produces a `result` object, packed with useful information about the model fit that we’ll 
-explore in detail in a later tutorial.
-
-One component of the `result` object we’ll use now is the `FitImaging` object, which corresponds to the set of model 
-parameters that yielded the maximum log-likelihood solution. Plotting this object lets us visually inspect how well 
-the model fits the data.
-
-In this example, the fit to the data is excellent, with residuals near zero, as expected since the same model was 
-used both to simulate and fit the data.
+Output is configurable. `config/output.yaml` controls saved products such as samples and retained search state, while
+files under `config/visualize/` control plotting. Keep the tutorial defaults while learning the workflow.
 """
-aplt.subplot_fit_imaging(fit=result.max_log_likelihood_fit)
 
 """
-The Probability Density Functions (PDF's) of the results can be plotted using an in-built visualization 
-library, which is wrapped via the `corner_anesthetic` function.
+__Parameter Uncertainties__
 
-The PDF shows the 1D and 2D probabilities estimated for every parameter after the model-fit. The two dimensional 
-figures can show the degeneracies between different parameters, for example how increasing the intensity $I$ of the
-source galaxy and decreasing its effective radius $R_{Eff}$ lead to similar likelihoods and probabilities.
+A corner plot shows the parameter uncertainties inferred by the search and the relationships between them.
 
-This PDF will be discussed more in the next tutorial.
+The plots along the diagonal show the distribution of each parameter individually. The other panels show pairs of
+parameters: an elongated or curved distribution indicates that changing one parameter can be compensated by changing
+another.
 
-The plot is labeled with short hand parameter names (e.g. `sersic_index` is mapped to the short hand 
-parameter `n`). These mappings ate specified in the `config/notation.yaml` file and can be customized by users.
+For example, a galaxy’s light-profile intensity and effective radius can trade off against one another, producing
+similar images over the fitted region.
 
-The superscripts of labels are the path of names each component was given in the model (e.g. for the `Isothermal`
-mass, `lens.mass`: the galaxy's name `lens` and its name `mass` defined when making the `Model` above).
+Compare these distributions with the uncertainties in `result.info`. A narrow distribution indicates a tightly
+constrained parameter under the assumptions of this fit; it does not account for every possible source of error, such
+as an inappropriate model.
+
+**🤖 Ask AI:** My lens model has small image residuals, but two parameters form a long curved distribution in the corner
+plot. What does this tell me about what the data constrain?
 """
+
 aplt.corner_anesthetic(samples=result.samples)
 
+r"""
+__Plot Labels__
 
-"""
-Components in different named galaxy or profile paths can be distinguished by their superscripts. Profiles within
-the same path, such as Gaussians in a basis, can share a superscript. When the model has more than one top-level
-component, each also gets its own
-corner plot in the output folder (`corner_anesthetic_<component>.png`, switched in `config/visualize/plots_search.yaml`).
+Corner plots use abbreviated parameter names to keep their labels readable. For example, the Sérsic index may be
+labelled \(n\). These labels can be customised in `config/notation.yaml`.
 
-The parameters a model is sampled in are not always the ones it is read in: a profile's elliptical components are an
-axis ratio and a position angle, a shear's two components a magnitude and an angle. Passing `latent=True` plots
-these latent parameters instead. The same figure is written to the output folder as `corner_anesthetic_latent.png`
-when `corner_anesthetic_latent` is switched on in `config/visualize/plots_search.yaml` (off by default), once the fit
-is complete. With `latent_model_parameters` enabled, full-sample latent output (`latent_draw_via_pdf: false`)
-writes these columns to `files/latent/samples.csv` with the other latent variables. Periodic angles are recentred
-for the plot; saved values retain the conversion's original range.
+Superscripts distinguish components using their names in the model, such as `lens.mass` and `source.bulge`. Use these
+alongside `model.info` to identify which parameter each panel represents.
+
+The plotting configuration can also produce separate corner plots for individual components, which are easier to
+inspect when the full model contains many parameters.
+
+Some quantities are easier to interpret after conversion. For example, elliptical components can be expressed as an
+axis ratio and position angle. The following plot displays supported derived quantities using `latent=True`; it
+interprets the same fit rather than running another search.
 """
+
 aplt.corner_anesthetic(samples=result.samples, latent=True)
 
 """
-__Other Practicalities__
+__Configuration__
 
-The following are examples of other practicalities which I will document fully in this example script in the future,
-but so far have no found the time:
+The `config` folder controls defaults used throughout HowToLens. You do not need to customise everything before fitting
+your own data, but it helps to know where the main settings live:
 
-- `config`: The files in the `config` folder which control many aspects of how **PyAutoLens** runs,
- including visualization, the non-linear search settings.
+- `config/priors/` supplies default priors for model components. Assigning priors explicitly in your script makes those choices visible beside the model.
+- `config/output.yaml` controls saved products, including sample tables and whether internal search files are retained after completion.
+- `config/visualize/` controls which figures are produced. Search plots, including corner plots, are configured in `plots_search.yaml`.
+- `config/notation.yaml` controls parameter labels used in plots.
 
-- `config/priors`: Folder containing the default priors on all model components.
+Keep the tutorial defaults initially. Saving fewer products can reduce disk usage, but may limit what you can calculate
+later without rerunning the fit.
 
-- `results`: How to load the results of a model-fit from the output folder to a Python script or Jupyter notebook.
+In particular, a saved summary is not a substitute for the full sample table when you want to perform new calculations
+using the parameter distributions.
+"""
 
-- `output.yaml`: What files are output to control file size.
+"""
+__Further Results__
 
+You now know how to inspect a fit, read its parameter estimates and find its saved output. That is enough to continue
+HowToLens.
+
+The results also support more detailed work: loading fitted galaxies and tracers, calculating derived quantities,
+making customised figures and comparing many fits.
+
+Once you are comfortable building models and obtaining satisfactory fits to real data, explore the `autolens_workspace`
+results guide, beginning with `scripts/guides/results/start_here.py` or its notebook counterpart.
+
+HowToLens focuses on learning the analysis tools needed to model lenses. The workspace provides the next steps for
+using and manipulating the results of those analyses.
+"""
+
+"""
 __Wrap Up__
 
-This tutorial has illustrated how to handle a number of practicalities that are key to performing model-fitting
-effectively. These include:
+We have fitted a model containing lens light, lens mass, external shear and source light, while retaining the same
+data–model–Analysis–search structure introduced in Tutorial 1.
 
-- How to save results to your hard disk.
+You have also learned how to configure search and output settings, check GPU memory requirements, run a notebook or
+script, and navigate the saved results. The unique identifier allows an unchanged fit to reuse its output, while
+descriptive names and dataset tags help keep different analyses organised.
 
-- How to navigate the output folder and examine model-fit results to assess quality.
+These practical tools make it easier to run and inspect a fit, but they do not guarantee that the search finds a
+satisfactory solution.
 
-- How to estimate the run-time of a model-fit before initiating it, and change settings to make it faster or run the
-  analysis in parallel.
+In the next tutorial, *Why Modeling Is Hard*, we examine what can go wrong as models become more complex, how to
+recognise the problem and which changes can help.
 """
