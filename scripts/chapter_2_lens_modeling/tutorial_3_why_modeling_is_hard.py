@@ -51,9 +51,7 @@ __Contents__
 - **Model Mismatch:** Distinguish insufficient exploration from an inadequate model.
 - **Wrap Up:** Review the lesson and its connection to the next topic.
 
-"""
 
-"""
 __Overview__
 
 We will first run a less thorough search and inspect its result. It may find a satisfactory solution, or it may miss a
@@ -61,9 +59,7 @@ better-fitting region of parameter space. The outcome is not guaranteed because 
 
 We will use this experiment to understand why fits can struggle and how to investigate them. We will also distinguish a
 search that has missed a good solution from a model that cannot adequately describe the data.
-"""
 
-"""
 __Dataset and Mask__
 
 We use the same `lens_sersic` imaging dataset as in *Practicalities*, with its Sérsic lens light, elliptical isothermal
@@ -251,9 +247,7 @@ relationships between parameters, narrow regions of good solutions and separated
 A poor fit can therefore result from incomplete exploration. However, residuals alone do not establish that the search
 has reached a local maximum: the physical model or the assumptions about the data may also be inadequate. We return to
 this distinction under *Model Mismatch*.
-"""
 
-"""
 __Three Ways Forward__
 
 We will try three approaches to making the fit more reliable:
@@ -270,9 +264,7 @@ This helps us understand what each approach contributes.
 
 **🤖 Ask AI:** My lens fit has significant residuals. What observations would help me decide whether to adjust the
 priors, simplify the model or search more thoroughly?
-"""
 
-"""
 __Prior Tuning__
 
 Our default priors cover a broad range of possible systems. For a particular image, we may have information that
@@ -290,9 +282,7 @@ parameters as though they were information available for an unknown real lens.
 
 Priors chosen after inspecting the same image are practical modeling choices, not independent new measurements. Overly
 restrictive choices can exclude good solutions and make the reported uncertainties misleadingly small.
-"""
 
-"""
 __Profile Centres__
 
 Look at the bright central lens galaxy. Its light is centred close to `(0.0, 0.0)` arcseconds, so we do not need to
@@ -540,9 +530,7 @@ Finally, these choices are specific to this image. Inspecting and tuning every l
 but becomes time-consuming for hundreds or thousands of systems.
 
 We therefore need other ways to make complex models easier to fit.
-"""
 
-"""
 __Reducing Complexity__
 
 Return to the image and consider how much freedom we gave the lens model. Its light and mass can each have their own
@@ -556,9 +544,7 @@ independent parameters, potentially making the model easier to fit.
 
 Sharing these quantities is a physical assumption, not simply a faster way to calculate the same model. It excludes
 lenses whose light and mass have different centres or shapes.
-"""
 
-"""
 __Linking Parameters__
 
 We create fresh light and mass models with their default priors. This removes the prior tuning from the previous
@@ -669,9 +655,7 @@ linking assumption is harmless: some biases can be absorbed by other model compo
 
 A simplified model can provide a useful first fit. For scientific measurements, we should also assess what changes when
 its restrictions are relaxed.
-"""
 
-"""
 __Search More Thoroughly__
 
 Our first two approaches changed the priors or reduced the freedom of the model. We now return to the original model
@@ -685,9 +669,7 @@ different promising regions of parameter space.
 
 This approach requires no estimates of the lens shape or size by eye beyond the original modeling choices. Its main
 cost is computation: exploring more thoroughly generally takes longer.
-"""
 
-"""
 __Original Model__
 
 We create fresh model components so that neither the tuned priors nor the parameter links carry over from the previous
@@ -808,9 +790,7 @@ Each approach helps the search in a different way, and each has a cost.
 The appropriate choice depends on what the image and previous fits tell us. A clear visual estimate may justify tuning
 a prior; a useful physical approximation may justify simplifying the model. When the existing model and priors are
 appropriate, more thorough exploration may be the best next step.
-"""
 
-"""
 __Run Times__
 
 Compare the time taken by the fits alongside their results. A quick search is useful only if its output is adequate for
@@ -827,7 +807,24 @@ Their elapsed times reflect both the modeling choices and these different search
 
 Compilation and output also contribute to the elapsed time, as discussed in *Practicalities*. Treat these runs as
 examples of the trade-offs on your computer, rather than universal speed comparisons.
+
+The following values come from each search's saved timer, so loading a completed result reports its recorded duration
+rather than the time spent loading it. A resumed search includes the time since its original start, including any
+interruption. Runs without recorded timing information are labelled accordingly.
 """
+
+for label, fit_result in [
+    ("Less thorough", result),
+    ("Practicalities", result_reference),
+    ("Prior tuning", result_custom_priors),
+    ("Reduced complexity", result_linked),
+    ("More thorough", result_thorough),
+]:
+    elapsed_seconds = fit_result.samples.time
+    if elapsed_seconds is None:
+        print(f"{label}: elapsed time not recorded")
+    else:
+        print(f"{label}: recorded elapsed time = {float(elapsed_seconds):.1f} seconds")
 
 """
 __Model Mismatch__
@@ -848,9 +845,7 @@ Incorrect assumptions about the PSF, noise or contaminating objects can also pro
 We must therefore distinguish **an inadequately explored model** from **an inadequate description of the
 observations**. The residual image helps us investigate this distinction, although it rarely identifies the cause on
 its own.
-"""
 
-"""
 __Wrap Up__
 
 More realistic lens models give us greater freedom to explain an image, but that freedom makes fitting harder. We have

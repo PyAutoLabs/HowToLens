@@ -38,9 +38,7 @@ __Contents__
 - **Further Results:** Find the workspace guides for more detailed result analysis.
 - **Wrap Up:** Review the lesson and its connection to the next topic.
 
-"""
 
-"""
 __Dataset__
 
 Our new simulated image contains a bright foreground lens galaxy as well as the lensed source.
@@ -123,9 +121,7 @@ that a more complex model can be harder to fit.
 
 We use the model construction from the previous tutorial, adding the lens-light profile and placing external shear in a
 separate `fields` component.
-"""
 
-"""
 We construct the model using the same approach as Tutorial 1. Passing a profile class into `af.Model` makes its
 parameters available for fitting; supplying a value, such as a galaxy’s redshift, keeps that quantity fixed.
 
@@ -227,9 +223,7 @@ whereas `n_batch` controls how evaluations are grouped for computation.
 
 Keep these values for the initial run. The following **VRAM Use** section explains how to check memory requirements and
 when to reduce the batch size.
-"""
 
-"""
 __Output Updates__
 
 While the search runs, PyAutoLens can save updated figures showing the best-fitting model found so far. These let you
@@ -246,9 +240,7 @@ Quick updates are intended for monitoring. More extensive output is controlled s
 
 Keep the current setting for the first run. If you experiment with a different update frequency, restore it to 2,500
 afterwards.
-"""
 
-"""
 __VRAM Use__
 
 If you run the fit on a GPU, its calculations must fit within the GPU’s memory, usually called **VRAM**. Insufficient
@@ -297,9 +289,7 @@ just the likelihood calculation.
 
 Watch the progress of your first run to develop an expectation for your computer. The optional *Need for Speed*
 tutorial explains how to investigate performance in more detail.
-"""
 
-"""
 __Notebooks and Scripts__
 
 In a notebook, the cell containing `search.fit` remains busy until the search finishes. You can inspect files already
@@ -319,9 +309,7 @@ convenient for unattended runs and computing clusters.
 
 Once the fit has completed, rerunning the same setup can load its saved result. We will explain how PyAutoFit
 recognises that setup in **Unique Identifier**.
-"""
 
-"""
 __Model Fit__
 
 We now pass the model and analysis to Nautilus and begin the fit.
@@ -396,9 +384,7 @@ output/
                         |-- dataset_identity.json # Record of the input dataset
                         `-- search_internal/      # Search checkpoints, when retained
 ```
-"""
 
-"""
 __Unique Identifier__
 
 The identifier looks like a random string, but it is calculated from the model, the identifying search settings and the
@@ -416,9 +402,7 @@ its results separate.
 
 Display settings, such as how often progress figures are produced, need not define a scientifically different fit and
 do not necessarily change the identifier.
-"""
 
-"""
 __Resuming and Loading__
 
 If a Nautilus run is interrupted, rerun the same setup with its output and checkpoint files intact. The search can
@@ -433,9 +417,7 @@ saved samples and other files used to reconstruct results.
 
 The `search_internal` directory contains search-specific state. This tutorial’s output configuration removes it after
 completion to save space; that does not prevent the completed result from being loaded.
-"""
 
-"""
 __Output Folder Contents__
 
 Begin with `image/fit.png`. Inspect whether the predicted image reproduces the lens and source light, and whether
@@ -452,9 +434,7 @@ HowToLens; later we will point you to the workspace examples for loading and ana
 
 Output is configurable. `config/output.yaml` controls saved products such as samples and retained search state, while
 files under `config/visualize/` control plotting. Keep the tutorial defaults while learning the workflow.
-"""
 
-"""
 __Parameter Uncertainties__
 
 A corner plot shows the parameter uncertainties inferred by the search and the relationships between them.
@@ -511,9 +491,7 @@ later without rerunning the fit.
 
 In particular, a saved summary is not a substitute for the full sample table when you want to perform new calculations
 using the parameter distributions.
-"""
 
-"""
 __Further Results__
 
 You now know how to inspect a fit, read its parameter estimates and find its saved output. That is enough to continue
@@ -527,9 +505,7 @@ results guide, beginning with `scripts/guides/results/start_here.py` or its note
 
 HowToLens focuses on learning the analysis tools needed to model lenses. The workspace provides the next steps for
 using and manipulating the results of those analyses.
-"""
 
-"""
 __Wrap Up__
 
 We have fitted a model containing lens light, lens mass, external shear and source light, while retaining the same

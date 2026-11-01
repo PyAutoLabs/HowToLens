@@ -42,9 +42,7 @@ __Contents__
 - **Other Basis Functions:** Find other ways to expand a galaxy’s light distribution.
 - **Wrap Up:** Review the lesson and its connection to the next topic.
 
-"""
 
-"""
 __Overview__
 
 We first replace the ordinary lens and source light profiles with their linear equivalents. We will inspect the model,
@@ -55,9 +53,7 @@ summed light can describe a wider range of radial structures than a single profi
 
 The key idea is to separate the parameters that require non-linear exploration from the intensities that can be solved
 together for each proposed model.
-"""
 
-"""
 __Dataset and Mask__
 
 We use the same `lens_sersic` dataset as before. Look again at the bright central lens galaxy and the lensed source
@@ -123,9 +119,7 @@ image.
 
 The calculation is repeated whenever the non-linear search proposes different parameter values. The intensities are
 fitted quantities, not fixed numbers chosen in advance.
-"""
 
-"""
 __Why This Helps__
 
 With ordinary light profiles, Nautilus must explore intensity alongside parameters such as effective radius and Sérsic
@@ -144,9 +138,7 @@ computationally, often making the non-linear exploration easier.
 
 The benefit becomes particularly useful when we combine many light profiles: their intensities can be solved together
 rather than adding a new search dimension for every profile.
-"""
 
-"""
 __Model__
 
 We replace the lens and source light profiles with their equivalents from `al.lp_linear`.
@@ -317,9 +309,7 @@ above; the workspace demonstrates the more flexible arrangements.
 
 Individual Gaussians need not represent separate physical structures. We interpret their summed light distribution,
 rather than identifying each Gaussian as a distinct part of the galaxy.
-"""
 
-"""
 __A First Gaussian Basis__
 
 We begin with 30 circular Gaussians, all centred at `(0.0, 0.0)` arcseconds. Their sizes are fixed and spaced
@@ -417,9 +407,7 @@ This gives the lens-light model just four non-linear parameters: two centre coor
 The Gaussians share these parameters, so they move and change shape together. Their individual intensities still allow
 the combined brightness to vary with radius. This arrangement remains elliptically symmetric; more complicated geometry
 requires the additional Gaussian groups discussed earlier.
-"""
 
-"""
 We create the centre priors once and assign those same prior objects to every Gaussian. This links their centres,
 rather than giving each Gaussian an independent position within the same limits.
 
@@ -619,9 +607,7 @@ non-linear exploration manageable.
 
 The approach is also useful for obtaining an initial source model. However, our single-centre source MGE remains a
 restricted description, especially when the source contains separate bright knots or irregular features.
-"""
 
-"""
 __Benefits Have Costs__
 
 Evaluating many Gaussian profiles and solving their intensities adds work to each likelihood calculation. A simpler
@@ -636,9 +622,7 @@ radial freedom, but cannot create an independently positioned clump.
 
 Inspect residual structure with these restrictions in mind. A detailed-looking model is useful only if it has the
 freedom needed to describe the features relevant to the analysis.
-"""
 
-"""
 __Positive Intensities__
 
 Without a positivity constraint, a linear solver can combine positive and negative Gaussian intensities to reproduce an
@@ -653,9 +637,7 @@ and negative contributions from being used to manufacture structure.
 
 Non-negative intensities do not guarantee that the overall model is correct. We still need to assess its geometry and
 inspect the residuals.
-"""
 
-"""
 __Other Basis Functions__
 
 Gaussians are not the only functions we can combine to describe galaxy light. PyAutoLens also supports **shapelets**,
@@ -670,9 +652,7 @@ investigating an alternative.
 
 For now, the important distinction is between the individual functions and the freedom of their combined model. A basis
 can only reproduce structures allowed by its arrangement and parameters.
-"""
 
-"""
 __Wrap Up__
 
 Linear light profiles let us solve intensities separately from the non-linear search. We used this first with Sérsic

@@ -5,7 +5,7 @@ Tutorial 8: Adaptive Pixelization
 In this tutorial we will introduce a new `Pixelization` object, which uses an `Overlay` image-mesh and a `Delaunay`
 mesh.
 
-This pixelization does not use a uniform grid of rectangular pixels, but instead uses a `Delaunay` triangulation.
+This pixelization does not use a rectangular mesh, but instead uses a `Delaunay` triangulation.
 
 So, why would we want to do that? Lets take another quick look at the rectangular grid.
 
@@ -14,7 +14,8 @@ __Contents__
 - **Initial Setup:** We'll use the same strong lensing data as the previous tutorial, where.
 - **Advantages and Disadvantages:** Lets think about the rectangular pixelization.
 - **Image Mesh:** The Delaunay mesh is an irregular grid of pixels (or triangles) in the source-plane.
-- **Regularization:** On the rectangular grid, we regularized each source pixel with its 4 neighbors.
+- **Regularization:** Penalize differences between neighbouring reconstructed values.
+- **Source Compactness:** Reconstruct three sources with the same lens, mesh and noise.
 - **Wrap Up:** Summary of the script and next steps.
 
 """
@@ -34,6 +35,7 @@ from autolens import jax_wrapper  # Sets JAX environment before other imports
 # from autolens import setup_notebook; setup_notebook()
 
 from pathlib import Path
+import numpy as np
 import autolens as al
 import autolens.plot as aplt
 
@@ -52,8 +54,8 @@ dataset_path = Path("dataset") / "imaging" / dataset_name
 """
 __Dataset Auto-Simulation__
 
-If the dataset does not already exist on your system, it will be created by running the corresponding
-simulator script. This ensures that all example scripts can be run without manually simulating data first.
+If the dataset does not already exist on your system, it will be created by running the corresponding simulator
+script. This ensures that all example scripts can be run without manually simulating data first.
 """
 if al.util.dataset.should_simulate(str(dataset_path)):
     import subprocess
@@ -80,8 +82,8 @@ mask = al.Mask2D.circular(
 aplt.subplot_imaging_dataset(dataset=dataset)
 
 """
-The lines of code below do everything we're used to, that is, setup an image, mask it, trace it via a tracer, 
-setup the rectangular mapper, etc.
+The lines of code below do everything we're used to, that is, setup an image, mask it, trace it via a tracer, setup
+the rectangular mapper, etc.
 """
 lens_galaxy = al.Galaxy(
     redshift=0.5,
@@ -118,43 +120,28 @@ aplt.subplot_fit_imaging_of_planes(fit=fit)
 """
 __Advantages and Disadvantages__
 
-Lets think about the rectangular pixelization. Is this the optimal way to reconstruct our source? Are there features
-in the source-plane that aren't ideal? How do you think we could do a better job?
-
-There are a number of reasons the rectangular pixelization is not optimal, and it is in fact a pretty poor method to
-model strong lenses!
-
-So what is wrong with the grid? Well, lets think about the source reconstruction.
+The rectangular mesh is a useful baseline, but its finite resolution can limit a reconstruction.
+`RectangularBilinearAdaptDensity` adjusts rectangular sampling to the traced data density; it is not simply a
+uniform source-plane grid. Inspect where its mesh points lie relative to the bright source.
 """
 mapper = fit.inversion.cls_list_from(al.Mapper)[0]
-
-
+rectangular_pixels = mapper.pixels
+print(f"Rectangular source pixels: {rectangular_pixels}")
 aplt.subplot_fit_imaging_of_planes(fit=fit)
 
 """
-There is one clear problem, we are using only a small number of the total source pixels to reconstruct the source. The
-majority of source pixels are located away from the source. By my estimate, we are using just 16 pixels (the central
-4x4 grid) out of the 784 pixels to actually fit the data! The remaining ~750 pixels are doing nothing but fitting
-noise.
-
-This means that regularization is sub-optimal. In tutorial 2, we discussed how the Bayesian evidence of the
-regularization favours the simplest source solution. That is, the solution which fits the data using the fewest source 
-pixels. If we are dedicating a large number of source pixels to fitting *nothing*, the source reconstruction is 
-unnecessarily complex (and therefore is lower `log_evidence` solution).
-
-If our pixelization could 'focus' its pixels where we actually have more data, e.g. the highly magnified regions of 
-the source-plane, we could reconstruct the source using fewer pixels. This would significantly increase the Bayesian
-evidence. It'd also be beneficial computationally, as using fewer source pixels means faster run times.
-
-This is what the Delaunay mesh enables.
+A mesh point in a faint region is not necessarily wasted: those measurements can constrain the source's extent. The
+evidence balances fit quality, regularization and complexity, rather than simply rewarding fewer pixels. An
+image-plane overlay offers another allocation: ray-tracing its points concentrates source-plane sampling according
+to lens magnification. Whether this improves a fit must be checked for the data and regularization used.
 
 __Image Mesh__
 
-The Delaunay mesh is an irregular grid of pixels (or triangles) in the source-plane. We must first therefore determine
-a set of (y,x) source-plane coordinates defining this grid, specifically where each triangle vertex is located.
+The Delaunay mesh is an irregular triangulation in the source-plane. First determine a set of (y,x) source-plane
+coordinates defining this grid, specifically where each triangle vertex is located.
 
-We do this using an `image_mesh`, which defines a method to determine a set of coordinates in the image-plane 
-which are ray-traced to the source-plane. These traced coordinates are the triangle vertexes of our source-pixel mesh. 
+We do this using an `image_mesh`, which defines a method to determine a set of coordinates in the image-plane which
+are ray-traced to the source-plane. These traced coordinates are the vertices of our source-pixel mesh.
 
 Below, we use the `Overlay` image-mesh to do this, which overlays a grid of (y,x) coordinates over the image-plane
 mask and retains all (Y,x) coordinates which fall within this mask.
@@ -169,11 +156,13 @@ image_plane_mesh_grid = image_mesh.image_plane_mesh_grid_from(mask=dataset.mask)
 We can plot this grid over the image, to see that it is a coarse grid of (y,x) coordinates laid over the image.
 """
 
-aplt.plot_array(array=dataset.data, title="Data")
+aplt.plot_array(
+    array=dataset.data, grid=image_plane_mesh_grid, title="Image-plane mesh overlay"
+)
 
 """
-By passing a `Tracer` a source galaxy with the image-mesh and a `Delaunay` mesh object, contained in 
-a `Pixelization` object, it automatically computes this source-plane Delaunay mesh.
+Give the source galaxy a `Pixelization` containing a `Delaunay` mesh. The fit receives the image-plane mesh
+coordinates separately through `AdaptImages` below, and ray-traces them to construct the source-plane mesh.
 """
 pixelization = al.Pixelization(
     mesh=al.mesh.Delaunay(
@@ -201,31 +190,111 @@ mapper = fit.inversion.cls_list_from(al.Mapper)[0]
 aplt.subplot_fit_imaging(fit=fit)
 
 """
-A closer inspection of the pixelization shows the improvement. 
-
-We are using fewer pixels than the rectangular grid (400, instead of 784) and reconstructing the source in far
-greater detail!
+Compare the residuals and reconstructed source with the rectangular example. The overlay retains only points inside
+the mask, so its actual number of source pixels is smaller than the full 20 by 20 overlay. The two fits also use
+different regularization coefficients; this is not a controlled ranking of mesh quality.
 """
+print(f"Delaunay source pixels: {mapper.pixels}; rectangular: {rectangular_pixels}")
 aplt.subplot_fit_imaging_of_planes(fit=fit)
 
 """
 __Regularization__
 
-On the rectangular grid, we regularized each source pixel with its 4 neighbors. We compared their fluxes, summed 
-the differences, and penalized solutions where the differences were large. 
+Constant regularization penalizes differences between neighbouring reconstructed source values. Rectangular meshes
+use their grid connectivity; Delaunay meshes use the connected vertices of the triangulation. A vertex need not
+have exactly three neighbours. One coefficient controls the strength of smoothing across the mesh.
 
-For a Delaunay grid, we do a similar calculation, instead comparing each source-pixel with the 3 Delaunay triangles 
-it shares a direct vertex with.
+__Source Compactness__
+
+Magnification depends on the lens and source position, not on the brightness distribution we place there. Keep this
+lens, image-plane overlay and regularization fixed while making three source profiles progressively more compact.
+This restores a direct test of a limitation of magnification-based sampling.
+
+Use identical PSF, mask, Gaussian noise map and noise realization for each simulated image. The profiles retain the
+same intensity at their effective radius, so their total fluxes and signal-to-noise ratios also differ; this is a
+diagnostic experiment, not an isolated measurement of the effect of radius. The coefficient of 1.0 is an explicit
+illustrative choice, not an evidence optimum for any of these datasets.
+"""
+
+simulation_grid = al.Grid2D.uniform(
+    shape_native=dataset.shape_native, pixel_scales=dataset.pixel_scales
+)
+simulation_grid = simulation_grid.apply_over_sampling(over_sample_size=8)
+simulator = al.SimulatorImaging(
+    exposure_time=300.0,
+    psf=dataset.psf,
+    background_sky_level=0.1,
+    add_poisson_noise_to_data=False,
+)
+noise_sigma = 0.05
+noise_values = np.random.default_rng(1).normal(
+    loc=0.0, scale=noise_sigma, size=simulation_grid.shape_native
+)
+common_noise_map = al.Array2D.no_mask(
+    values=np.full(simulation_grid.shape_native, noise_sigma),
+    pixel_scales=dataset.pixel_scales,
+)
+
+compactness_fits = {}
+for label, effective_radius, sersic_index in [
+    ("Extended", 0.5, 1.0),
+    ("Compact", 0.2, 2.5),
+    ("Very compact", 0.1, 4.0),
+]:
+    true_source = al.Galaxy(
+        redshift=1.0,
+        bulge=al.lp.Sersic(
+            centre=(0.0, 0.0),
+            ell_comps=(0.0, 0.15),
+            intensity=0.2,
+            effective_radius=effective_radius,
+            sersic_index=sersic_index,
+        ),
+    )
+    true_tracer = al.Tracer(galaxies=[lens_galaxy, true_source], fields=[field])
+    noiseless = simulator.via_tracer_from(tracer=true_tracer, grid=simulation_grid)
+    simulated_dataset = al.Imaging(
+        data=al.Array2D.no_mask(
+            values=np.asarray(noiseless.data.native) + noise_values,
+            pixel_scales=dataset.pixel_scales,
+        ),
+        noise_map=common_noise_map,
+        psf=dataset.psf,
+    )
+    simulated_dataset = simulated_dataset.apply_mask(mask=mask)
+    simulated_dataset = simulated_dataset.apply_sparse_operator()
+    compactness_fit = al.FitImaging(
+        dataset=simulated_dataset, tracer=tracer, adapt_images=adapt_images
+    )
+    compactness_fits[label] = compactness_fit
+    compactness_mapper = compactness_fit.inversion.cls_list_from(al.Mapper)[0]
+    mesh_radii = np.sqrt(
+        np.sum(np.asarray(compactness_mapper.source_plane_mesh_grid) ** 2, axis=1)
+    )
+    vertices_within_radius = np.count_nonzero(mesh_radii <= effective_radius)
+    print(
+        f"{label}: radius={effective_radius:.2f}, index={sersic_index:.1f}, "
+        f"coefficient=1.0, mesh pixels={compactness_mapper.pixels}, "
+        f"vertices within circular effective-radius aperture={vertices_within_radius}, "
+        f"chi_squared / data pixels={compactness_fit.chi_squared / simulated_dataset.data.shape[0]:.3f}, "
+        f"max |normalized residual|={np.max(np.abs(compactness_fit.normalized_residual_map)):.3f}"
+    )
+    aplt.subplot_fit_imaging(fit=compactness_fit)
+    aplt.subplot_fit_imaging_of_planes(fit=compactness_fit)
+
+"""
+The printed aperture counts measure available mesh vertices, not the number of independently constrained source
+values. Inspect the source reconstructions alongside the residual maps: can the same mesh resolve each bright
+centre without coherent residuals? Changing the coefficient may trade smoothing of the centre against noise in the
+outskirts, but cannot add mesh vertices. We have not searched for an optimal coefficient, and these separate
+simulated datasets must not be ranked against one another using their absolute evidences.
 
 __Wrap Up__
 
-The `Overlay` image-mesh and `Delaunay` mesh is still far from optimal. There are lots of source-pixels effectively
-fitting just noise. We could achieve even better solutions if the central regions of the source were reconstructed
-using more pixels, and fewer source pixels were used in the outskirts of the source plane.
+The overlay responds to magnification rather than source morphology. The compactness experiment lets us inspect
+where that distinction matters; neither fewer pixels nor a more adaptive mesh guarantees a better reconstruction.
+Tutorials 11 and 12 explore adapting the mesh and regularization to a fitted brightness distribution. They test
+those choices on the same data so that changes in fit quality and evidence can be assessed meaningfully.
 
-Tutorials 11 and 12 show even more advanced and adaptive pixelizations which do just this, by adapting to the
-source galaxy's morphology rather than the mass model magnification.
-
-In the mean time, you may wish to experiment with using both rectangular and Delaunay meshes to fit
-lenses, which is easily achieved by changing the input pixelization given to a pipeline.
+You can also experiment with rectangular and Delaunay meshes by changing the pixelization in a pipeline.
 """
