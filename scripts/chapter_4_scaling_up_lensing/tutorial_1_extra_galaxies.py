@@ -410,24 +410,28 @@ sampled by the non-linear search.
 print(model.info)
 
 """
-The same model can also be visualized as a figure, making its structure easier to understand at a glance.
+The model can also be visualized as a figure, showing how its components and parameters are organized.
 
-The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
-fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
-corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
-parameter.
+Notice that the extra galaxy's light and mass centres are fixed to its measured position. This is the workflow
+we will reuse as we introduce larger populations of galaxies: measure their positions first, then keep those
+positions fixed while fitting their other properties.
 
-The extra galaxy is part of the model and part of the ray-tracing, but it is neither the lens nor the source.
-Its centres are fixed to the values we measured from the data and its light is linear, so an entire extra galaxy
-costs just two more free parameters than the same lens-and-source model without it.
+Here, spherical profiles and a linearly solved light intensity mean the extra galaxy adds only two non-linear
+parameters. The figure shows this structure, while `model.info` gives the numerical values and priors.
 """
 af.ModelPlotter(model).figure()
 
 """
 __Extra Galaxies Fit__
 
-We fit this model with the same search set up as before. The model has only two more free parameters than the
-noise-scaling fit, thanks to the fixed centres and linear light profile, so the fit remains fast.
+We fit the model using the same search settings as before.
+
+The extra galaxy adds only two non-linear parameters, keeping the increase in search dimensionality small.
+Nevertheless, fitting time also depends on degeneracies between components and the cost of each likelihood
+evaluation.
+
+This fit uses the original, unscaled data, so the extra galaxy's light now contributes to constraining the model
+alongside the main lens and source.
 """
 search = af.Nautilus(
     path_prefix=Path("howtolens", "chapter_4"),
@@ -441,73 +445,82 @@ search = af.Nautilus(
 analysis = al.AnalysisImaging(dataset=dataset)
 
 print(
-    "The non-linear search has begun running - checkout the output/howtolens/chapter_4/tutorial_1_extra_galaxies_model"
-    " folder for live output of the results, images and model."
-    " This Jupyter notebook cell with progress once search has completed - this could take some time!"
+    "The non-linear search has begun. Check the output/howtolens/chapter_4/tutorial_1_extra_galaxies_model"
+    " folder for results and visualizations as the search progresses."
+    " This cell will finish when the search completes."
 )
 
 result_extra_galaxies = search.fit(model=model, analysis=analysis)
 
-print("The search has finished run - you may now continue the notebook.")
+print("The search has finished — you may now continue the notebook.")
 
 """
-Plotting the maximum log likelihood fit shows the extra galaxy's emission is now fitted by its own light profile,
-and its mass has contributed deflections to the ray-tracing of the source.
+Inspect the maximum log likelihood fit below. The extra galaxy's emission is now represented by its own light
+profile, and its mass contributes to the ray-tracing of the background source.
+
+Compare the residuals around the extra galaxy and the lensed arcs with the earlier fit. Also compare the inferred
+main-lens parameters: accounting for the extra galaxy's mass may change them even if both fits appear visually
+satisfactory.
+
+The two fits use different noise maps and different sets of informative pixels. Their raw likelihood or Bayesian
+evidence values should therefore not be interpreted as a straightforward model comparison.
 """
 aplt.subplot_fit_imaging(fit=result_extra_galaxies.max_log_likelihood_fit)
 
 """
-The result's `info` shows the inferred `einstein_radius` of the extra galaxy, quantifying how much lensing power
-the interloper contributes to the system.
+The result's `info` summarizes the inferred parameters and their uncertainties, including the extra galaxy's
+`einstein_radius`.
+
+Inspect its uncertainty and whether it lies close to a prior boundary. Including a mass profile does not
+guarantee that the data tightly constrain its normalization.
+
+The inferred Einstein radius describes the lensing strength of the adopted `IsothermalSph` profile; it is not a
+direct measurement of the galaxy's total mass.
 """
 print(result_extra_galaxies.info)
 
 """
 __Which Approach When__
 
-We have seen the two extremes of dealing with an extra galaxy. Choosing between them comes back to the
-light-versus-mass question at the start of this tutorial, which in practice is settled by three properties of the
-interloper:
+Choosing how to handle an extra galaxy returns us to two separate questions: does its light affect the fit,
+and do its gravitational deflections matter for the measurements we want to make?
 
-- **Distance from the lensed emission**: An extra galaxy whose light is well separated from the lensed source (as
-  in this tutorial) can be cleanly noise-scaled away. If its light blends into the source's arcs, noise scaling
-  would also delete source emission we need, and the light must be modeled instead.
+**Consider the light first.** If its emission is outside the fitting region or negligible compared with the noise,
+we may not need a light profile. If it contaminates pixels we would otherwise fit, we can noise-scale those pixels
+or model the emission explicitly.
 
-- **Brightness**: A faint interloper whose emission barely rises above the noise can often be ignored entirely, or
-  noise-scaled with no consequence. A bright one must be removed or modeled, or it will bias the fit.
+Noise scaling is useful when we can exclude the contaminated region without losing important source information.
+If the extra galaxy overlaps the lensed arcs, explicitly modeling its light lets us retain those pixels, although
+the accuracy of its light profile then matters.
 
-- **Mass and proximity to the lens**: The mass matters when the extra galaxy is massive enough, and close enough
-  (in projection) to the lensed source's light, for its deflections to measurably perturb the ray-tracing. A rough
-  rule of thumb is to compare its expected Einstein radius to the astrometric precision of the data: a small galaxy
-  several arc-seconds from the arcs can have its mass safely ignored, whereas one abutting the Einstein ring
-  cannot. When in doubt, fit both approaches and compare the inferred lens models: if the main lens's mass
-  parameters shift appreciably, the extra galaxy's mass matters.
+**Consider the mass separately.** Its importance depends on its mass, redshift and position relative to the lensed
+images, as well as the precision of the data and the scientific question. Neither faintness nor separation alone
+guarantees that its deflections are negligible.
 
-Intermediate options also exist and are fully supported by the API: you can noise-scale the light but still include
-the mass profile in the model, or model the light but omit the mass. The `extra_galaxies` collection simply
-contains whatever profiles you give it.
+To investigate its effect, compare models with and without the extra mass profile while keeping the data
+treatment and other modeling choices consistent. Inspect changes in the residuals and inferred parameters
+relative to their uncertainties. A small change is useful evidence of robustness within the models tested,
+rather than proof that every possible perturbation is negligible.
+
+The API supports each combination: model both light and mass, model only the light, or noise-scale the light while
+retaining a mass profile.
 
 __Wrap Up__
 
-In this tutorial, we took the first step up in scale from the single lens galaxy of chapters 1 to 3, and learnt:
+In this tutorial, we learned:
 
-1. Real lenses live in crowded fields, and interloping extra galaxies are the first complication real data throws
-   at us.
+1. An extra galaxy's light and mass affect the analysis in different ways and should be considered separately.
+2. Noise scaling, introduced in chapter 2, can exclude contaminating light from constraining the fit, but does not
+   remove the galaxy's gravitational effect.
+3. The `extra_galaxies` collection lets us include the light and mass profiles needed for each galaxy.
+4. Measuring light centres first and fixing them in the model is a common practical workflow. It becomes
+   increasingly useful as the number of galaxies grows.
+5. The appropriate treatment depends on the data and scientific goal, and should be checked through fit
+   diagnostics and comparisons between consistent modeling choices.
 
-2. Whether an extra galaxy matters hinges on two separate questions: does its **light** contaminate the region of
-   the image we fit, and does its **mass** perturb the ray-tracing of the source?
+Here, one galaxy remained the dominant lens, with a smaller nearby galaxy adding a complication.
 
-3. Noise scaling removes an extra galaxy's light from the fit without adding model complexity, by zeroing its data
-   and inflating its noise, but leaves its mass unaccounted for.
-
-4. The `extra_galaxies` modeling API includes extra galaxies in the model with their own light and mass profiles,
-   with their centres fixed to the observed light centres to keep parameter space simple and well behaved.
-
-5. Which approach is appropriate depends on the interloper's distance from the lensed emission, its brightness,
-   and its mass's proximity to the lens.
-
-Throughout, the extra galaxy was a nuisance: something to remove or account for, so that our analysis of the
-main lens remained accurate. In the next tutorial we meet systems where that framing breaks down entirely, because
-a second galaxy is not a nuisance but a co-equal lens, with light and mass comparable to the first. There, no
-single galaxy is "the" lens, and the model must treat them all on an equal footing.
+In the next tutorial, we consider systems where two or more galaxies contribute substantially to the lensing.
+We will build models containing multiple main deflectors and explore the degeneracies between their mass
+distributions.
 """
