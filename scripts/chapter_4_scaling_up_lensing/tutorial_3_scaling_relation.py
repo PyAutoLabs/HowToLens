@@ -594,14 +594,22 @@ print(
 assert model_many_tied.prior_count == model.prior_count
 
 """
-Twelve more galaxies, zero more parameters. The tied model's dimensionality is *independent of the number of
-galaxies* — this is the property that makes group- and cluster-scale lens modeling possible at all, and it is
-why the assertion above is worth having in the script rather than in prose.
+Adding twelve mass-only galaxies through the fixed scaling relation leaves the non-linear parameter count
+unchanged. Their positions are fixed, their profiles are spherical, and their Einstein radii all depend on the
+existing anchor parameter.
+
+This does not mean the additional galaxies are computationally free: their deflections must still be evaluated.
+It also does not include any extra freedom we might introduce for their light, positions or deviations from
+the relation.
 
 __Model Fit__
 
-We now fit the scaling-relation model to the data, using the familiar `Nautilus` search and `AnalysisImaging`
-object. The parameter space is barely larger than a single-lens fit, which is the whole point.
+We now fit the original **two-galaxy scaling-relation model** to the data. The twelve hypothetical members were
+used only for the parameter-counting exercise and are not included in this fit.
+
+We use the familiar `Nautilus` search and `AnalysisImaging` object. The model has 11 non-linear parameters, but its
+smaller parameter space reflects stronger assumptions about the galaxies as well as fewer independent
+quantities to infer.
 """
 search = af.Nautilus(
     path_prefix=Path("howtolens") / "chapter_4",
@@ -615,32 +623,46 @@ search = af.Nautilus(
 analysis = al.AnalysisImaging(dataset=dataset)
 
 print(
-    "The non-linear search has begun running - checkout the output/howtolens/chapter_4/tutorial_3_scaling_relation"
-    " folder for live output of the results, images and model."
-    " This Jupyter notebook cell with progress once search has completed - this could take some time!"
+    "The non-linear search has begun. Check the output/howtolens/chapter_4/tutorial_3_scaling_relation"
+    " folder for results and visualizations as the search progresses."
+    " This cell will finish when the search completes."
 )
 
 result = search.fit(model=model, analysis=analysis)
 
-print("The search has finished run - you may now continue the notebook.")
+print("The search has finished — you may now continue the notebook.")
 
 """
 __Results__
 
-In `result.info`, the tied galaxy has no `einstein_radius` entry of its own — it is reported as a derived
-function of the anchor's, which is what a tied parameter looks like in the output. Its posterior uncertainty
-comes entirely from the anchor's.
+Inspect `result.info` and the maximum log likelihood fit below.
+
+The tied galaxy's Einstein radius is derived from the anchor's Einstein radius through the fixed luminosity
+ratio and exponent. It has no independently sampled prior.
+
+Its inferred uncertainty therefore reflects uncertainty in the anchor within this model. It does not include
+measurement uncertainty in the luminosity ratio, uncertainty in the exponent or intrinsic scatter around
+the relation.
+
+Check the residuals around both galaxies and the lensed source. A compact model is useful only if its assumptions
+provide an adequate description of the data.
 """
 print(result.info)
 
 aplt.subplot_fit_imaging(fit=result.max_log_likelihood_fit)
 
 """
-The fit is good — but we should ask *why* it is good, because the answer is the honest heart of this tutorial.
+Because this dataset is simulated, we can check how closely the input galaxy masses satisfy the relation we
+imposed.
 
-The tied model can only fit well if the true galaxies actually lie close to the relation we imposed. We can
-check, because this is simulated data and we know the truth. Below we compare the fainter galaxy's true Einstein
-radius against the value the relation predicts from the anchor's true Einstein radius and the luminosity ratio.
+Below, we use the anchor's true Einstein radius and the measured aperture-luminosity ratio to predict the other
+galaxy's Einstein radius, then compare that prediction with its true value.
+
+This tests the mass-normalization relation. It does not test every assumption in the fitted model: for example,
+the simulated second galaxy has an elliptical mass profile, while our tied model represents it as spherical.
+
+A visually satisfactory fit would not by itself demonstrate that either assumption is exact. Other parameters
+may compensate for an imperfect scaling relation or profile choice.
 """
 einstein_radii_true = [
     float(galaxy.mass.einstein_radius) for galaxy in lens_galaxies_true
@@ -657,73 +679,75 @@ for i in tied_indexes:
     )
 
 r"""
-The prediction lands within a few percent of the truth: this simulated pair happens to sit almost exactly on the
-Faber-Jackson relation. That is why the tied fit succeeds. Real galaxies are not always so obliging.
+Use the printed values to assess the agreement for this dataset and our chosen luminosity aperture. The
+simulated masses were specified independently, so agreement with the scaling relation is something to check,
+rather than a built-in guarantee.
 
 __Limitations__
 
-A scaling relation is an assumption, and it is worth being clear-eyed about what we assumed:
+A scaling relation reduces parameter freedom by introducing assumptions about the galaxy population.
 
-**Scatter.** Faber-Jackson is a statistical relation with real intrinsic scatter — at fixed luminosity,
-galaxies show a spread in velocity dispersion, and therefore in Einstein radius. A tied model has no freedom to
-absorb this scatter: it asserts every member sits exactly on the relation. For a population of faint members
-whose individual lensing effects are small, the errors average down and this is fine. For any single galaxy
-that matters a lot to the fit, it is a risk.
+**Intrinsic scatter.** Real galaxies do not lie exactly on a single luminosity-mass relation. Our deterministic
+model allows no independent deviation for a tied member. Even when individual members have small effects, their
+modeling errors do not necessarily cancel: the lensing impact depends on where those galaxies lie relative to
+the images.
 
-**Deviant members.** Worse than scatter is a member that is systematically off the relation — a tidally
-stripped satellite that has lost dark matter but kept its stars, a galaxy with an unusual mass-to-light ratio,
-or a misclassified foreground/background interloper assigned a luminosity at the wrong distance. Because the
-tied model *cannot* adjust that one galaxy, the non-linear search compensates the only way it can: by biasing
-the parameters it does control — the anchor's mass, the source — dragging the whole lens model away from the
-truth. One bad member can poison an otherwise excellent fit, and nothing in the residuals will neatly point at
-the culprit.
+**Measurements and membership.** Luminosities and centres have measurement uncertainties, especially in blended
+images. Incorrectly assigning a foreground or background galaxy to the lens population can also give it an
+inappropriate luminosity and lensing geometry.
 
-**The anchor itself.** Anchoring on the brightest galaxy assumes the anchor sits on the relation too. If it is
-the anomalous one, every tied galaxy inherits its anomaly.
+**The adopted profiles.** We assume spherical mass profiles for tied members. Deviations in shape, radial
+structure or tidal truncation can matter independently of whether the luminosity-normalization relation is
+accurate.
 
-The defence against all three is **selective freedom**. The tiers can be mixed within one model: keep the long
-tail of faint members tied, but promote any galaxy that is bright, close to the lensed images, or visibly
-suspicious to its own free mass profile — exactly as the extra galaxies were treated earlier in this chapter. A
-middle option bounds a member's free Einstein radius using its luminosity (free, but only within a factor of the
-relation's prediction). And the relation itself can be loosened: freeing `scaling_exponent` as a fit parameter
-costs a single dimension *for the entire population* and is a useful systematics test. The `autolens_workspace`'s
-`imaging/features/scaling_relation` example shows all of these tiers working together.
+**The anchor.** The anchor's fitted Einstein radius normalizes the entire population. If the anchor is not
+representative of that population, the imposed relation can give inappropriate masses to other members.
+
+These restrictions can lead to biased inferences or uncertainties that are too small. Residuals are useful
+diagnostics, but a good image fit does not guarantee that the assumed mass decomposition is correct.
+
+A practical response is **selective freedom**: retain the scaling relation for a population of less influential
+members while giving important galaxies independent mass parameters. Galaxies close to the lensed images may
+warrant this even when they are faint.
+
+Other approaches include fitting shared normalization or slope parameters, or explicitly modeling scatter.
+Each changes the assumptions and parameter count, and should be assessed against the scientific goal and
+available constraints.
 
 __Lens Environments__
 
-Everything above was framed around lenses with multiple deflectors, but the same machinery solves a problem we
-met at the start of this chapter: the **environment** of an ordinary single-galaxy lens.
+Scaling relations are also useful for the environment of a lens dominated by one galaxy. A population of nearby
+galaxies can collectively perturb the lensing, even when no single member is a major deflector.
 
-The first tutorial of this chapter modelled a nearby extra galaxy individually, which was fine for one.
-But a deep image of a real lens can reveal dozens of galaxies near the line of sight, each contributing a small
-perturbation to the deflection field. Modeling them individually is hopeless; ignoring them entirely can bias
-precision measurements. With a scaling relation they cost nothing: measure each galaxy's centre and luminosity
-from the image, tie the lot to the main lens galaxy (which is the natural anchor — it is usually the brightest
-galaxy in the field), and the model gains dozens of physically motivated perturbers with zero added parameters.
+For galaxies belonging to the same physical population at approximately the same redshift, measured positions
+and consistent luminosities can support a shared relation. The main lens can serve as an anchor if that
+assumption is appropriate; it need not always be the best reference.
+
+Galaxies projected nearby on the sky are not necessarily members of that population. Foreground and background
+galaxies require appropriate redshifts, luminosity estimates and lensing-distance factors. We should not tie them
+to the main lens using observed flux ratios alone.
+
+As throughout this chapter, their light and mass require separate consideration. A mass-only member adds no light
+parameters, but its emission must still be negligible, excluded appropriately or modeled.
 
 __Wrap Up__
 
-In this tutorial we learned:
+In this tutorial, we learned:
 
-1. Luminosity predicts lensing mass, via mass-follows-light arguments and the Faber-Jackson relation
-   (`L ~ \sigma^4`, `\theta_E ~ \sigma^2`, hence `\theta_E ~ L^{0.5}`).
+1. A luminosity-based scaling relation links galaxy mass normalizations through shared assumptions, rather than
+   measuring each mass independently.
+2. With fixed centres, spherical mass profiles, a fixed exponent and an existing anchor parameter, additional
+   tied galaxies add zero non-linear mass parameters.
+3. Light-model freedom must be counted separately. Fixed-centre elliptical MGEs add two parameters per galaxy;
+   fixed-centre spherical MGEs with fixed widths add none.
+4. Reduced dimensionality does not remove computational cost or uncertainty associated with the relation's
+   assumptions.
+5. Important galaxies can retain independent mass freedom while less influential members follow a shared relation.
 
-2. A scaling relation replaces per-galaxy mass freedom with a shared relation anchored on a parameter the model
-   already fits, so tied galaxies add **zero** free parameters — verified by explicit parameter counting.
+In the next tutorial, we move to **group-scale lensing**, adding a shared dark matter halo alongside the
+member galaxies.
 
-3. Combined with MGE light profiles, a many-galaxy lens model stays low-dimensional: dimensionality is
-   independent of the number of galaxies.
-
-4. The relation is an assumption: scatter and deviant members can bias the whole model, and the remedy is
-   selective freedom — tie the faint majority, free the important few.
-
-5. The same machinery models the environments of single-lens systems, at no parameter cost.
-
-So far, we tied galaxy to galaxy. But the biggest lenses in the Universe — galaxy groups and clusters — contain
-something the galaxies themselves cannot account for: a massive dark matter halo enveloping the whole system,
-holding most of its mass. In the next tutorial we step up to group-scale lenses, where the scaling relation
-becomes essential (there are simply too many member galaxies to free) and a dark matter halo joins the model as
-a new component. There, we will also meet a different way to normalise the relation — a shared free
-normalization at a fixed reference luminosity, rather than an anchor galaxy — and truncated mass profiles, which
-describe members whose outer dark matter has been tidally stripped by the very halo we are adding.
+We will also introduce a relation normalized at a fixed reference luminosity, rather than anchored to one galaxy,
+and truncated mass profiles for describing member galaxies whose outer mass distributions may have been altered
+by tidal stripping.
 """
