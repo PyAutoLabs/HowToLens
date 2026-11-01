@@ -370,18 +370,26 @@ in bright arcs than in the faint background?
 """
 
 r"""
-Are these residuals indicative of a good fit to the data? Without considering the noise in the data, it's difficult 
-to ascertain. That is, its hard to ascenrtain if a residual value is large or small because this depends on the
-amount of noise in that pixel.
+The size of a residual only becomes informative when compared with the
+uncertainty in that pixel. A difference of 0.1 electrons per second could
+be small in a noisy pixel but substantial in a precisely measured one.
 
-The `normalized_residual_map` divides the residual-map by the noise-map, giving the residual in units of the noise.
-Its expression is:
+The `normalized_residual_map` divides each residual by its noise standard
+deviation:
 
-\[ \text{normalized\_residual} = \frac{\text{residual\_map}}{\text{noise\_map}} = \frac{\text{data} - \text{model\_data}}{\text{noise\_map}} \]
+\[
+r_i = \frac{d_i - m_i}{\sigma_i}
+\]
 
-If you're familiar with the concept of standard deviations (sigma) in statistics, the normalized residual map represents 
-how many standard deviations the residual is from zero. For instance, a normalized residual of 2.0 (corresponding 
-to a 95% confidence interval) means that the probability of the model underestimating the data by that amount is only 5%.
+Here, \(d_i\) is the observed value, \(m_i\) is the model prediction and
+\(\sigma_i\) is the noise-map value for pixel \(i\).
+
+A normalised residual of +2 means that the observation is two noise standard
+deviations above the prediction. A value of -2 means that it is two standard
+deviations below.
+
+For a suitable model and well-estimated noise, we expect fluctuations around
+zero, typically of order one. We do not expect every pixel to be close to zero.
 """
 normalized_residual_map = residual_map / dataset.noise_map
 
@@ -391,23 +399,30 @@ print(normalized_residual_map.slim[0])
 print("First normalized residual-map pixel via fit:")
 print(fit.normalized_residual_map.slim[0])
 
-aplt.plot_array(array=fit.normalized_residual_map, title="Normalized Residual Map")
+aplt.plot_array(
+    array=fit.normalized_residual_map,
+    title="Normalized Residual Map",
+)
 
 r"""
-Next, we define the `chi_squared_map`, which is obtained by squaring the `normalized_residual_map` and serves as a 
-measure of goodness of fit.
+Squaring the normalised residuals gives the `chi_squared_map`:
 
-The chi-squared map is calculated as:
+\[
+\chi_i^2 = \left(\frac{d_i - m_i}{\sigma_i}\right)^2
+\]
 
-\[ \chi^2 = \left(\frac{\text{data} - \text{model\_data}}{\text{noise\_map}}\right)^2 \]
+Each value measures one pixel's contribution to the overall disagreement.
+The values are non-negative: residuals of +2 and -2 both contribute 4.
 
-Squaring the normalized residual map ensures all values are positive. For instance, both a normalized residual of -0.2 
-and 0.2 would square to 0.04, indicating the same quality of fit in terms of `chi_squared`.
+Look for pixels with large contributions and whether they form a coherent
+pattern. A few large values can occur through noise, especially when an image
+contains many pixels.
 
-As seen from the normalized residual map, it's evident that the model provides a good fit to the data, in this
-case because the chi-squared values are close to zero.
+For our reference model, the contributions should average approximately one,
+rather than all being close to zero.
 """
-chi_squared_map = (normalized_residual_map) ** 2
+chi_squared_map = normalized_residual_map**2
+
 print("First chi-squared pixel:")
 print(chi_squared_map.slim[0])
 
@@ -417,71 +432,106 @@ print(fit.chi_squared_map.slim[0])
 aplt.plot_array(array=fit.chi_squared_map, title="Chi Squared Map")
 
 r"""
-Now, we consolidate all the information in our `chi_squared_map` into a single measure of goodness-of-fit 
-called `chi_squared`. 
+We sum the contributions from all \(N\) unmasked pixels to obtain one number,
+the total `chi_squared`:
 
-It is defined as the sum of all values in the `chi_squared_map` and is computed as:
+\[
+\chi^2 = \sum_{i=1}^{N}
+\left(\frac{d_i - m_i}{\sigma_i}\right)^2
+\]
 
-\[ \chi^2 = \sum \left(\frac{\text{data} - \text{model\_data}}{\text{noise\_map}}\right)^2 \]
+Squaring before summing prevents positive and negative residuals from
+cancelling. Large differences relative to the noise contribute strongly.
 
-This summing process highlights why ensuring all values in the chi-squared map are positive is crucial. If we 
-didn't square the values (making them positive), positive and negative residuals would cancel each other out, 
-leading to an inaccurate assessment of the model's fit to the data.
-
-The lower the `chi_squared`, the fewer residuals exist between the model's fit and the data, indicating a better 
-overall fit!
+When comparing parameter choices using the same data, mask and noise map,
+a lower chi-squared means smaller overall noise-weighted differences.
 """
-chi_squared = np.sum(chi_squared_map)
+chi_squared = np.sum(chi_squared_map.slim)
+
 print("Chi-squared = ", chi_squared)
 print("Chi-squared via fit = ", fit.chi_squared)
 
-"""
-The reduced chi-squared is the `chi_squared` value divided by the number of data points (e.g., the number of pixels
-in the mask). 
-
-This quantity offers an intuitive measure of the goodness-of-fit, as it normalizes the `chi_squared` value by the
-number of data points. That is, a reduced chi-squared of 1.0 indicates that the model provides a good fit to the data,
-because every data point is fitted with a chi-squared value of 1.0.
-
-A reduced chi-squared value significantly greater than 1.0 indicates that the model is not a good fit to the data,
-whereas a value significantly less than 1.0 suggests that the model is overfitting the data.
-"""
-reduced_chi_squared = chi_squared / dataset.mask.pixels_in_mask
-print("Reduced Chi-squared = ", reduced_chi_squared)
-
 r"""
-Another quantity that contributes to our final assessment of the goodness-of-fit is the `noise_normalization`.
-
-The `noise_normalization` is computed by summing, over every pixel, the logarithm of 2 pi times the squared noise value:
+Dividing the total chi-squared by the number of unmasked pixels gives the
+average contribution per pixel:
 
 \[
-\text{{noise\_normalization}} = \sum \log(2 \pi \text{{noise\_map}}^2)
+\frac{\chi^2}{N}
 \]
 
-This quantity is fixed because the noise-map remains constant throughout the fitting process. Despite this, 
-including the `noise_normalization` is considered good practice due to its statistical significance.
+For the parameters that generated our simulation, we expect this to be
+approximately one if the noise estimates describe the fluctuations well.
+Individual pixels can contribute much more or much less than one.
 
-Understanding the exact meaning of `noise_normalization` isn't critical for our primary goal of successfully 
-fitting a model to a dataset. Essentially, it provides a measure of how well the noise properties of our data align 
-with a Gaussian distribution.
+A substantially larger value can indicate a mismatch between the model and
+data, underestimated noise, or both. A substantially smaller value can
+indicate overestimated noise; it does not automatically establish overfitting.
+
+You may also encounter the term "reduced chi-squared". This divides chi-squared
+by the number of degrees of freedom, often \(N-p\) when \(p\) independent
+parameters have been estimated from the data. Here, we are simply inspecting
+the average per pixel for a specified model.
 """
-noise_normalization = np.sum(np.log(2 * np.pi * dataset.noise_map**2))
+chi_squared_per_pixel = chi_squared / dataset.mask.pixels_in_mask
+
+print("Chi-squared per pixel = ", chi_squared_per_pixel)
+
+r"""
+To turn this comparison into a likelihood, we need a statistical description
+of the noise.
+
+We will treat each pixel's measurement as an independent Gaussian random
+variable, centred on the model prediction \(m_i\), with standard deviation
+\(\sigma_i\). This is an approximation to the Poisson counts used in our
+simulation, appropriate when the expected counts are sufficiently large.
+
+The probability density for a pixel value is then:
+
+\[
+p(d_i \mid m_i, \sigma_i)
+=
+\frac{1}{\sqrt{2\pi\sigma_i^2}}
+\exp\left[-\frac{1}{2}
+\left(\frac{d_i-m_i}{\sigma_i}\right)^2\right]
+\]
+
+The exponential penalises predictions far from the observed value. The factor
+in front normalises the Gaussian so that its density integrates to one.
+
+For independent pixels, we multiply these densities. Taking the natural
+logarithm turns that product into a sum:
+
+\[
+\log \mathcal{L}
+=
+-\frac{1}{2}
+\left[
+\chi^2 + \sum_{i=1}^{N}\log(2\pi\sigma_i^2)
+\right]
+\]
+
+The second term is called `noise_normalization` in PyAutoLens. It is part of
+the probability density, not a test of whether the noise is Gaussian.
+
+For our fixed dataset, mask and noise map, this term stays constant as we
+change the lens and source parameters.
+"""
+noise_normalization = np.sum(
+    np.log(2 * np.pi * dataset.noise_map.slim**2)
+)
+
 print("Noise Normalization = ", noise_normalization)
 print("Noise Normalization via fit = ", fit.noise_normalization)
 
-r"""
-From the `chi_squared` and `noise_normalization`, we can define a final goodness-of-fit measure known as 
-the `log_likelihood`. 
+"""
+We can now calculate the log likelihood and compare it with the value
+returned by `FitImaging`.
 
-This measure is calculated by taking the sum of the `chi_squared` and `noise_normalization`, and then multiplying the 
-result by -0.5:
-
-\[ \text{log\_likelihood} = -0.5 \times \left( \chi^2 + \text{noise\_normalization} \right) \]
-
-Don't worry about why we multiply by -0.5; it's a standard practice in statistics to ensure the log likelihood is
-defined correctly.
+The factor of -0.5 follows from the Gaussian expression above. With the
+noise normalisation fixed, reducing chi-squared increases the log likelihood.
 """
 log_likelihood = -0.5 * (chi_squared + noise_normalization)
+
 print("Log Likelihood = ", log_likelihood)
 print("Log Likelihood via fit = ", fit.log_likelihood)
 
