@@ -622,7 +622,7 @@
     "cross_refs": [],
     "notebook": "notebooks/chapter_4_scaling_up_lensing/tutorial_4_group_scale.ipynb",
     "path": "scripts/chapter_4_scaling_up_lensing/tutorial_4_group_scale.py",
-    "summary": "In the previous tutorials we took our first steps beyond the single lens galaxy: we included extra galaxies near the lens in the model, we modeled systems where two or more galaxies of comparable mass share the lensing, and we introduced scaling relations, which tie the mass of a galaxy to its light so that adding more galaxies to a model does not mean adding more free parameters.",
+    "summary": "The previous tutorials introduced nearby galaxies, multiple significant deflectors and scaling relations. We now combine these ideas to model a **group-scale lens**.",
     "title": "Tutorial 4: Group Scale"
   },
   {
