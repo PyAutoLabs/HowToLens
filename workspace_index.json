@@ -556,7 +556,7 @@
     "cross_refs": [],
     "notebook": "notebooks/chapter_4_scaling_up_lensing/tutorial_1_extra_galaxies.ipynb",
     "path": "scripts/chapter_4_scaling_up_lensing/tutorial_1_extra_galaxies.py",
-    "summary": "Welcome to chapter 4 of **HowToLens**, where we scale up lens modeling beyond a single lens galaxy.",
+    "summary": "Welcome to chapter 4 of **HowToLens**, where we scale up lens modeling beyond a single dominant lens galaxy.",
     "title": "Tutorial 1: Extra Galaxies"
   },
   {
