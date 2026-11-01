@@ -132,108 +132,118 @@ print(mask)
 print(mask[48:53, 48:53])
 
 """
-We can visualize the mask over the strong lens image using an `aplt.subplot_imaging_dataset`, which helps us adjust the mask as needed. 
-This is useful to ensure that the mask appropriately covers the lens and source light and does not exclude important 
-regions.
+Before applying the mask, let's display its boundary over the full image.
+The boundary marks the edge of the region we will include in the comparison.
 
-To overlay objects like a mask onto a figure, we use the `lines=`/`positions=` overlays object. This tool allows us to add custom 
-visuals to any plot, providing flexibility in creating tailored visual representations.
+Check that the lensed arcs lie inside it and that some surrounding sky is
+included. At this stage, we are only displaying the boundary; the dataset
+has not yet been masked.
 """
-
-aplt.plot_array(array=dataset.data, title="Imaging Data With Mask")
+aplt.plot_array(
+    array=dataset.data,
+    mask=mask.derive_grid.edge,
+    title="Imaging Data With Mask Boundary",
+)
 
 """
-Once we are satisfied with the mask, we apply it to the imaging data using the `apply_mask()` method. This ensures 
-that only the unmasked regions are considered during the analysis.
+We now apply the mask to the dataset. Pixels outside the circular region
+will be excluded when we compare the model with the data.
 """
 dataset = dataset.apply_mask(mask=mask)
 
 """
-When we plot the masked imaging data again, the mask is now automatically included in the plot, even though we did 
-not explicitly pass it using the `lines=`/`positions=` overlays object. The plot also zooms into the unmasked area, showing only the 
-region where we will focus our analysis. This is particularly helpful when working with large images, as it centers 
-the view on the regions where the strong lens's signal is detected.
+The plotted image now shows the selected region, with the view zoomed to
+the unmasked area. The plotting function obtains the mask boundary from
+the array itself.
 """
 aplt.plot_array(array=dataset.data, title="Masked Imaging Data")
 
 """
-The mask is now stored as an additional attribute of the `Imaging` object, meaning it remains attached to the 
-dataset. This makes it readily available when we pass the dataset to a `FitImaging` object for the fitting process.
+The mask is stored with the dataset, so later calculations can identify
+which pixels to include.
 """
 print("Mask2D:")
 print(dataset.mask)
 
 """
-In earlier tutorials, we discussed how grids and arrays have `native` and `slim` representations:
+The masked data retain the `native` and `slim` representations introduced
+earlier:
 
-- `native`: Represents the original 2D shape of the data, maintaining the full pixel array of the image.
-- `slim`: Represents a 1D array containing only the values from unmasked pixels, allowing for more efficient 
-  processing when working with large images.
+- `native` arranges the values in the original 2D image shape. Masked pixels
+  are filled with zeros.
+- `slim` contains only the unmasked pixel values in a 1D array.
 
-After applying the mask, the `native` and `slim` representations change as follows:
+Those zeros in the native representation are placeholders. They do not mean
+that zero light was measured outside the mask, and they do not contribute
+to the comparison with the model.
 
-- `native`: The 2D array keeps its original shape, [total_y_pixels, total_x_pixels], but masked pixels (those where 
-  the mask is True) are set to 0.0.
-- `slim`: This now only contains the unmasked pixel values, reducing the array size 
-  from [total_y_pixels * total_x_pixels] to just the number of unmasked pixels.
+Our original image has 101 x 101 pixels. The slim array is shorter because
+we have selected only the circular region.
+"""
+print("Native image shape:")
+print(dataset.data.native.shape)
 
-Let's verify this by checking the shape of the data in its `slim` representation.
+print("Slim image shape:")
+print(dataset.data.slim.shape)
+
+"""
+Despite its name, `pixels_in_mask` counts the unmasked pixels: those included
+in the analysis. This number should match the length of the slim array.
 """
 print("Number of unmasked pixels:")
-print(dataset.data.native.shape)
-print(
-    dataset.data.slim.shape
-)  # This should be lower than the total number of pixels, e.g., 100 x 100 = 10,000
+print(dataset.mask.pixels_in_mask)
 
 """
-The `mask` object also has a `pixels_in_mask` attribute, which gives the number of unmasked pixels. This should 
-match the size of the `slim` data structure.
-"""
-print(dataset.data.mask.pixels_in_mask)
-
-"""
-We can use the `slim` attribute to print the first unmasked values from the image and noise map:
+The image and noise map share the same mask and pixel ordering. Their first
+slim entries therefore describe the measurement and uncertainty at the same
+sky position.
 """
 print("First unmasked image value:")
 print(dataset.data.slim[0])
+
 print("First unmasked noise map value:")
 print(dataset.noise_map.slim[0])
 
 """
-Additionally, we can verify that the `native` data structure has zeros at the edges where the mask is applied and 
-retains non-zero values in the central unmasked regions.
+In the native representation, the corner pixel is masked and therefore
+contains a zero placeholder. The central pixel is unmasked and retains its
+measured value.
 """
-print("Example masked pixel in the image's native representation at its edge:")
+print("Masked corner pixel in the native image:")
 print(dataset.data.native[0, 0])
-print("Example unmasked pixel in the image's native representation at its center:")
+
 centre = tuple(s // 2 for s in dataset.data.shape_native)
+
+print("Unmasked central pixel in the native image:")
 print(dataset.data.native[centre])
 
 """
 __Masked Grid__
 
-In tutorials 1 and 2, we emphasized that the `Grid2D` object is crucial for evaluating a lens's light profile. This grid 
-contains (y, x) coordinates for each pixel in the image and is used to ray-trace to the source plane and map out the 
-positions where the source galaxy's light is calculated.
+To predict the image, we need the sky coordinates corresponding to the
+selected pixels. We obtain these from the mask as a grid of `(y, x)`
+coordinates.
 
-From a `Mask2D`, we derive a `masked_grid`, which consists only of the coordinates of unmasked pixels. This ensures 
-that light profile calculations focus exclusively on regions where the strong lens's light is detected, saving 
-computational time and improving efficiency.
-
-Below, we plot the masked grid:
+Each coordinate marks the centre of an unmasked pixel. Plotting the grid
+shows the circular region that we selected.
 """
 masked_grid = mask.derive_grid.unmasked
 
 aplt.plot_grid(grid=masked_grid, title="Masked Grid2D")
 
 """
-By plotting this masked grid over the lens image, we can see that the grid aligns with the unmasked pixels of the 
-image.
+We can overlay these coordinates on the image to see where the selected
+pixels lie. Each dot corresponds to one pixel whose measured brightness
+will be compared with the model prediction.
 
-This alignment **is crucial** for accurate fitting because it ensures that when we evaluate a strong lens's light 
-profile, the calculations occur only at positions where we have real data from.
+The grid, image and noise map use matching pixel ordering, so their slim
+entries refer to the same positions.
 """
-aplt.plot_array(array=dataset.data, title="Image Data With 2D Grid Overlaid")
+aplt.plot_array(
+    array=dataset.data,
+    grid=masked_grid,
+    title="Image Data With 2D Grid Overlaid",
+)
 
 """
 __Fitting__
