@@ -341,10 +341,17 @@ source_redshifts = [dataset.redshift for dataset in dataset_list]
 galaxy_models = al.galaxy_af_models_from_csv_tables(mass_table, point_table)
 
 """
-The main lens galaxies get free dPIE `sigma` / `r_cut`; their centres and redshifts stay fixed at the CSV
-values, and `r_core` stays fixed at the CSV's 0.0 (the vanishing-core convention discussed in the previous
-tutorial). The cosmology constants `H0` / `Om0` are pinned explicitly: they are model *constants*, not
-parameters to sample — left unset they would inherit priors from the configuration files and float.
+We give each main lens galaxy two free dPIE parameters: `sigma`, which controls its mass normalization, and
+`r_cut`, which controls its outer truncation scale.
+
+Their centres, redshifts and zero core radii retain the values supplied by the catalogue. As in the group
+tutorial, `sigma` uses the Lenstool profile convention and is not automatically identical to a measured stellar
+velocity dispersion.
+
+We explicitly fix `H0` and `Om0`, because this example assumes a cosmology rather than attempting to infer it.
+
+The prior ranges below are choices for this simulated example. For real data, they should reflect the system
+being studied, and results near their boundaries warrant further inspection.
 """
 for name in ("lens_0", "lens_1"):
     galaxy_models[name].mass.sigma = af.UniformPrior(
@@ -355,27 +362,55 @@ for name in ("lens_0", "lens_1"):
     galaxy_models[name].mass.Om0 = 0.30966
 
 """
-The host halo gets a free `mass_at_200`, spanning the full range of cluster masses with a log-uniform prior
-(mass scales spanning orders of magnitude are sampled in log space, as we saw for intensities in earlier
-chapters).
+The shared dark matter halo receives a free `mass_at_200` parameter, expressed in solar masses.
+
+This is the mass parameter of the NFW host component, not the sum of every mass component in our cluster model.
+The main galaxies and scaling-relation members contribute additional mass.
+
+The `NFWMCRLudlowSph` profile uses a prescribed mass-concentration relation, so changing the halo mass also changes
+its associated profile structure. We do not fit concentration independently here.
+
+We use a log-uniform prior from $10^{14.5}$ to $10^{16}$ solar masses, assigning equal prior weight to equal
+logarithmic intervals. This is a broad example range, rather than a universal prior for cluster lenses.
 """
 galaxy_models["host_halo"].dark.mass_at_200 = af.LogUniformPrior(
     lower_limit=10**14.5, upper_limit=10**16.0
 )
 
 """
-Each source's `point_i` component is swapped for the parameter-free `al.ps.PointSolved`. The name pairing
-(`point_0`, `point_1`) is what links each model component to the `PointDataset` with the same name — in a
-multi-source cluster this pairing is what guarantees every source's positions are fitted by the correct
-component.
+We replace each source's point component with `PointSolved`.
+
+With the source-plane likelihood used below, the source position is solved from the back-traced image positions
+for each proposed mass model, rather than sampled as two independent coordinates.
+
+This does not mean the source position is known exactly or remains fixed. It changes as the mass model changes,
+and its interpretation depends on the positional uncertainties and likelihood assumptions.
+
+Each component name, such as `point_0`, must match the name of its `PointDataset`. We also retain the source
+redshift associated with that dataset so that its images are traced to the correct plane.
 """
 for i, dataset in enumerate(dataset_list):
     setattr(galaxy_models[f"source_{i}"], f"point_{i}", af.Model(al.ps.PointSolved))
 
-"""
-The scaling tier is composed in a loop over the catalogue, exactly as in the previous tutorial: the single
-shared prior `scaling_sigma_ref` is defined once outside the loop, and each member's `sigma` / `r_cut` derive
-from it via that member's luminosity ratio. The truth value used by the simulator is sigma_ref = 85 km/s.
+r"""
+We build the member population by looping over its measured positions and luminosities, using the same approach
+as in the previous tutorials.
+
+The shared `scaling_sigma_ref` prior is defined once, outside the loop. Each member's `sigma` is an expression
+involving that prior and its fixed luminosity ratio.
+
+Each `r_cut`, however, is calculated entirely from fixed quantities: the reference truncation scale, luminosity
+ratio and exponent. It therefore receives a fixed value, rather than depending on `scaling_sigma_ref`.
+
+We adopt $\sigma\propto L^{0.25}$ and $r_{\rm cut}\propto L^{0.7}$, with fixed centres and zero core radii.
+These assumptions leave one free mass parameter for the entire member population.
+
+The simulator used `sigma_ref = 85 km/s`. We will later inspect whether the fit constrains this normalization.
+
+The dPIE `redshift_source` input specifies the reference source redshift used to normalize the profile's lensing
+quantities. Here, we use the highest source redshift consistently for the scaling members. The tracer then
+evaluates the lens mapping to each source's own plane; this does not place every source at that reference
+redshift.
 """
 scaling_sigma_ref = af.UniformPrior(lower_limit=0.0, upper_limit=200.0)
 scaling_sigma_exponent = 0.25  # alpha (Faber-Jackson)
@@ -407,8 +442,17 @@ for centre, luminosity in zip(
 scaling_galaxies = af.Collection(scaling_galaxies_list)
 
 """
-The named galaxies and the scaling tier combine into the overall model. Printing `model.info` confirms the
-parameter count: for all its 15 galaxies, the search explores just 6 dimensions.
+We combine the individually named components and scaling-relation members into the overall model.
+
+The `galaxies` collection contains the two main lens galaxies, the mass-only host-halo component and the two
+sources. The `scaling_galaxies` collection contains the ten additional members.
+
+This gives **15 `Galaxy` objects**, representing twelve lens galaxies, one shared dark matter halo and two
+background sources.
+
+Inspect `model.info` to check the fixed values, independent priors and linked expressions. Under the assumptions
+above, the model has **six free non-linear parameters**: four for the main galaxies, one for the host halo and
+one shared by the scaling members.
 """
 model = af.Collection(
     galaxies=af.Collection(**galaxy_models),
