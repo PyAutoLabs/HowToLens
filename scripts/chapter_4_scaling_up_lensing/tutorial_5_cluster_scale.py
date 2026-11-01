@@ -2,43 +2,35 @@ r"""
 Tutorial 5: Cluster Scale
 =========================
 
-Throughout this chapter we have been climbing a ladder of scale: from a single lens galaxy with an extra
-galaxy nearby, to multi-galaxy lenses, to galaxy groups whose members share a common dark matter halo.
+We now extend the tools developed for galaxies and groups to **galaxy clusters**.
 
-This tutorial climbs the final rung: **galaxy clusters**, the most massive gravitationally-bound structures in
-the Universe. A cluster-scale strong lens contains:
+Galaxy clusters typically inhabit dark matter halos with masses of roughly $10^{14}$-$10^{15}$ solar masses,
+with the most massive systems exceeding $10^{15}$ solar masses. Within this shared halo, a cluster can contain
+**hundreds of individual lens galaxies**, including a brightest cluster galaxy, other prominent galaxies and a
+large population of lower-mass members.
 
-- **30+ to hundreds of lens galaxies**: a brightest cluster galaxy (BCG) and bright satellites, plus a large
-  population of lower-mass member galaxies, all embedded in...
+Their combined mass can produce multiple images of many background sources at different redshifts.
 
-- **A cluster-scale dark matter halo of more than 10^14 solar masses** (the most massive exceed 10^15 solar
-  masses) — hundreds of times more massive than the halo of a single lens galaxy.
+These systems offer two important scientific opportunities:
 
-- **Many multiply-imaged background sources** — often tens of them — and, crucially, these sources typically
-  all sit at **different redshifts**. Light from each source therefore traverses a different path through the
-  Universe, and modeling them together requires **multi-plane ray tracing**, which we explain below.
+- **Studying magnified background galaxies:** lensing can make faint sources brighter and stretch their images,
+  revealing details that would otherwise be difficult to observe.
+- **Mapping the cluster's mass distribution:** multiple-image systems at different positions and redshifts
+  constrain the combined contributions of the cluster halo and its galaxies.
 
-The science a cluster lens delivers is different from the galaxy-scale lensing of earlier chapters:
+High magnification occurs near critical curves in both galaxy- and cluster-scale lenses. Clusters provide
+extended regions in which many background sources can be lensed, but the magnification of an individual source
+depends on its position, size and the lens model.
 
-- **Extreme magnification**: near a cluster's critical curves, magnifications of tens to hundreds are common
-  (compared to the factors of a few of galaxy-scale lensing). Clusters act as natural telescopes, letting us
-  study intrinsically faint galaxies in the early Universe that would otherwise be invisible — many of the
-  most distant galaxies known were discovered behind lensing clusters.
+In this tutorial, we fit **multiple-image positions** rather than the full surface-brightness distribution of
+every arc. This provides a compact set of constraints for exploring the cluster mass model.
 
-- **Mapping the cluster's mass**: every multiply-imaged source constrains the cluster's total mass
-  distribution along a different line of sight. With many sources, the mass model pins down the shape of the
-  cluster's dark matter halo and the substructure within it — the granularity of dark matter on sub-cluster
-  scales — providing some of the sharpest tests of the cold dark matter model.
-
-The modeling toolkit also changes at this scale. Fitting the extended arcs of every source, with a light
-profile or pixelization each, is computationally prohibitive when there are tens of sources and hundreds of
-member galaxies. The standard approach instead fits only the **positions** of each source's multiple images —
-point-source modeling — and drives the mass model from spreadsheet-editable **CSV catalogues**, because
-writing Python model code for hundreds of galaxies by hand is not sensible either.
+We also introduce CSV catalogues for the image positions, individually modeled components and member population.
+These make larger systems easier to organize while retaining the model-composition tools used earlier.
 
 __Contents__
 
-- **Multi-Plane Ray Tracing:** What it means for sources at different redshifts to be lensed together.
+- **Multi-Plane Ray Tracing:** Distinguish multiple source planes from multiple deflecting planes.
 - **Dataset:** Load the simulated cluster's CCD imaging and inspect the true multi-plane tracer.
 - **Point Source Modeling:** Why cluster modeling fits multiple-image positions rather than extended arcs.
 - **Point Datasets:** The per-source multiple-image positions, loaded from a single hand-editable CSV.
@@ -55,34 +47,26 @@ __Contents__
 
 __Multi-Plane Ray Tracing__
 
-Every lens system in the tutorials so far had two planes: an image plane (the lens galaxies, all at one
-redshift) and a source plane (the lensed galaxy). The lens equation was applied once, mapping image-plane
-coordinates to source-plane coordinates via the deflection angles:
+Our simulated cluster places all deflecting mass at redshift $z=0.5$, with background sources at $z=1.0$ and
+$z=2.0$.
 
-$\beta = \theta - \alpha(\theta)$
+This gives us **one deflecting plane and two source planes**. Each source is mapped through the same cluster
+mass distribution, but with the lensing-distance factors appropriate to its redshift.
 
-A cluster breaks this picture, because its sources sit at different redshifts. Consider our simulated cluster,
-which has lens galaxies at $z = 0.5$ and two sources, at $z = 1.0$ and $z = 2.0$:
+Different source redshifts therefore require different geometric scaling; they do not automatically imply that
+light is deflected by mass on several planes.
 
-- Light from the $z = 1.0$ source is deflected by the $z = 0.5$ cluster and travels to us: the familiar
-  two-plane system.
+Genuine multi-plane deflection arises when significant mass occupies more than one redshift plane. For example,
+a galaxy at $z=1.0$ could both be lensed by the cluster and deflect light from a more distant source at $z=2.0$.
 
-- Light from the $z = 2.0$ source first passes the $z = 1.0$ plane, then the $z = 0.5$ cluster plane. If any
-  galaxy at $z = 1.0$ had mass, it would deflect this light too — the deflections of successive planes
-  accumulate, each applied at the position the ray has reached by that plane.
+In that case, the ray's position at a later plane depends on the deflections accumulated at earlier planes.
+The multi-plane lens equation accounts for this sequentially.
 
-This is **multi-plane ray tracing**: the lens equation is applied recursively, plane by plane in redshift
-order. There is a second, subtler effect: the strength of a deflection depends on the distances between the
-observer, the deflector and the source. The same cluster bends light from a $z = 2.0$ source through a larger
-effective angle than light from a $z = 1.0$ source, because the geometry of the light paths differs. The
-recursive lens equation accounts for this by scaling each plane's deflections by ratios of cosmological
-(angular diameter) distances.
+The `Tracer` supports both situations. It organizes galaxies by redshift and computes the appropriate mappings
+to each source plane. Our example uses that machinery with mass on the cluster plane only.
 
-The maths is more bookkeeping than new physics, and the good news is that the `Tracer` handles all of it
-automatically: give it galaxies at three or more redshifts and it groups them into planes, orders them, scales
-their deflections and applies the recursion. Every source's redshift must simply be *correct* — hardcoding the
-wrong redshift silently produces the wrong multi-plane geometry, which is why the dataset CSVs below carry a
-redshift for every source.
+Source redshifts are therefore essential inputs. Here they are known from the simulation; observational
+redshift uncertainties must be considered when interpreting a real cluster model.
 """
 
 import importlib.util
@@ -110,11 +94,21 @@ import autolens.plot as aplt
 """
 __Dataset__
 
-We use a simulated cluster whose scale is kept deliberately small so it runs quickly, but which contains every
-ingredient of the cluster regime: 2 main lens galaxies (a BCG and a satellite), 10 lower-mass member galaxies
-on a luminosity-mass scaling relation, a 10^15.3 solar-mass dark matter halo, and 2 multiply-imaged sources at
-different redshifts (z = 1.0 and z = 2.0). A real cluster simply has more of everything — and we will see that
-scaling this model up to hundreds of members does not add a single free parameter.
+We use a simplified simulated cluster containing:
+
+- Two individually modeled lens galaxies: a brightest cluster galaxy, or BCG, and a satellite.
+- Ten additional member galaxies whose masses follow a luminosity-based scaling relation.
+- A shared dark matter halo with input `mass_at_200` of $10^{15.3}$ solar masses.
+- Two multiply imaged sources at redshifts 1.0 and 2.0.
+
+The cluster's deflecting components are all at redshift 0.5.
+
+This example demonstrates the catalogue and fitting workflow with a small member population. Adding more members
+need not add non-linear mass parameters when their positions and profile properties are fixed or tied through
+the same relation, although evaluating their deflections still adds computational work.
+
+Real clusters can require additional halos, more flexible galaxy models and further treatment of redshift or
+membership uncertainties.
 """
 dataset_name = "simple"
 dataset_path = Path("dataset") / "cluster" / dataset_name
@@ -135,21 +129,32 @@ if al.util.dataset.should_simulate(str(dataset_path)):
     )
 
 """
-We first load and plot the cluster's CCD imaging. Note the pixel scale of 0.2" and the sheer size of the
-field: 100" x 100", compared to the ~6" fields of the galaxy-scale tutorials. The Einstein radius of a
-10^15 solar-mass cluster is ~20-30", so its multiple images and arcs are spread across a region hundreds of
-times larger in area than a galaxy-scale lens.
+We first load and plot the simulated cluster image. Its pixel scale is 0.2" and its field spans 100" x 100",
+allowing us to see the cluster galaxies and widely separated lensed images.
 
-The imaging is loaded for visualization only — as we discuss next, the model is not fitted to these pixels.
+Inspect where the multiple images lie relative to the central galaxies and member population.
+
+The angular extent of strong lensing depends on the mass distribution and source redshift, not simply the
+cluster's total halo mass.
+
+We use this image for visualization. The fit below uses measured multiple-image positions rather than these
+image pixels.
 """
 data = al.Array2D.from_fits(file_path=dataset_path / "data.fits", pixel_scales=0.2)
 
 aplt.plot_array(array=data, title="Cluster CCD Imaging")
 
 """
-The simulator saved the true `Tracer` used to make this dataset, which we can load to inspect the multi-plane
-structure described above. The tracer has three planes: the lens plane at z = 0.5 (holding all 13 lens-plane
-galaxies — 2 main galaxies, 10 scaling members and the dark matter halo) and one source plane per source.
+We load the `Tracer` saved by the simulator to inspect its redshift structure.
+
+It contains three planes: the cluster plane at $z=0.5$, followed by source planes at $z=1.0$ and $z=2.0$.
+
+The cluster plane contains 13 `Galaxy` objects: two main galaxies, ten scaling-relation members and one mass-only
+object carrying the shared dark matter halo. The halo's use of a `Galaxy` container is an API convention; it does
+not represent an additional luminous galaxy.
+
+All deflecting mass in this example lies on the cluster plane. The two source planes specify where we evaluate
+the mappings for their respective background sources.
 """
 tracer_true = al.from_json(file_path=dataset_path / "tracer.json")
 
