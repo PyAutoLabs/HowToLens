@@ -27,6 +27,7 @@ __Contents__
 - **Point Source Data:** Introduce measured positions, fluxes and time delays.
 - **Interferometer Data:** Introduce measurements made by radio interferometers.
 - **Weak Lensing Data:** Introduce catalogues of background galaxy shapes.
+- **Group and Cluster Lenses:** Preview the larger lens systems studied in Chapter 4.
 - **Wrap Up:** Review what we have learned.
 
 """
@@ -508,6 +509,13 @@ point_dataset = al.PointDataset(
 print(point_dataset.info)
 
 """
+We can also display the point-source dataset as a subplot. The positions panel
+shows where the multiple images lie, while the flux panel compares their
+brightnesses. The time delays remain available in the printed summary.
+"""
+aplt.subplot_point_dataset(dataset=point_dataset)
+
+"""
 Inspect the printed dataset summary. Positions use `(y, x)` coordinates, and
 the position, flux and time-delay lists all follow the same image order.
 
@@ -527,29 +535,31 @@ see the workspace's
 """
 __Interferometer Data__
 
-CCD imaging is not the only type of data used to study strong lenses. Radio and sub-mm interferometers, like the
-Atacama Large Millimeter Array (ALMA) and the Jansky Very Large Array (JVLA), observe strong lenses at wavelengths
-where a CCD cannot.
+We can also observe strong lenses at radio and submillimetre wavelengths using
+interferometers, such as the Atacama Large Millimeter/submillimeter Array
+(ALMA) and the Jansky Very Large Array (JVLA).
 
-An interferometer does not observe an image of the lens. Each pair of antennas in the array measures a "visibility",
-a Fourier component of the sky brightness, at a point in what is called the "uv-plane" set by the separation of the
-two antennas. The dataset is therefore a set of complex visibilities in Fourier space, not a 2D image, and its
-noise properties are very different from those of CCD data — there is no PSF convolution, Poisson noise or
-background sky; instead each visibility has Gaussian noise.
+An interferometer combines signals from pairs of antennas. Each pair measures
+a quantity called a visibility, which contains information about the sky's
+brightness on a particular angular scale and orientation.
 
-One could Fourier transform the visibilities into an image (called a "dirty image") and fit that, but the transform
-correlates the noise between pixels, making the fit statistically incorrect. **PyAutoLens** therefore fits lens
-models directly in visibility space: the tracer's image is evaluated in real space on a grid (defined by a
-real-space mask), Fourier transformed to the uv-plane and compared with the observed visibilities there.
+Visibilities are complex numbers, with real and imaginary components. They
+sample the Fourier transform of the sky brightness at coordinates in the
+"uv-plane". These coordinates depend on the antennas' projected separation
+and the observing wavelength.
 
-Below, we load a simulated interferometer dataset (creating it first via the `scripts/simulator/interferometer.py`
-script if it does not exist on your hard-disk, using the same auto-simulation idiom as later tutorials) and plot
-its dirty images — the closest an interferometer dataset comes to the CCD images we simulated above.
+An interferometer dataset therefore contains visibilities, their uncertainties
+and their uv coordinates. In our simulated example, the noise in the real and
+imaginary components is described by Gaussian distributions.
 
-HowToLens will not cover interferometry any further than this. The lecture series teaches lensing using CCD
-imaging, and everything you learn transfers to visibility-space fitting. If you need to model interferometer data,
-go to the `autolens_workspace/scripts/interferometer` package, which is the dedicated resource for uv-plane lens
-modeling.
+We can transform the sampled visibilities into a picture called a "dirty
+image". Incomplete sampling produces an instrumental response called the
+"dirty beam", which can introduce structure around bright emission. The
+transformation also correlates the noise between image pixels.
+
+Below, we load a simulated dataset, creating it first if needed, and display
+its dirty-image diagnostics. The circular real-space mask defines the region
+of sky used for these images.
 """
 dataset_path = Path("dataset") / "interferometer" / "simple"
 
@@ -579,24 +589,36 @@ dataset = al.Interferometer.from_fits(
 aplt.subplot_interferometer_dirty_images(dataset=dataset)
 
 """
+Look for the lensed emission in the dirty image. Its appearance reflects both
+the sky brightness and the interferometer's sampling, so surrounding structure
+need not correspond to additional emission on the sky.
+
+The dataset retains the visibilities for analysis. For further examples of
+working with these data, see the workspace's
+[interferometer examples](https://github.com/PyAutoLabs/autolens_workspace/tree/main/scripts/interferometer).
+"""
+
+"""
 __Weak Lensing Data__
 
-There is one more type of lensing data to glimpse before we move on: weak lensing.
+Away from the prominent arcs and rings, gravitational lensing can produce
+small, coherent changes in the apparent shapes of background galaxies. This
+is the weak-lensing regime.
 
-A weak lensing dataset looks nothing like the images above. Instead of the spectacular arcs and rings of strong
-lensing, it is a *catalogue* of many background galaxies, each with a measured ellipticity — a shear — at its
-(y, x) position on the sky. Each galaxy is only weakly sheared by the foreground mass, a distortion far too small
-to see in any single galaxy, and the plot below shows this: a field of short line segments tracing the subtle,
-coherent stretching of the background galaxy population, rather than any arc-like feature.
+Galaxies already have different shapes and orientations before they are
+lensed. An individual galaxy's measured ellipticity therefore does not tell
+us the lensing distortion on its own. We use measurements from many galaxies
+to identify the shared distortion, called shear.
 
-We load a simulated weak lensing shear catalogue (again auto-simulating it, via `scripts/simulator/weak_lensing.py`,
-if it is not on your hard-disk) and plot it, just so you have seen what this data looks like.
+For analysis, these measurements can be collected into a catalogue containing
+sky positions, estimates of the two shear components and their uncertainties.
 
-That is deliberately all we will say for now — this glimpse is foreshadowing. Weak lensing gets a full treatment in
-the final tutorial of chapter 4, which describes what these shear measurements are, why they are made far from the
-lens centre and how they are fitted; until then, we defer all further description to that tutorial. For worked
-modelling examples, see the workspace
-[weak-lensing examples](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/start_here.py).
+The simulated example below evaluates the shear around a cluster-scale lens
+and adds random scatter to represent the variation in galaxies' intrinsic
+shapes. It creates a noisy shear catalogue directly, rather than measuring
+galaxy shapes from simulated telescope images.
+
+We load this catalogue, creating it first if needed, and plot its contents.
 """
 dataset_path = Path("dataset") / "weak_lensing" / "simple"
 
@@ -614,27 +636,108 @@ dataset = al.from_json(file_path=dataset_path / "dataset.json")
 aplt.subplot_weak_dataset(dataset=dataset)
 
 """
+The short line segments represent the orientations and strengths of the noisy
+shear estimates at the background galaxies' positions. Individual segments
+can differ substantially from the underlying lensing pattern because of the
+added shape noise.
+
+Chapter 4 returns to weak lensing in more detail. For further examples of
+working with these data, see the workspace's
+[weak-lensing examples](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/start_here.py).
+"""
+
+"""
+__Group and Cluster Lenses__
+
+Strong lensing also occurs around groups and clusters of galaxies. Their
+member galaxies and shared dark matter contribute to the deflection of light,
+producing lens systems that can extend over much larger angles on the sky.
+
+We will study these objects in Chapter 4. For now, let's look at the simulated
+imaging datasets used in its group-scale and cluster-scale tutorials. As above,
+each dataset is created if needed and displayed with its imaging subplot.
+
+The group example contains a central galaxy and two member galaxies, together
+with a lensed background source. Compare the angular scale of its arcs with
+our earlier galaxy-scale example.
+"""
+group_dataset_path = Path("dataset") / "group" / "simple"
+
+if al.util.dataset.should_simulate(str(group_dataset_path)):
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, "scripts/simulator/group.py"],
+        check=True,
+    )
+
+group_dataset = al.Imaging.from_fits(
+    data_path=group_dataset_path / "data.fits",
+    noise_map_path=group_dataset_path / "noise_map.fits",
+    psf_path=group_dataset_path / "psf.fits",
+    pixel_scales=0.1,
+)
+
+aplt.subplot_imaging_dataset(dataset=group_dataset, title_prefix="Group Lens")
+
+"""
+The cluster example contains more member galaxies, a cluster-scale dark matter
+halo and two background sources at different redshifts. Look for the member
+galaxies and lensed features across its wider field. Use the coordinate axes
+to compare angular sizes, since the figures are displayed at similar sizes
+on the page.
+
+Chapter 4's group-scale and cluster-scale tutorials return to these same
+simulated systems and explain how to analyse them.
+"""
+cluster_dataset_path = Path("dataset") / "cluster" / "simple"
+
+if al.util.dataset.should_simulate(str(cluster_dataset_path)):
+    import os
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, "scripts/simulator/cluster.py"],
+        check=True,
+        # The tutorial plots the dataset below; skip the simulator's extra figures.
+        env={**os.environ, "PYAUTO_FAST_PLOTS": "1"},
+    )
+
+cluster_dataset = al.Imaging.from_fits(
+    data_path=cluster_dataset_path / "data.fits",
+    noise_map_path=cluster_dataset_path / "noise_map.fits",
+    psf_path=cluster_dataset_path / "psf.fits",
+    pixel_scales=0.2,
+)
+
+aplt.subplot_imaging_dataset(dataset=cluster_dataset, title_prefix="Cluster Lens")
+
+"""
 __Wrap Up__
 
-In this tutorial, you learned how CCD imaging data of a lens is collected using real telescopes like the 
-Hubble Space Telescope, and how to simulate this data using the `SimulatorImaging` object.
+We began with a lensed image and turned it into a simulated telescope
+observation. Along the way, we introduced:
 
-Let's summarise what we've covered:
+- **PSF blurring:** The telescope spreads light over neighbouring pixels.
+- **Poisson noise:** The detected counts fluctuate around their expected values.
+- **Background sky:** Sky photons contribute both a background level and noise.
+  Subtracting the mean background leaves its noise behind.
+- **Imaging datasets:** The `SimulatorImaging` object returns the data, PSF and
+  noise map, which we saved to FITS files.
 
-- **Optics Blurring**: The optics of a telescope blur the light of the tracer, reducing the clarity and sharpness of
-the images.
+We also saw how other observations are represented for analysis:
 
-- **Poisson Noise**: The process of converting photons to electrons on a CCD introduces Poisson noise, which is random 
-variability in the number of electrons collected in each pixel.
+- **Point sources:** Image positions and their uncertainties, with optional
+  fluxes and time delays.
+- **Interferometry:** Complex visibilities, their uncertainties and uv coordinates.
+- **Weak lensing:** A catalogue of positions, shear estimates and uncertainties.
 
-- **Background Sky**: Light from the sky is captured along with light from the lens, adding a layer of noise across 
-the entire image.
+Finally, we previewed the group-scale and cluster-scale lenses studied in
+Chapter 4, displaying their imaging datasets alongside the galaxy-scale example.
 
-- **Simulator**: The `SimulatorImaging` object enables us to simulate realistic imaging data by including all of 
-these effects together and contains the `data`, `psf`, and `noise_map` components.
-
-- **Output**: We saved the simulated data to `.fits` files, the standard format used by astronomers for storing images.
-
-- **Point Source Data**: A `PointDataset` collects image positions and their uncertainties, with optional fluxes
-and time delays, ready for point-source modelling.
+The next tutorial returns to our simulated imaging dataset and examines how
+to compare a predicted image with the data, taking account of the PSF and
+noise map.
 """

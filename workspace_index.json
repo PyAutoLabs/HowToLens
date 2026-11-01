@@ -119,13 +119,12 @@
       "Point Source Data",
       "Interferometer Data",
       "Weak Lensing Data",
+      "Group and Cluster Lenses",
       "Wrap Up"
     ],
     "cross_refs": [
       "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/point_source/start_here.py",
-      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/start_here.py",
-      "scripts/simulator/interferometer.py",
-      "scripts/simulator/weak_lensing.py"
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/start_here.py"
     ],
     "notebook": "notebooks/chapter_1_introduction/tutorial_5_data.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_5_data.py",
