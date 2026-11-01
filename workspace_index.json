@@ -557,7 +557,7 @@
     "cross_refs": [],
     "notebook": "notebooks/chapter_4_scaling_up_lensing/tutorial_1_extra_galaxies.ipynb",
     "path": "scripts/chapter_4_scaling_up_lensing/tutorial_1_extra_galaxies.py",
-    "summary": "Welcome to chapter 4 of **HowToLens**, where we scale up lens modeling beyond a single lens galaxy.",
+    "summary": "Welcome to chapter 4 of **HowToLens**, where we scale up lens modeling beyond a single dominant lens galaxy.",
     "title": "Tutorial 1: Extra Galaxies"
   },
   {
@@ -574,10 +574,12 @@
       "Three Lens Galaxies",
       "Wrap Up"
     ],
-    "cross_refs": [],
+    "cross_refs": [
+      "//github.com/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_4_scaling_up_lensing/tutorial_4_group_scale.ipynb"
+    ],
     "notebook": "notebooks/chapter_4_scaling_up_lensing/tutorial_2_multi_galaxy.ipynb",
     "path": "scripts/chapter_4_scaling_up_lensing/tutorial_2_multi_galaxy.py",
-    "summary": "In the previous tutorial, we learned how to deal with extra galaxies near a strong lens \u2014 nuisance objects whose light contaminates the data but which play no meaningful role in the lensing itself. We removed their emission from the analysis, or gave them a heavily restricted model, and the single dominant lens galaxy remained the star of the show.",
+    "summary": "In the previous tutorial, we modeled a system with one dominant lens galaxy and a smaller nearby galaxy. We saw that the extra galaxy's light and gravitational deflections required separate consideration.",
     "title": "Tutorial 2: Multi-Galaxy Lenses"
   },
   {
@@ -602,7 +604,7 @@
     "cross_refs": [],
     "notebook": "notebooks/chapter_4_scaling_up_lensing/tutorial_3_scaling_relation.ipynb",
     "path": "scripts/chapter_4_scaling_up_lensing/tutorial_3_scaling_relation.py",
-    "summary": "The previous tutorial ended on a warning: every deflector we add to a lens model brings its own free parameters. Two galaxies were manageable, but each one cost us a mass profile's worth of dimensions, and the arithmetic only gets worse. A group-scale lens may have ten member galaxies, a cluster hundreds. If every member keeps its own free mass, the parameter space explodes \u2014 a 100-galaxy cluster with 5 free mass parameters per galaxy is a 500-dimensional model, which no non-linear search can sample and no dataset can constrain anyway.",
+    "summary": "In the previous tutorial, we saw how adding significant deflectors increases both the number of parameters and the degeneracies between galaxy masses. Independently fitting the mass of every member becomes increasingly demanding for groups and clusters.",
     "title": "Tutorial 3: Scaling Relations"
   },
   {
@@ -614,6 +616,8 @@
       "Fitting a Group",
       "A Group Halo?",
       "Model Fit",
+      "Fit With a Shared NFW Dark Matter Halo",
+      "Bayesian Model Comparison",
       "Scaling Relation Members",
       "The Group Scale Sweet Spot",
       "Wrap Up"
@@ -621,7 +625,7 @@
     "cross_refs": [],
     "notebook": "notebooks/chapter_4_scaling_up_lensing/tutorial_4_group_scale.ipynb",
     "path": "scripts/chapter_4_scaling_up_lensing/tutorial_4_group_scale.py",
-    "summary": "In the previous tutorials we took our first steps beyond the single lens galaxy: we included extra galaxies near the lens in the model, we modeled systems where two or more galaxies of comparable mass share the lensing, and we introduced scaling relations, which tie the mass of a galaxy to its light so that adding more galaxies to a model does not mean adding more free parameters.",
+    "summary": "The previous tutorials introduced nearby galaxies, multiple significant deflectors and scaling relations. We now combine these ideas to model a **group-scale lens**.",
     "title": "Tutorial 4: Group Scale"
   },
   {
@@ -641,14 +645,11 @@
       "Wrap Up"
     ],
     "cross_refs": [
-      "autolens_workspace/scripts/guides/point_solver/pairing.py",
-      "csv_api.py",
-      "fit.py",
-      "likelihood_function.py"
+      "autolens_workspace/scripts/guides/point_solver/pairing.py"
     ],
     "notebook": "notebooks/chapter_4_scaling_up_lensing/tutorial_5_cluster_scale.ipynb",
     "path": "scripts/chapter_4_scaling_up_lensing/tutorial_5_cluster_scale.py",
-    "summary": "Throughout this chapter we have been climbing a ladder of scale: from a single lens galaxy with an extra galaxy nearby, to multi-galaxy lenses, to galaxy groups whose members share a common dark matter halo.",
+    "summary": "We now extend the tools developed for galaxies and groups to **galaxy clusters**.",
     "title": "Tutorial 5: Cluster Scale"
   },
   {
@@ -667,17 +668,21 @@
       "Wrap Up"
     ],
     "cross_refs": [
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/fit.py",
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/likelihood_function.py",
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/modeling.py",
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/simulator.py",
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/start_here.py",
+      "fit.py",
+      "likelihood_function.py",
+      "modeling.py",
       "scripts/simulator/weak_lensing.py",
-      "start_here.py",
-      "weak/fit.py",
-      "weak/likelihood_function.py",
-      "weak/modeling.py",
-      "weak/simulator.py",
-      "weak/start_here.py"
+      "simulator.py",
+      "start_here.py"
     ],
     "notebook": "notebooks/chapter_4_scaling_up_lensing/tutorial_6_weak_lensing.ipynb",
     "path": "scripts/chapter_4_scaling_up_lensing/tutorial_6_weak_lensing.py",
-    "summary": "Every tutorial in this series so far \u2014 indeed, every fit performed in all four chapters of **HowToLens** \u2014 has been a *strong* lensing analysis. Strong lensing occurs when a background galaxy lies so close (in projection) to a foreground mass that its light is bent into multiple images, arcs or a complete Einstein ring. These dramatic features are what we simulated, fitted and modeled, from the single galaxy-scale lenses of chapters 1 and 2 up to the group-scale and cluster-scale systems earlier in this chapter.",
+    "summary": "Our modeling tutorials have concentrated on **strong lensing**: the multiple images, arcs and Einstein rings produced by galaxy, group and cluster lenses.",
     "title": "Tutorial 6: Weak Lensing"
   },
   {

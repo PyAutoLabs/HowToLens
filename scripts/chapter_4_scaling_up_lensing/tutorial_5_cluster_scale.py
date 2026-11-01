@@ -2,43 +2,35 @@ r"""
 Tutorial 5: Cluster Scale
 =========================
 
-Throughout this chapter we have been climbing a ladder of scale: from a single lens galaxy with an extra
-galaxy nearby, to multi-galaxy lenses, to galaxy groups whose members share a common dark matter halo.
+We now extend the tools developed for galaxies and groups to **galaxy clusters**.
 
-This tutorial climbs the final rung: **galaxy clusters**, the most massive gravitationally-bound structures in
-the Universe. A cluster-scale strong lens contains:
+Galaxy clusters typically inhabit dark matter halos with masses of roughly $10^{14}$-$10^{15}$ solar masses,
+with the most massive systems exceeding $10^{15}$ solar masses. Within this shared halo, a cluster can contain
+**hundreds of individual lens galaxies**, including a brightest cluster galaxy, other prominent galaxies and a
+large population of lower-mass members.
 
-- **30+ to hundreds of lens galaxies**: a brightest cluster galaxy (BCG) and bright satellites, plus a large
-  population of lower-mass member galaxies, all embedded in...
+Their combined mass can produce multiple images of many background sources at different redshifts.
 
-- **A cluster-scale dark matter halo of more than 10^14 solar masses** (the most massive exceed 10^15 solar
-  masses) — hundreds of times more massive than the halo of a single lens galaxy.
+These systems offer two important scientific opportunities:
 
-- **Many multiply-imaged background sources** — often tens of them — and, crucially, these sources typically
-  all sit at **different redshifts**. Light from each source therefore traverses a different path through the
-  Universe, and modeling them together requires **multi-plane ray tracing**, which we explain below.
+- **Studying magnified background galaxies:** lensing can make faint sources brighter and stretch their images,
+  revealing details that would otherwise be difficult to observe.
+- **Mapping the cluster's mass distribution:** multiple-image systems at different positions and redshifts
+  constrain the combined contributions of the cluster halo and its galaxies.
 
-The science a cluster lens delivers is different from the galaxy-scale lensing of earlier chapters:
+High magnification occurs near critical curves in both galaxy- and cluster-scale lenses. Clusters provide
+extended regions in which many background sources can be lensed, but the magnification of an individual source
+depends on its position, size and the lens model.
 
-- **Extreme magnification**: near a cluster's critical curves, magnifications of tens to hundreds are common
-  (compared to the factors of a few of galaxy-scale lensing). Clusters act as natural telescopes, letting us
-  study intrinsically faint galaxies in the early Universe that would otherwise be invisible — many of the
-  most distant galaxies known were discovered behind lensing clusters.
+In this tutorial, we fit **multiple-image positions** rather than the full surface-brightness distribution of
+every arc. This provides a compact set of constraints for exploring the cluster mass model.
 
-- **Mapping the cluster's mass**: every multiply-imaged source constrains the cluster's total mass
-  distribution along a different line of sight. With many sources, the mass model pins down the shape of the
-  cluster's dark matter halo and the substructure within it — the granularity of dark matter on sub-cluster
-  scales — providing some of the sharpest tests of the cold dark matter model.
-
-The modeling toolkit also changes at this scale. Fitting the extended arcs of every source, with a light
-profile or pixelization each, is computationally prohibitive when there are tens of sources and hundreds of
-member galaxies. The standard approach instead fits only the **positions** of each source's multiple images —
-point-source modeling — and drives the mass model from spreadsheet-editable **CSV catalogues**, because
-writing Python model code for hundreds of galaxies by hand is not sensible either.
+We also introduce CSV catalogues for the image positions, individually modeled components and member population.
+These make larger systems easier to organize while retaining the model-composition tools used earlier.
 
 __Contents__
 
-- **Multi-Plane Ray Tracing:** What it means for sources at different redshifts to be lensed together.
+- **Multi-Plane Ray Tracing:** Distinguish multiple source planes from multiple deflecting planes.
 - **Dataset:** Load the simulated cluster's CCD imaging and inspect the true multi-plane tracer.
 - **Point Source Modeling:** Why cluster modeling fits multiple-image positions rather than extended arcs.
 - **Point Datasets:** The per-source multiple-image positions, loaded from a single hand-editable CSV.
@@ -55,34 +47,26 @@ __Contents__
 
 __Multi-Plane Ray Tracing__
 
-Every lens system in the tutorials so far had two planes: an image plane (the lens galaxies, all at one
-redshift) and a source plane (the lensed galaxy). The lens equation was applied once, mapping image-plane
-coordinates to source-plane coordinates via the deflection angles:
+Our simulated cluster places all deflecting mass at redshift $z=0.5$, with background sources at $z=1.0$ and
+$z=2.0$.
 
-$\beta = \theta - \alpha(\theta)$
+This gives us **one deflecting plane and two source planes**. Each source is mapped through the same cluster
+mass distribution, but with the lensing-distance factors appropriate to its redshift.
 
-A cluster breaks this picture, because its sources sit at different redshifts. Consider our simulated cluster,
-which has lens galaxies at $z = 0.5$ and two sources, at $z = 1.0$ and $z = 2.0$:
+Different source redshifts therefore require different geometric scaling; they do not automatically imply that
+light is deflected by mass on several planes.
 
-- Light from the $z = 1.0$ source is deflected by the $z = 0.5$ cluster and travels to us: the familiar
-  two-plane system.
+Genuine multi-plane deflection arises when significant mass occupies more than one redshift plane. For example,
+a galaxy at $z=1.0$ could both be lensed by the cluster and deflect light from a more distant source at $z=2.0$.
 
-- Light from the $z = 2.0$ source first passes the $z = 1.0$ plane, then the $z = 0.5$ cluster plane. If any
-  galaxy at $z = 1.0$ had mass, it would deflect this light too — the deflections of successive planes
-  accumulate, each applied at the position the ray has reached by that plane.
+In that case, the ray's position at a later plane depends on the deflections accumulated at earlier planes.
+The multi-plane lens equation accounts for this sequentially.
 
-This is **multi-plane ray tracing**: the lens equation is applied recursively, plane by plane in redshift
-order. There is a second, subtler effect: the strength of a deflection depends on the distances between the
-observer, the deflector and the source. The same cluster bends light from a $z = 2.0$ source through a larger
-effective angle than light from a $z = 1.0$ source, because the geometry of the light paths differs. The
-recursive lens equation accounts for this by scaling each plane's deflections by ratios of cosmological
-(angular diameter) distances.
+The `Tracer` supports both situations. It organizes galaxies by redshift and computes the appropriate mappings
+to each source plane. Our example uses that machinery with mass on the cluster plane only.
 
-The maths is more bookkeeping than new physics, and the good news is that the `Tracer` handles all of it
-automatically: give it galaxies at three or more redshifts and it groups them into planes, orders them, scales
-their deflections and applies the recursion. Every source's redshift must simply be *correct* — hardcoding the
-wrong redshift silently produces the wrong multi-plane geometry, which is why the dataset CSVs below carry a
-redshift for every source.
+Source redshifts are therefore essential inputs. Here they are known from the simulation; observational
+redshift uncertainties must be considered when interpreting a real cluster model.
 """
 
 import importlib.util
@@ -110,11 +94,21 @@ import autolens.plot as aplt
 """
 __Dataset__
 
-We use a simulated cluster whose scale is kept deliberately small so it runs quickly, but which contains every
-ingredient of the cluster regime: 2 main lens galaxies (a BCG and a satellite), 10 lower-mass member galaxies
-on a luminosity-mass scaling relation, a 10^15.3 solar-mass dark matter halo, and 2 multiply-imaged sources at
-different redshifts (z = 1.0 and z = 2.0). A real cluster simply has more of everything — and we will see that
-scaling this model up to hundreds of members does not add a single free parameter.
+We use a simplified simulated cluster containing:
+
+- Two individually modeled lens galaxies: a brightest cluster galaxy, or BCG, and a satellite.
+- Ten additional member galaxies whose masses follow a luminosity-based scaling relation.
+- A shared dark matter halo with input `mass_at_200` of $10^{15.3}$ solar masses.
+- Two multiply imaged sources at redshifts 1.0 and 2.0.
+
+The cluster's deflecting components are all at redshift 0.5.
+
+This example demonstrates the catalogue and fitting workflow with a small member population. Adding more members
+need not add non-linear mass parameters when their positions and profile properties are fixed or tied through
+the same relation, although evaluating their deflections still adds computational work.
+
+Real clusters can require additional halos, more flexible galaxy models and further treatment of redshift or
+membership uncertainties.
 """
 dataset_name = "simple"
 dataset_path = Path("dataset") / "cluster" / dataset_name
@@ -130,21 +124,32 @@ al.util.dataset.simulate_if_needed(
 )
 
 """
-We first load and plot the cluster's CCD imaging. Note the pixel scale of 0.2" and the sheer size of the
-field: 100" x 100", compared to the ~6" fields of the galaxy-scale tutorials. The Einstein radius of a
-10^15 solar-mass cluster is ~20-30", so its multiple images and arcs are spread across a region hundreds of
-times larger in area than a galaxy-scale lens.
+We first load and plot the simulated cluster image. Its pixel scale is 0.2" and its field spans 100" x 100",
+allowing us to see the cluster galaxies and widely separated lensed images.
 
-The imaging is loaded for visualization only — as we discuss next, the model is not fitted to these pixels.
+Inspect where the multiple images lie relative to the central galaxies and member population.
+
+The angular extent of strong lensing depends on the mass distribution and source redshift, not simply the
+cluster's total halo mass.
+
+We use this image for visualization. The fit below uses measured multiple-image positions rather than these
+image pixels.
 """
 data = al.Array2D.from_fits(file_path=dataset_path / "data.fits", pixel_scales=0.2)
 
 aplt.plot_array(array=data, title="Cluster CCD Imaging")
 
 """
-The simulator saved the true `Tracer` used to make this dataset, which we can load to inspect the multi-plane
-structure described above. The tracer has three planes: the lens plane at z = 0.5 (holding all 13 lens-plane
-galaxies — 2 main galaxies, 10 scaling members and the dark matter halo) and one source plane per source.
+We load the `Tracer` saved by the simulator to inspect its redshift structure.
+
+It contains three planes: the cluster plane at $z=0.5$, followed by source planes at $z=1.0$ and $z=2.0$.
+
+The cluster plane contains 13 `Galaxy` objects: two main galaxies, ten scaling-relation members and one mass-only
+object carrying the shared dark matter halo. The halo's use of a `Galaxy` container is an API convention; it does
+not represent an additional luminous galaxy.
+
+All deflecting mass in this example lies on the cluster plane. The two source planes specify where we evaluate
+the mappings for their respective background sources.
 """
 tracer_true = al.from_json(file_path=dataset_path / "tracer.json")
 
@@ -155,45 +160,39 @@ print(f"Galaxies in lens plane: {len(tracer_true.planes[0])}")
 """
 __Point Source Modeling__
 
-In every previous tutorial we fitted the data pixel-by-pixel: a model image of the lens and source light was
-computed, convolved with the PSF and compared to every image pixel. For a cluster this becomes computationally
-prohibitive:
+We now describe each multiply imaged source using a set of image positions rather than fitting its full
+surface-brightness distribution.
 
-- Every one of the tens of sources needs its own light model (or pixelization), each adding parameters (or an
-  expensive linear inversion) to the fit.
+For extended galaxies, these positions should identify **corresponding features** in the different images -- for
+example, recognizable knots that represent the same source structure. Selecting each image's brightest pixel
+independently does not necessarily identify matching features.
 
-- The image is enormous — our modest simulated cluster already spans 500 x 500 pixels — and the deflection
-  angles of hundreds of member galaxies would need evaluating at every one of them, for every likelihood
-  evaluation.
+This reduces the amount of data evaluated during the fit and avoids constructing a light-profile or pixelized
+reconstruction for every source. It is a widely used approach for building cluster mass models.
 
-The standard approach in cluster lensing therefore simplifies the data dramatically: each multiply-imaged
-source is reduced to the **positions of its multiple images** — the (y,x) coordinates of the brightest pixel
-of each image, measured from the imaging. The model then only has to answer a much cheaper question: does this
-mass model ray-trace all of a source's observed image positions back to the same source-plane location?
+The trade-off is that position fitting does not use the full information in the extended arcs. Surface-brightness
+modeling can provide complementary constraints and remains possible for selected systems or more detailed analyses.
 
-This is **point-source modeling**. We are deliberately discarding the information in the arcs' extended light
-in exchange for a likelihood that is fast enough to evaluate with hundreds of galaxies and tens of sources.
-(For lensed quasars and supernovae — genuine point sources — nothing is even discarded.) Extended-source
-cluster modeling, where individual arcs are fitted at pixel level with the pixelizations of the previous
-chapter, does exist in **PyAutoLens** as a specialised follow-up analysis — see the `autolens_workspace`
-cluster examples — but position fitting is the workhorse that published cluster mass models are built on.
+For genuine point sources such as quasars or supernovae, image positions are natural measurements, although
+fluxes, time delays and other observables can provide additional information.
 
 __Point Datasets__
 
-The positions of each source's multiple images are stored in a single CSV file, `point_datasets.csv`, with
-one row per observed multiple image:
+We load the multiple-image measurements from `point_datasets.csv`, with one row per observed image:
 
- - `name`: the source identifier (e.g. `point_0`). All rows sharing a `name` belong to the same source.
- - `y`, `x`: the image-plane position of the multiple image, in arc-seconds.
- - `positions_noise`: the positional uncertainty in arc-seconds — how precisely the image's centroid is
-   measured (for space-telescope imaging ~0.005", set by PSF-fitting precision, not the pixel scale).
- - `redshift`: the source redshift, which every row of a group must share. This column is what makes the
-   multi-plane geometry reproducible from the file alone.
+- `name`: identifies the source or matched source feature. Rows sharing a name form one multiple-image system.
+- `y`, `x`: its observed image-plane coordinates in arcseconds.
+- `positions_noise`: the positional uncertainty adopted by the likelihood, in arcseconds.
+- `redshift`: the source redshift, shared by the rows belonging to that system.
 
-This CSV is the recommended input format for cluster datasets because it is hand-editable: measuring your own
-cluster's multiple images means filling in a spreadsheet, not writing Python.
+The positional uncertainty should reflect the measurement and modeling assumptions. Precise centroid measurements
+do not imply that a simplified cluster mass model predicts positions to the same precision; unresolved structure
+and other modeling limitations can also matter.
 
-`al.list_from_csv` loads the file into a list of `PointDataset` objects, one per source.
+For this simulation, we use the supplied uncertainties. For real observations, choose and justify them rather
+than adopting a universal value from the pixel scale or telescope resolution.
+
+`al.list_from_csv` loads the file into a list of `PointDataset` objects, one per named system.
 """
 dataset_list = al.list_from_csv(file_path=dataset_path / "point_datasets.csv")
 
@@ -203,10 +202,15 @@ for dataset in dataset_list:
     print(f"Redshift: {dataset.redshift}")
 
 """
-Plotting each dataset shows just how sparse point-source data is: a handful of (y,x) coordinates per source.
-That a full cluster mass model can be constrained by so few numbers is because each coordinate is measured to
-milli-arcsecond precision, and because every source at its own redshift probes the mass distribution
-differently.
+Plot each dataset to inspect its multiple-image positions.
+
+Each system supplies a small set of coordinates that must be consistent with a common source position under the
+lens model. Systems distributed across the cluster probe different parts of its deflection field, while their
+redshifts determine the appropriate lensing geometry.
+
+The information available depends on the number and configuration of images, their uncertainties and the model's
+flexibility. A small number of precise positions does not automatically determine a unique cluster mass
+distribution.
 """
 for dataset in dataset_list:
     aplt.plot_grid(
@@ -217,36 +221,29 @@ for dataset in dataset_list:
 """
 __The CSV Interface__
 
-With hundreds of member galaxies, composing the lens model in Python — one `af.Model(al.Galaxy)` per galaxy,
-as in every previous tutorial — stops being sensible. The cluster workflow therefore defines the model in CSV
-files as well, which the simulator wrote alongside the data:
+CSV files provide a convenient way to organize a model containing many components. They separate the measured
+catalogue and profile choices from the Python code that assembles the model.
 
- - `mass.csv`: every individually-modelled mass profile — the two main lens galaxies' `dPIEMassSph` profiles
-   and the host halo's `NFWMCRLudlowSph`.
- - `light.csv`: the light profiles (not used in point-source modeling, since light does not lens).
- - `point.csv`: the source galaxies' `Point` components.
+The simulator supplies:
 
-Each row of these CSVs carries:
+- `mass.csv`: the individually described mass profiles, including the main galaxies and shared dark matter halo.
+- `light.csv`: light-profile descriptions, which are not needed for this positions-only likelihood.
+- `point.csv`: the source point components.
 
- - `galaxy`: a galaxy name (e.g. `lens_0`, `host_halo`, `source_0`). Rows sharing a name compose into one
-   galaxy.
- - `attr_name`: the attribute the profile is bound to on the galaxy (e.g. `mass`, `dark`, `point_0`).
- - `profile_class`: the profile class name (e.g. `dPIEMassSph`), looked up in `al.mp` / `al.lp` / `al.ps`.
- - The profile's constructor parameters as columns (tuples like `centre` split into `y` / `x`); parameters a
-   row's class does not use are left blank.
- - `redshift`: the galaxy's redshift.
+Each profile row specifies a galaxy name, attribute name, profile class, redshift and relevant profile parameters.
+Rows with the same galaxy name are assembled into one `Galaxy`.
 
-The lower-mass member population lives in a fourth, simpler catalogue, `scaling_galaxies.csv`, with one row
-per member and columns `y, x, luminosity`. No profile class, no mass parameters — because, as the previous
-tutorial showed, the members' masses are not free parameters but derive from their luminosities via a scaling
-relation. The catalogue is exactly what an observer measures: where each member is and how bright it is.
+The lower-mass member population is listed separately in `scaling_galaxies.csv`, with measured positions and
+luminosities. We assign its mass profiles and shared scaling relation in Python.
 
-This is the key scaling property of the CSV interface: modeling a richer cluster means appending rows to
-`scaling_galaxies.csv` (and, for another individually-modelled galaxy or halo, to `mass.csv`) — the Python
-below does not change, and the number of free parameters does not grow with the member count.
+Adding members to this catalogue does not add independent mass parameters **under our fixed-centre,
+spherical-profile and shared-relation assumptions**. Adding an individually modeled galaxy or halo can add
+parameters, depending on which quantities we allow to vary.
 
-We load the mass and point families (`al.galaxy_models_from_csv`) and the member catalogue
-(`al.galaxy_table_from_csv`):
+The catalogue format makes a larger model easier to assemble; the modeling assumptions determine its
+dimensionality.
+
+We now load the mass and point-profile tables, followed by the member catalogue.
 """
 mass_table = al.galaxy_models_from_csv(
     file_path=dataset_path / "mass.csv", family="mass"
@@ -264,24 +261,37 @@ scaling_galaxies_luminosity_list = scaling_galaxies_table.luminosities
 print(f"Scaling galaxies in catalogue: {len(scaling_galaxies_luminosity_list)}")
 
 """
-In a real analysis the member centres and luminosities come from light fits to the imaging data (or an
-external photometric catalogue), and the main-galaxy centres in `mass.csv` are pinned to the observed light
-centres. Fixing the centres to observed values is essential at cluster scale: a handful of multiple-image
-positions cannot constrain hundreds of free centre coordinates, but the imaging measures them for free.
+In real observations, member positions and luminosities can come from preliminary light fits or a suitable
+catalogue. As in earlier tutorials, fixing member mass centres to measured light positions is a useful way to
+limit the model's freedom.
+
+These measurements are not exact, and selected galaxies can be given positional freedom where the data and
+scientific question justify it.
 
 __Point Solver__
 
-Point-source modeling needs one new piece of machinery: given a mass model and a source-plane (y,x)
-coordinate, where in the image plane do its multiple images appear? Answering this means solving the lens
-equation *backwards*, which has no analytic solution.
+We met the `PointSolver` earlier when finding the multiple images of a point source, such as a lensed quasar,
+behind a single lens galaxy.
 
-The `PointSolver` solves it numerically: it tiles the image plane with triangles, ray-traces each triangle's
-corners to the source plane, keeps the triangles that land on the source-plane coordinate, and subdivides
-them repeatedly until the image positions are located to a precision of `pixel_scale_precision`.
+We use exactly the same tool here. Given a mass model and a source position, it solves the lens equation
+numerically to locate the multiple images. The difference is that our mass model now contains a cluster halo
+and many galaxies, and we repeat the calculation for sources at their respective redshifts.
 
-The solver's grid must span the full 100" cluster field — the multiple images sit tens of arc-seconds from
-the cluster centre. The `magnification_threshold` discards heavily demagnified images (e.g. the faint central
-image of a typical lens configuration, which real observations do not detect).
+Recall that the solver divides the image plane into triangles, maps them to the source plane and refines
+candidate regions until the requested positional resolution is reached.
+
+The grid should cover the region in which we want to search for images. Here, it spans the same approximate 100"
+field as the simulated imaging. Images outside that search region will not be found.
+
+`pixel_scale_precision` sets the solver's numerical resolution in arcseconds; it is separate from the
+observational uncertainties in `positions_noise`.
+
+`magnification_threshold` filters out predicted images with low absolute magnification. This is a numerical
+selection rule, not a complete model of detectability, which also depends on source brightness, noise and blending.
+
+Unlike an image-plane position likelihood that uses the solver during fitting, our chosen cluster likelihood
+back-traces the observed positions without solving for predicted images at every evaluation. We will use the
+familiar `PointSolver` after fitting to check the predicted image configuration for each source.
 """
 grid = al.Grid2D.uniform(
     shape_native=(100, 100),
@@ -295,38 +305,30 @@ solver = al.PointSolver.for_grid(
 """
 __Model__
 
-We now compose the cluster model, which has four tiers of component — the same four tiers every published
-cluster mass model is built from:
+Our example combines four types of component:
 
- - **Main lens galaxies (2)**: the BCG and satellite, modelled individually with `dPIEMassSph` profiles. As
-   the previous tutorial on group-scale lenses discussed, the dPIE is the standard truncated profile of this
-   regime: members orbiting in the cluster's shared potential have their outer dark matter tidally stripped,
-   so their mass genuinely ends at a finite truncation radius `r_cut`. Each main galaxy has free `sigma` (its
-   fiducial velocity dispersion, setting the lens strength) and free `r_cut`, with its centre fixed to the
-   observed light centre [4 free parameters].
+- **Two main lens galaxies:** each has a spherical dPIE mass profile with fixed centre and core radius, but free
+  `sigma` and `r_cut`. Together they contribute **four parameters**.
+- **Ten scaling-relation members:** their positions and core radii are fixed. Their velocity-dispersion
+  normalizations depend on one shared `sigma_ref`; their truncation radii follow a fixed luminosity prescription.
+  This population contributes **one parameter**.
+- **One shared dark matter halo:** an `NFWMCRLudlowSph` profile with fixed centre and free `mass_at_200`.
+  Its mass-concentration prescription supplies additional structure without an independent concentration
+  parameter. It contributes **one parameter**.
+- **Two background sources:** `PointSolved` components whose source positions are solved within the selected
+  likelihood rather than sampled independently. They contribute **zero non-linear sampling parameters**.
 
- - **Scaling-tier members (10)**: `dPIEMassSph` profiles with centres fixed from the catalogue and `sigma` /
-   `r_cut` derived from each member's luminosity via the scaling relation introduced earlier in this chapter:
-   sigma = sigma_ref * (L / L_ref)^0.25 and r_cut = r_cut_ref * (L / L_ref)^0.7. Only the normalization
-   `sigma_ref` — the velocity dispersion of a member at the reference luminosity — is free. Whether the
-   catalogue holds 10 members or 300, the tier costs [1 free parameter].
+The total is therefore **six free non-linear parameters**.
 
- - **Host dark matter halo (1)**: a standalone galaxy carrying the cluster's `NFWMCRLudlowSph` halo, centred
-   on the BCG, with a free total mass `mass_at_200` [1 free parameter].
+This small count reflects strong restrictions on the model: spherical profiles, fixed positions and redshifts,
+a prescribed halo mass-concentration relation, and a deterministic member scaling relation. It is not a claim
+that real cluster mass distributions generally require only six parameters.
 
- - **Source galaxies (2)**: parameter-free `PointSolved` components. Rather than sampling each source's
-   (y,x) source-plane centre as free parameters, the fit solves for the centre analytically — the
-   precision-weighted mean of the back-traced image positions. With tens of sources this matters: it removes
-   two parameters per source from the search [0 free parameters].
+The model contains twelve lens galaxies, one mass-only halo component and two source objects. Adding more tied
+members preserves the parameter count only while those restrictions remain in place.
 
-**Total: N = 6 free parameters** — for a model containing 13 galaxies and 2 sources. This is the punchline of
-the cluster workflow: catalogues and scaling relations decouple the model's physical richness from the
-dimensionality of the non-linear search.
-
-`al.galaxy_af_models_from_csv_tables` converts the CSV tables into a dictionary of `af.Model(Galaxy)` objects
-keyed by galaxy name, with every CSV value fixed as a default. We then selectively promote parameters to free
-priors — exactly the `af.Model` customization API used throughout the earlier chapters, just applied to
-models built from files instead of Python.
+`al.galaxy_af_models_from_csv_tables` builds the named galaxy models from the CSV tables, initially fixing their
+supplied values. We then assign priors to the particular parameters we want the search to vary.
 """
 redshift_lens = 0.5
 source_redshifts = [dataset.redshift for dataset in dataset_list]
@@ -334,10 +336,17 @@ source_redshifts = [dataset.redshift for dataset in dataset_list]
 galaxy_models = al.galaxy_af_models_from_csv_tables(mass_table, point_table)
 
 """
-The main lens galaxies get free dPIE `sigma` / `r_cut`; their centres and redshifts stay fixed at the CSV
-values, and `r_core` stays fixed at the CSV's 0.0 (the vanishing-core convention discussed in the previous
-tutorial). The cosmology constants `H0` / `Om0` are pinned explicitly: they are model *constants*, not
-parameters to sample — left unset they would inherit priors from the configuration files and float.
+We give each main lens galaxy two free dPIE parameters: `sigma`, which controls its mass normalization, and
+`r_cut`, which controls its outer truncation scale.
+
+Their centres, redshifts and zero core radii retain the values supplied by the catalogue. As in the group
+tutorial, `sigma` uses the Lenstool profile convention and is not automatically identical to a measured stellar
+velocity dispersion.
+
+We explicitly fix `H0` and `Om0`, because this example assumes a cosmology rather than attempting to infer it.
+
+The prior ranges below are choices for this simulated example. For real data, they should reflect the system
+being studied, and results near their boundaries warrant further inspection.
 """
 for name in ("lens_0", "lens_1"):
     galaxy_models[name].mass.sigma = af.UniformPrior(
@@ -348,27 +357,55 @@ for name in ("lens_0", "lens_1"):
     galaxy_models[name].mass.Om0 = 0.30966
 
 """
-The host halo gets a free `mass_at_200`, spanning the full range of cluster masses with a log-uniform prior
-(mass scales spanning orders of magnitude are sampled in log space, as we saw for intensities in earlier
-chapters).
+The shared dark matter halo receives a free `mass_at_200` parameter, expressed in solar masses.
+
+This is the mass parameter of the NFW host component, not the sum of every mass component in our cluster model.
+The main galaxies and scaling-relation members contribute additional mass.
+
+The `NFWMCRLudlowSph` profile uses a prescribed mass-concentration relation, so changing the halo mass also changes
+its associated profile structure. We do not fit concentration independently here.
+
+We use a log-uniform prior from $10^{14.5}$ to $10^{16}$ solar masses, assigning equal prior weight to equal
+logarithmic intervals. This is a broad example range, rather than a universal prior for cluster lenses.
 """
 galaxy_models["host_halo"].dark.mass_at_200 = af.LogUniformPrior(
     lower_limit=10**14.5, upper_limit=10**16.0
 )
 
 """
-Each source's `point_i` component is swapped for the parameter-free `al.ps.PointSolved`. The name pairing
-(`point_0`, `point_1`) is what links each model component to the `PointDataset` with the same name — in a
-multi-source cluster this pairing is what guarantees every source's positions are fitted by the correct
-component.
+We replace each source's point component with `PointSolved`.
+
+With the source-plane likelihood used below, the source position is solved from the back-traced image positions
+for each proposed mass model, rather than sampled as two independent coordinates.
+
+This does not mean the source position is known exactly or remains fixed. It changes as the mass model changes,
+and its interpretation depends on the positional uncertainties and likelihood assumptions.
+
+Each component name, such as `point_0`, must match the name of its `PointDataset`. We also retain the source
+redshift associated with that dataset so that its images are traced to the correct plane.
 """
 for i, dataset in enumerate(dataset_list):
     setattr(galaxy_models[f"source_{i}"], f"point_{i}", af.Model(al.ps.PointSolved))
 
-"""
-The scaling tier is composed in a loop over the catalogue, exactly as in the previous tutorial: the single
-shared prior `scaling_sigma_ref` is defined once outside the loop, and each member's `sigma` / `r_cut` derive
-from it via that member's luminosity ratio. The truth value used by the simulator is sigma_ref = 85 km/s.
+r"""
+We build the member population by looping over its measured positions and luminosities, using the same approach
+as in the previous tutorials.
+
+The shared `scaling_sigma_ref` prior is defined once, outside the loop. Each member's `sigma` is an expression
+involving that prior and its fixed luminosity ratio.
+
+Each `r_cut`, however, is calculated entirely from fixed quantities: the reference truncation scale, luminosity
+ratio and exponent. It therefore receives a fixed value, rather than depending on `scaling_sigma_ref`.
+
+We adopt $\sigma\propto L^{0.25}$ and $r_{\rm cut}\propto L^{0.7}$, with fixed centres and zero core radii.
+These assumptions leave one free mass parameter for the entire member population.
+
+The simulator used `sigma_ref = 85 km/s`. We will later inspect whether the fit constrains this normalization.
+
+The dPIE `redshift_source` input specifies the reference source redshift used to normalize the profile's lensing
+quantities. Here, we use the highest source redshift consistently for the scaling members. The tracer then
+evaluates the lens mapping to each source's own plane; this does not place every source at that reference
+redshift.
 """
 scaling_sigma_ref = af.UniformPrior(lower_limit=0.0, upper_limit=200.0)
 scaling_sigma_exponent = 0.25  # alpha (Faber-Jackson)
@@ -400,8 +437,17 @@ for centre, luminosity in zip(
 scaling_galaxies = af.Collection(scaling_galaxies_list)
 
 """
-The named galaxies and the scaling tier combine into the overall model. Printing `model.info` confirms the
-parameter count: for all its 15 galaxies, the search explores just 6 dimensions.
+We combine the individually named components and scaling-relation members into the overall model.
+
+The `galaxies` collection contains the two main lens galaxies, the mass-only host-halo component and the two
+sources. The `scaling_galaxies` collection contains the ten additional members.
+
+This gives **15 `Galaxy` objects**, representing twelve lens galaxies, one shared dark matter halo and two
+background sources.
+
+Inspect `model.info` to check the fixed values, independent priors and linked expressions. Under the assumptions
+above, the model has **six free non-linear parameters**: four for the main galaxies, one for the host halo and
+one shared by the scaling members.
 """
 model = af.Collection(
     galaxies=af.Collection(**galaxy_models),
@@ -411,36 +457,44 @@ model = af.Collection(
 print(model.info)
 
 """
-The same model can also be visualized as a figure, making its structure easier to understand at a glance.
+The figure shows the model's independent priors, fixed values and linked expressions.
 
-The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
-fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
-corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
-parameter.
+Each main galaxy has its own free `sigma` and `r_cut`. The host halo has one free mass parameter, and the ten
+scaling members share one `scaling_sigma_ref` prior.
 
-Thirteen galaxies and two sources are modelled with six free parameters. That compression — main galaxies and
-sources sharing priors, one halo, and a scaling relation tying ten members to a single free prior — is what makes
-a cluster-scale model tractable at all.
+The source positions are solved within the selected likelihood rather than sampled independently.
+
+These choices give six non-linear parameters across fifteen `Galaxy` objects. The small parameter count comes
+from the restrictions and shared relations we imposed, rather than from the catalogue format itself.
 """
 af.ModelPlotter(model).figure()
 
 """
 __Analysis + Factor Graph__
 
-Each source's dataset gets its own `AnalysisPoint`, which defines the log likelihood for that source: how
-well do the model's predictions match this source's observed image positions?
+We create one `AnalysisPoint` for each source's dataset. Each analysis evaluates how well the same cluster mass
+model explains that source's observed multiple-image positions.
 
-`fit_positions_cls=al.FitPositionsSourceSolved` selects the **solved source-plane** likelihood — the default
-cluster configuration. Rather than forward-solving the lens equation for the model's image positions on every
-likelihood evaluation (accurate but expensive), it ray-traces the *observed* positions back to the source
-plane and measures how tightly they converge around the analytically-solved source centre, with a weighting
-that maps source-plane scatter back to image-plane precision. No lens-equation solve per evaluation makes
-cluster-scale inference fast; the `PointSolver` is reserved for validating the final model below.
+We select `FitPositionsSourceSolved`, which:
 
-The analyses are then combined through a **factor graph**, the same multi-dataset machinery used for
-multi-wavelength imaging: each analysis becomes a factor sharing the one global model, and the total log
-likelihood is the sum over the per-source likelihoods. This is what lets every source — each at its own
-redshift, each with its own multi-plane geometry — constrain the same cluster mass model simultaneously.
+1. Traces the observed image positions back to the source's redshift plane.
+2. Solves for a common source position under the adopted weighting.
+3. Evaluates the scatter around that position using the positional uncertainties and the likelihood's
+   source-plane weighting.
+
+This avoids solving for predicted image positions at every likelihood evaluation. It is a source-plane fitting
+approach, rather than a direct comparison between observed and forward-solved image positions.
+
+We will use the `PointSolver` afterwards to inspect the predicted images. That check is important because a
+compact set of back-traced positions does not by itself establish that the model predicts the observed image
+configuration.
+
+We combine the analyses using a **factor graph**. Each source contributes a likelihood factor, and all factors
+share the same global mass model.
+
+Assuming the datasets are conditionally independent given that model, the total log likelihood is the sum of
+their individual log likelihoods. The shared parameters are sampled once, with every source contributing
+constraints through its own positions and redshift.
 """
 analysis_list = [
     al.AnalysisPoint(
@@ -462,8 +516,13 @@ factor_graph = af.FactorGraphModel(*analysis_factor_list, use_jax=True)
 """
 __Search__
 
-We fit the model with Nautilus. The parameter space is only 6-dimensional, so a modest number of live points
-suffices; a richer cluster with several individually-modelled galaxies would warrant more.
+We use `Nautilus` with 100 live points as the starting configuration for this six-parameter example.
+
+A low parameter count helps, but does not guarantee a simple posterior. Correlations between the halo, main
+galaxies and member normalization can still make inference challenging.
+
+Inspect the resulting fits and posterior distributions, and assess whether important conclusions remain stable
+under repeated runs or more demanding search settings.
 """
 search = af.Nautilus(
     path_prefix=Path("howtolens", "chapter_4"),
@@ -477,35 +536,39 @@ search = af.Nautilus(
 """
 __Model Fit__
 
-We pass the factor graph's global model and the factor graph itself (as the analysis) to the search. Because
-the likelihood involves no pixel-level computation, a full cluster point-source fit takes minutes — this is
-the payoff of point-source modeling, given that a pixel-level fit of the same system would take days.
+We pass the factor graph's global model and combined analysis to the search.
+
+Each proposed parameter set defines one cluster mass model, which is evaluated against both source datasets.
+Their log likelihoods combine to guide the search.
+
+The position-based likelihood avoids constructing a full model image at each evaluation. Runtime nevertheless
+depends on the model, number of images and members, hardware and search settings.
+
+When the search finishes, we will inspect both the global mass parameters and the fit to each source.
 """
 print(
-    """
-    The non-linear search has begun running.
-
-    This Jupyter notebook cell will progress once the search has completed - this could take a few minutes!
-
-    On-the-fly updates every iterations_per_quick_update are printed to the notebook.
-    """
+    "The non-linear search has begun. "
+    "Progress updates are printed during the search. "
+    "This cell will finish when the search completes."
 )
 
 result_list = search.fit(model=factor_graph.global_prior_model, analysis=factor_graph)
 
-print("The search has finished run - you may now continue the notebook.")
+print("The search has finished — you may now continue the notebook.")
 
 """
 __Results__
 
-A cluster fit produces the most complex results object we have met: many galaxies across multiple planes,
-tiers whose parameters are derived rather than sampled, and one result per source dataset. This section tours
-how to pull out each quantity you will actually need — it is worth working through slowly, because navigating
-results is half the practical skill of cluster modeling.
+The factor-graph fit returns one result per source dataset, in the same order as `dataset_list`.
 
-A factor-graph fit returns one `Result` per dataset (in the same order as `dataset_list`). All results share
-the same global model — and therefore the same samples and maximum likelihood model — but each carries its own
-dataset and its own maximum likelihood `FitPointDataset`.
+These results come from **one joint inference**, not separate searches. They share the global mass model and
+posterior, while each provides access to its own dataset and corresponding `FitPointDataset`.
+
+We first use one result to inspect the shared model parameters and tracer. We then loop over the results to
+examine each source's inferred position and fit diagnostics.
+
+This separates two useful questions: what mass distribution describes the cluster, and how well does that
+distribution explain each observed multiple-image system?
 """
 print(f"Number of results (one per source dataset): {len(result_list)}")
 
@@ -514,9 +577,14 @@ result = result_list[0]
 """
 __Results: The Maximum Likelihood Instance__
 
-The `max_log_likelihood_instance` is the model instance with the highest likelihood found. Its structure
-mirrors the model composition above: named galaxies under `.galaxies`, the scaling tier under
-`.scaling_galaxies`. We can read off the best-fit parameters of every tier.
+The `max_log_likelihood_instance` contains the parameter values of the highest-likelihood sample found by
+the search.
+
+Its structure follows the model we constructed: named components appear under `.galaxies`, while the tied
+members appear under `.scaling_galaxies`.
+
+We can inspect the main galaxies' dPIE parameters and the host halo's `mass_at_200` directly. These describe one
+fitted realization; later, we use the posterior samples to examine their uncertainties and correlations.
 """
 instance = result.max_log_likelihood_instance
 
@@ -531,10 +599,18 @@ print(
 """
 __Results: Per-Member Profiles__
 
-The scaling tier's single free parameter was `sigma_ref`, but the instance contains the fully-realised
-`dPIEMassSph` of every member — the scaling relation has been applied, so each member carries the `sigma` and
-`r_cut` its luminosity implies. This is how you would tabulate the inferred mass of every member galaxy in a
-real cluster analysis.
+Although the member population shares one free normalization, the fitted instance contains a complete
+`dPIEMassSph` profile for every member.
+
+Each member's `sigma` has been calculated from the fitted shared normalization and its luminosity ratio.
+Its centre, core radius and luminosity-derived truncation radius retain their fixed values.
+
+The loop below lists these realized profile parameters. They are not independent measurements of every member's
+mass: they inherit the scaling relation and its assumptions.
+
+To quantify their uncertainties, evaluate the derived quantities across posterior samples. With fixed
+luminosities and exponent, the members' `sigma` values vary together through their shared normalization.
+Intrinsic scatter and photometric uncertainty are not included unless explicitly modeled.
 """
 for i, member in enumerate(instance.scaling_galaxies):
     print(
@@ -545,10 +621,19 @@ for i, member in enumerate(instance.scaling_galaxies):
 """
 __Results: The Tracer__
 
-`max_log_likelihood_tracer` assembles every galaxy of the instance — named tiers and scaling members alike —
-into the best-fit multi-plane `Tracer`. This is the object to use for any lensing calculation with the
-best-fit mass model: convergence maps, deflection fields, critical curves and caustics, all computed exactly
-as in the earlier chapters, but now for the full cluster.
+`max_log_likelihood_tracer` assembles the named components and scaling members into a tracer for the fitted model.
+
+It provides the same lensing calculations used in earlier chapters, now with the full cluster mass distribution
+and both source redshifts.
+
+Inspect the plane redshifts and number of objects in the lens plane. Remember that the host halo occupies a
+mass-only `Galaxy` object alongside the twelve lens galaxies.
+
+When calculating quantities such as critical curves or magnifications, specify the relevant source plane:
+the same cluster produces different lens mappings for sources at different redshifts.
+
+This tracer represents one fitted realization. Uncertainty in derived lensing quantities requires repeating
+the calculation over appropriate posterior samples.
 """
 tracer = result.max_log_likelihood_tracer
 
@@ -560,11 +645,17 @@ aplt.subplot_tracer(tracer=tracer, grid=grid)
 """
 __Results: Solved Source-Plane Positions__
 
-Each result's `max_log_likelihood_fit` is the `FitPointDataset` of that source. Because we fitted with the
-solved source-plane likelihood, the fit's `positions` object carries the analytically-solved source-plane
-centre — the model's inferred true position of the source, before lensing. Its `residual_map` lists how far
-each back-traced image lands from that centre (in the source plane): for a good model these residuals are
-tiny, since all images of a source originate from the same point.
+Each result's `max_log_likelihood_fit` describes the fit to its own source dataset.
+
+With our selected likelihood, `fit.positions.source_plane_coordinate` gives the source position solved from
+that system's back-traced image positions under the fitted mass model.
+
+The `residual_map` records their offsets from this common position in the source plane. Inspect these together
+with the positional uncertainties and likelihood weighting, rather than judging the fit solely by whether
+the raw offsets look small.
+
+The printed log likelihood is the position-likelihood contribution for that source. The joint inference combines
+the contributions from all source datasets.
 """
 for result in result_list:
     fit = result.max_log_likelihood_fit
@@ -577,11 +668,18 @@ for result in result_list:
     print(f"  Log likelihood: {float(fit.positions.log_likelihood):.2f}")
 
 """
-We can perform the same back-tracing manually with the tracer, which makes explicit what the fit just did:
-ray-trace each source's observed image positions through the multi-plane lens equation to that source's own
-plane. `plane_index_via_redshift_from` maps a source redshift to its plane, and `traced_grid_2d_list_from`
-returns the positions traced to every plane — the multi-plane generalisation of the two-plane ray tracing of
-chapter 1.
+We can inspect the same mapping directly using the tracer, following the ray-tracing approach introduced in
+Chapter 1.
+
+For each dataset, we identify its source plane from its redshift and trace the observed image positions through
+the model. We then select the coordinates at that source plane.
+
+Images identified as the same source feature should map to a common location within the accuracy allowed by the
+data and model. Differences between their back-traced positions reveal where the proposed mass distribution
+does not bring them into agreement.
+
+This calculation displays the traced coordinates. It does not reproduce the full likelihood weighting or
+independently calculate the solved source position.
 """
 for dataset in dataset_list:
     plane_index = tracer.plane_index_via_redshift_from(redshift=dataset.redshift)
@@ -593,14 +691,15 @@ for dataset in dataset_list:
 """
 __Results: Magnifications__
 
-The magnification of each multiple image tells us how much the cluster brightens the source at that position —
-the "natural telescope" number. It is computed from the local distortion of the multi-plane deflection field
-(its Hessian) at each observed position, via the `LensCalc` object. `plane_j` selects the source's plane, so
-each source's magnifications are evaluated through its own multi-plane chain.
+We calculate the magnification at each observed image position using the fitted tracer.
 
-At cluster scale, images near the critical curves can reach magnifications of tens to hundreds — this is
-precisely the quantity you would quote when using the cluster to study an intrinsically faint background
-galaxy, since the source's true luminosity is the observed luminosity divided by the magnification.
+`plane_j` selects the relevant source plane, ensuring that each calculation uses the geometry appropriate to that source’s redshift.
+
+Magnification describes the local change in image area and, because lensing preserves surface brightness, the corresponding amplification of a sufficiently small source element. The code prints its absolute value; the sign also carries information about image parity.
+
+For an extended arc, the magnification can vary substantially across the image. The value at one position is therefore not necessarily the appropriate correction for the arc’s total flux.
+
+Near critical curves, magnifications can be large and sensitive to the mass model and source position. To infer an intrinsic luminosity, use a magnification appropriate to the measured emission and propagate the lens-model uncertainty.
 """
 for dataset in dataset_list:
     plane_index = tracer.plane_index_via_redshift_from(redshift=dataset.redshift)
@@ -617,11 +716,17 @@ for dataset in dataset_list:
 """
 __Results: Image-Plane Validation__
 
-The solved source-plane likelihood never solves the lens equation forwards, so it cannot tell us whether the
-best-fit model predicts the *right number* of multiple images — a model that would produce an extra image, or
-lose an observed one, looks the same to it. The standard final check is therefore to forward-solve the
-best-fit model with the `PointSolver` and compare the predicted image positions to the observed ones,
-per source.
+Our source-plane likelihood compares the back-traced positions of the observed images. It does not explicitly search for every image predicted by the model.
+
+We therefore return to the familiar `PointSolver`. For each source, we use its solved source position and redshift to predict the image-plane positions, then compare them with the observations.
+
+Inspect both their positions and their number. Significant mismatches can reveal limitations that were not apparent from the source-plane residuals alone.
+
+The comparison also depends on the solver’s search region, numerical resolution and magnification threshold. An apparently missing predicted image may lie outside the searched region or have been filtered out.
+
+Conversely, an additional predicted image is not automatically ruled out by its absence from the catalogue: it may be too faint, blended with a galaxy or outside the observations. Assess its expected detectability before interpreting it as a failure of the mass model.
+
+This is a diagnostic of the fitted realization. Important conclusions should also be checked across the posterior and, where appropriate, with an image-plane likelihood.
 """
 for result, dataset in zip(result_list, dataset_list):
     fit = result.max_log_likelihood_fit
@@ -648,10 +753,17 @@ for result, dataset in zip(result_list, dataset_list):
 """
 __Results: Samples and Errors__
 
-Everything above used the maximum likelihood model, but the `Samples` object gives the full posterior — the
-same API as chapter 2, unchanged by the cluster's complexity. Of particular scientific interest here are the
-inferred halo mass and the scaling-relation normalization `sigma_ref` (whose truth value in the simulator was
-85 km/s): the marginalised errors on these are what a cluster paper reports.
+The calculations above used one fitted realization. The posterior samples describe the range of model parameters supported by the data under our chosen priors and assumptions.
+
+We use the same `Samples` interface introduced in Chapter 2 to inspect marginal medians, credible intervals and correlations.
+
+Of particular interest are the host halo mass, the main galaxies’ mass-profile parameters and the shared member normalization. Examine their joint distributions: a narrow interval for one parameter does not describe all freedom in the cluster’s mass decomposition.
+
+The model returned by `median_pdf()` contains the marginal median of each parameter. It is a useful summary, but need not be a single sampled realization or the best-fitting combination.
+
+The intervals below describe posterior uncertainty within this model. They do not automatically include uncertainties associated with fixed redshifts, member luminosities, the mass–concentration relation or omitted mass structure.
+
+The corner plot helps reveal these parameter correlations and whether the sampled distributions approach their prior boundaries.
 """
 samples = result_list[0].samples
 
@@ -675,53 +787,31 @@ aplt.corner_anesthetic(samples=samples)
 """
 __Customization__
 
-This tutorial used the default point-source setup throughout: `Point` / `PointSolved` source components, the
-solved source-plane likelihood, and default `PointSolver` settings. Point-source modeling has a rich set of
-options beyond these — image-plane likelihoods and their pairing schemes, free source centres, fitting the
-fluxes of the multiple images, fitting time delays (the observable behind lensed-quasar cosmology) — and a
-dedicated workspace guide covers them extensively:
+This tutorial used solved source positions and a source-plane position likelihood. Other analyses may require image-plane likelihoods, independently sampled source positions, flux measurements or time delays.
 
- - `autolens_workspace/scripts/point_source`: the galaxy-scale point-source examples (lensed quasars and
-   supernovae), including the `fit.py` guide to every fit variant and the `features` folder (fluxes, time
-   delays, multiple sources).
- - `autolens_workspace/scripts/guides/point_solver/pairing.py`: the full matrix of position-fitting schemes
-   and when to use each.
- - `autolens_workspace/scripts/cluster`: the cluster-scale workflow this tutorial is built on, including a
-   fit to real Hubble Space Telescope data of the cluster Abell 2744 with 188 catalogue members and 7
-   sources, the CSV-schema guide (`csv_api.py`) and a step-by-step walkthrough of the point-source
-   likelihood (`likelihood_function.py`).
+The workspace provides examples and step-by-step guides:
+
+- `autolens_workspace/scripts/point_source`: point-source modeling, including the familiar quasar examples and additional observables.
+- `autolens_workspace/scripts/guides/point_solver/pairing.py`: image-position pairing schemes and their use.
+- `autolens_workspace/scripts/cluster`: cluster workflows, CSV inputs and a walkthrough of the cluster point-source likelihood.
+
+Use these guides when adapting the tutorial to a different dataset or likelihood.
 
 __Wrap Up__
 
-This tutorial reached the top of the strong-lensing mass ladder. Lets recap what we learnt:
+In this tutorial, we learned:
 
-- **Clusters**: 30+ to hundreds of lens galaxies inside a dark matter halo of more than 10^14 solar masses,
-  lensing many background sources at once. Their science is extreme magnification — using the cluster as a
-  natural telescope onto the faint early Universe — and mapping the cluster's dark matter distribution.
+- Cluster lenses combine a shared dark matter halo with many individual galaxies and can multiply image sources at several redshifts.
+- Multiple source planes require the appropriate redshift-dependent geometry. Multiple **deflecting** planes arise when significant mass lies at different redshifts.
+- Position fitting uses matched image features to constrain the mass model without reconstructing every arc’s full surface brightness.
+- CSV catalogues organize the data and model components; fixed quantities and shared relations determine how many parameters remain free.
+- Our restricted example has six non-linear parameters. That compactness comes from its assumptions, rather than implying that cluster mass distributions are intrinsically simple.
+- A joint fit combines the source datasets while allowing us to inspect each system’s contribution separately.
+- Interpreting the result requires both posterior uncertainties and checks of the predicted image configuration. Derived member masses and magnifications inherit the model’s assumptions.
 
-- **Multi-plane ray tracing**: cluster sources sit at different redshifts, so the lens equation is applied
-  recursively through the planes, with each plane's deflections scaled by cosmological distance ratios. The
-  `Tracer` handles this automatically, provided every source's redshift is set correctly.
+Strong lensing has now taken us from individual galaxies to groups and clusters.
 
-- **Point-source modeling**: fitting the extended light of every source is computationally prohibitive at
-  this scale, so the standard workflow fits the positions of each source's multiple images, reducing the
-  likelihood to source-plane geometry that evaluates in milliseconds.
+Beyond the central region producing multiple images, the same mass distribution continues to distort background galaxies. Those distortions are often too small to identify reliably in an individual galaxy because its unlensed shape is unknown.
 
-- **The CSV interface**: the data (`point_datasets.csv`), the individually-modelled galaxies (`mass.csv` /
-  `point.csv`) and the member catalogue (`scaling_galaxies.csv`) are all spreadsheet-editable files. Scaling
-  the model to a richer cluster is a row-append, not a code change.
-
-- **Six parameters, fifteen galaxies**: fixed observed centres, a scaling relation for the member population
-  and solved source centres decouple the model's physical richness from the dimensionality of the search.
-
-- **Results access**: per-member realised profiles, the multi-plane tracer, solved source-plane centres,
-  per-image magnifications and forward-solved image positions — the complete toolkit for interpreting a
-  cluster fit.
-
-Strong lensing — multiple images, arcs, Einstein rings — has carried us from single galaxies to the most
-massive structures in the Universe. But a cluster's gravity does not stop deflecting light at the radius
-where multiple images form. Far beyond it, every background galaxy is still subtly sheared — distorted by a
-percent or less — and by measuring those distortions statistically across thousands of galaxies, the
-cluster's mass can be mapped out to its edges. That is **weak lensing**, a different regime with different
-data and different statistics, and it is where the next tutorial takes us.
+By measuring the coherent distortions across a population of background galaxies, we can constrain mass over a much wider region. This is **weak lensing**, the subject of the final tutorial in this chapter.
 """

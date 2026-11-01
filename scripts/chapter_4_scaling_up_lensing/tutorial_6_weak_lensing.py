@@ -2,58 +2,36 @@
 Tutorial 6: Weak Lensing
 ========================
 
-Every tutorial in this series so far — indeed, every fit performed in all four chapters of **HowToLens** — has been
-a *strong* lensing analysis. Strong lensing occurs when a background galaxy lies so close (in projection) to a
-foreground mass that its light is bent into multiple images, arcs or a complete Einstein ring. These dramatic
-features are what we simulated, fitted and modeled, from the single galaxy-scale lenses of chapters 1 and 2 up to
-the group-scale and cluster-scale systems earlier in this chapter.
+Our modeling tutorials have concentrated on **strong lensing**: the multiple images, arcs and Einstein rings produced by galaxy, group and cluster lenses.
 
-Strong lensing is spectacular, but it is also rare and spatially confined. Multiple images only form inside (or very
-near) the Einstein radius, so a strong-lensing analysis constrains the mass distribution only within that region —
-a few arc-seconds for a galaxy, tens of arc-seconds for a cluster core. Outside it, the arcs and multiple images
-simply do not exist, and everything we have built so far has nothing to fit.
+In the previous tutorial, we used the positions of multiply imaged sources to constrain a cluster’s mass distribution. Those images provide particularly valuable information in the central region where they form. To measure the mass distribution over a much wider region, we can also use **weak lensing**.
 
-Yet the gravity of the foreground mass does not stop at the Einstein radius. *Every* background galaxy, however far
-from the lens centre, has its shape slightly distorted — sheared — by the foreground mass it sits behind. This is
-**weak lensing**: a percent-level stretching of each background galaxy's observed ellipticity, tangentially aligned
-around the foreground mass.
+The same gravitational field distorts the shapes of background galaxies beyond the region containing prominent arcs. These distortions are usually difficult to distinguish from a galaxy’s unknown intrinsic shape: an elongated galaxy might have been elongated even without lensing.
 
-The catch is that we cannot see this distortion in any single galaxy. Galaxies are not intrinsically round: a
-typical galaxy has a random unlensed ellipticity of ~0.25 per component, whereas the weak-lensing shear it receives
-is ~0.01-0.1. The signal is buried an order of magnitude below the intrinsic "shape noise" of any one object.
+The signal becomes measurable statistically. Nearby background galaxies experience a coherent lensing distortion, while their intrinsic orientations contribute scatter. Measuring many galaxies allows us to estimate that coherent signal.
 
-The solution is statistical. The intrinsic ellipticities of different galaxies are randomly oriented and average to
-zero, whereas the lensing shear is coherent — every galaxy near a given point on the sky is sheared the same way.
-Average the measured shapes of many background galaxies and the random part cancels while the lensing part remains.
-This is the fundamental contrast with everything the series has done so far: strong lensing extracts an exquisite
-signal from a single special system, weak lensing extracts a faint signal from the ensemble of many ordinary ones.
+This scatter is called **shape noise**. Increasing the number of usable background galaxies reduces its contribution to the uncertainty, although observational biases and correlations between intrinsic galaxy shapes also require attention in real analyses.
 
-This changes what the data even *is*. There is no image to fit, no PSF to convolve, no mask, no pixelized source
-reconstruction. A weak-lensing dataset is a **shear catalogue**: a table of background-galaxy sky positions, each
-with a measured shear estimate (two ellipticity components) and a per-galaxy uncertainty. Fitting one means
-comparing a mass model's predicted shear field, evaluated at those positions, against the measured values.
+You first encountered a weak-lensing dataset in Chapter 1. Here we return to its **shear catalogue**: background-galaxy positions, two components describing the estimated distortion, and their uncertainties.
 
-In this tutorial we simulate a weak-lensing shear catalogue around a cluster-scale lens (entirely in memory — no
-files are written), visualize its shear field, fit it with a mass model whose parameters we know, and then infer
-those parameters with a non-linear search. You will recognise every step: the `Tracer`, `Fit`, `Analysis` and
-search workflow of the whole series, applied to a completely different kind of data.
+We simulate a catalogue around a cluster-scale lens, visualize it, inspect a fit using the input mass model, and then infer the model parameters with a non-linear search. The familiar `Tracer`, `Fit`, `Analysis` and search workflow remains central.
 
 This tutorial closes both this chapter and the four core chapters of **HowToLens**.
 
 __Contents__
 
-- **Shear Catalogues:** What a weak-lensing dataset is and where the catalogue comes from in a real analysis.
-- **Mass Scales:** Why weak lensing is a cluster-scale tool, tying to the mass scales of the previous tutorials.
-- **Ray Tracing:** Build a `Tracer` for a cluster-scale lens, the mass whose shear field we will measure.
-- **Source Galaxy Positions:** Draw background galaxies in an annulus outside the strong-lensing core.
-- **Simulate:** Create a `WeakDataset` in memory with `SimulatorShearYX`, adding realistic shape noise.
-- **Visualize:** Plot the shear field as a whisker map and the dataset's 2x2 summary mosaic.
-- **Mass Map:** Invert the shear catalogue into a model-independent convergence map (Kaiser-Squires).
-- **Fitting:** Fit the catalogue with the true mass model via `FitWeak` and inspect its goodness-of-fit.
-- **Model Fit:** Infer the mass model from the shear catalogue alone with `AnalysisWeak` and a non-linear search.
-- **Result:** The inferred model, the fit mosaic and the tangential shear profile.
-- **Joint Strong and Weak Lensing:** How PyAutoLens expects weak lensing to be used — combined with strong lensing.
-- **Wrap Up:** The end of the chapter, and of the core HowToLens lectures.
+- **Shear Catalogues:** The measurements used in a weak-lensing analysis.
+- **Mass Scales:** Weak lensing around galaxies, groups and clusters.
+- **Ray Tracing:** Build a simple cluster-scale mass model.
+- **Source Galaxy Positions:** Sample background galaxies across the observed field.
+- **Simulate:** Generate a shear catalogue with shape noise.
+- **Visualize:** Inspect the shear field and dataset summary.
+- **Mass Map:** Reconstruct a convergence map from the catalogue.
+- **Fitting:** Inspect the likelihood and residuals for a specified mass model.
+- **Model Fit:** Infer mass-model parameters with a non-linear search.
+- **Result:** Inspect the inferred model and tangential shear profile.
+- **Joint Strong and Weak Lensing:** Combine constraints across different radii.
+- **Wrap Up:** Complete the core HowToLens lectures.
 """
 
 from autolens import jax_wrapper  # Sets JAX environment before other imports
@@ -67,64 +45,54 @@ import autofit as af
 import autolens as al
 import autolens.plot as aplt
 
-"""
+r"""
 __Shear Catalogues__
 
-Before we simulate anything, lets be clear about what a real weak-lensing dataset looks like, because it is unlike
-any data this series has fitted before.
+A shear catalogue contains one row per background galaxy, including:
 
-A **shear catalogue** is a table with one row per background galaxy, containing:
+- Its observed sky position, expressed here as `(y, x)` offsets in arc-seconds.
+- Two components describing its estimated lensing distortion.
+- An uncertainty that accounts for intrinsic shape dispersion and measurement noise.
 
- - The galaxy's sky position (for us, (y, x) arc-second offsets from a chosen centre).
- - A measured shear estimate (gamma_1, gamma_2) — in practice the galaxy's measured ellipticity components, which
-   estimate the lensing shear because the intrinsic shape averages to zero over many galaxies.
- - A per-galaxy uncertainty, combining the intrinsic shape dispersion (~0.25 per component) with the measurement
-   error, added in quadrature.
+Real catalogues also require information about source redshifts, selection and calibration. The lensing signal depends on the geometry between the observer, lens and source, just as it did for the multiple source redshifts in the cluster tutorial.
 
-Producing this catalogue from raw telescope images is a substantial data-reduction task in its own right: galaxies
-must be detected, stars separated from galaxies, the PSF measured and its blurring of galaxy shapes corrected
-(the PSF makes every galaxy look rounder, diluting the shear signal), and calibration biases characterised.
-Dedicated shape-measurement pipelines exist for exactly this job, and entire survey collaborations are built
-around getting it right.
+Producing these measurements begins with telescope images. Galaxies must be detected and selected, and their shapes measured while accounting for the PSF, noise and instrumental effects. The PSF can both blur galaxy shapes and introduce coherent distortions that could be mistaken for lensing.
 
-**All of that is outside PyAutoLens's scope.** PyAutoLens assumes the shear catalogue has already been produced
-upstream by such a pipeline, and starts where the catalogue ends: fitting mass models to the measured shears. This
-division of labour is why the weak-lensing API is so lean — no PSF, no mask, no image — the hard observational
-systematics were dealt with before the data reached us.
+We start after this shape-measurement stage. The dataset supplied to this tutorial contains catalogue measurements rather than image pixels, so our likelihood does not convolve a model image with a PSF. This does not make observational systematics disappear: their calibration and uncertainty remain part of a real weak-lensing analysis.
+
+There is also an important distinction between **shear** and **reduced shear**. Galaxy-shape measurements generally estimate the reduced shear:
+
+\[
+g = \frac{\gamma}{1-\kappa}.
+\]
+
+When the convergence is sufficiently small, reduced shear is approximately equal to shear. This tutorial uses an idealized catalogue of shear measurements generated directly from the model. When working with observed catalogues, check which quantity the measurements estimate and ensure that the model predicts the same quantity.
 
 __Mass Scales__
 
-This chapter has climbed a ladder of mass scales, and weak lensing is its top rung. The strength of the statistical
-shear signal around a lens scales with its mass, so whether weak lensing is even measurable depends on where on the
-ladder we stand:
+Weak lensing is useful across the mass scales explored in this chapter.
 
- - **A single galaxy** (Einstein radius ~1-2", the lenses of chapters 1-3): the shear imprinted on background
-   galaxies beyond the Einstein radius is far too weak to detect around any one system — there are too few
-   background galaxies carrying too little shear. (Surveys recover it only by *stacking* thousands of lens
-   galaxies, a technique called galaxy-galaxy lensing that averages over the lens population.)
+For individual galaxy lenses, the available background galaxies usually provide too little information for a precise halo measurement. **Galaxy–galaxy lensing** therefore commonly combines measurements around many foreground galaxies to constrain the average mass distribution of a population.
 
- - **A group** (Einstein radius ~4-10", the scale of the group tutorial earlier in this chapter): the signal is
-   marginal — detectable for well-observed individual groups, but noisy.
+Groups produce larger signals, but the precision obtainable for an individual system depends on its mass, redshift and the depth and quality of the observations. Combining groups can also improve the measurement.
 
- - **A cluster** (Einstein radius ~10-30"+, the previous tutorial's scale): the signal is strong enough to measure
-   around a *single* system. Hundreds to thousands of background galaxies within a few arc-minutes each carry a
-   |gamma| ~ 0.01-0.2 shear, and their average traces the cluster's mass out to radii of arc-minutes — ten or more
-   times further out than the strong-lensing core.
+Massive clusters can produce measurable coherent distortions across hundreds or thousands of background galaxies. These measurements extend well beyond the central arcs and help constrain the cluster’s extended dark matter halo.
 
-This reach is the scientific point. The dark matter halo of a cluster extends to Mpc scales, far beyond where arcs
-form. Weak lensing is the only lensing probe of that outer halo, which is why it is the tool of choice for cluster
-mass measurements, and it is why this tutorial simulates a cluster-scale lens.
+There is no sharp Einstein-radius boundary separating these applications. Detectability depends on the lensing geometry, the radii sampled, the number of usable sources and their shape uncertainties.
+
+We use a cluster-scale lens here because it provides a useful demonstration of an individual-system weak-lensing analysis.
 
 __Ray Tracing__
 
-We begin exactly as the series always has: with a `Tracer`. The lens is a cluster-scale `Isothermal` mass profile
-with an Einstein radius of 25.0" — the same order as the previous tutorial's cluster, and a mass for which the
-weak shear signal is genuinely measurable. The source galaxy carries no light profile: weak lensing measures the
-lens's shear field at the background galaxies' positions, so their appearance is irrelevant — they are pure probes,
-included only to give the `Tracer` its source-plane redshift.
+We begin with a `Tracer`, using an elliptical `Isothermal` mass profile with an Einstein radius of 25.0 arc-seconds.
 
-Note also what the lens galaxy lacks: no light profile. A shear catalogue contains no image of the lens, so there
-is no lens light to model — another simplification compared to every imaging fit in this series.
+This is a deliberately simple cluster-scale mass distribution. Real cluster analyses often use NFW dark matter halos and additional mass components, as discussed in the previous tutorial.
+
+The lens has no light profile because this fit uses catalogue measurements rather than an image of the lens.
+
+The source galaxy also has no light profile. It supplies the source-plane redshift needed to calculate the lensing geometry; it does not represent the detailed appearance of an individual background galaxy.
+
+For simplicity, all background galaxies in this simulation lie at redshift 1.0, behind a lens at redshift 0.5.
 """
 lens_galaxy = al.Galaxy(
     redshift=0.5,
@@ -142,23 +110,22 @@ tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
 """
 __Source Galaxy Positions__
 
-Real weak-lensing measurements avoid the strong-lensing core: inside it the shear is no longer weak (the linear
-shear approximation breaks down), and cluster-member galaxies contaminate the background sample. We therefore draw
-our background galaxies in an **annulus**, from an inner radius of 50" (twice the Einstein radius, safely into the
-weak regime) to an outer radius of 200" (over 3 arc-minutes), distributed uniformly in area.
+We draw 1500 observed background-galaxy positions in an annulus extending from 50 to 200 arc-seconds from the lens centre, distributed uniformly in area.
 
-At 50" from this lens the shear is |gamma| ~ 0.25, and by 200" it has fallen to |gamma| ~ 0.06 — every galaxy is a
-weak probe whose individual distortion is at or below the shape noise. With 1500 galaxies (a deep-survey source
-density of ~45 per square arc-minute) the *ensemble* nonetheless carries a decisive signal, exactly as in a real
-cluster analysis.
+This excludes the central region containing the strongest lensing features. In real observations, the usable region also depends on blending, cluster-member contamination and the reliability of the shape measurements.
 
-The positions are stored as an `al.Grid2DIrregular` of (y, x) coordinates — the same irregular-grid structure the
-point-source tutorials used, because a catalogue of sky positions is not a uniform pixel grid.
+The annulus covers approximately 33 square arc-minutes, giving a source density of about 46 galaxies per square arc-minute. This represents a deep illustrative catalogue; the usable density in an observation depends on its depth, resolution and selection criteria.
+
+For comparison, a spherical isothermal lens with an Einstein radius of 25 arc-seconds has shear and convergence of 0.25 at 50 arc-seconds, falling to about 0.06 at 200 arc-seconds. Our elliptical model varies with position angle as well.
+
+The inner boundary is therefore outside the Einstein radius, but it does not guarantee that reduced shear is approximately equal to shear. For the spherical example, the reduced shear at 50 arc-seconds is about 0.33. Remember that our simulation generates shear directly rather than simulating observed galaxy ellipticities.
+
+The positions are stored in an `al.Grid2DIrregular`, using the same `(y, x)` coordinate convention as the point-source tutorials. These are observed image-plane positions at which we evaluate the lensing field, not reconstructed source-plane coordinates.
 """
 rng = np.random.default_rng(1)
 
 n_galaxies = 1500
-radius_inner = 50.0  # arc-seconds — inside this we are in the strong-lensing core.
+radius_inner = 50.0  # arc-seconds — excludes the central region of the simulated lens.
 radius_outer = 200.0  # arc-seconds — the edge of our simulated weak-lensing field.
 
 radii = np.sqrt(rng.uniform(radius_inner**2.0, radius_outer**2.0, n_galaxies))
@@ -171,19 +138,15 @@ positions = al.Grid2DIrregular(
 """
 __Simulate__
 
-The `SimulatorShearYX` object simulates a weak-lensing shear catalogue from a tracer: its `via_tracer_from` method
-evaluates the tracer's shear field at every galaxy position (by differentiating the deflection-angle field) and
-adds Gaussian shape noise to each measurement.
+`SimulatorShearYX` evaluates the tracer’s shear field at each catalogue position and adds independent Gaussian noise to its two components.
 
-A `noise_sigma` of 0.25 per shear component is the standard intrinsic shape dispersion of real galaxies — this is
-the dominant noise source in weak lensing, and it is what makes the per-galaxy signal invisible: the noise on each
-measurement is several times larger than the shear it contains.
+We use `noise_sigma=0.25` per component as an illustrative shape-noise dispersion. The intrinsic shapes of real galaxies produce substantial scatter, and measurement errors add further uncertainty.
 
-Unlike every previous tutorial, we do not write this dataset to disk and reload it. The whole catalogue is a few
-thousand numbers, so we keep it in memory and use it directly — which also mirrors how you might resimulate
-catalogues on the fly when testing survey sensitivities. (This repo's `scripts/simulator/weak_lensing.py` — the
-script chapter 1's data tutorial auto-ran to give you your first glimpse of a shear catalogue — shows the
-disk-based version, with the same JSON output pattern as the imaging simulators.)
+This is a simplified statistical simulation. We do not generate images of individual background galaxies or run a shape-measurement pipeline. Instead, we directly generate noisy estimates of the shear field that our likelihood will fit.
+
+The simulator’s default configuration generates shear rather than reduced shear, matching the idealization described above.
+
+We keep the catalogue in memory and pass it directly to the fitting tools. The script `scripts/simulator/weak_lensing.py`, used for the weak-lensing example in Chapter 1, demonstrates saving a catalogue to disk.
 """
 dataset_name = "weak_lensing"
 
@@ -200,40 +163,43 @@ print(dataset.info)
 """
 __Visualize__
 
-Weak-lensing data has its own visual language. The shear field is drawn as a **whisker map**: at each galaxy
-position, a line segment whose length is the shear magnitude |gamma| and whose orientation is the shear's position
-angle. The segments are deliberately *headless* (no arrowheads), because shear is a spin-2 quantity — rotating a
-shear by 180 degrees maps it back onto itself, so a whisker has an orientation but no direction, and an arrowhead
-would suggest information the data does not contain.
+We display the catalogue as a **whisker map**. Each galaxy position has a line segment whose length represents the magnitude of its measured shear estimate and whose orientation represents the corresponding position angle.
 
-Around a massive lens, the whiskers align *tangentially* — each traces a small piece of a circle around the lens
-centre, the statistical echo of the rings and arcs of strong lensing. Squint at the plot below and you can see it,
-though the shape noise makes it far from obvious galaxy-by-galaxy: this is what a signal an order of magnitude
-below the per-object noise looks like.
+The segments have no arrowheads. A shear orientation is unchanged by a rotation of 180 degrees, so a line represents it more appropriately than a directed arrow.
+
+Around a centrally concentrated lens, the coherent pattern is predominantly tangential: the whiskers tend to follow circles around the lens centre. Ellipticity and additional mass structure can modify that pattern.
+
+Shape noise introduces substantial scatter in both the lengths and orientations of the plotted whiskers. Individual measurements need not align with the underlying field, even when the ensemble constrains it well.
+
+The plot provides an initial view of the measurements. Later, we will compare them with a model and summarize their tangential component in radial bins.
 """
 aplt.plot_shear_yx_2d(shear_yx=dataset.shear_yx)
 
 """
-`aplt.subplot_weak_dataset` summarises the full dataset as a 2x2 mosaic: the whisker map, the per-galaxy noise-map,
-the shear magnitude |gamma| and the position angle phi at every galaxy.
+`aplt.subplot_weak_dataset` summarizes the catalogue in four panels: the shear whiskers, the per-galaxy uncertainties, the measured shear magnitudes and their position angles.
+
+Our simulation assigns the same uncertainty to every galaxy. Real catalogues generally have varying uncertainties because galaxies differ in brightness, size and the quality of their shape measurements.
+
+The magnitude and position-angle panels describe the noisy measurements. They should not be interpreted as direct maps of the underlying lensing field.
 """
 aplt.subplot_weak_dataset(dataset=dataset)
 
 """
 __Mass Map__
 
-A remarkable property of weak lensing is that the shear catalogue can be inverted directly into a map of the
-convergence `kappa` — the dimensionless projected mass density we have used throughout the series — *without
-assuming any mass model at all*. In Fourier space, shear and convergence are related algebraically, so two FFTs
-turn the catalogue into a "dark matter map". This is the Kaiser-Squires technique, and it produced some of the most
-famous images in cosmology, such as the mass map of the Bullet Cluster showing dark matter offset from the
-colliding gas.
+The shear field contains information about the convergence `kappa`, the dimensionless projected mass density introduced earlier in the series.
 
-`aplt.plot_convergence_map` bins the catalogue onto a regular grid, applies a small Gaussian smoothing (per-cell
-shears are shape-noise dominated) and plots the reconstruction. For our simulated cluster it peaks at the lens
-centre at (0.0", 0.0"). Two caveats: the map's mean is unconstrained (the mass-sheet degeneracy, which chapter 3
-met in its strong-lensing form) and FFT periodicity produces edge artefacts — for quantitative masses we fit a
-mass model, which is what the rest of this tutorial does.
+The **Kaiser–Squires** method uses the relationship between shear and convergence in Fourier space to reconstruct a convergence map without choosing a parametric mass profile such as an Isothermal or NFW.
+
+`aplt.plot_convergence_map` bins the catalogue onto a regular grid, smooths the binned shear field and performs this reconstruction.
+
+The resulting map provides a useful view of the projected mass structure. It traces the total lensing mass, including both dark matter and baryons; identifying a feature specifically with dark matter requires additional information.
+
+Avoid interpreting every peak as a real mass concentration. Shape noise, smoothing, the finite field and gaps in the catalogue all affect the reconstruction. Our catalogue has no measurements inside its central hole, so the displayed map there is not a direct local measurement.
+
+Shear also leaves an additive constant in the reconstructed convergence unconstrained. This is related to the mass-sheet degeneracy discussed in Chapter 3.
+
+Use this map as an exploratory diagnostic. Quantitative measurements require uncertainty estimates and careful treatment of the survey geometry. Here, we proceed by fitting a parametric mass model directly to the catalogue.
 """
 aplt.plot_convergence_map(
     shear_yx=dataset.shear_yx,
@@ -244,21 +210,21 @@ aplt.plot_convergence_map(
 """
 __Fitting__
 
-We now fit the catalogue, following the same pattern as every fit in this series: build a model `Tracer`, pass it
-with the dataset to a `Fit` object, and inspect residuals and the log likelihood. For weak lensing the fit object
-is `FitWeak`, and because we simulated the data ourselves we can hand it the *true* tracer and see what a perfect
-model looks like.
+We now follow the fitting workflow introduced in Chapter 1: specify a model `Tracer`, combine it with the dataset in a fit object, and inspect the residuals and log likelihood.
 
-`FitWeak` evaluates the model tracer's shear field at the dataset's galaxy positions and compares it with the
-measured shears, assuming each component is independently Gaussian-distributed around the model with the
-per-galaxy noise. Each galaxy contributes **two** independent data points (gamma_1 and gamma_2), so the number of
-degrees of freedom is 2 * n_galaxies, and for a good fit whose residuals are pure shape noise the chi-squared
-should be close to that number.
+For this dataset, the fit object is `FitWeak`. It evaluates the predicted shear at each observed galaxy position and compares its two components with the catalogue measurements.
 
-Compare this to the imaging fits of chapter 1: there, the fit convolved a model image with the PSF and compared
-tens of thousands of pixels; here there is no convolution, no mask and only a few thousand numbers. A weak-lensing
-likelihood is orders of magnitude cheaper — which is precisely why it is so inexpensive to add to a strong-lensing
-analysis, as discussed at the end of this tutorial.
+Our likelihood assumes independent Gaussian errors for the two components, using the supplied uncertainties. This matches the way we generated this simulated catalogue.
+
+We first supply the input tracer used by the simulator. Its predictions describe the underlying shear field, while the residuals contain the Gaussian noise added during simulation.
+
+There are two measured components per galaxy, giving 3000 scalar measurements. At this fixed input model, the expected chi-squared is therefore 3000, with statistical fluctuations between noise realizations.
+
+This count should not be confused with the residual degrees of freedom after estimating parameters from the same data. We will shortly allow the mass parameters to vary in a non-linear search.
+
+Unlike an imaging likelihood, this calculation does not generate and convolve a model image or reconstruct source surface brightness. Its main task is evaluating the lensing field at the catalogue positions and calculating the likelihood.
+
+The computational cost depends on the catalogue size, mass model and implementation, but this makes catalogue fitting a useful complement to the imaging and point-source analyses explored earlier.
 """
 fit = al.FitWeak(dataset=dataset, tracer=tracer)
 
@@ -266,13 +232,18 @@ print()
 print("Fit Summary (true model)")
 print("------------------------")
 print(f"n_galaxies        : {dataset.n_galaxies}")
-print(f"degrees_of_freedom: {2 * dataset.n_galaxies}")
+print(f"n_data_components: {2 * dataset.n_galaxies}")
 print(f"chi_squared       : {fit.chi_squared:.3f}")
 print(f"log_likelihood    : {fit.log_likelihood:.3f}")
 
 """
-As always, an incorrect mass model produces a worse fit. Halving the Einstein radius halves the predicted shear
-everywhere, leaving coherent tangential residuals across the field, and the log likelihood drops accordingly.
+We next halve the model’s Einstein radius while keeping its centre and ellipticity fixed.
+
+For this Isothermal profile, that change halves the predicted shear at every catalogue position. The model therefore underpredicts the coherent signal present in the simulated data.
+
+Compare the two printed log likelihoods. This deliberately large change illustrates how the catalogue distinguishes different mass normalizations, even though individual galaxy measurements are noisy.
+
+The likelihood combines information from the whole catalogue: the preference does not require every individual measurement to lie closer to the input model.
 """
 tracer_wrong = al.Tracer(
     galaxies=[
@@ -295,30 +266,38 @@ print(f"log_likelihood (true model) : {fit.log_likelihood:.3f}")
 print(f"log_likelihood (wrong model): {fit_wrong.log_likelihood:.3f}")
 
 """
-`aplt.subplot_fit_weak` visualises a weak-lensing fit as a 2x2 mosaic: the observed shear field, the model shear
-field, the two overlaid on one axes (data in black, model in red), and the per-galaxy chi-squared map. For the true
-model the overlay's residuals are short and randomly oriented — the shape-noise floor — and the chi-squared map is
-spatially uniform.
+`aplt.subplot_fit_weak` displays the observed shear field, the model field, an overlay of the two and the per-galaxy chi-squared contributions.
+
+The input model produces a smooth, coherent pattern. The observed whiskers scatter around that pattern because of shape noise, so a good fit does not require close agreement for every galaxy.
+
+Likewise, the chi-squared map need not look uniform. Individual galaxies can have large contributions simply because their noise realizations are large.
+
+Look for coherent discrepancies across the field, alongside the overall likelihood and residual statistics. Such patterns can indicate missing mass structure, an inadequate model or problems with the measurements.
+
+For this simulation, the input model and noise assumptions match the data-generation process, providing a reference for interpreting these diagnostics.
 """
 aplt.subplot_fit_weak(fit=fit)
 
 """
 __Model Fit__
 
-In a real analysis we do not know the mass model — we infer it. The workflow is the one you have used since
-chapter 2: compose a model with `af.Model` and `af.Collection`, choose a non-linear search, create an `Analysis`
-object and fit. For weak lensing the analysis object is `AnalysisWeak`, whose `log_likelihood_function` builds a
-`Tracer` from each sampled parameter set, evaluates its shear field at the catalogue positions and returns the
-Gaussian log likelihood — the same `FitWeak` machinery we just used by hand.
+We now infer the mass-model parameters using the workflow introduced in Chapter 2: compose a model with `af.Model` and `af.Collection`, choose a non-linear search, create an analysis object and fit.
 
-The model is the lens's `Isothermal` mass [5 parameters]; the source galaxy again carries no components. Note the
-tiny parameter space — no lens light, no source light, no shear-as-nuisance-parameter (the shear field *is* the
-data here) — compared to the N=20+ models of the imaging tutorials.
+`AnalysisWeak` builds a `Tracer` from each sampled parameter set and evaluates the catalogue likelihood using the same `FitWeak` calculation we inspected above.
 
-One adjustment is needed, familiar from the group and cluster tutorials: the default priors are tuned for
-galaxy-scale lenses (Einstein radii of 0"-8", centres within a fraction of an arc-second). Our cluster's 25"
-Einstein radius lies entirely outside that prior, so we widen the priors to cluster scales — always match your
-priors to the mass scale of the system you are fitting.
+Our Isothermal model has five non-linear parameters:
+
+- Two centre coordinates.
+- Two ellipticity components.
+- The Einstein radius.
+
+The lens and source redshifts remain fixed. Neither galaxy has a light profile, so there are no light-profile parameters or source reconstructions to fit.
+
+Earlier in this chapter, we often fixed individual galaxy centres to their measured centres of light. Here, the mass profile represents the cluster as a whole, and we allow its centre to vary. A cluster’s overall mass centre need not coincide exactly with the light centre of its brightest galaxy.
+
+We assign an Einstein-radius prior spanning 0–60 arc-seconds and Gaussian centre priors with a width of 20 arc-seconds around the origin. These are illustrative choices suited to this simulated system.
+
+As in the group and cluster tutorials, check that the priors describe the scale and plausible configurations of the system being analyzed. Inspect the resulting posterior to determine whether the data constrain these parameters within their allowed ranges.
 """
 mass = af.Model(al.mp.Isothermal)
 mass.einstein_radius = af.UniformPrior(lower_limit=0.0, upper_limit=60.0)
@@ -334,23 +313,24 @@ model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
 print(model.info)
 
 """
-The same model can also be visualized as a figure, making its structure easier to understand at a glance.
+The model figure summarizes this structure: one lens mass profile with five free parameters and a source galaxy supplying a fixed redshift.
 
-The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
-fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
-corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
-parameter.
+Use it alongside `model.info`, which lists the priors and fixed values.
 
-In weak lensing the source galaxies are the *data*, a catalogue of measured shapes, so there is no source light
-to fit and the source galaxy in this model carries no light profile at all.
+The single source galaxy in this model does not mean that the catalogue contains only one background galaxy. It supplies the common source-plane redshift assumed for all 1500 catalogue entries.
+
+Their individual observed positions and shear estimates belong to the dataset; we do not introduce a separate light profile or free source position for each entry.
 """
 af.ModelPlotter(model).figure()
 
 """
-We fit the model with the nested sampling algorithm Nautilus, as throughout the series. A weak-lensing likelihood
-evaluation takes milliseconds (one shear-field evaluation at 1500 positions plus a chi-squared sum), so this
-5-parameter fit completes in minutes on an ordinary CPU — a refreshing contrast to the imaging fits of the earlier
-chapters.
+We use Nautilus to sample the posterior, as in the earlier tutorials, and pass the catalogue to `AnalysisWeak`.
+
+Each likelihood evaluation predicts the shear field at the 1500 galaxy positions and compares it with the measurements. There is no image convolution or source reconstruction in this calculation.
+
+This is a compact five-parameter example, but its runtime still depends on the implementation, hardware and number of likelihood evaluations required by the search.
+
+Use the search outputs to monitor progress and assess convergence before interpreting the inferred parameters. The familiar output directory contains the model information, samples and fit diagnostics.
 """
 search = af.Nautilus(
     path_prefix=Path("howtolens", "chapter_4"),
@@ -363,35 +343,51 @@ search = af.Nautilus(
 analysis = al.AnalysisWeak(dataset=dataset)
 
 print(
-    "The non-linear search has begun running - checkout the output/howtolens/chapter_4/tutorial_6_weak_lensing"
-    " folder for live output of the results, images and model."
-    " This Jupyter notebook cell with progress once search has completed - this could take some time!"
+    "The non-linear search has begun. Check "
+    "output/howtolens/chapter_4/tutorial_6_weak_lensing "
+    "for live results, images and model information. "
+    "Continue once the search has completed."
 )
 
 result = search.fit(model=model, analysis=analysis)
 
-print("The search has finished run - you may now continue the notebook.")
+print("The search has finished. You may now continue the notebook.")
 
 """
 __Result__
 
-The result's `info` attribute confirms the search recovers the input mass model — Einstein radius, ellipticity and
-centre — from nothing but the statistically-averaged shapes of background galaxies. No arc, no ring, no multiple
-images: the ensemble alone constrains the cluster's mass.
+Inspect `result.info` to see the inferred parameters and their uncertainties.
+
+Because we simulated this catalogue, we can compare them with the input Einstein radius of 25 arc-seconds, axis ratio of 0.8, position angle of 45 degrees and centre at the origin.
+
+The code parameterizes ellipticity using two components, so convert between those components and axis ratio and position angle when making that comparison.
+
+Noise means that the inferred values need not equal the inputs exactly. Consider the posterior intervals and parameter correlations, rather than judging recovery from a single fitted realization.
+
+The fit subplot below displays the maximum-likelihood realization found by the search. Compare its coherent shear pattern with the noisy measurements, using the diagnostics discussed above.
+
+These constraints are conditional on our chosen mass profile, fixed redshifts and noise assumptions. A real cluster may require a more flexible mass distribution and additional treatment of observational uncertainties.
 """
 print(result.info)
 
 aplt.subplot_fit_weak(fit=result.max_log_likelihood_fit)
 
 """
-Cluster weak-lensing measurements are conventionally presented as the **tangential shear profile**: the mean
-tangential shear gamma_t of background galaxies in radial bins about the lens centre, which traces the projected
-mass profile. `aplt.plot_shear_profile` bins our catalogue and, given the fit, overlays the model's profile as a
-line.
+Weak-lensing measurements around clusters are often summarized using a **tangential shear profile**.
 
-The plot also shows the *cross* component gamma_x — the shear rotated by 45 degrees. Gravitational lensing produces
-no cross component at leading order, so cross points scattering around zero is the standard "B-mode" null test of a
-weak-lensing measurement: a systematic contaminating the shapes would show up there.
+For each background galaxy, we resolve its shear into components defined relative to a chosen centre. The tangential component describes the tendency for images to stretch around that centre.
+
+`aplt.plot_shear_profile` groups the catalogue into radial bins and plots the mean tangential component with uncertainties. Passing a fit also overlays the model’s binned tangential profile.
+
+Here we use eight bins around the simulation’s input centre, `(0.0, 0.0)`. This plotting choice does not fix the mass centre in the fit: the model still has two free centre coordinates.
+
+The plot is a summary of the fitted catalogue. Our likelihood used both shear components at every galaxy position, retaining angular information that radial averaging can hide.
+
+The second set of points shows the **cross component**, defined at 45 degrees to the tangential component. Its azimuthal average is expected to be consistent with zero for the ideal lensing signal and suitable angular sampling.
+
+A significant cross signal therefore motivates checks of the measurements, angular coverage and model geometry. However, a cross profile consistent with zero does not establish that all systematic errors are absent; some biases can change the tangential signal without producing a cross signal.
+
+Use the radial profiles together with the two-dimensional fit diagnostics and posterior uncertainties.
 """
 aplt.plot_shear_profile(
     result.max_log_likelihood_fit,
@@ -402,69 +398,60 @@ aplt.plot_shear_profile(
 """
 __Joint Strong and Weak Lensing__
 
-We fitted this catalogue on its own, and weak-lensing-only fits of real catalogues are a fully supported PyAutoLens
-workflow. But the way PyAutoLens really expects weak lensing to be used is **jointly with strong lensing**, because
-the two probes are perfectly complementary:
+We fitted the weak-lensing catalogue on its own. When a system also has strong-lensing observations, combining the two can constrain its mass distribution across a wider range of radii.
 
- - **Strong lensing** (everything before this tutorial) pins the mass in the inner region with exquisite precision —
-   the positions of multiple images and arcs nail the Einstein mass and the inner density profile — but says
-   nothing beyond the Einstein radius.
+**Strong lensing** provides detailed information where multiple images and arcs form. It often tightly constrains the enclosed projected mass near the Einstein radius, while the inferred density profile and division between mass components remain subject to degeneracies.
 
- - **Weak lensing** (this tutorial) constrains the mass profile out to arc-minute radii — the outskirts of the dark
-   matter halo — but its centre and inner profile are only weakly pinned by the field's geometry.
+**Weak lensing** adds measurements over a larger field, extending our sensitivity to the outer dark matter halo. Its constraining power depends on the background-source density, redshifts, shape uncertainties and area observed.
 
-Fit both datasets simultaneously with a single mass model — one analysis for the imaging or point-source data, one
-`AnalysisWeak` for the shear catalogue, combined exactly as the multi-dataset fits earlier in this chapter combined
-their analyses — and the model is anchored at the centre by strong lensing while its outer profile is measured by
-weak lensing. This hybrid is the state of the art for cluster mass measurements, used across systems like the
-Frontier Fields clusters, and PyAutoLens's shared `Tracer` infrastructure makes it natural: the same mass profiles
-that ray-traced arcs in the previous tutorial produce the shear field fitted here.
+These are complementary measurements of the same gravitational field. Strong lensing does not become insensitive to all mass outside the Einstein radius, and weak lensing does not independently determine every feature of the outer halo.
 
-The workspace's `autolens_workspace/*/weak` package has the complete treatment:
+A joint analysis uses shared mass-model parameters to predict both datasets. We combine an imaging or point-source analysis with `AnalysisWeak`, following the multi-dataset approach used earlier in this chapter.
 
- - `weak/start_here.py`: fits a real shear catalogue of the merging cluster Abell 2744 ("Pandora's Cluster") —
-   download, quality cuts, mass map, NFW halo fit.
- - `weak/simulator.py`, `weak/fit.py`, `weak/modeling.py`: the disk-based versions of this tutorial's workflow.
- - `weak/likelihood_function.py`: a step-by-step walkthrough of the weak-lensing likelihood.
- - `weak/features/strong_lensing`: the joint strong-plus-weak fits described above.
+For datasets whose measurement errors can be treated as independent, their log likelihoods add. Each analysis retains its own data model and uncertainties, while the shared mass parameters must explain both sets of observations.
+
+The source populations need not have the same redshift. Each prediction must use the geometry appropriate to its sources, just as in the previous cluster tutorial.
+
+For example, strong-lensing images can constrain the central mass distribution while a weak-lensing catalogue helps constrain the mass and concentration of an extended NFW halo. Combining them can reduce degeneracies, although the result still depends on the chosen mass components and observational assumptions.
+
+Inspect the contributions from both datasets separately. A satisfactory joint fit should describe both, and a disagreement can reveal missing mass structure, calibration problems or overly restrictive assumptions.
+
+The `autolens_workspace/scripts/weak` directory provides examples for continuing this work:
+
+- [start_here.py](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/start_here.py): an introduction using a real galaxy-shape catalogue for Abell 2744.
+- [simulator.py](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/simulator.py), [fit.py](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/fit.py) and [modeling.py](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/modeling.py): simulation, fitting and inference examples.
+- [likelihood_function.py](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/likelihood_function.py): a step-by-step explanation of the weak-lensing likelihood.
+- [features/strong_lensing](https://github.com/PyAutoLabs/autolens_workspace/tree/main/scripts/weak/features/strong_lensing): examples combining strong- and weak-lensing measurements.
 
 __Wrap Up__
 
-This tutorial completed the chapter's journey up the mass ladder, and with it the four core chapters of
-**HowToLens**. Lets take stock of how far we have come.
+This tutorial completes Chapter 4 and the four core chapters of **HowToLens**.
 
-Chapter 1 built lensing from first principles: grids, light and mass profiles, ray tracing, the lens equation, and
-fitting imaging data with a `Tracer`. Chapter 2 turned fitting into inference — non-linear searches, priors,
-Bayesian model comparison — so we could *infer* lens models rather than guess them. Chapter 3 replaced analytic
-sources with pixelized reconstructions, letting the data itself reveal the source's morphology.
+We have learned how to:
 
-This chapter then scaled those tools up through every regime nature offers, and in this tutorial:
+- Represent weak-lensing measurements as a catalogue of positions, shear estimates and uncertainties.
+- Simulate an idealized catalogue and understand how shape noise affects its measurements.
+- Visualize the shear field and construct an exploratory convergence map.
+- Evaluate a catalogue likelihood and infer mass-model parameters using the familiar search workflow.
+- Interpret fit diagnostics and posterior uncertainties, and understand the motivation for joint strong- and weak-lensing analyses.
 
-- **Weak Lensing:** Outside the strong-lensing region every background galaxy is still weakly sheared; the signal
-  is invisible per galaxy beneath intrinsic shape noise but emerges statistically over an ensemble.
+The distinction between shear and reduced shear matters when moving from this idealized simulation to observed galaxy shapes. So do source redshifts, calibration, selection and the flexibility of the mass model.
 
-- **Shear Catalogues:** The weak-lensing dataset is a catalogue of galaxy positions, measured shear estimates and
-  uncertainties, produced upstream by a dedicated shape-measurement pipeline — PyAutoLens fits mass models to it
-  and leaves the shape measurement to those pipelines.
+Across the series, the same ideas have supported increasingly complex analyses.
 
-- **Mass Scales:** The statistical signal is hopeless around a single galaxy, marginal around a group and
-  measurable around a cluster — and it probes the dark matter halo to radii far beyond the reach of arcs.
+**Chapter 1** introduced grids, light and mass profiles, ray tracing and fitting data. These calculations came together as a likelihood function.
 
-- **The Same Workflow:** `SimulatorShearYX`, `FitWeak` and `AnalysisWeak` slot into the identical
-  simulate-fit-model pattern the series has used since chapter 1, and a non-linear search recovered the cluster's
-  mass from galaxy shapes alone.
+**Chapter 2** used that likelihood for inference: defining priors, running non-linear searches, examining posterior uncertainties and comparing models.
 
-- **Joint Fits:** Strong lensing pins the inner mass, weak lensing measures the outskirts; fitting both with one
-  model is the expected PyAutoLens workflow for cluster and group science.
+**Chapter 3** introduced pixelized source reconstructions, allowing more flexible descriptions of source morphology while controlling that flexibility through regularization.
 
-And that is the series: from a single lens galaxy, to lenses with extra galaxies, to multi-galaxy lenses, to
-scaling relations that keep many-galaxy models tractable, to group-scale and cluster-scale systems, and finally
-beyond the Einstein radius altogether into the weak-lensing regime. You have every conceptual tool the modern
-lensing literature uses, and you have used each one on data.
+**Chapter 4** extended the modeling to additional galaxies, shared scaling relations, groups, clusters and weak lensing. We saw how fixed measurements and shared relations can make large models tractable, while also shaping the conclusions we can draw from them.
 
-Where next? The `autolens_workspace` is the destination for real science. Its `imaging`, `point_source`, `group`,
-`cluster` and `weak` packages hold the production-ready versions of everything taught here — including the
-`start_here.py` scripts that are each topic's canonical, always-current reference — plus the features this series
-could only gesture at: multi-wavelength fits, interferometry, automated SLaM pipelines and more. Take your own
-data there, and good luck with your science!
+You now have a foundation for building lens models, understanding their likelihoods and assessing their results. Applying those tools to a scientific question means choosing an appropriate model, checking the data and testing which conclusions remain robust when assumptions change.
+
+The next step is the [autolens_workspace](https://github.com/PyAutoLabs/autolens_workspace). Start with the example closest to your dataset, then use its feature examples and likelihood guides to build up the analysis you need.
+
+The workspace covers imaging, interferometry, point sources, groups, clusters and weak lensing, alongside tools such as the automated SLaM pipelines.
+
+Bring your own data, keep inspecting what the model is doing, and enjoy exploring the Universe through gravitational lensing!
 """
