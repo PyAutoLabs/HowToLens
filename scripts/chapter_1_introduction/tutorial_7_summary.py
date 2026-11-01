@@ -155,77 +155,78 @@ whereas evaluating it on a uniform source-plane grid produces an unlensed image?
 """
 __Visualization__
 
-Furthermore, using the `MatPLot2D` and `lines=`/`positions=` overlays objects we can visualize any aspect we're interested 
-in and fully customize the figure. 
+We can combine the lensed image with other quantities calculated from the same tracer.
 
-Before beginning chapter 2 of **HowToLens**, you should checkout the package `autolens_workspace/plot`. This provides a 
-full API reference of every plotting option in **PyAutoLens**, allowing you to create your own fully customized 
-figures of strong lenses with minimal effort!
+Here, we overlay the tangential critical curves introduced earlier in the chapter. Compare their position with the
+bright arcs in the lensed image. The curves depend on the lensing mass distribution and redshifts, while the appearance
+of the arcs also depends on the source's position and light profiles.
+
+The `lines=` argument adds these curves to the image. The plotting examples in `autolens_workspace/plot` show how to
+customise figures and add other overlays as you need them.
 """
-
 tangential_critical_curve_list = al.LensCalc.from_tracer(
     tracer=tracer
 ).tangential_critical_curve_list_from(grid=grid)
-radial_critical_curve_list = al.LensCalc.from_tracer(
-    tracer=tracer
-).radial_critical_curve_list_from(grid=grid)
-
 
 aplt.plot_array(
     array=tracer.image_2d_from(grid=grid),
-    title="Tracer Image with Critical Curves",
+    title="Lensed Source\nTangential Critical Curves",
     lines=tangential_critical_curve_list,
 )
 
 """
-And, we're done, not just with the tutorial, but the chapter!
-
 __Code Design__
 
-To end, I want to quickly talk about the **PyAutoLens** code-design and structure, which was really the main topic of
-this tutorial.
+The structure we have just explored reflects the physical description of a lens system: profiles belong to galaxies,
+galaxies occupy redshift planes, and a tracer calculates how light travels between those planes.
 
-Throughout this chapter, we never talk about anything like it was code. We didn`t refer to  'variables', 'parameters`' 
-'functions' or 'dictionaries', did we? Instead, we talked about 'galaxies', 'planes' a 'Tracer', etc. We discussed 
-the objects that we, as scientists, think about when we consider a strong lens system.
+This is an example of *object-oriented design*. Each object brings together information about something, such as a
+galaxy, and operations we can perform with it, such as calculating its image.
 
-Software that abstracts the underlying code in this way follows an `object-oriented design`, and it is our hope 
-with **PyAutoLens** that we've made its interface (often called the API for short) very intuitive, whether you were
-previous familiar with gravitational lensing or a complete newcomer!
+We have used Python variables, parameters and functions throughout this chapter, but their names and organisation let
+us express those operations in familiar scientific terms. For example, `source.bulge` identifies a particular light
+component, while `tracer.image_2d_from(grid=grid)` calculates the image of the complete system.
 
+As your analyses become more complex, this same structure lets you add components and inspect their individual
+contributions.
+"""
+
+"""
 __Source Code__
 
-If you do enjoy code, variables, functions, and parameters, you may want to dig deeper into the **PyAutoLens** source 
-code at some point in the future. Firstly, you should note that all of the code we discuss throughout the **HowToLens** 
-lectures is not contained in just one project (e.g. the **PyAutoLens** GitHub repository) but in fact four repositories:
+The tools used in **HowToLens** are provided by four related projects:
 
-**PyAutoFit** - Everything required for lens modeling (the topic of chapter 2): https://github.com/PyAutoLabs/PyAutoFit
+- **[PyAutoFit](https://github.com/PyAutoLabs/PyAutoFit)** provides tools for defining models, searching their parameter spaces and analysing inference results. We will use these ideas in Chapter 2.
+- **[PyAutoArray](https://github.com/PyAutoLabs/PyAutoArray)** provides arrays, grids, masks and tools for handling astronomical datasets.
+- **[PyAutoGalaxy](https://github.com/PyAutoLabs/PyAutoGalaxy)** provides light profiles, mass profiles and galaxies.
+- **[PyAutoLens](https://github.com/PyAutoLabs/PyAutoLens)** brings these components together for gravitational lensing, including ray tracing and comparisons with lensing observations.
 
-**PyAutoArray** - Handles all data structures and Astronomy dataset objects: https://github.com/PyAutoLabs/PyAutoArray
+You access much of this functionality through `import autolens as al`, so you do not need to work with each repository
+separately to follow the tutorials.
 
-**PyAutoGalaxy** - Contains the light profiles, mass profiles and galaxies: https://github.com/PyAutoLabs/PyAutoGalaxy
+If you want to understand how a calculation is implemented, you can explore the source code and its accompanying tests.
+Start with a familiar operation, such as calculating a light-profile image, and follow how its inputs become an output.
 
-**PyAutoLens** - Everything strong lensing: https://github.com/PyAutoLabs/PyAutoLens
+[Installation from source](https://pyautolens.readthedocs.io/en/latest/installation/source.html) is described in the
+documentation. This is useful if you want to modify or contribute to the libraries; it is optional for continuing
+**HowToLens**.
+"""
 
-Instructions on how to build these projects from source are provided here:
-
-https://pyautolens.readthedocs.io/en/latest/installation/source.html
-
-We take a lot of pride in our source code, so I can promise you its well written, well documented and thoroughly 
-tested (check out the `test` directory if you're curious how to test code well!).
-
+"""
 __Wrap Up__
 
-You`ve learn a lot in this chapter, but what you have not learnt is how to 'model' a real strong gravitational lens.
+You have now followed the path from a mathematical description of a lens system to a predicted observation and a
+likelihood function that measures its agreement with data.
 
-In the real world, we have no idea what the 'correct' combination of light profiles, mass profiles and galaxies are 
-that will give a good fit to a lens. Lens modeling is the process of finding the lens model which provides a good fit 
-and it is the topic of chapter 2 of **HowToLens**.
+In our simulations, we chose the parameters that generated the observation. For a real lens, those parameters are
+unknown. We must explore which choices describe the data well and what uncertainty remains.
 
-Finally, if you enjoyed doing the **HowToLens** tutorials please git us a star on the **PyAutoLens** GitHub
-repository: 
+In Tutorial 6, you began this process by changing parameters by hand. Chapter 2 introduces automated lens modelling:
+a search repeatedly evaluates the likelihood function for different parameter choices, helping us infer the properties
+of the lens and source.
 
- https://github.com/PyAutoLabs/PyAutoLens
+The profiles, galaxies, tracers and dataset calculations you have learnt here remain the foundation of that process.
 
-Even the smallest bit of exposure via a GitHub star can help our project grow!
+If you have found **HowToLens** useful, you can support the project by starring the
+[PyAutoLens GitHub repository](https://github.com/PyAutoLabs/PyAutoLens).
 """
