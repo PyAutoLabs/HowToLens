@@ -2,52 +2,50 @@
 Tutorial 4: Group Scale
 =======================
 
-In the previous tutorials we took our first steps beyond the single lens galaxy: we included extra galaxies near
-the lens in the model, we modeled systems where two or more galaxies of comparable mass share the lensing, and we
-introduced scaling relations, which tie the mass of a galaxy to its light so that adding more galaxies to a model
-does not mean adding more free parameters.
+The previous tutorials introduced nearby galaxies, multiple significant deflectors and scaling relations. We now
+combine these ideas to model a **group-scale lens**.
 
-In this tutorial we put all of those tools together and take the first big step up the "regime ladder" of strong
-lensing: the **group scale**.
+A galaxy group contains galaxies associated with a larger gravitationally bound structure. Its lensing signal
+can include contributions from a shared dark matter halo, a central galaxy and other member galaxies.
 
-In the standard cosmological model (Lambda Cold Dark Matter, or LCDM), galaxies do not live in isolation. They
-form and evolve inside "dark matter halos", and these halos are themselves nested: small halos hosting single
-galaxies merge and fall into larger halos hosting many. A **galaxy group** is the next rung above a single
-galaxy in this hierarchy: a dark matter halo of roughly 10^13 to 10^14 solar masses hosting anywhere from a
-handful to a few dozen galaxies. (Our own Milky Way lives in such a structure, the Local Group.) Above groups
-sit **galaxy clusters**, halos of 10^14 solar masses and beyond hosting hundreds or thousands of galaxies, which
-are the subject of the next tutorial.
+The brightest group galaxy is often called the **BGG**. In some groups it lies near the centre of the shared halo
+and contributes strongly to the lensing. Other groups have several prominent galaxies or a less clearly defined
+centre.
 
-When a group acts as a strong lens, several of its galaxies contribute significantly to the deflection of the
-source's light. The brightest galaxy of the group -- called the brightest group galaxy (BGG), or the brightest
-cluster galaxy (BCG) at cluster scale -- typically sits near the centre of the group's dark matter halo and
-dominates the lensing. The other group members perturb the lensed image around it. The group's shared dark
-matter halo may also enter the mass model as its own component, often centred on the BGG where one exists --
-though as we will see, whether it is needed is an explicit modelling choice, not an automatic ingredient.
+Our example contains one dominant central component, two member galaxies and one background source. We will
+introduce truncated member-galaxy mass profiles, compare independent member masses with a scaling relation, and
+explore what it means to add an explicit group-halo component.
 
 __Groups vs Multi-Galaxy Lenses__
 
-You may now be wondering how a "group-scale lens" differs from the multi-galaxy lenses of the previous tutorials,
-and the honest answer is that the line between them is **blurry**. Every group is a multi-galaxy lens: it has
-multiple galaxies whose mass matters for the lensing. But not every multi-galaxy lens is a group: two galaxies of
-comparable mass that happen to sit close on the sky (or are mid-merger) share the lensing without being embedded
-in a massive shared halo with a member population.
+The distinction between group-scale and multi-galaxy lensing is not a strict boundary in galaxy count or Einstein
+radius.
 
-The physically meaningful distinction is the **environment**: a group has a shared dark matter halo, a dominant
-central galaxy, and members orbiting inside the host's potential. That environment leaves signatures in the mass
-model, and the most important one is **tidal truncation**, which we introduce below.
+As discussed in Tutorial 2, an interacting or merging pair of field galaxies may be modeled without a separate
+group-scale halo. Other systems inhabit a shared halo whose contribution matters for interpreting the lensing.
+
+The important questions are which mass components contribute to the observed images and whether the data can
+distinguish them. A mass profile centred on the BGG can describe the combined central mass without separately
+identifying the contributions of the galaxy and the group halo.
+
+We therefore distinguish **including the group's gravitational effect** from **representing its halo as a
+separate model component**. Our initial model uses a central total-mass profile; later, we examine an additional
+halo component.
 
 __Tidal Truncation and the dPIE Profile__
 
-A galaxy orbiting inside a group does not keep its full dark matter halo. The tidal field of the host group
-strips the outer, loosely bound parts of the member's halo, so the member's mass distribution is cut off -- or
-"truncated" -- at a finite radius. The isothermal profiles we have used so far are a poor description of this:
-their density falls as 1/r^2 forever, so their total mass diverges with radius.
+Galaxies orbiting within a group can lose material from their outer dark matter halos through tidal stripping.
+The extent of this stripping depends on their orbits, internal structure and interaction history.
 
-The standard truncated profile of group- and cluster-scale lensing is the **dPIE** (dual Pseudo-Isothermal
-Elliptical) profile, available in **PyAutoLens** as `al.mp.dPIEMassSph`. It behaves isothermally at intermediate
-radii but its density falls off much more steeply beyond a truncation radius, giving it a finite total mass --
-exactly the behaviour we expect for a tidally stripped group member.
+The isothermal profiles used so far extend indefinitely and have divergent total mass. They can describe lensing
+over a limited radial range, but do not represent a finite outer halo.
+
+The **dPIE** profile provides a useful alternative. It has an approximately isothermal region and steepens smoothly
+beyond a characteristic truncation scale, giving it finite total mass.
+
+We use its spherical implementation, `al.mp.dPIEMassSph`, for the member galaxies. Its truncation scale lets us
+represent a reduced outer mass distribution, although adopting this profile does not by itself measure a
+galaxy's stripping history.
 
 __Contents__
 
@@ -78,13 +76,18 @@ import autolens.plot as aplt
 """
 __Initial Setup__
 
-We begin by loading the group-scale strong lens dataset `simple`, which was simulated with:
+We load the simulated group-scale dataset `simple`, containing:
 
- - A main lens galaxy (the BGG) at (0.0", 0.0"), with a `SersicSph` light profile and an `IsothermalSph` mass
-   profile with a 4.0" Einstein radius.
- - Two member galaxies at (3.5", 2.5") and (-4.4", -5.0"), with `SersicSph` light profiles and tidally
-   truncated `dPIEMassSph` mass profiles.
- - A single source galaxy with a `SersicCore` light profile.
+- A central galaxy at `(0.0, 0.0)`, represented by `SersicSph` light and an `IsothermalSph` total-mass profile
+  with Einstein-radius parameter 4.0".
+- Two member galaxies at `(3.5, 2.5)` and `(-4.4, -5.0)`, with `SersicSph` light and truncated `dPIEMassSph`
+  mass profiles.
+- One background source with a `SersicCore` light profile.
+
+Coordinates use the usual `(y, x)` convention in arcseconds.
+
+The simulation contains no separate group-halo profile. Its central mass component provides a simple description
+of the dominant deflection field, without decomposing that mass into the BGG and a shared halo.
 """
 dataset_name = "simple"
 dataset_path = Path("dataset") / "group" / dataset_name
@@ -112,19 +115,31 @@ dataset = al.Imaging.from_fits(
 )
 
 """
-When we plot the dataset, the difference from a galaxy-scale lens is immediately clear: the lensed arcs form a
-much larger ring (the BGG's Einstein radius is 4.0", compared to the ~1.0" typical of a single galaxy), and two
-smaller galaxies are visible away from the centre. Their light -- and, more importantly for the lensing, their
-mass -- must be included in our analysis.
+Plot the dataset and identify the central galaxy, the extended lensed arcs and the two member galaxies.
+
+The central mass profile has an Einstein-radius parameter of 4.0", so this example's lensed emission spans a larger
+angular region than the earlier examples. The members modify the combined deflection field.
+
+As in Tutorial 1, consider their light and mass separately. We will explicitly model both here, but a galaxy's
+mass can affect the arcs even when its light lies outside the fitting region.
 """
 aplt.subplot_imaging_dataset(dataset=dataset)
 
 """
 __Mask__
 
-We define a 7.5" circular mask, much larger than the 2.5"-3.0" masks of previous chapters. It must enclose the
-full lensed arc system and the member galaxies, because all of them contribute light and mass to the region we
-fit.
+We use a circular mask with radius 7.5", centred on the central galaxy. This includes the lensed arcs and both
+member-galaxy centres.
+
+Inspect the masked subplot to assess the retained source emission and member light. The outer member lies
+approximately 6.7" from the origin, so its centre is inside the mask but some of its extended light lies outside it.
+
+The mask selects the image pixels used in the fit; it does not set a boundary on which galaxies can contribute
+gravitational deflections. A member outside the mask can still be included in the mass model if its lensing
+effect matters.
+
+Here, we retain a broad fitting region so that we can model the central galaxy, member light and lensed source
+together.
 """
 mask_radius = 7.5
 
