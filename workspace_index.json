@@ -119,17 +119,16 @@
       "Point Source Data",
       "Interferometer Data",
       "Weak Lensing Data",
+      "Group and Cluster Lenses",
       "Wrap Up"
     ],
     "cross_refs": [
       "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/point_source/start_here.py",
-      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/start_here.py",
-      "scripts/simulator/interferometer.py",
-      "scripts/simulator/weak_lensing.py"
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/start_here.py"
     ],
     "notebook": "notebooks/chapter_1_introduction/tutorial_5_data.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_5_data.py",
-    "summary": "In the last tutorials, we use tracers to create images of strong lenses. However, those images don't accurately represent what we would observe through a telescope.",
+    "summary": "In the previous tutorials, we used tracers to create images of strong lenses. We will now use one of these images to simulate an observation through a telescope.",
     "title": "Tutorial 5: Data"
   },
   {
@@ -141,14 +140,14 @@
       "Fitting",
       "Incorrect Fit",
       "Model Fitting",
-      "Wrap Up"
+      "Likelihood Function"
     ],
     "cross_refs": [
-      "tutorial_5_data.py"
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/imaging/likelihood_function.py"
     ],
     "notebook": "notebooks/chapter_1_introduction/tutorial_6_fitting.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_6_fitting.py",
-    "summary": "In previous tutorials, we used light profiles to create simulated images of a tracer and visualized how these images would appear when captured by a CCD detector on a telescope like the Hubble Space Telescope.",
+    "summary": "In the previous tutorial, we chose a lens and source, predicted their lensed image and simulated a telescope observation. We will now work in the other direction: starting with an image, we want to learn about the objects that produced it.",
     "title": "Tutorial 6: Fitting"
   },
   {
@@ -163,7 +162,7 @@
     "cross_refs": [],
     "notebook": "notebooks/chapter_1_introduction/tutorial_7_summary.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_7_summary.py",
-    "summary": "In this chapter, we have learnt that:",
+    "summary": "In this chapter, we have built up the steps needed to describe a gravitational lens and compare its predicted image with an observation:",
     "title": "Tutorial 7: Summary"
   },
   {
