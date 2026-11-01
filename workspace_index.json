@@ -651,7 +651,7 @@
     ],
     "notebook": "notebooks/chapter_4_scaling_up_lensing/tutorial_5_cluster_scale.ipynb",
     "path": "scripts/chapter_4_scaling_up_lensing/tutorial_5_cluster_scale.py",
-    "summary": "Throughout this chapter we have been climbing a ladder of scale: from a single lens galaxy with an extra galaxy nearby, to multi-galaxy lenses, to galaxy groups whose members share a common dark matter halo.",
+    "summary": "We now extend the tools developed for galaxies and groups to **galaxy clusters**.",
     "title": "Tutorial 5: Cluster Scale"
   },
   {
