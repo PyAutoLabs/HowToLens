@@ -582,9 +582,14 @@ result = result_list[0]
 """
 __Results: The Maximum Likelihood Instance__
 
-The `max_log_likelihood_instance` is the model instance with the highest likelihood found. Its structure
-mirrors the model composition above: named galaxies under `.galaxies`, the scaling tier under
-`.scaling_galaxies`. We can read off the best-fit parameters of every tier.
+The `max_log_likelihood_instance` contains the parameter values of the highest-likelihood sample found by
+the search.
+
+Its structure follows the model we constructed: named components appear under `.galaxies`, while the tied
+members appear under `.scaling_galaxies`.
+
+We can inspect the main galaxies' dPIE parameters and the host halo's `mass_at_200` directly. These describe one
+fitted realization; later, we use the posterior samples to examine their uncertainties and correlations.
 """
 instance = result.max_log_likelihood_instance
 
@@ -599,10 +604,18 @@ print(
 """
 __Results: Per-Member Profiles__
 
-The scaling tier's single free parameter was `sigma_ref`, but the instance contains the fully-realised
-`dPIEMassSph` of every member — the scaling relation has been applied, so each member carries the `sigma` and
-`r_cut` its luminosity implies. This is how you would tabulate the inferred mass of every member galaxy in a
-real cluster analysis.
+Although the member population shares one free normalization, the fitted instance contains a complete
+`dPIEMassSph` profile for every member.
+
+Each member's `sigma` has been calculated from the fitted shared normalization and its luminosity ratio.
+Its centre, core radius and luminosity-derived truncation radius retain their fixed values.
+
+The loop below lists these realized profile parameters. They are not independent measurements of every member's
+mass: they inherit the scaling relation and its assumptions.
+
+To quantify their uncertainties, evaluate the derived quantities across posterior samples. With fixed
+luminosities and exponent, the members' `sigma` values vary together through their shared normalization.
+Intrinsic scatter and photometric uncertainty are not included unless explicitly modeled.
 """
 for i, member in enumerate(instance.scaling_galaxies):
     print(
@@ -613,10 +626,19 @@ for i, member in enumerate(instance.scaling_galaxies):
 """
 __Results: The Tracer__
 
-`max_log_likelihood_tracer` assembles every galaxy of the instance — named tiers and scaling members alike —
-into the best-fit multi-plane `Tracer`. This is the object to use for any lensing calculation with the
-best-fit mass model: convergence maps, deflection fields, critical curves and caustics, all computed exactly
-as in the earlier chapters, but now for the full cluster.
+`max_log_likelihood_tracer` assembles the named components and scaling members into a tracer for the fitted model.
+
+It provides the same lensing calculations used in earlier chapters, now with the full cluster mass distribution
+and both source redshifts.
+
+Inspect the plane redshifts and number of objects in the lens plane. Remember that the host halo occupies a
+mass-only `Galaxy` object alongside the twelve lens galaxies.
+
+When calculating quantities such as critical curves or magnifications, specify the relevant source plane:
+the same cluster produces different lens mappings for sources at different redshifts.
+
+This tracer represents one fitted realization. Uncertainty in derived lensing quantities requires repeating
+the calculation over appropriate posterior samples.
 """
 tracer = result.max_log_likelihood_tracer
 
@@ -628,11 +650,17 @@ aplt.subplot_tracer(tracer=tracer, grid=grid)
 """
 __Results: Solved Source-Plane Positions__
 
-Each result's `max_log_likelihood_fit` is the `FitPointDataset` of that source. Because we fitted with the
-solved source-plane likelihood, the fit's `positions` object carries the analytically-solved source-plane
-centre — the model's inferred true position of the source, before lensing. Its `residual_map` lists how far
-each back-traced image lands from that centre (in the source plane): for a good model these residuals are
-tiny, since all images of a source originate from the same point.
+Each result's `max_log_likelihood_fit` describes the fit to its own source dataset.
+
+With our selected likelihood, `fit.positions.source_plane_coordinate` gives the source position solved from
+that system's back-traced image positions under the fitted mass model.
+
+The `residual_map` records their offsets from this common position in the source plane. Inspect these together
+with the positional uncertainties and likelihood weighting, rather than judging the fit solely by whether
+the raw offsets look small.
+
+The printed log likelihood is the position-likelihood contribution for that source. The joint inference combines
+the contributions from all source datasets.
 """
 for result in result_list:
     fit = result.max_log_likelihood_fit
@@ -645,11 +673,18 @@ for result in result_list:
     print(f"  Log likelihood: {float(fit.positions.log_likelihood):.2f}")
 
 """
-We can perform the same back-tracing manually with the tracer, which makes explicit what the fit just did:
-ray-trace each source's observed image positions through the multi-plane lens equation to that source's own
-plane. `plane_index_via_redshift_from` maps a source redshift to its plane, and `traced_grid_2d_list_from`
-returns the positions traced to every plane — the multi-plane generalisation of the two-plane ray tracing of
-chapter 1.
+We can inspect the same mapping directly using the tracer, following the ray-tracing approach introduced in
+Chapter 1.
+
+For each dataset, we identify its source plane from its redshift and trace the observed image positions through
+the model. We then select the coordinates at that source plane.
+
+Images identified as the same source feature should map to a common location within the accuracy allowed by the
+data and model. Differences between their back-traced positions reveal where the proposed mass distribution
+does not bring them into agreement.
+
+This calculation displays the traced coordinates. It does not reproduce the full likelihood weighting or
+independently calculate the solved source position.
 """
 for dataset in dataset_list:
     plane_index = tracer.plane_index_via_redshift_from(redshift=dataset.redshift)
