@@ -2,28 +2,28 @@
 Tutorial 7: Summary
 ===================
 
-In this chapter, we have learnt that:
+In this chapter, we have built up the steps needed to describe a gravitational lens and compare its predicted image with an observation:
 
- 1) **PyAutoLens** uses Cartesian `Grid2D`'s of $(y,x)$ coordinates to perform ray-tracing.
- 2) These grids are combined with light and mass profiles to compute images, deflection angles and other quantities.
- 3) Profiles are grouped together to make galaxies.
- 4) Collections of galaxies (at the same redshift) form a plane.
- 5) A `Tracer` can make an image-plane + source-plane strong lens system.
- 6) The Universe's cosmology can be input into this `Tracer` to convert its units to kiloparsecs.
- 7) The tracer's image can be used to simulate strong lens `Imaging` like it was observed with a real telescope.
- 8) This data can be fitted, so to as quantify how well a model strong lens system represents the observed image.
+1. A `Grid2D` provides the $(y,x)$ coordinates where we evaluate light and mass profiles.
+2. Light profiles describe a galaxy's surface brightness, while mass profiles describe its gravitational lensing effects.
+3. A `Galaxy` groups these profiles together at a specified redshift.
+4. A `Tracer` groups galaxies into redshift planes and traces light between them.
+5. The redshifts and cosmology connect angular quantities with physical distances.
+6. A simulated imaging observation combines the predicted image with a telescope's PSF, exposure time and noise.
+7. Comparing a predicted image with observed data gives residuals, a chi-squared and a log likelihood.
+8. Putting this calculation into a likelihood function lets us evaluate different choices of model parameters.
 
-In this summary, we'll go over all the different Python objects introduced throughout this chapter and consider how
-they come together as one.
+This final tutorial brings those ideas together. We will revisit how profiles, galaxies and planes fit inside a tracer,
+and use that structure to plot individual components of a lensed source.
 
 __Contents__
 
-- **Start:** Below, we do all the steps we have learned this chapter, making profiles, galaxies, a tracer, etc.
-- **Object Composition:** Lets now consider how all of the objects we've covered throughout this chapter (`LightProfile`'s.
-- **Visualization:** Furthermore, using the `MatPLot2D` and `lines=`/`positions=` overlays objects we can visualize any.
-- **Code Design:** To end, I want to quickly talk about the **PyAutoLens** code-design and structure, which was really.
-- **Source Code:** If you do enjoy code, variables, functions, and parameters, you may want to dig deeper into the.
-- **Wrap Up:** Summary of the script and next steps.
+- **Start:** Build a lens and a source with two light profiles.
+- **Object Composition:** Access the galaxies and profiles inside a tracer.
+- **Visualization:** Add critical curves to the lensed image.
+- **Code Design:** Connect the structure of the code with the physical system.
+- **Source Code:** Find the projects that provide these tools.
+- **Wrap Up:** Prepare for automated lens modelling in Chapter 2.
 
 """
 
@@ -31,17 +31,20 @@ from autolens import jax_wrapper  # Sets JAX environment before other imports
 
 # from autolens import setup_notebook; setup_notebook()
 
-from pathlib import Path
 import autolens as al
 import autolens.plot as aplt
 
 """
 __Start__
 
-Below, we do all the steps we have learned this chapter, making profiles, galaxies, a tracer, etc. 
+We begin with a lens galaxy containing an elliptical mass profile and a source galaxy containing two light profiles,
+named `bulge` and `disk`.
 
-Note that in this tutorial, we omit the lens galaxy's light and include two light profiles in the source representing a
-`bulge` and `disk`.
+The source profiles share a centre and ellipticity, but have different Sérsic indices. This gives them different radial
+brightness distributions. We omit the lens galaxy's light, so the image produced by this tracer contains only the lensed
+source.
+
+These are specified profiles and parameter values, just as in our earlier examples.
 """
 grid = al.Grid2D.uniform(shape_native=(100, 100), pixel_scales=0.05)
 
@@ -75,58 +78,79 @@ tracer = al.Tracer(galaxies=[lens, source])
 """
 __Object Composition__
 
-Lets now consider how all of the objects we've covered throughout this chapter (`LightProfile`'s, `MassProfile`'s,
-`Galaxy`'s, `Plane`'s, `Tracer`'s) come together.
+The tracer retains the galaxies and profiles we used to construct it. We can access them by stepping through this
+structure.
 
-The `Tracer`, which contains planes of `Galaxies`, which contains the `Galaxy`'s which contains the `Profile`'s:
+`tracer.planes[0]` contains the galaxies at the lens redshift, while `tracer.planes[1]` contains those at the source
+redshift. Each plane contains one galaxy in this example, so `[0]` selects that galaxy.
+
+We can then use the component names we supplied, such as `.mass`, `.bulge` and `.disk`, to access a particular profile.
+The printed output below follows this sequence from the complete tracer down to its individual profiles.
 """
+print("Tracer:")
 print(tracer)
-print()
+
+print("Lens plane:")
 print(tracer.planes[0])
-print()
+
+print("Source plane:")
 print(tracer.planes[1])
-print()
-print(tracer.planes[0])
-print()
-print(tracer.planes[1])
-print()
+
+print("Lens galaxy:")
+print(tracer.planes[0][0])
+
+print("Source galaxy:")
+print(tracer.planes[1][0])
+
+print("Lens mass profile:")
 print(tracer.planes[0][0].mass)
-print()
+
+print("Source bulge:")
 print(tracer.planes[1][0].bulge)
-print()
+
+print("Source disk:")
 print(tracer.planes[1][0].disk)
-print()
 
 """
-Once we have a tracer we can therefore use any of the plotting function objects throughout this chapter to plot
-any specific aspect, whether it be a profile, galaxy, galaxies or tracer. 
+First, plot the complete lensed image. The tracer evaluates both source light profiles at the ray-traced coordinates
+and adds their contributions.
 
-For example, if we want to plot the image of the source galaxy's bulge and disk, we can do this in a variety of 
-different ways.
+We also keep the source-plane coordinates for the next plots. Each coordinate tells us where a ray from an image-plane
+pixel reaches the source plane.
 """
-aplt.plot_array(array=tracer.image_2d_from(grid=grid), title="Image")
+aplt.plot_array(
+    array=tracer.image_2d_from(grid=grid),
+    title="Lensed Source: Bulge + Disk",
+)
 
 source_plane_grid = tracer.traced_grid_2d_list_from(grid=grid)[1]
 
-
 """
-Understanding how these objects decompose into the different components of a strong lens is important for general 
-**PyAutoLens** use.
+We can now evaluate each source profile separately at those same ray-traced coordinates.
 
-As the strong lens systems that we analyse become more complex, it is useful to know how to decompose their light 
-profiles, mass profiles, galaxies and planes to extract different pieces of information about the strong lens. For 
-example, we made our source-galaxy above with two light profiles, a `bulge` and `disk`. We can plot the lensed image of 
-each component individually, now that we know how to break-up the different components of the tracer.
+These plots show the individual **lensed** contributions of the bulge and disk. Although we evaluate their brightness
+at source-plane coordinates, the resulting values remain arranged according to the original image-plane pixels.
+
+Compare the distribution of light in the two images. Their different Sérsic indices change how concentrated the light
+is and how it extends away from the centre. Adding these two images gives the complete lensed source image above.
+
+This is a decomposition of our specified source description. We have not inferred separate bulge and disk components
+from observed data.
 """
 aplt.plot_array(
     array=tracer.planes[1][0].bulge.image_2d_from(grid=source_plane_grid),
-    title="Bulge Image",
+    title="Lensed Bulge",
 )
 
 aplt.plot_array(
     array=tracer.planes[1][0].disk.image_2d_from(grid=source_plane_grid),
-    title="Disk Image",
+    title="Lensed Disk",
 )
+
+"""
+**🤖 Ask AI:** Why does evaluating a source light profile on ray-traced source-plane coordinates produce a lensed image,
+whereas evaluating it on a uniform source-plane grid produces an unlensed image?
+"""
 
 """
 __Visualization__
