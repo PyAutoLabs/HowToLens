@@ -237,12 +237,19 @@ print(f"Lens galaxy luminosities: {luminosities}")
 """
 __The Anchor__
 
-The relation needs an "anchor": one galaxy whose Einstein radius is a free parameter of the model, off which
-every other galaxy's Einstein radius hangs. We use the brightest galaxy, identified by `argmax` over the
-measured luminosities — a measurement, not an assumption about which galaxy happens to be listed first.
+We choose one galaxy as the **anchor**: its Einstein radius is a free parameter, and the other galaxies' Einstein
+radii are linked to it through their measured luminosity ratios.
 
-Anchoring on a galaxy the model is already fitting is the key trick: the anchor's `einstein_radius` is not a new
-parameter, so the relation itself will add **zero** free parameters to the model.
+Here, we select the galaxy with the largest measured aperture luminosity using `argmax`. This provides a
+convenient reference; it does not establish that the brightest galaxy has a precisely known mass or must follow
+the relation perfectly.
+
+The anchor's Einstein radius sets the normalization of the relation and is inferred from the lensing data.
+Because it is already a parameter of the anchor's mass profile, tying additional galaxies to it introduces no
+separate normalization parameter.
+
+We also fix the exponent to 0.5. Allowing the exponent or other properties of the relation to vary would add
+shared parameters, rather than necessarily adding one parameter per galaxy.
 """
 anchor_index = int(np.argmax(luminosities))
 
@@ -256,8 +263,11 @@ print(f"Anchor galaxy index: {anchor_index}, L_anchor = {luminosity_anchor:.4f}"
 """
 __Over Sampling__
 
-As in the previous tutorial, we apply adaptive over-sampling centred on both lens galaxies, so the steeply
-varying central light of each is computed accurately.
+As in Tutorial 2, we apply adaptive over-sampling around both measured galaxy centres so that their steep central
+light profiles are evaluated accurately.
+
+These positions determine where the light calculation receives finer sampling. Fixing a light or mass profile's
+centre remains a separate model-composition step, which we perform below.
 """
 over_sample_size = al.util.over_sample.over_sample_size_via_radial_bins_from(
     grid=dataset.grid,
@@ -271,19 +281,22 @@ dataset = dataset.apply_over_sampling(over_sample_size_lp=over_sample_size)
 """
 __Light Via MGE__
 
-Every galaxy's light is modelled with a Multi-Gaussian Expansion, composed via the `al.model_util.mge_model_from`
-convenience function (this wraps the `Basis` of linear `Gaussian` profiles we built by hand in chapter 2 into a
-single call — the composition it returns is the same).
+We represent each lens galaxy's light with an MGE, constructed using `al.model_util.mge_model_from`.
 
-Because the galaxy centres were measured above, we fix each MGE's centre to them (passing the measured centre as
-both the `centre` and `centre_fixed` inputs, which fixes it rather than giving it a prior). The Gaussian
-`sigma` values are fixed by the basis and the intensities are solved for by linear algebra, so each galaxy's
-light costs just **two** non-linear parameters: its elliptical components. This is the "light adds (almost) no
-parameters" half of the recipe from the introduction.
+We fix its centre to the measured light position. The Gaussian widths are also fixed, and their intensities are
+solved by the linear inversion.
 
-The anchor galaxy also gets its mass: a free `Isothermal` profile with its centre fixed at the measured light
-centre. Its `einstein_radius` is an ordinary free parameter — but it is also what the scaling relation below
-hangs off.
+If the Gaussians were spherical, this would leave **zero non-linear light parameters**, regardless of the number
+of Gaussians.
+
+Here, we retain two free elliptical components shared by the Gaussians, allowing the light model to be flattened
+and rotated. Each galaxy therefore contributes **two non-linear light parameters**.
+
+The anchor also receives an elliptical `Isothermal` mass profile with its centre fixed to the measured position.
+Its two elliptical components and Einstein radius remain free.
+
+The anchor's Einstein radius serves two purposes: it determines the normalization of its own mass profile and
+sets the normalization of the scaling relation for the other galaxies.
 """
 bulge_anchor = al.model_util.mge_model_from(
     mask_radius=mask_radius,
@@ -304,7 +317,11 @@ lens_anchor = af.Model(
 )
 
 """
-The source galaxy is also an MGE, with a free centre (we have no pre-measured position for the unlensed source).
+The source is also represented by an MGE, but its centre remains free because its unlensed position is inferred
+through the lens model.
+
+Its Gaussian widths are fixed and its intensities are solved linearly. The shared centre coordinates and
+elliptical components contribute four non-linear source parameters.
 """
 source_bulge = al.model_util.mge_model_from(
     mask_radius=mask_radius,
@@ -315,25 +332,40 @@ source_bulge = al.model_util.mge_model_from(
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=source_bulge)
 
-"""
+r"""
 __Scaling Relation__
 
-Now the relation itself. The fainter galaxy's mass is a spherical isothermal profile whose `einstein_radius` is
-not given a prior — instead, it is *assigned an expression*: the anchor's `einstein_radius` multiplied by the
-luminosity ratio raised to the Faber-Jackson exponent of 0.5.
+We now assign the other galaxy a spherical `IsothermalSph` mass profile and fix its centre to the measured
+light position.
 
-This single line is the whole trick. Because `mass_anchor.einstein_radius` is the model's own free parameter,
-multiplying it by a fixed number produces a **derived quantity**, not a new parameter. Whenever the non-linear
-search proposes an Einstein radius for the anchor, every tied galaxy's Einstein radius follows automatically.
+Rather than assigning its `einstein_radius` an independent prior, we express it in terms of the anchor's:
 
-The tied galaxy keeps its MGE bulge (its light is inside the mask and must be fitted), so it costs two light
-parameters and **zero** mass parameters.
+$$
+\theta_{{\rm E},i}
+=\theta_{{\rm E},{\rm anchor}}
+\left(\frac{L_i}{L_{\rm anchor}}\right)^{0.5}.
+$$
 
-An honest aside before we continue: this dataset's two galaxies are comparably bright, and for a genuine system
-of two co-dominant deflectors the previous tutorial's model — full mass freedom for both — is the right choice.
-A galaxy contributing half the lensing deserves its own parameters. We tie one here so you can learn the
-machinery on a familiar dataset; the regime where the relation genuinely earns its keep is a *population* of
-fainter members, which we build towards below and which dominates the next tutorial.
+Whenever the search proposes an Einstein radius for the anchor, the tied galaxy's Einstein radius follows
+automatically. It is a **derived parameter**, with no independent sampling dimension.
+
+Three choices together give this galaxy zero non-linear mass parameters: its centre is fixed, its profile is
+spherical, and its Einstein radius is tied to the anchor. The scaling relation itself removes only the independent
+Einstein-radius parameter; fixing the centre and adopting a spherical profile provide the other reductions.
+
+Its elliptical MGE still contributes two non-linear light parameters. A spherical MGE with fixed widths and
+centre would reduce that light contribution to zero as well.
+
+We use this familiar two-galaxy dataset to demonstrate the machinery. However, both galaxies contribute
+substantially to the lensing, so tying their masses imposes a strong restriction on a quantity the previous
+tutorial allowed the data to constrain.
+
+An independent mass model provides a useful comparison for such important deflectors. A scaling relation may be
+appropriate when supported by the scientific assumptions, but its apparent precision must not be mistaken for
+information supplied entirely by the lensing data.
+
+The simplification becomes especially useful for populations of less influential galaxies. We can tie that
+population while retaining independent mass parameters for galaxies whose contributions need more flexibility.
 """
 scaling_exponent = 0.5
 
