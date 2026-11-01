@@ -667,13 +667,17 @@
       "Wrap Up"
     ],
     "cross_refs": [
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/fit.py",
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/likelihood_function.py",
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/modeling.py",
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/simulator.py",
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/start_here.py",
+      "fit.py",
+      "likelihood_function.py",
+      "modeling.py",
       "scripts/simulator/weak_lensing.py",
-      "start_here.py",
-      "weak/fit.py",
-      "weak/likelihood_function.py",
-      "weak/modeling.py",
-      "weak/simulator.py",
-      "weak/start_here.py"
+      "simulator.py",
+      "start_here.py"
     ],
     "notebook": "notebooks/chapter_4_scaling_up_lensing/tutorial_6_weak_lensing.ipynb",
     "path": "scripts/chapter_4_scaling_up_lensing/tutorial_6_weak_lensing.py",
