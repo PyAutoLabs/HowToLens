@@ -396,14 +396,16 @@ scaling_galaxies = af.Collection(scaling_galaxies_list)
 """
 __Model__
 
-The model has two top-level collections: `galaxies` (the anchor and the source) and `scaling_galaxies` (the tied
-population). This is not just presentational — `scaling_galaxies` is the collection name **PyAutoLens** expects a
-scaling population in: the analysis appends it to the tracer's galaxy list when fitting, and results loaded back
-via the aggregator restore it. It also keeps `model.info` readable, with the tied population visibly separate
-from the freely modelled galaxies.
+We assemble the model using two collections:
 
-Inspecting `model.info` below, note that the tied galaxies have no `einstein_radius` prior of their own — it is
-listed as a function of the anchor's.
+- `galaxies` contains the anchor lens galaxy and the source.
+- `scaling_galaxies` contains the galaxies whose mass normalizations follow the scaling relation.
+
+Both collections contribute to the lens model. Keeping the tied population separate makes its role easier to
+inspect and follows the convention used in the workspace examples.
+
+Inspect `model.info` below. The tied galaxy's `einstein_radius` is expressed in terms of the anchor's parameter
+rather than assigned an independent prior.
 """
 model = af.Collection(
     galaxies=af.Collection(lens=lens_anchor, source=source),
@@ -413,24 +415,36 @@ model = af.Collection(
 print(model.info)
 
 """
-The same model can also be visualized as a figure, making its structure easier to understand at a glance.
+The figure shows how the tied galaxy's Einstein radius depends on the anchor's.
 
-The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
-fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
-corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
-parameter.
+It has no independent prior or sampling dimension, but it remains a parameter of the galaxy's mass profile. Its
+value changes as the search varies the anchor's Einstein radius.
 
-The tied galaxy's `einstein_radius` is not sampled at all. It is computed from the anchor lens galaxy's via the
-scaling relation, so it has no prior, because it is not a parameter.
+With fixed luminosity ratios and a fixed exponent, uncertainty in the anchor propagates directly to the tied
+Einstein radius. This does not include uncertainty in the luminosity measurements or intrinsic scatter around
+the scaling relation.
 """
 af.ModelPlotter(model).figure()
 
 """
 __Parameter Counts__
 
-Let's verify the claims above by counting, rather than believing. First we recompose the previous tutorial's
-style of model on this dataset — every galaxy with its own free elliptical `Isothermal` mass (centres fixed at
-the measured light centres, as above, so the comparison is like-for-like).
+We now compare models with different amounts of mass freedom.
+
+First, we give each lens galaxy an independent elliptical `Isothermal` mass profile with a fixed centre. We
+retain the same fixed-centre MGE light models and the same source model used above.
+
+Each lens galaxy then contributes two non-linear light parameters and three mass parameters. Including the
+source's four parameters gives **14** in total.
+
+Our scaling-relation model has **11**: five for the anchor's light and mass, two for the tied galaxy's light,
+and four for the source.
+
+The reduction from 14 to 11 combines two changes to the second galaxy: adopting a spherical mass profile removes
+two elliptical components, and tying its Einstein radius removes one further parameter.
+
+This comparison differs from Tutorial 2's 18-parameter model because we have also fixed both lens galaxies'
+light centres here.
 """
 per_galaxy_lens_dict = {}
 
@@ -455,15 +469,21 @@ model_per_galaxy = af.Collection(
 )
 
 print(
-    f"Free parameters, per-galaxy model (previous tutorial): {model_per_galaxy.prior_count}"
+    f"Free parameters, independent elliptical masses: {model_per_galaxy.prior_count}"
 )
 print(f"Free parameters, scaling-relation model:               {model.prior_count}")
 
 """
-The scaling-relation model is smaller. To isolate exactly what the relation saves, we compose one more variant:
-identical to the scaling-relation model in every way, except each tied galaxy's `einstein_radius` is freed with
-a uniform prior instead of tied. The difference in parameter count must equal the number of tied galaxies —
-one saved `einstein_radius` each.
+To isolate the effect of the scaling relation itself, we build another model with exactly the same profiles,
+fixed centres and light-model choices as the tied model.
+
+The only change is that the second galaxy's Einstein radius receives an independent uniform prior instead of
+being linked to the anchor.
+
+This model has **12** free non-linear parameters, compared with **11** for the tied model. The scaling relation
+therefore saves one parameter for this one tied galaxy.
+
+The assertion below checks that the difference equals the number of tied galaxies.
 """
 freed_galaxies_list = []
 
@@ -498,13 +518,29 @@ assert model_freed.prior_count - model.prior_count == len(scaling_galaxies_list)
 """
 __Scaling To Many Galaxies__
 
-Saving one parameter looks modest — the point is what happens as the population grows. Below we imagine this
-lens had twelve additional member galaxies (we invent centres on a ring and plausible luminosities; this model
-is composed for counting only, **not** fitted — our dataset contains no such galaxies!).
+Saving one parameter becomes more consequential when we model a population of galaxies.
 
-Each imagined member is mass-only (faint distant perturbers whose light is negligible or outside the mask need
-no light model — the mass-only counterpart of the intermediate options tutorial 1 discussed), with its Einstein
-radius tied to the anchor by the same relation. We count the parameters of this 14-galaxy lens model, and of its nightmare per-galaxy twin.
+Below, we add twelve hypothetical members with specified positions and luminosities. These galaxies are not
+present in our simulated image: we construct these models only to compare parameter counts, and do not fit them
+to the data.
+
+Each additional member receives a spherical mass profile with a fixed centre. In one model, its Einstein radius
+follows the anchor through the scaling relation. In the comparison model, its Einstein radius has an independent
+prior.
+
+We omit light profiles for these hypothetical members to isolate the mass-parameter count. In a real analysis,
+their light would need to be assessed separately, as in Tutorial 1. Being a faint or secondary deflector does
+not automatically make its light negligible.
+
+The original two-galaxy model is unchanged in both comparisons. In particular, its original tied galaxy remains
+tied; only the twelve additional members differ.
+
+The tied model therefore remains at **11** non-linear parameters, while giving the twelve new members independent
+Einstein radii increases the count to **23**.
+
+This demonstrates a constant mass-parameter count under our chosen restrictions. Evaluating the extra deflections
+still adds computational work, and any additional light-model freedom or per-galaxy scatter parameters would
+need to be counted separately.
 """
 total_members = 12
 
@@ -552,7 +588,7 @@ print(
     f"Free parameters, 14-galaxy scaling model:           {model_many_tied.prior_count}"
 )
 print(
-    f"Free parameters, 14-galaxy per-galaxy-mass model:   {model_many_freed.prior_count}"
+    f"Free parameters, 12 additional members with free Einstein radii: {model_many_freed.prior_count}"
 )
 
 assert model_many_tied.prior_count == model.prior_count
