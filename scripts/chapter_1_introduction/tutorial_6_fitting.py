@@ -248,16 +248,23 @@ aplt.plot_array(
 """
 __Fitting__
 
-Now that our data is masked, we are ready to proceed with the fitting process.
+We will begin with the same lens and source parameters used to simulate the
+data. This gives us a useful reference: we know the underlying model, so we
+can see what agreement with a noisy observation should look like.
 
-Fitting the data is done using the `Galaxy` and `Tracer objects that we introduced in previous tutorials. We will start by 
-setting up a `Tracer`` object, using the same galaxy configuration that we previously used to simulate the 
-imaging data. This setup will give us what is known as a 'perfect' fit, as the simulated and fitted models are identical.
+We should not expect the predicted image to match every observed pixel
+exactly. The data contain random noise, whereas our prediction describes
+the expected brightness.
+
+As before, the lens has an Isothermal mass profile and the source has a
+Sersic light profile. The lens galaxy's light was omitted from this simulation.
 """
 lens_galaxy = al.Galaxy(
     redshift=0.5,
     mass=al.mp.Isothermal(
-        centre=(0.0, 0.0), einstein_radius=1.6, ell_comps=(0.17647, 0.0)
+        centre=(0.0, 0.0),
+        einstein_radius=1.6,
+        ell_comps=(0.17647, 0.0),
     ),
 )
 
@@ -272,74 +279,73 @@ source_galaxy = al.Galaxy(
     ),
 )
 
-
 tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
 
-aplt.plot_array(array=tracer.image_2d_from(grid=dataset.grid), title="Image")
-
 """
-Next, let's plot the image of the tracer. This should look familiar, as it is the same image we saw in 
-previous tutorials. The difference now is that we use the dataset's `grid`, which corresponds to the `masked_grid` 
-we defined earlier. This means that the tracer image is only evaluated in the unmasked region, skipping calculations 
-in masked regions.
+First, we evaluate the tracer on the dataset's grid. This calculates the
+lensed source image at the selected image-plane coordinates.
+
+The arcs should look familiar, but this image has not yet been blurred by
+the telescope's PSF. We must include that blurring before comparing it with
+the observed data.
 """
 aplt.plot_array(
-    array=tracer.image_2d_from(grid=dataset.grid), title="Tracer Image To Be Fitted"
+    array=tracer.image_2d_from(grid=dataset.grid),
+    title="Lensed Image Before PSF Blurring",
 )
 
 """
-Now, we proceed to fit the image by passing both the `Imaging` and `Tracer` objects to a `FitImaging` object. 
-This object will compute key quantities that describe the fit’s quality:
+The `FitImaging` object brings together our dataset and tracer. It calculates
+the predicted image with PSF blurring and compares it with the data.
 
-`image`: Creates an image of the tracer using their image_2d_from() method.
-`model_data`: Convolves the tracer image with the data's PSF to account for the effects of telescope optics.
-`residual_map`: The difference between the model data and observed data.
-`normalized_residual_map`: Residuals divided by noise values, giving units of noise.
-`chi_squared_map`: Squares the normalized residuals.
-`chi_squared` and `log_likelihood`: Sums the chi-squared values to compute chi_squared, and converts this into 
-a log_likelihood, which measures how well the model fits the data (higher values indicate a better fit).
+We supply the parameter values through the tracer. Creating this object
+evaluates that choice of parameters; it does not adjust them.
 
-Let's create the fit and inspect each of these attributes:
+We will inspect the predicted image first, then calculate the differences
+between it and the data. These differences will form the basis of the
+statistical quantities introduced below.
 """
 fit = al.FitImaging(dataset=dataset, tracer=tracer)
 
 """
-The `model_data` represents the tracer's image after accounting for effects like PSF convolution. 
+The fit's `model_data` is the predicted image after PSF convolution. It has
+the same units as the observed data and can be compared with them pixel
+by pixel.
 
-An important technical note is that when we mask data, we discussed above how the image of the tracer is not evaluated
-outside the mask and is set to zero. This is a problem for PSF convolution, as the PSF blurs light from these regions
-outside the mask but at its edge into the mask. They must be correctly evaluated to ensure the model image accurately
-represents the image data.
+The mask selects which observed pixels enter the comparison, but light
+outside its boundary can still be blurred into those pixels by the PSF.
+`FitImaging` therefore also evaluates the surrounding light needed for
+this convolution.
 
-The `FitImaging` object handles this internally, but evaluating the model image in the additional regions outside the mask
-that are close enough to the mask edge to be blurred into the mask. 
+This is the same principle as the padding in Tutorial 5: we must account
+for light beyond the edge of the region whose blurred image we want.
+
+Below, compare the data and model image. Their arcs should have similar
+positions, shapes and brightnesses. The model image is smooth, while the
+data include noise. We do not add a new random noise realisation to the
+model image when assessing the fit.
 """
 print("First model image pixel:")
 print(fit.model_data.slim[0])
-aplt.plot_array(array=fit.model_data, title="Model Image")
 
-"""
-Even before computing other fit quantities, we can normally assess if the fit is going to be good by visually comparing
-the `data` and `model_data` and assessing if they look similar.
-
-In this example, the tracer used to fit the data are the same as the tracer used to simulate it, so the two
-look very similar (the only difference is the noise in the image).
-"""
 aplt.plot_array(array=fit.data, title="Data")
 aplt.plot_array(array=fit.model_data, title="Model Image")
 
 r"""
-The `residual_map` is the different between the observed image and model image, showing where in the image the fit is
-good (e.g. low residuals) and where it is bad (e.g. high residuals).
+Subtracting the model image from the data gives the `residual_map`:
 
-The expression for the residual map is simply:
+\[
+\text{residual} = \text{data} - \text{model\_data}
+\]
 
-\[ \text{residual} = \text{data} - \text{model\_data} \]
+A positive residual means that the observed pixel is brighter than predicted.
+A negative residual means that it is fainter.
 
-The residual-map is plotted below, noting that all values are very close to zero because the fit is near perfect.
-The only non-zero residuals are due to noise in the image.
+We calculate this difference explicitly below and compare its first value
+with the value provided by `FitImaging`.
 """
 residual_map = dataset.data - fit.model_data
+
 print("First residual-map pixel:")
 print(residual_map.slim[0])
 
@@ -347,6 +353,21 @@ print("First residual-map pixel via fit:")
 print(fit.residual_map.slim[0])
 
 aplt.plot_array(array=fit.residual_map, title="Residual Map")
+
+"""
+Because we used the parameters that generated the simulation, we expect
+the residuals to be dominated by the noise in the data.
+
+Look for positive and negative fluctuations rather than coherent arc-shaped
+features. The fluctuations can be larger in bright regions, where the
+Poisson noise is larger.
+
+To judge whether a residual is large or small, we must compare it with
+the noise expected in that pixel. This is our next step.
+
+**🤖 Ask AI:** Why can a correct lens model leave larger absolute residuals
+in bright arcs than in the faint background?
+"""
 
 r"""
 Are these residuals indicative of a good fit to the data? Without considering the noise in the data, it's difficult 
