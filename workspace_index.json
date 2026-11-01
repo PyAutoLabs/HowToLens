@@ -677,7 +677,7 @@
     ],
     "notebook": "notebooks/chapter_4_scaling_up_lensing/tutorial_6_weak_lensing.ipynb",
     "path": "scripts/chapter_4_scaling_up_lensing/tutorial_6_weak_lensing.py",
-    "summary": "Every tutorial in this series so far \u2014 indeed, every fit performed in all four chapters of **HowToLens** \u2014 has been a *strong* lensing analysis. Strong lensing occurs when a background galaxy lies so close (in projection) to a foreground mass that its light is bent into multiple images, arcs or a complete Einstein ring. These dramatic features are what we simulated, fitted and modeled, from the single galaxy-scale lenses of chapters 1 and 2 up to the group-scale and cluster-scale systems earlier in this chapter.",
+    "summary": "Our modeling tutorials have concentrated on **strong lensing**: the multiple images, arcs and Einstein rings produced by galaxy, group and cluster lenses.",
     "title": "Tutorial 6: Weak Lensing"
   },
   {
