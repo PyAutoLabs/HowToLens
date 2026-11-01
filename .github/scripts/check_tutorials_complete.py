@@ -11,7 +11,9 @@ A tutorial is considered *complete* when it contains a recognised terminal
 section marker (``__Wrap Up__`` or ``__Summary__``). A truncated script never
 reaches its wrap-up, so the absence of the marker is a reliable signal that the
 script lost content. Deliberate "not written yet" stub tutorials still carry a
-``__Wrap Up__`` section, so they pass.
+``__Wrap Up__`` section, so they pass. Tutorial 6 of Chapter 1 deliberately
+ends with ``__Likelihood Function__``; it must retain its closing Chapter 2
+transition in the final docstring.
 
 A second, cheaper guard flags any script whose final docstring block ends on a
 colon (``:``) — the classic "a plot/code block follows" promise left dangling
@@ -46,9 +48,17 @@ def final_docstring(text: str) -> str | None:
 def check(path: Path) -> str | None:
     """Return a failure reason for a truncated-looking tutorial, else None."""
     text = path.read_text(encoding="utf-8")
-    if not any(marker in text.lower() for marker in TERMINAL_MARKERS):
-        return "no __Wrap Up__/__Summary__ terminal section (looks truncated)"
     trailing = final_docstring(text)
+    likelihood_ending = (
+        path.parts[-2:] == ("chapter_1_introduction", "tutorial_6_fitting.py")
+        and "__Likelihood Function__" in text
+        and trailing is not None
+        and "__Likelihood Function__" not in trailing
+        and "In Chapter 2," in trailing
+        and trailing.strip().endswith("systematically.")
+    )
+    if not likelihood_ending and not any(marker in text.lower() for marker in TERMINAL_MARKERS):
+        return "no __Wrap Up__/__Summary__ terminal section (looks truncated)"
     if trailing is not None and trailing.strip().endswith(":"):
         return "final docstring ends on ':' (dangling promise of a following block)"
     return None
@@ -67,7 +77,8 @@ def main(root: str) -> int:
             print(f"  [FAIL] {f.relative_to(root)} — {reason}")
         print(
             "\nEach tutorial must end with a `__Wrap Up__` (or `__Summary__`) "
-            "section. If a script is genuinely truncated, restore its lost "
+            "section (or the approved Chapter 1 likelihood ending). "
+            "If a script is genuinely truncated, restore its lost "
             "content; if it is complete, add the terminal section."
         )
         return 1
