@@ -603,32 +603,40 @@ if (
 else:
     print("Finite evidences are unavailable; complete both nested-sampling fits before comparing the models.")
 
-"""
+r"""
 __Scaling Relation Members__
 
-The model above gave every member its own free `sigma`. With two members that costs two parameters -- harmless.
-But groups can host dozens of members, and one free mass parameter per member quickly bloats the model, slows
-the search, and asks the data to constrain masses it barely feels individually.
+We now return to the galaxy-only model and change how its member galaxies are described. This keeps the
+scaling-relation exercise separate from the NFW halo comparison.
 
-The previous tutorial's solution applies directly here: tie the members' masses to their light through a
-scaling relation. More luminous galaxies are more massive, so we write each member's `sigma` and `r_cut` as
-power laws of its luminosity, normalized by a single shared free parameter:
+Previously, each member had an independent mass normalization, `sigma`. We now link the members through
+their luminosities:
 
- - `sigma = sigma_ref * (L / L_ref) ** 0.25`
- - `r_cut = r_cut_ref * (L / L_ref) ** 0.7`
+$$
+\sigma_i=\sigma_{\rm ref}
+\left(\frac{L_i}{L_{\rm ref}}\right)^{0.25},
+\qquad
+r_{{\rm cut},i}=r_{{\rm cut},{\rm ref}}
+\left(\frac{L_i}{L_{\rm ref}}\right)^{0.7}.
+$$
 
-These exponents follow the convention of modern cluster lensing analyses, and `L_ref` is a fixed reference
-luminosity. The 0.25 is the previous tutorial's Faber-Jackson relation recast for velocity dispersion:
-`L ~ sigma^4` inverts to `sigma ~ L^0.25`, and since `theta_E ~ sigma^2` this reproduces the `theta_E ~ L^0.5`
-scaling we anchored there. Note also the change of normalization: rather than hanging the relation off an
-anchor galaxy the model already fits, we normalise it with a shared free parameter at a fixed reference
-luminosity. Now the *entire member population's mass* costs one free parameter (`sigma_ref`), no matter how
-many members the group has, and each member's observed luminosity acts as a physically motivated prior on its
-mass.
+The exponent 0.25 follows the approximate Faber-Jackson scaling introduced in Tutorial 3. The truncation exponent
+0.7 is an adopted prescription for this example, rather than a universal property of group members.
 
-For real data the luminosities come from your photometry catalogue (only luminosity ratios enter the model, so
-any consistent units work). Here we compute them from the true member light profiles, using an aperture
-luminosity within 3.0".
+Unlike the previous tutorial's anchor-galaxy approach, we introduce a shared free normalization, `sigma_ref`,
+at a fixed reference luminosity. We hold both exponents and `r_cut_ref` fixed.
+
+With member centres fixed and spherical mass profiles, the entire member **mass population** therefore has one
+non-linear parameter, regardless of how many members we include.
+
+Their light parameters remain separate. Here, each member's fixed-centre linear `SersicSph` contributes two
+non-linear parameters: effective radius and Sersic index. Its intensity is solved linearly.
+
+For this simulated example, we obtain luminosities from the known member light profiles within a 3.0" aperture
+centred on each galaxy. This photometric aperture is separate from the 7.5" fitting mask.
+
+For real observations, use consistently measured luminosities and account for the measurement and population
+assumptions discussed in Tutorial 3.
 """
 luminosity_list = [
     member_0.bulge.luminosity_within_circle_from(radius=3.0),
@@ -669,44 +677,50 @@ model = af.Collection(
 )
 
 """
-Note that the tied members now live in the `scaling_galaxies` collection — the home the previous tutorial
-introduced for a scaling-relation population — whereas the individually-modelled members above sat in
-`extra_galaxies`, like tutorial 1's interlopers. Both collections are included in the ray-tracing; the split
-keeps `model.info` readable and tells the results machinery which galaxies are a tied population.
+The tied members now appear under `scaling_galaxies`, while the individually modeled members previously appeared
+under `extra_galaxies`. Both contribute to the ray-tracing.
 
-The model's `info` shows that both members' `sigma` values now trace back to the single shared `sigma_ref`
-prior, and the parameter count has dropped to N=18.
+Inspect `model.info`: both member `sigma` expressions depend on the same `sigma_ref` prior.
 
-A drop of one parameter looks unremarkable -- until you scale it up. A group with 20 members modeled
-individually would need 20 free mass parameters; with the scaling relation it still needs exactly one. (In
-practice the members' light is handled the same way, using the Multi Gaussian Expansion from earlier in the
-lectures, whose fixed-centre members add almost no free parameters either -- so entire member populations can
-be added to a group model almost for free.)
+The model has **18 non-linear parameters**: seven for the BGG, six for the source, four for the member light
+profiles and one shared member-mass normalization.
 
-This dataset was in fact simulated with members that obey this exact scaling relation, so the model remains the
-true model.
+With N members, the corresponding count is 14 + 2N, because their light models still contribute two parameters
+each. Only the member mass-parameter count remains constant.
+
+Fixed-width, fixed-centre spherical MGEs could remove those non-linear member-light parameters where that light
+description is appropriate. Elliptical MGEs with fixed centres would retain two per member.
+
+The truncation radii also change: instead of fixing both to 10.0", we now assign luminosity-dependent values.
+The comparison therefore changes both the mass-normalization freedom and the truncation prescription.
 """
 print(model.info)
 
 """
-The tied members have moved out of `extra_galaxies` into `scaling_galaxies`, and they no longer share one
-description: each member's `sigma` is no longer an independent prior but an expression,
-`sigma = scaling_galaxies.1.mass.sigma.sigma_ref * <luminosity ratio>`, with a different ratio for each. One
-free prior, two galaxies — the scaling relation.
+The figure shows the two member `sigma` values linked to one shared prior. Each is computed from `sigma_ref`
+and its fixed luminosity ratio.
 
-`r_cut` stays fixed, as it was before. `r_cut_ref * luminosity_ratio ** 0.7` is arithmetic on plain numbers
-rather than on a prior, so it yields a fixed value rather than a relation.
+Their truncation radii are also calculated from luminosity, but every input to that calculation is fixed.
+Each member therefore receives a fixed `r_cut` value, which can differ between members.
 
-Nineteen free parameters fall to eighteen. One parameter is an unremarkable saving for two members, but the
-saving keeps growing: however many members you add to `scaling_galaxies`, every one of their `sigma` values
-points back at that single `sigma_ref`.
+Replacing two independent `sigma` parameters with one shared normalization reduces the count from 19 to 18.
+
+For a larger population, the saving grows: replacing N independent member normalizations with one shared
+parameter removes N - 1 sampling dimensions, provided the other model choices remain unchanged.
 """
 af.ModelPlotter(model).figure()
 
 print(f"Total free parameters: {model.prior_count}")
 
 """
-We fit this model with an identical search set up.
+We fit the scaling-relation model using the same dataset, analysis object and search settings as the galaxy-only
+fit with independently modeled members.
+
+Inspect the resulting parameters and residuals to assess whether the restricted member model describes the data
+adequately.
+
+Remember that this comparison changes the truncation prescription as well as tying the mass normalizations.
+Any difference in the fit cannot be attributed solely to the reduction of one parameter.
 """
 search = af.Nautilus(
     path_prefix=Path("howtolens") / "chapter_4",
@@ -718,14 +732,14 @@ search = af.Nautilus(
 )
 
 print(
-    "The non-linear search has begun running - checkout the output/howtolens/chapter_4/"
-    "tutorial_4_group_scale_scaling_relation folder for live output of the results, images and model."
-    " This Jupyter notebook cell with progress once search has completed - this could take some time!"
+    "The non-linear search has begun. Check the output/howtolens/chapter_4/"
+    "tutorial_4_group_scale_scaling_relation folder for results and visualizations as the search progresses."
+    " This cell will finish when the search completes."
 )
 
 result_scaling = search.fit(model=model, analysis=analysis)
 
-print("The search has finished run - you may now continue the notebook.")
+print("The search has finished — you may now continue the notebook.")
 
 print(result_scaling.info)
 
@@ -734,53 +748,45 @@ aplt.subplot_fit_imaging(fit=result_scaling.max_log_likelihood_fit)
 """
 __The Group Scale Sweet Spot__
 
-Step back and consider what this tutorial did *not* require: no new fitting machinery, no new analysis object,
-no new data format. The `FitImaging`, `AnalysisImaging`, linear light profiles and `Nautilus` search of the
-galaxy-scale chapters handled the group unchanged -- we just put more galaxies in the tracer, reached for the
-truncated dPIE profile, and used scaling relations to keep the member population cheap. Even the pixelized
-source reconstructions of the previous chapter work at group scale exactly as they do at galaxy scale, and for
-real groups with complex arcs they are the recommended source model.
+Group-scale lenses let us apply much of the toolkit developed for individual galaxies to a richer mass
+distribution.
 
-This is why the group scale is the **sweet spot** of strong lens modeling. The full toolkit of galaxy-scale
-modeling still applies, and the model dimensionality stays low: our individually-modeled-member fit had N=19
-free parameters and the scaling-relation fit N=18. Real group models are of this order -- a few tens of free
-parameters at most (N < 30 or so) -- comfortably within reach of the non-linear searches we already know, with
-run times of minutes to hours.
+We still use `FitImaging`, `AnalysisImaging`, linear light profiles and a non-linear search. Pixelized source
+reconstructions can also be used when the lensed source has structure that a simple parametric profile does
+not capture.
 
-Push the system any richer, however, and this toolkit breaks down. A cluster hosts hundreds of members and
-lenses many sources at once; its image is too large and complex to fit pixel-by-pixel with a tracer's light
-model, and its model would need hundreds of parameters. Cluster-scale modeling therefore switches to a
-different tool set -- fitting the *positions* of the multiple images of many point-like sources, with member
-catalogues driving the mass model -- which is the subject of the next tutorial.
+Our examples remain compact: 19 non-linear parameters for independently normalized members, 21 after adding the
+illustrative NFW halo, and 18 for the galaxy-only scaling-relation model.
+
+These counts describe our chosen examples, rather than an upper limit for group modeling. Real systems may
+require more galaxies, additional sources, more flexible mass profiles or further freedom in the scaling relation.
+
+Groups are particularly useful for studying how mass is divided between a central galaxy, satellite galaxies
+and a larger dark matter halo. As throughout this chapter, that decomposition can remain uncertain even when
+the lensed images are fitted well.
+
+At cluster scale, many multiply imaged sources can provide constraints across a much larger region. A common
+approach is to fit their image positions, using a catalogue to describe the member population.
+
+This is the approach introduced in the next tutorial. It complements surface-brightness modeling rather than
+marking a fundamental scale beyond which pixel-based fitting is impossible.
 
 __Wrap Up__
 
-In this tutorial, we took the tools of the previous tutorials to the group scale. Lets recap what we learnt:
+In this tutorial, we learned:
 
-- **Groups in LCDM**: A galaxy group is a dark matter halo of roughly 10^13 to 10^14 solar masses hosting a
-  handful to a few dozen galaxies, with the brightest group galaxy (BGG) typically near its centre. The group's
-  halo may enter the mass model as its own component, often centred on the BGG -- but whether it is needed is
-  an explicit modelling choice, tested by fitting with and without it.
+- Group lenses combine contributions from central galaxies, members and potentially an explicitly modeled shared
+  dark matter halo.
+- The dPIE profile provides a finite-mass description of members, with a smooth truncation scale whose
+  interpretation depends on the adopted model.
+- Measuring member positions first and fixing centres helps keep the inference manageable.
+- Comparing fitted galaxy-only and galaxy-plus-NFW models tests whether the data support a separate halo
+  component under the chosen priors.
+- Luminosity-based scaling relations can replace independent member mass normalizations with shared parameters,
+  while member-light freedom must still be counted separately.
+- The familiar imaging toolkit extends naturally to groups, but reliable mass decomposition requires attention
+  to degeneracies and modeling assumptions.
 
-- **Groups vs multi-galaxy lenses**: The line is blurry. All groups are multi-galaxy lenses, but not all
-  multi-galaxy lenses are groups -- the group's defining feature is the shared halo environment its members
-  orbit within.
-
-- **Tidal truncation and the dPIE**: Members orbiting in the group's potential have their outer dark matter
-  tidally stripped, so their profiles are truncated. The `dPIEMassSph` profile encodes this via its `r_cut`
-  truncation radius, with `sigma` setting the lensing strength and `r_core` the (usually vanishing) core.
-
-- **Fitting and modeling groups**: The galaxy-scale machinery works unchanged -- a tracer with more galaxies,
-  members with fixed centres and free `sigma`, and a `Nautilus` search over N=19 parameters.
-
-- **Scaling relations**: Tying member `sigma` and `r_cut` to luminosity via power laws with one shared free
-  normalization means the whole member population costs a single parameter, however many members there are.
-
-- **The sweet spot**: Groups are the largest systems the familiar toolkit -- including pixelized source
-  reconstruction -- still handles, with model dimensionality staying below a few tens of parameters.
-
-In the next tutorial we climb the final rung of the ladder to galaxy clusters, where tens to hundreds of member
-galaxies lens many sources simultaneously. There the toolkit changes: we will model the positions of multiply
-imaged point sources rather than every pixel of the data, and drive the mass model from member catalogues via
-a csv interface built on the same scaling relations we used here.
+In the next tutorial, we move to **galaxy clusters**, fitting the positions of multiple images from background
+sources and building member-galaxy models from a CSV catalogue.
 """
