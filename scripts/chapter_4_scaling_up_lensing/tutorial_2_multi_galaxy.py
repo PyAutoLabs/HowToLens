@@ -311,10 +311,13 @@ Fixing two coordinates for each of two galaxies removes four parameters, reducin
 print(model.info)
 
 """
-The two `mass · Isothermal` centres are now fixed to the measured light centres rather than sampled, and
-nothing else about the model has changed: twenty-two free parameters down to eighteen.
+The figure now shows each galaxy's mass centre fixed to its measured light position.
 
-Four centres fixed, four dimensions gone. That is the standard trick of the multi-galaxy regime.
+Two fixed centres remove four non-linear parameters, reducing the model from 22 to 18. The MGE light centres and
+elliptical components remain free, so each galaxy's light model still contributes four non-linear parameters.
+
+Recall that a spherical MGE with fixed widths and a fixed light centre would contribute zero non-linear
+parameters. We retain the more flexible elliptical light models here.
 """
 af.ModelPlotter(model).figure()
 
@@ -323,10 +326,15 @@ print(f"Free parameters (fixed mass centres): {model.prior_count}")
 """
 __Model Fit__
 
-We fit the model with the nested sampling algorithm `Nautilus`, as in previous chapters. Because this model has
-more free parameters than the single-galaxy fits of chapter 2 (which used 100 live points), we raise `n_live`
-to 200 — a multi-galaxy parameter space is more multi-modal, and too few live points risks converging on a local
-maximum where the two galaxies' Einstein radii have been mis-apportioned.
+We fit the model using `Nautilus`, as in previous chapters.
+
+With two deflectors, the search must explore correlations between their mass profiles as well as the source
+parameters. We use 200 live points here, compared with 100 in our earlier examples, to give the search more scope
+to explore this parameter space.
+
+Increasing the number of live points does not guarantee a reliable result. Inspect the fitted images and
+posterior distributions, and check the stability of important conclusions using repeated searches or more
+demanding search settings where needed.
 """
 search = af.Nautilus(
     path_prefix=Path("howtolens", "chapter_4"),
@@ -340,9 +348,9 @@ search = af.Nautilus(
 analysis = al.AnalysisImaging(dataset=dataset)
 
 print(
-    "The non-linear search has begun running - checkout the output/howtolens/chapter_4/tutorial_2_multi_galaxy"
-    " folder for live output of the results, images and model."
-    " This Jupyter notebook cell with progress once search has completed - this could take some time!"
+    "The non-linear search has begun. Check the output/howtolens/chapter_4/tutorial_2_multi_galaxy"
+    " folder for results and visualizations as the search progresses."
+    " This cell will finish when the search completes."
 )
 
 result = search.fit(model=model, analysis=analysis)
@@ -350,15 +358,27 @@ result = search.fit(model=model, analysis=analysis)
 """
 __Result__
 
-The result's `info` shows the inferred model, with each deflector's parameters listed under its own `lens_0` /
-`lens_1` entry.
+The result's `info` summarizes the inferred parameters and their uncertainties. The two deflectors appear
+separately under `lens_0` and `lens_1`.
+
+Compare their inferred Einstein radii and elliptical components, remembering that the parameters of one galaxy
+may be correlated with those of the other. The fixed mass centres are assumptions supplied to the fit, rather
+than positions measured independently by this search.
 """
 print(result.info)
 
 """
-The tracer subplot is worth a close look for a multi-galaxy lens: the critical curve is that of the *combined*
-mass distribution, so it wraps around the pair as a whole rather than encircling either galaxy individually —
-just as the arcs in the data do.
+Inspect the tracer subplot to see how the two galaxies combine to lens the source.
+
+The critical curves belong to the combined lens mapping. Depending on the galaxies' masses, shapes and separation,
+they can form connected or separate structures; they are not obtained by simply drawing an Einstein ring around
+each galaxy.
+
+Then inspect the fit subplot. Check whether the model reproduces both galaxies' light and the lensed source
+emission, and look for coherent residuals around the arcs or where the light components overlap.
+
+A satisfactory image fit is an essential check, but it does not establish that each galaxy's mass is individually
+well constrained. We investigate that next using the posterior.
 """
 aplt.subplot_tracer(tracer=result.max_log_likelihood_tracer, grid=result.grids.lp)
 
@@ -367,9 +387,27 @@ aplt.subplot_fit_imaging(fit=result.max_log_likelihood_fit)
 """
 __Mass Degeneracies__
 
-The corner plot of the posterior is where the multi-galaxy regime reveals its most important lesson. Below we
-plot the probability density function of every parameter; when you run this tutorial for real (rather than
-skimming the generated output), focus on the panel showing `lens_0`'s Einstein radius against `lens_1`'s.
+Multiple significant deflectors introduce additional mass degeneracies beyond those encountered in single-galaxy
+lenses. The lensed images constrain the galaxies' **combined deflection field**, so changes in one galaxy's mass
+distribution can be compensated by changes in another's.
+
+Consequently, a model may reproduce the arcs accurately while leaving substantial uncertainty in how the mass is
+divided between the galaxies. This is a major challenge of multi-galaxy modeling: a well-constrained combined lens
+does not necessarily imply well-constrained individual galaxy masses.
+
+Single-galaxy lenses also have mass-source degeneracies, but multiple deflectors add freedom to redistribute mass
+**between galaxies**. How severe this becomes depends on their separation and the positions and quality of the
+lensed images.
+
+In the corner plot below, find the panel comparing the `einstein_radius` parameters of `lens_0` and `lens_1`.
+Look for a correlation: can a larger mass normalization for one galaxy be compensated by a smaller normalization
+for the other?
+
+Also inspect how these parameters correlate with the galaxies' elliptical components and the source parameters.
+The degeneracy need not involve only the two Einstein radii.
+
+The shape and extent of these distributions tell us more about the uncertainty in the mass decomposition than a
+single best-fit model can.
 """
 aplt.corner_anesthetic(samples=result.samples)
 
