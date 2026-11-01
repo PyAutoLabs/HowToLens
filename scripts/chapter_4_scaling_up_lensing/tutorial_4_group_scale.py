@@ -440,21 +440,27 @@ model = af.Collection(
 )
 
 """
-Printing the model's `info` confirms its composition: the BGG and source under `galaxies`, and the two members
-under `extra_galaxies` with only their `sigma`, `effective_radius` and `sersic_index` free.
+Inspect `model.info` to check the galaxy-only model's components and priors.
 
-The total number of free parameters is N=19 -- take note of this number, as it is central to the discussion at
-the end of this tutorial.
+The BGG and source appear under `galaxies`, while the two members appear under `extra_galaxies`. Each member has
+three free non-linear parameters: `sigma`, `effective_radius` and `sersic_index`.
+
+The total is **19 non-linear parameters**: seven for the BGG, six across the two members and six for the source.
+
+Light-profile intensities are solved by the linear inversion during each likelihood evaluation, so they do not
+add sampling dimensions. This is Model 1 of our dark matter halo comparison.
 """
 print(model.info)
 
 """
-The same model can also be visualized as a figure, making its structure easier to understand at a glance.
+The model figure shows how these components are organized.
 
-The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
-fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
-corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
-parameter.
+Notice that the central galaxy's light and mass centres remain free, whereas the member centres are fixed to
+their measured positions. Each member's mass profile has only `sigma` free; its core and truncation scales
+are fixed.
+
+Compare the figure with `model.info` and check the printed parameter count. These choices keep the model
+compact while retaining independent mass normalizations for the members.
 """
 af.ModelPlotter(model).figure()
 
@@ -467,8 +473,14 @@ configuration is retained for the non-linear search.
 
 
 """
-We fit the model with the `Nautilus` non-linear search, using the same `AnalysisImaging` object as every
-imaging fit so far -- another sign that the group scale does not require new machinery.
+We first fit the galaxy-only model using `Nautilus` and the familiar `AnalysisImaging` object.
+
+The likelihood calculation uses the same imaging framework as in earlier chapters, now with the central galaxy
+and two members contributing to the predicted image.
+
+This search provides the first fit and Bayesian evidence for our comparison. We will then fit the model
+containing an additional NFW dark matter halo using the same dataset and unchanged priors for the
+galaxy components.
 """
 search = af.Nautilus(
     path_prefix=Path("howtolens") / "chapter_4",
@@ -482,18 +494,26 @@ search = af.Nautilus(
 analysis = al.AnalysisImaging(dataset=dataset)
 
 print(
-    "The non-linear search has begun running - checkout the output/howtolens/chapter_4/tutorial_4_group_scale"
-    " folder for live output of the results, images and model."
-    " This Jupyter notebook cell with progress once search has completed - this could take some time!"
+    "The non-linear search has begun. Check the output/howtolens/chapter_4/tutorial_4_group_scale"
+    " folder for results and visualizations as the search progresses."
+    " This cell will finish when the search completes."
 )
 
 result = search.fit(model=model, analysis=analysis)
 
-print("The search has finished run - you may now continue the notebook.")
+print("The search has finished — you may now continue the notebook.")
 
 """
-The result's `info` and maximum likelihood fit show the model recovers the group: the BGG's Einstein radius,
-the members' velocity dispersions and the source's properties are all inferred from the data.
+Inspect the inferred parameters in `result.info` and the fit subplot below.
+
+Check how well the model reproduces the central galaxy, member light and lensed arcs. Look for coherent
+residuals, particularly near the member galaxies and the source emission they perturb.
+
+The inferred member `sigma` values describe their dPIE mass normalizations under our adopted profile
+assumptions. Remember that we fixed both truncation scales to 10.0", whereas the simulation used 8.0" and 13.3".
+
+We next add the shared NFW dark matter halo and refit, allowing the galaxy parameters to adjust alongside the
+halo parameters.
 """
 print(result.info)
 
