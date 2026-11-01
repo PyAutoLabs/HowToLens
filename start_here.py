@@ -6,6 +6,28 @@ Welcome to **HowToLens** — the `PyAutoLens` tutorial lecture series on strong 
 
 This script gives you a one-page overview of the series and points you to the first tutorial.
 
+__HowToLens and Natural Language__
+
+**PyAutoLens** can be used by describing an analysis in natural language to an AI coding agent, which writes and runs
+the **PyAutoLens** code for you. Natural language does not remove the need for expertise: to direct an analysis well,
+and to recognise when a result is wrong, you still need to understand the science, the modeling assumptions and
+how uncertainty is quantified.
+
+That is what **HowToLens** is for. It teaches strong lensing from first principles, with real **PyAutoLens** Python that you
+run and explore yourself, so that you can then describe a lens model in natural language with expertise, or write it
+in Python directly. Python is not going anywhere: every lecture is ordinary **PyAutoLens** code.
+
+You can also study with the [PyAutoLens AI Assistant](https://github.com/PyAutoLabs/autolens_assistant) in teacher
+mode, which explains concepts, equations, code and results as you go. Open Claude Code, Codex or another AI coding
+agent and paste:
+
+> I want to work through the HowToLens lectures (https://github.com/PyAutoLabs/HowToLens) with the
+> PyAutoLens Assistant: https://github.com/PyAutoLabs/autolens_assistant
+> First clone that repository, cd into it and follow its AGENTS.md.
+>
+> Enter teacher mode. Show me where to find the lectures and how to use Jupyter Notebook or
+> Markdown, then help me with questions as I go.
+
 __HowToLens__
 
 **HowToLens** is a four-chapter guide which takes you, step by step, from knowing nothing about strong lensing
@@ -13,10 +35,12 @@ to being able to model real strong lens data with **PyAutoLens** for scientific 
 
 - Chapter 1: Introduction to strong lensing — grids, light profiles, mass profiles, galaxies, ray-tracing,
   simulated data, and how fitting works.
-- Chapter 2: Bayesian inference and non-linear searches — how to fit a lens model to CCD imaging data.
-- Chapter 3: Search chaining — automated pipelines that fit complex systems by chaining multiple searches.
-- Chapter 4: Pixelized source reconstruction — reconstructing sources with irregular morphology using
+- Chapter 2: Bayesian inference and non-linear searches — how to fit a lens model to CCD imaging data, ending
+  with search chaining and automated pipelines.
+- Chapter 3: Pixelized source reconstruction — reconstructing sources with irregular morphology using
   inversions and regularization.
+- Chapter 4: Scaling up lensing — extra galaxies, multi-galaxy lenses, scaling relations, group and cluster
+  scales, and weak lensing.
 
 Each chapter is organised into numbered tutorial files: `chapter_<N>_<name>/tutorial_<M>_<topic>.py` (Python script)
 or the matching `.ipynb` in `notebooks/`. Tutorials build on each other within a chapter and assume you have
@@ -32,7 +56,7 @@ We recommend working through the tutorials in order:
 3. Work through `chapter_2_lens_modeling`.
 4. At this point you can start modeling real lenses using scripts in the separate
    `autolens_workspace` repository — you know enough to be productive.
-5. Come back for `chapter_3_search_chaining` and `chapter_4_pixelizations` when you want to tackle more
+5. Come back for `chapter_3_pixelizations` and `chapter_4_scaling_up_lensing` when you want to tackle more
    complex systems.
 
 __Notebooks vs Scripts__
