@@ -49,15 +49,17 @@ We recommend completing chapters 1 and 2, then applying what you've learned to r
 Use the [Jupyter notebooks](notebooks/) to run the code (recommended), or read the
 available [Markdown lectures](markdown/README.md) directly on GitHub.
 
-For help alongside the lectures, open the [autolens_assistant](https://github.com/PyAutoLabs/autolens_assistant)
-repository in your AI coding agent, following its setup instructions, and paste:
+For help alongside the lectures, study with the [PyAutoLens AI Assistant](https://github.com/PyAutoLabs/autolens_assistant)
+in teacher mode. Open Claude Code, Codex or another AI coding agent and paste the prompt below. The agent downloads
+the assistant and installs **PyAutoLens** for you:
 
 ```text
-Enter teacher mode.
+I want to work through the HowToLens lectures (https://github.com/PyAutoLabs/HowToLens) with the
+PyAutoLens Assistant: https://github.com/PyAutoLabs/autolens_assistant
+First clone that repository, cd into it and follow its AGENTS.md.
 
-I want to work through the HowToLens lectures. Show me where to find them
-and how to use Jupyter Notebook or Markdown, then help me with questions
-as I go.
+Enter teacher mode. Show me where to find the lectures and how to use Jupyter Notebook or
+Markdown, then help me with questions as I go.
 ```
 
 The assistant can answer questions about concepts, equations, code and results as you study, and help with
