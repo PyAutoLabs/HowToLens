@@ -535,66 +535,42 @@ log_likelihood = -0.5 * (chi_squared + noise_normalization)
 print("Log Likelihood = ", log_likelihood)
 print("Log Likelihood via fit = ", fit.log_likelihood)
 
-r"""
-In the previous discussion, we noted that a lower \(\chi^2\) value indicates a better fit of the model to the 
-observed data. 
-
-When we calculate the log likelihood, we take the \(\chi^2\) value and multiply it by -0.5. This means that a 
-higher log likelihood corresponds to a better model fit. Our goal when fitting models to data is to maximize the 
-log likelihood.
-
-The **reduced \(\chi^2\)** value provides an intuitive measure of goodness-of-fit. Values close to 1.0 suggest a 
-good fit, while values below or above 1.0 indicate potential underfitting or overfitting of the data, respectively. 
-In contrast, the log likelihood values can be less intuitive. For instance, a log likelihood value printed above 
-might be around 5300.
-
-However, log likelihoods become more meaningful when we compare them. For example, if we have two models, one with 
-a log likelihood of 5300 and the other with 5310 we can conclude that the first model fits the data better 
-because it has a higher log likelihood by 10.0. 
-
-In fact, the difference in log likelihood between models can often be associated with a probability indicating how 
-much better one model fits the data compared to another. This can be expressed in terms of standard deviations (sigma). 
-
-As a rule of thumb:
-
-- A difference in log likelihood of **2.5** suggests that one model is preferred at the **2.0 sigma** level.
-- A difference in log likelihood of **5.0** indicates a preference at the **3.0 sigma** level.
-- A difference in log likelihood of **10.0** suggests a preference at the **5.0 sigma** level.
-
-All these metrics can be visualized together using the `aplt.subplot_fit_imaging` object, which offers a comprehensive 
-overview of the fit quality. It also shows separate model images for the lens and source galaxies, and the appearance
-of the source galaxy in the image and source planes.
 """
-fit = al.FitImaging(dataset=dataset, tracer=tracer)
+For the same dataset, mask and noise assumptions, a higher log likelihood
+indicates better agreement between the predicted image and the data.
 
+For example, a log likelihood of 5310 is higher than 5300, so the former
+parameter choice provides the better fit under those assumptions.
+
+The absolute value is not a probability that the model is correct. Nor does
+a difference in log likelihood have a universal conversion into a number
+of standard deviations.
+
+We should also inspect where the model disagrees with the data. The subplot
+below brings together the data, model image and residual diagnostics, along
+with views of the source.
+
+Look for residuals consistent with noise rather than coherent features
+tracing the lensed arcs.
+"""
 aplt.subplot_fit_imaging(fit=fit)
 
 """
-If you're familiar with model-fitting, you've likely encountered terms like 'residuals', 'chi-squared', 
-and 'log_likelihood' before. 
-
-These metrics are standard ways to quantify the quality of a model fit. They are applicable not only to 1D data but 
-also to more complex data structures like 2D images, 3D data cubes, or any other multidimensional datasets.
-
 __Incorrect Fit__
 
-In the previous section, we successfully created and fitted a lens model to the image data, resulting in an 
-excellent fit. The residual map and chi-squared map showed no significant discrepancies, indicating that the 
-strong lens's light was accurately captured by our model. This optimal solution translates to one of the highest log 
-likelihood values possible, reflecting a good match between the model and the observed data.
+We will now change the source position while keeping the lens mass and all
+other source properties fixed.
 
-Now, let's modify our lens model to create a fit that is close to the correct solution but slightly off. 
-Specifically, we will slightly offset the center of the source galaxy by half a pixel (0.05") in both the x and y 
-directions. This change will allow us to observe how even small deviations from the true parameters can impact the 
-quality of the fit.
+The original source centre was `(0.1, 0.1)` arcseconds. We move it to
+`(0.15, 0.15)`, a displacement of 0.05 arcseconds in each source-plane
+coordinate.
+
+Although 0.05 arcseconds is half our image pixel scale, lensing maps this
+source-plane displacement into changes in the positions and shapes of the
+observed arcs. It does not simply move every image by half a pixel.
+
+The original `fit` remains our reference comparison.
 """
-lens_galaxy = al.Galaxy(
-    redshift=0.5,
-    mass=al.mp.Isothermal(
-        centre=(0.0, 0.0), einstein_radius=1.6, ell_comps=(0.17647, 0.0)
-    ),
-)
-
 source_galaxy = al.Galaxy(
     redshift=1.0,
     bulge=al.lp.Sersic(
@@ -606,42 +582,45 @@ source_galaxy = al.Galaxy(
     ),
 )
 
-
 tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
 
-aplt.plot_array(array=tracer.image_2d_from(grid=dataset.grid), title="Image")
+aplt.plot_array(
+    array=tracer.image_2d_from(grid=dataset.grid),
+    title="Lensed Image With Shifted Source",
+)
 
 """
-After implementing this slight adjustment, we can now plot the fit. In doing so, we observe that residuals have 
-emerged at the multiple images of the lensed source, which indicates a mismatch between our model and the data. 
-Consequently, this discrepancy results in increased chi-squared values, which in turn affects our log likelihood.
+We evaluate this new tracer against the same dataset and inspect the fit.
+
+Look for coherent positive and negative residuals around the arcs. These
+indicate regions where the shifted source predicts too little or too much
+light, rather than just random fluctuations about the observation.
 """
 fit_bad = al.FitImaging(dataset=dataset, tracer=tracer)
 
 aplt.subplot_fit_imaging(fit=fit_bad)
 
 """
-Next, we can compare the log likelihood of our current model to the log likelihood value we computed previously.
+Compare the log likelihood with our reference value. We expect the shifted
+source to give a lower value because its predicted image disagrees with
+the data more strongly.
 """
-print("Previous Likelihood:")
+print("Reference log likelihood:")
 print(fit.log_likelihood)
-print("New Likelihood:")
+
+print("Shifted-source log likelihood:")
 print(fit_bad.log_likelihood)
 
-"""
-As expected, we observe that the log likelihood has decreased! This decline confirms that our new model is indeed a 
-worse fit to the data compared to the original model.
+print("Change from reference:")
+print(fit_bad.log_likelihood - fit.log_likelihood)
 
-Now, let’s change our lens model once more, this time setting it to a position that is far from the true parameters. 
-We will offset the source's center significantly to see how this extreme deviation affects the fit quality.
 """
-lens_galaxy = al.Galaxy(
-    redshift=0.5,
-    mass=al.mp.Isothermal(
-        centre=(0.0, 0.0), einstein_radius=1.6, ell_comps=(0.17647, 0.0)
-    ),
-)
+Next, move the source centre to `(0.5, 0.5)` arcseconds. All other parameters
+remain unchanged.
 
+This is a much larger displacement from the original `(0.1, 0.1)` position.
+Compare the predicted arcs and residuals with the previous two examples.
+"""
 source_galaxy = al.Galaxy(
     redshift=1.0,
     bulge=al.lp.Sersic(
@@ -653,7 +632,6 @@ source_galaxy = al.Galaxy(
     ),
 )
 
-
 tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
 
 fit_very_bad = al.FitImaging(dataset=dataset, tracer=tracer)
@@ -661,16 +639,36 @@ fit_very_bad = al.FitImaging(dataset=dataset, tracer=tracer)
 aplt.subplot_fit_imaging(fit=fit_very_bad)
 
 """
-It is now evident that this model provides a terrible fit to the data. The tracer does not resemble a plausible
-representation of our simulated strong lens dataset, which we already anticipated given that we generated the data ourselves!
+Print the three log likelihoods together and compare their ordering with
+what you saw in the residual plots.
 
-As expected, the log likelihood has dropped dramatically with this poorly fitting model.
+For this example, the larger source displacement should produce the strongest
+disagreement and the lowest log likelihood.
 """
-print("Previous Likelihoods:")
+print("Reference source centre (0.1, 0.1):")
 print(fit.log_likelihood)
+
+print("Source centre (0.15, 0.15):")
 print(fit_bad.log_likelihood)
-print("New Likelihood:")
+
+print("Source centre (0.5, 0.5):")
 print(fit_very_bad.log_likelihood)
+
+"""
+We have evaluated three choices of parameters, rather than searched for
+the best-fitting values.
+
+The parameters used to generate the simulation provide a useful reference,
+but they need not give the highest possible likelihood for one noisy
+observation. Small parameter changes can sometimes improve agreement with
+that particular noise realisation.
+
+To restore the original comparison, rerun the first tracer and `FitImaging`
+cells in the Fitting section.
+
+**🤖 Ask AI:** Why might the parameters that maximise the likelihood of a
+noisy simulated image differ slightly from those used to generate it?
+"""
 
 """
 __Model Fitting__
