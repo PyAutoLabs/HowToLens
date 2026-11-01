@@ -281,20 +281,23 @@ aplt.subplot_fit_weak(fit=fit)
 """
 __Model Fit__
 
-In a real analysis we do not know the mass model — we infer it. The workflow is the one you have used since
-chapter 2: compose a model with `af.Model` and `af.Collection`, choose a non-linear search, create an `Analysis`
-object and fit. For weak lensing the analysis object is `AnalysisWeak`, whose `log_likelihood_function` builds a
-`Tracer` from each sampled parameter set, evaluates its shear field at the catalogue positions and returns the
-Gaussian log likelihood — the same `FitWeak` machinery we just used by hand.
+We now infer the mass-model parameters using the workflow introduced in Chapter 2: compose a model with `af.Model` and `af.Collection`, choose a non-linear search, create an analysis object and fit.
 
-The model is the lens's `Isothermal` mass [5 parameters]; the source galaxy again carries no components. Note the
-tiny parameter space — no lens light, no source light, no shear-as-nuisance-parameter (the shear field *is* the
-data here) — compared to the N=20+ models of the imaging tutorials.
+`AnalysisWeak` builds a `Tracer` from each sampled parameter set and evaluates the catalogue likelihood using the same `FitWeak` calculation we inspected above.
 
-One adjustment is needed, familiar from the group and cluster tutorials: the default priors are tuned for
-galaxy-scale lenses (Einstein radii of 0"-8", centres within a fraction of an arc-second). Our cluster's 25"
-Einstein radius lies entirely outside that prior, so we widen the priors to cluster scales — always match your
-priors to the mass scale of the system you are fitting.
+Our Isothermal model has five non-linear parameters:
+
+- Two centre coordinates.
+- Two ellipticity components.
+- The Einstein radius.
+
+The lens and source redshifts remain fixed. Neither galaxy has a light profile, so there are no light-profile parameters or source reconstructions to fit.
+
+Earlier in this chapter, we often fixed individual galaxy centres to their measured centres of light. Here, the mass profile represents the cluster as a whole, and we allow its centre to vary. A cluster’s overall mass centre need not coincide exactly with the light centre of its brightest galaxy.
+
+We assign an Einstein-radius prior spanning 0–60 arc-seconds and Gaussian centre priors with a width of 20 arc-seconds around the origin. These are illustrative choices suited to this simulated system.
+
+As in the group and cluster tutorials, check that the priors describe the scale and plausible configurations of the system being analyzed. Inspect the resulting posterior to determine whether the data constrain these parameters within their allowed ranges.
 """
 mass = af.Model(al.mp.Isothermal)
 mass.einstein_radius = af.UniformPrior(lower_limit=0.0, upper_limit=60.0)
@@ -310,23 +313,24 @@ model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
 print(model.info)
 
 """
-The same model can also be visualized as a figure, making its structure easier to understand at a glance.
+The model figure summarizes this structure: one lens mass profile with five free parameters and a source galaxy supplying a fixed redshift.
 
-The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
-fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
-corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
-parameter.
+Use it alongside `model.info`, which lists the priors and fixed values.
 
-In weak lensing the source galaxies are the *data*, a catalogue of measured shapes, so there is no source light
-to fit and the source galaxy in this model carries no light profile at all.
+The single source galaxy in this model does not mean that the catalogue contains only one background galaxy. It supplies the common source-plane redshift assumed for all 1500 catalogue entries.
+
+Their individual observed positions and shear estimates belong to the dataset; we do not introduce a separate light profile or free source position for each entry.
 """
 af.ModelPlotter(model).figure()
 
 """
-We fit the model with the nested sampling algorithm Nautilus, as throughout the series. A weak-lensing likelihood
-evaluation takes milliseconds (one shear-field evaluation at 1500 positions plus a chi-squared sum), so this
-5-parameter fit completes in minutes on an ordinary CPU — a refreshing contrast to the imaging fits of the earlier
-chapters.
+We use Nautilus to sample the posterior, as in the earlier tutorials, and pass the catalogue to `AnalysisWeak`.
+
+Each likelihood evaluation predicts the shear field at the 1500 galaxy positions and compares it with the measurements. There is no image convolution or source reconstruction in this calculation.
+
+This is a compact five-parameter example, but its runtime still depends on the implementation, hardware and number of likelihood evaluations required by the search.
+
+Use the search outputs to monitor progress and assess convergence before interpreting the inferred parameters. The familiar output directory contains the model information, samples and fit diagnostics.
 """
 search = af.Nautilus(
     path_prefix=Path("howtolens", "chapter_4"),
@@ -339,35 +343,51 @@ search = af.Nautilus(
 analysis = al.AnalysisWeak(dataset=dataset)
 
 print(
-    "The non-linear search has begun running - checkout the output/howtolens/chapter_4/tutorial_6_weak_lensing"
-    " folder for live output of the results, images and model."
-    " This Jupyter notebook cell with progress once search has completed - this could take some time!"
+    "The non-linear search has begun. Check "
+    "output/howtolens/chapter_4/tutorial_6_weak_lensing "
+    "for live results, images and model information. "
+    "Continue once the search has completed."
 )
 
 result = search.fit(model=model, analysis=analysis)
 
-print("The search has finished run - you may now continue the notebook.")
+print("The search has finished. You may now continue the notebook.")
 
 """
 __Result__
 
-The result's `info` attribute confirms the search recovers the input mass model — Einstein radius, ellipticity and
-centre — from nothing but the statistically-averaged shapes of background galaxies. No arc, no ring, no multiple
-images: the ensemble alone constrains the cluster's mass.
+Inspect `result.info` to see the inferred parameters and their uncertainties.
+
+Because we simulated this catalogue, we can compare them with the input Einstein radius of 25 arc-seconds, axis ratio of 0.8, position angle of 45 degrees and centre at the origin.
+
+The code parameterizes ellipticity using two components, so convert between those components and axis ratio and position angle when making that comparison.
+
+Noise means that the inferred values need not equal the inputs exactly. Consider the posterior intervals and parameter correlations, rather than judging recovery from a single fitted realization.
+
+The fit subplot below displays the maximum-likelihood realization found by the search. Compare its coherent shear pattern with the noisy measurements, using the diagnostics discussed above.
+
+These constraints are conditional on our chosen mass profile, fixed redshifts and noise assumptions. A real cluster may require a more flexible mass distribution and additional treatment of observational uncertainties.
 """
 print(result.info)
 
 aplt.subplot_fit_weak(fit=result.max_log_likelihood_fit)
 
 """
-Cluster weak-lensing measurements are conventionally presented as the **tangential shear profile**: the mean
-tangential shear gamma_t of background galaxies in radial bins about the lens centre, which traces the projected
-mass profile. `aplt.plot_shear_profile` bins our catalogue and, given the fit, overlays the model's profile as a
-line.
+Weak-lensing measurements around clusters are often summarized using a **tangential shear profile**.
 
-The plot also shows the *cross* component gamma_x — the shear rotated by 45 degrees. Gravitational lensing produces
-no cross component at leading order, so cross points scattering around zero is the standard "B-mode" null test of a
-weak-lensing measurement: a systematic contaminating the shapes would show up there.
+For each background galaxy, we resolve its shear into components defined relative to a chosen centre. The tangential component describes the tendency for images to stretch around that centre.
+
+`aplt.plot_shear_profile` groups the catalogue into radial bins and plots the mean tangential component with uncertainties. Passing a fit also overlays the model’s binned tangential profile.
+
+Here we use eight bins around the simulation’s input centre, `(0.0, 0.0)`. This plotting choice does not fix the mass centre in the fit: the model still has two free centre coordinates.
+
+The plot is a summary of the fitted catalogue. Our likelihood used both shear components at every galaxy position, retaining angular information that radial averaging can hide.
+
+The second set of points shows the **cross component**, defined at 45 degrees to the tangential component. Its azimuthal average is expected to be consistent with zero for the ideal lensing signal and suitable angular sampling.
+
+A significant cross signal therefore motivates checks of the measurements, angular coverage and model geometry. However, a cross profile consistent with zero does not establish that all systematic errors are absent; some biases can change the tangential signal without producing a cross signal.
+
+Use the radial profiles together with the two-dimensional fit diagnostics and posterior uncertainties.
 """
 aplt.plot_shear_profile(
     result.max_log_likelihood_fit,
