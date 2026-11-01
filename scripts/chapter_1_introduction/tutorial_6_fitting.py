@@ -64,14 +64,9 @@ If you have already run that tutorial, we load the saved files.
 
 The pixel scale is 0.1 arcseconds, matching the simulation.
 """
-if al.util.dataset.should_simulate(str(dataset_path)):
-    import subprocess
-    import sys
-
-    subprocess.run(
-        [sys.executable, "scripts/chapter_1_introduction/tutorial_5_data.py"],
-        check=True,
-    )
+al.util.dataset.simulate_if_needed(
+    dataset_path, simulator="scripts/chapter_1_introduction/tutorial_5_data.py"
+)
 
 dataset = al.Imaging.from_fits(
     data_path=dataset_path / "data.fits",
@@ -688,14 +683,9 @@ We load the image and apply a circular mask as before.
 dataset_name = "simple__no_lens_light__mass_sis"
 dataset_path = Path("dataset") / "imaging" / dataset_name
 
-if al.util.dataset.should_simulate(str(dataset_path)):
-    import subprocess
-    import sys
-
-    subprocess.run(
-        [sys.executable, "scripts/simulator/no_lens_light__mass_sis.py"],
-        check=True,
-    )
+al.util.dataset.simulate_if_needed(
+    dataset_path, simulator="scripts/simulator/no_lens_light__mass_sis.py"
+)
 
 dataset = al.Imaging.from_fits(
     data_path=dataset_path / "data.fits",

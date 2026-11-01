@@ -154,11 +154,9 @@ Loading the dataset does not fit a model. It supplies the measurements and obser
 object will use later.
 """
 
-if al.util.dataset.should_simulate(str(dataset_path)):
-    import subprocess
-    import sys
-
-    subprocess.run([sys.executable, "scripts/simulator/no_lens_light__mass_sis.py"], check=True)
+al.util.dataset.simulate_if_needed(
+    dataset_path, simulator="scripts/simulator/no_lens_light__mass_sis.py"
+)
 
 dataset = al.Imaging.from_fits(
     data_path=dataset_path / "data.fits",
