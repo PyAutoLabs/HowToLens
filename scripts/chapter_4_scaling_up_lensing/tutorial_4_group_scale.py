@@ -14,7 +14,7 @@ centre.
 
 Our example contains one dominant central component, two member galaxies and one background source. We will
 introduce truncated member-galaxy mass profiles, compare independent member masses with a scaling relation, and
-explore what it means to add an explicit group-halo component.
+use Bayesian evidence to compare models with and without an explicit NFW dark matter halo.
 
 __Groups vs Multi-Galaxy Lenses__
 
@@ -54,8 +54,10 @@ __Contents__
 - **Galaxy Centres:** Load the centres of the BGG and member galaxies from .json files.
 - **The dPIE Profile:** Introduce the truncated dPIE mass profile and its parameters.
 - **Fitting a Group:** Fit the data with a tracer containing the BGG, members and source.
-- **A Group Halo?:** Add a group-scale dark matter halo to the tracer and see how it changes the fit.
-- **Model Fit:** Compose and fit a group-scale lens model with individually modeled members.
+- **A Group Halo?:** Motivate a shared NFW dark matter halo and define two models to compare.
+- **Model Fit:** Compose and fit the galaxy-only model with individually modeled members.
+- **Fit With a Shared NFW Dark Matter Halo:** Refit with an additional NFW halo and unchanged galaxy priors.
+- **Bayesian Model Comparison:** Compare the evidences of the galaxy-only and galaxy-plus-halo models.
 - **Scaling Relation Members:** Tie the members' masses to their light so they cost almost no parameters.
 - **The Group Scale Sweet Spot:** Why groups are the sweet spot of the familiar lens modeling toolkit.
 - **Wrap Up:** Summary of the script and next steps.
@@ -65,6 +67,7 @@ from autolens import jax_wrapper  # Sets JAX environment before other imports
 
 # from autolens import setup_notebook; setup_notebook()
 
+import copy
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
@@ -341,61 +344,58 @@ print(f"Log likelihood of the true model: {fit.log_likelihood}")
 """
 __A Group Halo?__
 
-You may have noticed that the model above contains no group-scale dark matter halo, despite this tutorial
-opening with the statement that a group is defined by one. Two things are going on here.
+In the standard cosmological model, **Lambda Cold Dark Matter (LCDM)**, galaxies form within dark matter halos.
+Galaxy groups are expected to occupy larger **host dark matter halos**, within which member galaxies orbit,
+often retaining their own smaller halos.
 
-First, the BGG's `IsothermalSph` has a 4.0" Einstein radius -- far larger than the ~1.0" of an isolated galaxy
-of its luminosity. A mass profile centred on the BGG cannot tell "stars and dark matter belonging to the BGG"
-apart from "group dark matter centred on the BGG": a single isothermal profile at the group centre soaks up
-both. So the group's halo is partly hidden inside the BGG's mass profile already.
+This gives us a physical reason to include an extended, shared dark matter component when modeling a group-scale
+lens.
 
-Second, whether to add a *separate* halo component to the model is an **explicit modelling choice**, and this
-dataset was deliberately simulated without one. Lets see what happens if we add one anyway. We add a fifth
-galaxy carrying only mass -- an `IsothermalSph` centred on the BGG, the conventional choice for a group halo
-where a BGG exists -- and refit.
-"""
-group_halo = al.Galaxy(
-    redshift=0.5,
-    mass=al.mp.IsothermalSph(centre=(0.0, 0.0), einstein_radius=1.5),
-)
+However, seeing several galaxies close together on the sky does not automatically establish that they inhabit
+a group-scale halo. They could be projected neighbours or an interacting pair of field galaxies, for which
+separate galaxy-centred mass profiles provide an adequate description. Those galaxies still contain dark matter;
+what may be unnecessary is an **additional shared group-scale component**.
 
-tracer_with_halo = al.Tracer(galaxies=[bgg, group_halo, member_0, member_1, source])
+The astronomical question is therefore whether the system's environment and lensing signal support a shared
+host halo, and whether the data can distinguish its contribution from the masses associated with individual
+galaxies.
 
-fit_with_halo = al.FitImaging(dataset=dataset, tracer=tracer_with_halo)
+We investigate this by fitting two models:
 
-aplt.subplot_fit_imaging(fit=fit_with_halo)
+- **Galaxy mass profiles only:** a central galaxy and member galaxies, without a separate host halo.
+- **Galaxy mass profiles plus a shared dark matter halo:** the same components, with an additional NFW halo
+  at the group redshift.
 
-"""
-The fit is now visibly worse -- the extra 1.5" Einstein radius of mass at the centre over-deflects the source's
-light, displacing the model arcs from the observed ones -- and the log likelihood drops accordingly.
-"""
-print(f"Log likelihood with a group halo added: {fit_with_halo.log_likelihood}")
+The Navarro-Frenk-White (NFW) profile is a commonly used description of dark matter halos in LCDM. We allow the
+galaxy parameters to adjust in both fits and compare the Bayesian evidences. This tests whether the data support
+the additional NFW component, given our profile choices and priors.
 
-"""
-On real data the same experiment runs in reverse: fit the group with and without an explicit halo component and
-let the data decide (via the residuals and the Bayesian evidence introduced in earlier chapters). Some groups
-are well described by their galaxies alone, with the central galaxy's profile absorbing the halo; others --
-typically those with the largest Einstein radii or image configurations no galaxy-mass model can reproduce --
-require a dominant halo component, often centred on the BGG.
+If the simpler model is sufficient, it does not overturn the LCDM expectation: the shared halo's contribution
+may be absorbed by the galaxy-centred profiles, or the available images may not distinguish it separately.
+
+Our simulated dataset contains no separate NFW halo, so it provides a useful starting point for this comparison.
 
 __Model Fit__
 
-We now perform a proper model-fit with a non-linear search, as a scientist would for a group whose true
-parameters are unknown. We compose the model as follows:
+We first fit the galaxy-only model:
 
- - The BGG's light is a linear `SersicSph` (its centre free) and its mass an `IsothermalSph` [7 parameters].
+- The BGG has a linear `SersicSph` light profile and an `IsothermalSph` mass profile, with free centres:
+  seven non-linear parameters.
+- Each member has a linear `SersicSph` light profile and a `dPIEMassSph` mass profile. Both centres are fixed
+  to the measured position. The light's effective radius and Sersic index, together with the mass normalization
+  `sigma`, give three parameters per member.
+- The source has a linear `SersicCore` light profile: six non-linear parameters.
 
- - Each member's light is a linear `SersicSph` with its centre fixed to the observed centre, and its mass a
-   `dPIEMassSph` with a free `sigma`, its centre fixed, `r_core = 0.0` and `r_cut` fixed to a fiducial 10.0"
-   [3 parameters per member, 6 total].
+For each member, we fix `r_core = 0.0` and adopt `r_cut = 10.0"`. We also fix the redshifts and cosmological
+parameters.
 
- - The source's light is a linear `SersicCore` [6 parameters].
+Fixing the member centres follows the measured-position workflow used throughout this chapter. Fixing their
+truncation scales is a further assumption: the arcs may constrain a member's lensing strength more readily
+than its outer mass distribution.
 
-Fixing the member centres to their observed light and fixing `r_cut` follows the reasoning of the extra
-galaxies tutorial: the data rarely constrains a perturber's truncation radius, so we spend our parameter budget
-on the quantity that matters most -- each member's overall mass, via `sigma`. The redshifts and cosmology of
-the dPIE are pinned to their known values, since they are properties of the lens system, not parameters to
-sample.
+The chosen 10.0" truncation scale differs from the simulation's member values of 8.0" and 13.3". This fit therefore
+tests a simplified model rather than reproducing every simulation assumption exactly. We use the same member
+treatment in both halo-comparison models.
 """
 # BGG:
 
@@ -498,6 +498,90 @@ the members' velocity dispersions and the source's properties are all inferred f
 print(result.info)
 
 aplt.subplot_fit_imaging(fit=result.max_log_likelihood_fit)
+
+
+"""
+__Fit With a Shared NFW Dark Matter Halo__
+
+We now construct Model 2 by copying the galaxy-only model and adding a spherical NFW dark matter halo at the
+group redshift. Copying the original model preserves the galaxy priors: we do not replace them with posterior
+constraints from the first fit.
+
+For this illustrative comparison, we fix the halo centre to the measured central-galaxy position and fit two
+parameters:
+
+- `kappa_s`: the dimensionless NFW density normalization, with a uniform prior from 0.0 to 0.5.
+- `scale_radius`: the NFW scale radius in arcseconds, with a uniform prior from 5.0" to 50.0".
+
+These are explicit example priors, not universal choices for galaxy groups. The halo's shape and position are
+also assumptions here. For a scientific analysis, choose priors appropriate to the system and assess how they
+affect the evidence and inferred mass decomposition.
+
+Both models fit the same dataset, mask, noise map and source description. All galaxy parameters that were free
+in Model 1 remain free in Model 2, allowing mass to be redistributed between the central galaxy and host halo.
+"""
+model_galaxies_only = model
+model_with_halo = copy.deepcopy(model_galaxies_only)
+
+halo_mass = af.Model(al.mp.NFWSph)
+halo_mass.centre = tuple(main_lens_centres[0])
+halo_mass.kappa_s = af.UniformPrior(lower_limit=0.0, upper_limit=0.5)
+halo_mass.scale_radius = af.UniformPrior(lower_limit=5.0, upper_limit=50.0)
+
+model_with_halo.galaxies.group_halo = af.Model(
+    al.Galaxy, redshift=0.5, mass=halo_mass
+)
+
+print(model_with_halo.info)
+
+search_with_halo = af.Nautilus(
+    path_prefix=Path("howtolens") / "chapter_4",
+    name="tutorial_4_group_scale_with_nfw_halo",
+    unique_tag=dataset_name,
+    n_live=100,
+    n_batch=50,
+    iterations_per_quick_update=2500,
+)
+
+result_with_halo = search_with_halo.fit(model=model_with_halo, analysis=analysis)
+
+print(result_with_halo.info)
+aplt.subplot_fit_imaging(fit=result_with_halo.max_log_likelihood_fit)
+
+"""
+__Bayesian Model Comparison__
+
+Compare the log evidences from the two fitted models. We report the difference as the NFW-halo model minus
+the galaxy-only model: a positive difference favours including the NFW halo, while a negative difference favours
+the galaxy-only description, under the adopted priors.
+
+Interpret this alongside fit diagnostics and the numerical reliability of the searches. The evidence comparison
+accounts for the additional parameter space; it is not simply a comparison of the best-fitting images.
+For equal prior model probabilities, the difference in log evidences is the log posterior odds between the models.
+
+A preference for the NFW model supports that explicit component within these model choices. A preference for the
+simpler model does not demonstrate the absence of a physical dark matter halo.
+
+The next scaling-relation exercise returns to the galaxy-only setup, keeping the halo comparison separate from
+the change in member-mass treatment.
+"""
+log_evidence_galaxies_only = result.samples_summary.log_evidence
+log_evidence_with_halo = result_with_halo.samples_summary.log_evidence
+
+if (
+    log_evidence_galaxies_only is not None
+    and log_evidence_with_halo is not None
+    and np.isfinite(log_evidence_galaxies_only)
+    and np.isfinite(log_evidence_with_halo)
+):
+    print(f"Log evidence, galaxy-only model: {log_evidence_galaxies_only:.3f}")
+    print(f"Log evidence, galaxy + NFW model: {log_evidence_with_halo:.3f}")
+    print(
+        "Delta log evidence (NFW minus galaxy-only): "
+        f"{log_evidence_with_halo - log_evidence_galaxies_only:.3f}"
+    )
+else:
+    print("Finite evidences are unavailable; complete both nested-sampling fits before comparing the models.")
 
 """
 __Scaling Relation Members__
