@@ -145,31 +145,38 @@ aplt.subplot_imaging_dataset(dataset=dataset)
 """
 __Model__
 
-We now compose the lens model, and here the multi-galaxy regime shows its teeth. Every co-dominant deflector
-needs its own free light and mass model, so the model has one `Galaxy` entry per deflector.
+We now build a model containing two lens galaxies and one background source.
 
-We build each lens galaxy in a loop over the observed centres and store them as `lens_0`, `lens_1`, etc. This
-list-based composition scales to any number of deflectors, and it is the same API the `autolens_workspace`'s
-`multi_galaxy` package (and the group-scale examples above it) use — so nothing needs re-learning later.
+We loop over the measured lens-galaxy positions and create a separate `Galaxy` model for each deflector, named
+`lens_0`, `lens_1`, and so on. This composition extends naturally to systems containing more galaxies.
 
-For each lens galaxy's light we use a Multi Gaussian Expansion (MGE) made of linear light profiles, built by the
-utility function `al.model_util.mge_model_from` (this hides the longer `Basis` composition API we stepped through
-in the linear profiles tutorial of chapter 2). For each lens galaxy's mass we use an `Isothermal` (SIE) profile,
-initially with every parameter free. The source is also an MGE.
+Each lens galaxy's light is represented by a Multi-Gaussian Expansion (MGE), using the
+`al.model_util.mge_model_from` helper. This constructs the Gaussian basis using the approach introduced in chapter 2.
 
-The MGE choice matters more here than anywhere we have used it before. Each lens galaxy's 20 Gaussians add just
-**4 non-linear parameters** (a shared centre and shared elliptical components — every `sigma` is fixed and every
-`intensity` is solved for by the linear inversion). A single ordinary `Sersic` bulge would add 7 non-linear
-parameters per galaxy, and would fit the blended, overlapping light of a close pair far less well. Because the
-multi-galaxy regime multiplies whatever light model we choose by the number of deflectors, a light model that is
-both cheap and flexible is close to essential — this is exactly where the MGE shines.
+Each MGE contains 20 Gaussians with fixed widths, a shared centre and shared elliptical components. Their
+intensities are solved by the linear inversion, leaving four non-linear light parameters per galaxy: two centre
+coordinates and two elliptical components.
 
-Each Isothermal mass model adds 5 free parameters: its centre (2), elliptical components (2) and Einstein
-radius (1).
+An MGE does not necessarily add any non-linear parameters. If its Gaussian widths are fixed, its centre is fixed
+to the measured light position, and its Gaussians are spherical, only their intensities remain to be determined.
+These are solved by the linear inversion, so the entire light model adds **zero non-linear parameters**,
+regardless of how many Gaussians it contains.
 
-An external shear would enter the model as a separate `MassField` through `fields=field`. It describes the tidal
-field of structure *outside* the system, so it belongs to neither deflector. We omit it here to keep the parameter
-accounting simple.
+If we instead fit shared elliptical components while keeping the centre fixed, the MGE adds **two** non-linear
+parameters. Freeing the shared centre as well increases this to **four**, as in the model used here.
+
+An MGE offers flexibility when fitting overlapping galaxy light without sampling every Gaussian intensity.
+Whether that flexibility is needed depends on the observed morphology; a simpler light profile can still be
+appropriate.
+
+Each galaxy's mass is represented by an `Isothermal` profile, initially with five free parameters: two centre
+coordinates, two elliptical components and an Einstein radius. The source light is also represented by an MGE.
+
+The measured positions locate the priors on the lens light centres; those centres remain free in this model.
+We will explicitly fix the mass centres in the next step.
+
+We omit external shear in this example. If included, it would enter through a separate `MassField`, representing
+an additional tidal contribution to the combined deflection field.
 """
 lens_dict = {}
 
@@ -204,53 +211,61 @@ source = af.Model(al.Galaxy, redshift=1.0, bulge=bulge)
 model = af.Collection(galaxies=af.Collection(**lens_dict, source=source))
 
 """
-The model's `info` shows `lens_0` and `lens_1` each carrying their own free mass model — the signature of the
-multi-galaxy regime — and its `prior_count` gives the total number of free parameters.
+The model's `info` shows the light and mass components of `lens_0` and `lens_1`, together with the source model.
+
+Inspect which parameters are free, which are fixed and which are shared between Gaussian profiles. We will use
+`model.prior_count` below to count the free non-linear parameters.
 """
 print(model.info)
 
 """
-The same model can also be visualized as a figure, making its structure easier to understand at a glance.
+The figure shows the structure of our initial model. Each lens galaxy has its own `Isothermal` mass profile,
+with free centre coordinates, elliptical components and Einstein radius.
 
-The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
-fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
-corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
-parameter.
+This is an intermediate model used to illustrate the parameter count. Before fitting, we will fix each mass
+centre to its measured light position.
 
-Each deflector has its own `mass · Isothermal` with a free `centre`, `ell_comps` and `einstein_radius`: two
-independent, fully free mass models. That is the defining feature of this regime, and the thing every earlier
-chapter lacked.
+Compare the light and mass components: sharing parameters within an MGE reduces its dimensionality, but the two
+galaxies still have separate light and mass models.
 """
 af.ModelPlotter(model).figure()
 
 print(f"Free parameters (free mass centres): {model.prior_count}")
 
 """
-The count is **22**: each deflector contributes 4 (MGE light) + 5 (SIE mass) = 9 free parameters, and the MGE
-source contributes the final 4. Compare this to the equivalent single-galaxy model, which has just 13 — one
-co-dominant deflector added 9 parameters, and every further deflector will add 9 more. Model complexity compounds
-fast in this regime, and with plain Sersic light profiles instead of MGEs it would compound faster still (12 per
-deflector rather than 9).
+The initial model has **22 free non-linear parameters**:
+
+- Each lens galaxy contributes four light parameters and five mass parameters.
+- The source contributes four light parameters.
+
+The equivalent single-lens model would have 13. Adding the second deflector therefore adds nine parameters before
+we impose further restrictions.
 
 __Fixing the Mass Centres__
 
-Before fitting, we make one change that is standard practice for multi-galaxy lenses: we **fix each galaxy's
-mass centre to its observed light centre**, removing 2 free parameters per deflector.
+We now fix each galaxy's mass centre to its measured light centre, removing two free parameters per deflector.
 
-Why? With a single lens galaxy, the data usually constrains the mass centre well: the arcs pin down where the
-deflection field is centred, and there is only one plausible culprit. With multiple deflectors this breaks down.
-The source's light responds to the *summed* deflection field, so a small shift of one galaxy's mass centre can be
-compensated by shifts of the other's centre, ellipticity or Einstein radius — the free centres become extremely
-degenerate with one another. The search wanders these degeneracies, converging slowly and often settling in
-unphysical corners of parameter space where one galaxy's mass has drifted far from any light.
+This follows the common workflow introduced in Tutorial 1: measure galaxy positions from the image using a GUI,
+a source-detection tool or a preliminary light-profile fit, then use those positions as fixed inputs to the lens
+model.
 
-Fixing each mass centre to the galaxy's light centre resolves this at minimal cost. Light traces stellar mass,
-and the stellar body sits at the bottom of the galaxy's potential well, so the light centre is an excellent
-estimate of the mass centre. (Measuring a genuine offset between mass and light — which interacting pairs can
-show at the kiloparsec level — is real science, but it is a *follow-up* fit performed after a robust model with
-fixed centres has been found.)
+With multiple deflectors, the lensed images constrain their combined deflection field. Changes in one galaxy's
+mass centre can sometimes be compensated by changes in another galaxy's position, ellipticity or mass
+normalization. Fixing the centres reduces this freedom and can make the search more manageable.
 
-Assigning a tuple to the mass model's `centre` fixes it, so it is no longer a free parameter with a prior.
+Here, we fix only the **mass centres**. The MGE light centres retain their existing priors and remain free,
+allowing the light fit to refine their positions. The fixed mass positions are the supplied measurements;
+they do not move with the fitted light centres.
+
+Fixing the mass centres alone does not reduce the MGE's parameter count: the current code still uses elliptical
+MGEs with free light centres. A spherical MGE with fixed widths and a fixed light centre would instead add zero
+non-linear light parameters, as described above.
+
+This assumes that each mass distribution is centred on its measured light position. It is a useful starting
+point, but does not establish that light and mass must be perfectly aligned. Where positional uncertainty or
+possible offsets matter, we can allow appropriate freedom and investigate its effect.
+
+Assigning a coordinate tuple to `mass.centre` fixes both coordinates rather than assigning them priors.
 """
 lens_dict = {}
 
@@ -286,8 +301,12 @@ source = af.Model(al.Galaxy, redshift=1.0, bulge=bulge)
 model = af.Collection(galaxies=af.Collection(**lens_dict, source=source))
 
 """
-Printing the model's `info` again, each mass `centre` is now listed as a fixed value with no prior, and the
-free parameter count has dropped from 22 to **18** — each SIE now contributes 3 free parameters instead of 5.
+Printing the updated model's `info` shows that both mass centres are now fixed.
+
+Each `Isothermal` profile therefore has three free parameters: two elliptical components and one Einstein radius.
+The light models are unchanged.
+
+Fixing two coordinates for each of two galaxies removes four parameters, reducing the total from **22 to 18**.
 """
 print(model.info)
 
