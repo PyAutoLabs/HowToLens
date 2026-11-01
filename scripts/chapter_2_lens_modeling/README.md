@@ -5,15 +5,14 @@ searches are chained together into automated lens modeling pipelines.
 
 # Files
 
-- [Tutorial 1: Non-linear Search](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.10.29.1/notebooks/chapter_2_lens_modeling/tutorial_1_non_linear_search.ipynb) — How a non-linear search is used to fit a lens model and the concepts of a parameter space and priors.
+- [Tutorial 1: Non-linear Search](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_1_non_linear_search.ipynb) — How a non-linear search is used to fit a lens model and the concepts of a parameter space and priors.
 
-- [Tutorial 2: Practicalities](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.10.29.1/notebooks/chapter_2_lens_modeling/tutorial_2_practicalities.ipynb) — Practicalities of performing model-fitting, like how to inspect the results on your hard-disk.
+- [Tutorial 2: Practicalities](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_2_practicalities.ipynb) — Practicalities of performing model-fitting, like how to inspect the results on your hard-disk.
 
-- [Tutorial 3: Realism and Complexity](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.10.29.1/notebooks/chapter_2_lens_modeling/tutorial_3_realism_and_complexity.ipynb) — Finding a balance between realism and complexity when composing and fitting a lens model.
 
-- [Tutorial 4: Dealing with Failure](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.10.29.1/notebooks/chapter_2_lens_modeling/tutorial_4_dealing_with_failure.ipynb) — What to do when PyAutoLens finds an inaccurate lens model.
+- [Tutorial 3: Why Modeling Is Hard](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_3_why_modeling_is_hard.ipynb) — What to do when PyAutoLens finds an inaccurate lens model.
 
-- [Tutorial 5: Linear Profiles](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.10.29.1/notebooks/chapter_2_lens_modeling/tutorial_5_linear_profiles.ipynb) — Light profiles which capture complex morphologies in a reduced number of non-linear parameters.
+- [Tutorial 4: Linear Profiles](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_4_linear_profiles.ipynb) — Light profiles which capture complex morphologies in a reduced number of non-linear parameters.
 
 - [Tutorial 6: Masking and Positions](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.10.29.1/notebooks/chapter_2_lens_modeling/tutorial_6_masking_and_positions.ipynb) — How to mask and mark positions on your data to improve the lens model.
 
