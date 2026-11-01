@@ -156,17 +156,20 @@ aplt.subplot_imaging_dataset(dataset=dataset)
 """
 __Galaxy Centres__
 
-Following the convention of the previous tutorials, the centres of the galaxies are loaded from .json files in
-the dataset folder. For a group we distinguish two categories:
+We load the measured galaxy positions from JSON files, separating them into:
 
- - `main_lens_centres`: the main lens galaxies -- here just the BGG at (0.0", 0.0") -- which are modeled with
-   full freedom.
+- `main_lens_centres`: positions of the main deflectors, here the central galaxy.
+- `member_centres`: positions of the additional group members.
 
- - `member_centres`: the group members, which are modeled with restrictive assumptions (fixed centres, and
-   later a scaling relation) to keep the model dimensionality low.
+This separation helps organize the model; it does not itself fix parameters or determine how much freedom each
+galaxy receives.
 
-For real data these centres come from the observed light of each galaxy (e.g. via a click-based GUI or a
-photometry catalogue), exactly as for the extra galaxies of the earlier tutorials.
+As in the previous tutorials, measuring light centres before constructing the mass model is a common practical
+workflow. For real observations, these positions can come from a GUI, a source-detection catalogue or a
+preliminary light-profile fit. Here, the simulator supplies them.
+
+We will fix the member profiles to these positions and use the combined list of galaxy centres when setting up
+adaptive over-sampling.
 """
 main_lens_centres = al.from_json(file_path=dataset_path / "main_lens_centres.json")
 
@@ -175,33 +178,35 @@ member_centres = al.from_json(file_path=dataset_path / "extra_galaxies_centres.j
 print(f"Main lens centres: {main_lens_centres}")
 print(f"Member centres: {member_centres}")
 
+over_sample_size = al.util.over_sample.over_sample_size_via_radial_bins_from(
+    grid=dataset.grid,
+    sub_size_list=[4, 2, 2],
+    radial_list=[0.3, 0.6],
+    centre_list=list(main_lens_centres) + list(member_centres),
+)
+
+dataset = dataset.apply_over_sampling(over_sample_size_lp=over_sample_size)
+
 """
 __The dPIE Profile__
 
-Before fitting anything, lets get to know the dPIE profile, since it is the workhorse mass profile of the group
-and cluster regimes.
+The spherical `dPIEMassSph` profile uses the parameter convention of the lens-modeling software Lenstool:
 
-The `dPIEMassSph` profile is parameterized in the convention of Lenstool (a long-established cluster lensing
-code), which differs from the profiles we have met so far:
+- `sigma`: a fiducial velocity-dispersion parameter in km/s that sets the mass normalization. It is not
+  automatically equal to an observed stellar velocity dispersion; comparisons require attention to the profile
+  convention and how the observation was measured.
+- `r_core`: the core scale in arcseconds. A nonzero value flattens the central density. We set it to zero here,
+  giving a singular central profile.
+- `r_cut`: the truncation scale in arcseconds. The density steepens smoothly around this scale, giving a finite
+  total mass. It is not a sharp boundary beyond which the mass vanishes.
+- `redshift_object`, `redshift_source`, `H0` and `Om0`: the redshifts and cosmological parameters used to
+  convert the physical normalization into lensing quantities. We hold them fixed in this tutorial.
 
- - `sigma`: the fiducial velocity dispersion of the galaxy in km/s. This sets the overall lensing strength,
-   playing the role the `einstein_radius` played for the isothermal profile (for an isothermal sphere the two
-   are directly related: a bigger velocity dispersion means a bigger Einstein radius).
+We create two profiles with the same `sigma` and zero core radius, but different truncation scales: 8.0" and
+1000.0".
 
- - `r_core`: the core radius in arcseconds, within which the density profile flattens. It is common to fix
-   `r_core = 0.0` (a "vanishing core", where the profile has an exact analytic form), which we do throughout
-   this tutorial.
-
- - `r_cut`: the truncation radius in arcseconds -- the key new parameter. Outside `r_cut` the density falls off
-   steeply (as 1/r^4 rather than the isothermal 1/r^2), encoding the tidal stripping of the member's outer dark
-   matter halo and giving the profile a finite total mass.
-
- - `redshift_object`, `redshift_source`, `H0`, `Om0`: because `sigma` is a physical velocity, converting it to
-   deflection angles requires the lensing geometry and a cosmology. These are fixed inputs describing the lens
-   system, not parameters we fit.
-
-Lets make two dPIE profiles with identical `sigma` but different truncation radii -- one truncated at 8.0" and
-one truncated so far out (1000.0") that it is effectively untruncated -- and compare their convergence profiles.
+The second profile is effectively untruncated over the radial range we plot, although it still has a finite
+truncation scale.
 """
 dpie_truncated = al.mp.dPIEMassSph(
     centre=(0.0, 0.0),
@@ -222,8 +227,13 @@ dpie_untruncated = al.mp.dPIEMassSph(
 )
 
 """
-We evaluate the convergence of both profiles on a 1D line of radial coordinates, using a `Grid2DIrregular` so we
-can choose the radii ourselves.
+We evaluate both profiles along a radial line using `Grid2DIrregular`.
+
+The plotted quantity is **convergence**: projected surface mass density divided by the critical surface density
+for lensing. It is not the three-dimensional density.
+
+The logarithmic vertical axis helps us compare the profiles over a wide range of convergence. The dashed line
+marks the 8.0" truncation scale of the more strongly truncated profile.
 """
 radii = np.linspace(0.01, 20.0, 200)
 
@@ -233,7 +243,7 @@ convergence_truncated = dpie_truncated.convergence_2d_from(grid=radial_grid)
 convergence_untruncated = dpie_untruncated.convergence_2d_from(grid=radial_grid)
 
 plt.semilogy(radii, np.asarray(convergence_truncated), label="dPIE (r_cut = 8.0)")
-plt.semilogy(radii, np.asarray(convergence_untruncated), label="dPIE (untruncated)")
+plt.semilogy(radii, np.asarray(convergence_untruncated), label="dPIE (r_cut = 1000.0)")
 plt.axvline(x=8.0, color="k", linestyle="--", label="r_cut")
 plt.xlabel("Radius (arcseconds)")
 plt.ylabel("Convergence")
@@ -242,26 +252,25 @@ plt.show()
 plt.close()
 
 """
-Inside `r_cut` the two profiles are nearly identical -- both behave isothermally. Beyond `r_cut`, the truncated
-profile's convergence plummets while the untruncated one keeps its shallow isothermal decline. The truncated
-member therefore contributes far less mass at large radii, which is exactly what tidal stripping does.
+At radii much smaller than 8.0", the profiles approach similar isothermal behaviour. As we move towards and
+beyond the smaller truncation scale, that profile's convergence falls more steeply.
 
-This is why the dPIE, and not the isothermal profile, is the standard choice for group and cluster members: the
-extra galaxies of a galaxy-scale lens have no host environment stripping them, so untruncated isothermal
-profiles are fine there, but a member orbiting inside a shared group halo is physically truncated whether or
-not the model includes that halo as an explicit component.
+The transition is gradual: `r_cut` does not mark an abrupt edge, and the profiles can differ before reaching it.
+The truncated profile also continues to contribute mass and deflections beyond that radius.
 
-For scale: a member with `sigma = 200.0` km/s at these redshifts has an Einstein radius of ~0.7", roughly a
-fifth of the BGG's -- a perturber, not a co-dominant lens.
+This flexibility makes the dPIE useful for representing member galaxies with reduced outer halos. However,
+neither group membership nor proximity to another galaxy uniquely determines a truncation radius. Its value
+remains a modeling choice or an inferred parameter, depending on the available constraints.
 
 __Fitting a Group__
 
-Now lets fit the data. Following the fitting tutorials of earlier chapters, we first build a tracer from
-galaxies whose light and mass profiles match the true values used to simulate the data, and fit it with the
-`FitImaging` object.
+We first evaluate a model using the parameter values supplied to the simulator. This is a direct fit evaluation,
+rather than a search for the best-fitting parameters.
 
-The tracer contains four galaxies: the BGG, the two members and the source. The fit handles all of them
-simultaneously, summing the deflection field of every mass profile to ray-trace the source's light.
+The tracer contains the central galaxy, two members and the source. Because the deflectors share a redshift,
+their deflections combine on one lens plane before mapping the source light into the image.
+
+The familiar `FitImaging` object compares this predicted image with the data, including the PSF and noise map.
 """
 bgg = al.Galaxy(
     redshift=0.5,
@@ -319,9 +328,13 @@ fit = al.FitImaging(dataset=dataset, tracer=tracer)
 aplt.subplot_fit_imaging(fit=fit)
 
 """
-Because this is the true model, the residuals are consistent with noise and the log likelihood is as high as it
-can be for this dataset. Note that nothing about the `FitImaging` object changed: the same fitting machinery we
-learnt at galaxy scale simply receives a tracer with more galaxies in it.
+Inspect the residuals of the fit evaluated at the simulation's input parameters.
+
+With consistent simulation and fitting calculations, we expect residuals compatible with the added noise.
+Coherent structure could instead indicate a mismatch in the profiles, PSF, numerical sampling or other assumptions.
+
+The fitting machinery is unchanged from earlier chapters. We have supplied a tracer containing more galaxies and
+a different member-mass profile.
 """
 print(f"Log likelihood of the true model: {fit.log_likelihood}")
 
@@ -448,18 +461,10 @@ af.ModelPlotter(model).figure()
 print(f"Total free parameters: {model.prior_count}")
 
 """
-Before fitting, we set up the adaptive over-sampling scheme at the centre of every galaxy in the group (not
-just the BGG), following the standard workspace approach. As in previous tutorials, the details are not
-important yet -- just note that at group scale every galaxy centre needs it.
+Adaptive over-sampling was configured around every galaxy centre before the initial fit evaluations. The same
+configuration is retained for the non-linear search.
 """
-over_sample_size = al.util.over_sample.over_sample_size_via_radial_bins_from(
-    grid=dataset.grid,
-    sub_size_list=[4, 2, 2],
-    radial_list=[0.3, 0.6],
-    centre_list=list(main_lens_centres) + list(member_centres),
-)
 
-dataset = dataset.apply_over_sampling(over_sample_size_lp=over_sample_size)
 
 """
 We fit the model with the `Nautilus` non-linear search, using the same `AnalysisImaging` object as every
