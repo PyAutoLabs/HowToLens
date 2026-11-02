@@ -126,9 +126,7 @@ parameters available for fitting; supplying a value, such as a galaxy’s redshi
 The lens galaxy contains both a light profile and a mass profile. The external shear is a separate field at the lens
 redshift, and the source galaxy contains its own light profile.
 
-Here, we use ordinary light profiles from `al.lp`, so their intensities are also free parameters explored by Nautilus.
-Tutorial 1 used a linear source-light profile, whose intensity was solved separately. In *Linear Profiles*, we will
-return to that approach and see how it simplifies more complex models.
+As in Tutorial 1, the light-profile intensities are free parameters explored by Nautilus. Here, the search must determine the brightness of both the foreground lens galaxy and the background source, alongside their other properties.
 """
 
 field = af.Model(

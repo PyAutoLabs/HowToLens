@@ -1,4 +1,4 @@
-"""
+r"""
 Tutorial 1: Non-linear Search
 =============================
 
@@ -18,6 +18,7 @@ __Contents__
 
 - **Overview:** Introduce the experiment and the results to inspect.
 - **Parameter Space:** Understand how free parameters define the models a search can explore.
+- **More Dimensions:** Understand how model parameters work together.
 - **Automated Exploration:** Use a non-linear search to explore possible model parameters.
 - **Deeper Background:** Find further explanations of likelihoods and Bayesian inference.
 - **PyAutoFit:** Introduce the tools used to define models, priors and searches.
@@ -50,23 +51,45 @@ inferred parameters and uncertainties.
 
 __Parameter Space__
 
-Imagine varying just two properties of a lens model: the lens’s Einstein radius and the source’s effective radius. Each
-possible pair of values represents a different model and corresponds to a point in a two-dimensional **parameter
-space**.
+Imagine that we fix every property of our lens model except its Einstein radius, $\theta_{\rm E}$. We can calculate a predicted image for each value of this parameter, compare that image with our observations, and calculate its log likelihood:
 
-Adding another free parameter adds another dimension. Although we cannot easily draw a space with many dimensions, the
-idea remains the same: each point specifies a complete set of values for the model’s free parameters.
+$$
+\ln \mathcal{L} = f(\theta_{\rm E}).
+$$
 
-For each point, we can predict an image and compare it with the data to calculate a log likelihood. Plotting this value
-above each point gives a **log likelihood surface**. High regions correspond to models that explain the data better
-than models in lower regions.
+This is a one-dimensional parameter space. Each position along the horizontal axis represents a different Einstein radius, and the height of the curve tells us how well that model fits the data.
 
-The surface can have several peaks, curved ridges and broad regions where different parameter combinations produce
-similar images. These features make it difficult to find the best-fitting model and establish which other models are
-also consistent with the observations.
+Changing the Einstein radius changes the deflection of the source light and therefore the positions and appearance of its lensed images. Values that place the predicted arcs close to the observed arcs can give a higher likelihood; values that put light where the data contain none give a poorer fit.
 
-**🤖 Ask AI:** In strong-lens modeling, why might changing the lens mass and the source size together produce similar
-images, and how could this appear on a likelihood surface?
+Now allow the source's effective radius, $R_{\rm e}$, to vary too:
+
+$$
+\ln \mathcal{L} = f(\theta_{\rm E}, R_{\rm e}).
+$$
+
+Every pair of values specifies a different lens model. We can imagine these pairs laid out across a sheet, with Einstein radius along one axis and source size along the other. The log likelihood gives a height above each point, forming a surface.
+
+Changing the source size changes how extended its predicted light is. After lensing, this affects the widths and brightness distribution of the arcs. The best-fitting source size can depend on the mass model: changing one parameter can sometimes be partly compensated by changing another. On our likelihood surface, this can produce an elongated or curved ridge of relatively good fits.
+
+__More Dimensions__
+
+Our actual model has more than two free parameters. The lens has a centre, and the source has its own centre, size and intensity. We can write the same idea more generally as:
+
+$$
+\ln \mathcal{L} = f(p_1, p_2, \ldots, p_N),
+$$
+
+where each $p_i$ is one of the model's free parameters.
+
+Each point in this $N$-dimensional space specifies all the values needed to construct a model and predict an image. A non-linear search explores these points to find models that explain the observations and investigate the range of parameter values consistent with them.
+
+Although we cannot draw the full surface when there are many parameters, its structure still matters. There can be broad regions of poor fits, narrow ridges of good fits, and separate peaks corresponding to different explanations of the image.
+
+For example, moving the source changes the arrangement and relative brightness of its lensed images. Changing the lens mass can also change those images. Several combinations may reproduce some features reasonably well, while only a smaller region reproduces all of them together.
+
+This is why automated modeling involves more than adjusting each parameter independently until the image looks right. The search must explore how the parameters work together.
+
+**🤖 Ask AI:** In strong-lens modeling, why might changing the lens mass and the source size together produce similar images, and how could this appear on a likelihood surface?
 
 __Automated Exploration__
 
@@ -199,14 +222,10 @@ lens = af.Model(al.Galaxy, redshift=0.5, mass=mass)
 """
 We describe the source with an `ExponentialCoreSph` light profile at a fixed redshift of 1.0.
 
-Here, we use the profile from `al.lp_linear`. Its centre and effective radius are explored by the non-linear search,
-while its intensity is calculated by a linear solve for each proposed model.
-
-The intensity is therefore still fitted to the data, but it does not add a dimension to the non-linear search. Tutorial
-4, *Linear Profiles*, explains this distinction and how it helps us fit more flexible light distributions.
+Its free parameters include its centre, effective radius and intensity. The search varies these quantities together with the lens mass parameters. Changing the source intensity changes the brightness of the predicted lensed emission, allowing the model to match the observed flux as well as the shape and location of the arcs.
 """
 
-bulge = af.Model(al.lp_linear.ExponentialCoreSph)
+bulge = af.Model(al.lp.ExponentialCoreSph)
 source = af.Model(al.Galaxy, redshift=1.0, bulge=bulge)
 
 """
@@ -224,11 +243,9 @@ model = af.Collection(galaxies=af.Collection(lens=lens, source=source))
 """
 The `model.info` attribute summarises the model before we fit it.
 
-Look for the lens mass and source light components, the priors assigned to their free parameters and the fixed galaxy
-redshifts. Notice that the source intensity is treated as a linear parameter rather than assigned a prior for the
-non-linear search.
+Look for the lens mass and source light components and the priors assigned to their free parameters. The source intensity is one of the quantities the search will fit; the galaxy redshifts are fixed.
 
-This describes what we intend to fit. It contains no inferred parameter values yet, because the search has not run.
+Compare these same components in the model diagram. Together, the summary and diagram describe what we intend to fit. They do not contain inferred parameter values yet, because the search has not run.
 """
 
 print(model.info)
@@ -237,8 +254,7 @@ print(model.info)
 The model diagram shows the same structure visually. Follow the branches from `galaxies` to the lens and source, then
 to their mass and light profiles.
 
-Compare the free profile parameters with the fixed redshifts and the linearly solved source intensity. These
-distinctions determine which quantities the non-linear search must explore.
+Compare the free profile parameters, including the source intensity, with the fixed redshifts. These distinctions determine which quantities the non-linear search must explore.
 
 The lens redshift of 0.5 places it in front of the source at redshift 1.0. PyAutoLens uses these redshifts to establish
 the ordering and distances needed for ray tracing.
@@ -318,7 +334,6 @@ When the search supplies a model instance with specific parameter values, the an
 including ray tracing and PSF convolution. It compares that prediction with the masked imaging data, using the noise
 map to evaluate the log likelihood.
 
-For our linear source profile, this evaluation also solves for the intensity before calculating the likelihood.
 
 You performed the same essential comparison in Chapter 1 when you created a `FitImaging` object and inspected its
 `log_likelihood`. The Analysis object makes that calculation available to the search so it can be repeated for many

@@ -208,6 +208,7 @@
     "contents": [
       "Overview",
       "Parameter Space",
+      "More Dimensions",
       "Automated Exploration",
       "Deeper Background",
       "PyAutoFit",
@@ -302,7 +303,9 @@
       "Model Mismatch",
       "Wrap Up"
     ],
-    "cross_refs": [],
+    "cross_refs": [
+      "chapter_optional/tutorial_searches.py"
+    ],
     "notebook": "notebooks/chapter_2_lens_modeling/tutorial_3_why_modeling_is_hard.ipynb",
     "path": "scripts/chapter_2_lens_modeling/tutorial_3_why_modeling_is_hard.py",
     "summary": "We now have the tools to build a lens model, run a search and inspect its results. However, a search finishing does not necessarily mean that it has found a satisfactory fit.",
