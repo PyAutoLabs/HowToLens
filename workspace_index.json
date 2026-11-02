@@ -415,21 +415,28 @@
   },
   {
     "contents": [
-      "Initial Setup",
-      "Dataset Auto-Simulation",
-      "Model",
-      "Search + Analysis",
-      "Result",
-      "Prior Passing",
-      "Run Time",
-      "Model Fit",
-      "Wrap Up"
+      "The Search Chain",
+      "Dataset and Mask",
+      "Multi-Gaussian Expansions",
+      "Model 1",
+      "Search 1",
+      "Inspecting Search 1",
+      "Fixing the Lens-Light Geometry",
+      "The Power-Law Mass Model",
+      "Model 2",
+      "Automatically Estimated Positions",
+      "Search 2",
+      "Result 2",
+      "Conditional Uncertainties",
+      "Search Chaining and SLaM"
     ],
-    "cross_refs": [],
+    "cross_refs": [
+      "scripts/imaging/features/multi_gaussian_expansion/slam.py"
+    ],
     "notebook": "notebooks/chapter_2_lens_modeling/tutorial_9_search_chaining.ipynb",
     "path": "scripts/chapter_2_lens_modeling/tutorial_9_search_chaining.py",
-    "summary": "Throughout this chapter, we have fitted the data using just one non-linear search. The previous tutorial discussed the run-time cost of doing this: with a single search, the dimensionality of the model, the priors on its parameters and the search settings must all be juggled at once, leaving us little flexibility to trade them off against one another.",
-    "title": "Tutorial 9: Search Chaining"
+    "summary": "Look again at our lens image. The foreground galaxy's light, its gravitational deflection and the background source all contribute to what we observe. Fitting them together requires the search to explore several connected parts of the model.",
+    "title": "Tutorial 6: Search Chaining"
   },
   {
     "contents": [

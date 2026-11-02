@@ -1,91 +1,85 @@
 """
-Tutorial 9: Search Chaining
+Tutorial 6: Search Chaining
 ===========================
 
-Throughout this chapter, we have fitted the data using just one non-linear search. The previous tutorial discussed
-the run-time cost of doing this: with a single search, the dimensionality of the model, the priors on its parameters
-and the search settings must all be juggled at once, leaving us little flexibility to trade them off against one
-another.
-
-In this closing part of the chapter, we introduce a technique called 'non-linear search chaining', which fits a lens
-model using a sequence of non-linear searches. The initial searches fit simpler lens models whose parameter spaces can
-be more accurately and efficiently sampled. The results of this search are then passed to later searches which fit
-lens models of gradually increasing complexity.
-
-Lets think back to tutorial 3 of this chapter. We learnt there were three approaches one could take fitting a lens
-model accurately if we found that a model fit failed. These were:
-
- 1) Tuning our priors to the strong lens we're fitting.
- 2) Making our lens model less complex.
- 3) Searching non-linear parameter space for longer.
-
-However, each of the above approaches has disadvantages. The more we tune our priors, the less we can generalize our
-analysis to a different strong lens. The less complex we make our model, the less realistic it is. And if we rely too
-much on searching parameter space for longer, we could end up with search`s that take days, weeks or months to run.
-
-In this tutorial, we are going to show how search chaining combines these 3 approaches such that we can fit
-complex and realistic lens models in a way that that can be generalized to many different strong lenses. To do this,
-we'll run 2 searches, and chain the lens model inferred in the first search to the priors of the second search`s lens
+Look again at our lens image. The foreground galaxy's light, its gravitational deflection and the background source all
+contribute to what we observe. Fitting them together requires the search to explore several connected parts of the
 model.
 
-Our first search will make the same light-traces-mass assumption we made in tutorial 3. We saw that this
-gives a reasonable lens model. However, we'll make a couple of extra simplifying assumptions, to really try and bring
-our lens model complexity down and get the non-linear search running fast.
+Yet we do not always need to keep every part free throughout an analysis. Once we have obtained a satisfactory
+description of the foreground light, we can hold aspects of that description fixed while investigating the mass
+distribution in greater detail.
 
-The model we infer above will therefore be a lot less realistic. But it does not matter, because in the second search
-we are going to relax these assumptions and fit the more realistic lens model. The beauty is that, by running the first
-search, we can use its results to tune the priors of our second search. For example:
+**Search chaining** connects a sequence of fits in this way. Each search has a particular purpose, and its result
+supplies information used to construct a later analysis.
 
- 1) The first search should give us a pretty good idea of the lens galaxy's light and mass profiles, for example its
- intensity, effective radius and einstein radius.
+In this tutorial, an initial fit will describe the lens and source light using multi-Gaussian expansions, alongside an
+isothermal mass profile and external shear. We will then fix the fitted lens-light geometry and replace the isothermal
+mass profile with a power-law profile whose slope is free.
 
- 2) It should also give us a pretty good fit to the lensed source galaxy. This means we'll already know where in
- source-plane its is located and what its intensity and effective are.
+The second search can therefore investigate a more flexible mass model without simultaneously rediscovering the
+foreground light geometry. We will also use the first result to estimate the positions constraint introduced in the
+previous tutorial.
 
 __Contents__
 
-- **Initial Setup:** Load the same strong lensing data fitted throughout this chapter.
-- **Dataset Auto-Simulation:** Simulate the dataset via its simulator script if it is not on your hard-disk.
-- **Model:** Compose the lens model fitted to the data.
-- **Search + Analysis:** Create the non-linear search and analysis used to fit the first model.
-- **Result:** Overview of the results of the model-fit.
-- **Prior Passing:** Use the results of search 1 to set up the priors of search 2.
-- **Run Time:** Profiling the expected run time of the model-fit.
-- **Model Fit:** Perform the model-fit using the search and analysis.
-- **Wrap Up:** Summary of the script and next steps.
+- **The Search Chain:** Give each search a distinct role.
+- **Dataset and Mask:** Reuse the imaging dataset and circular mask.
+- **Multi-Gaussian Expansions:** Construct lens and source light models with the MGE helper.
+- **Model 1:** Compose the initial isothermal lens model.
+- **Search 1:** Find a candidate solution with Prodigy.
+- **Inspecting Search 1:** Check the fit before carrying information forward.
+- **Fixing the Lens-Light Geometry:** Use fitted instances while retaining linear intensities.
+- **The Power-Law Mass Model:** Allow the radial mass slope to vary.
+- **Model 2:** Reduce the search to twelve non-linear parameters.
+- **Automatically Estimated Positions:** Derive a positions constraint from the first fit.
+- **Search 2:** Explore the revised model and its uncertainties with Nautilus.
+- **Result 2:** Inspect residuals and posterior distributions.
+- **Conditional Uncertainties:** Understand the consequences of fixed geometry.
+- **Search Chaining and SLaM:** Connect this example to reusable pipelines.
 
-"""
+__The Search Chain__
+
+Our first search aims to obtain a useful description of the image relatively quickly. We use `MultiStartProdigy`, which
+runs gradient-based optimisations from multiple starting points.
+
+This gives us a candidate solution to inspect. It does not provide the posterior samples needed to describe parameter
+uncertainties, and we must check its fitted image and residuals before using its result.
+
+Our second search uses Nautilus to explore the revised model more thoroughly. The lens-light centres and shapes will be
+fixed to their fitted values, while the mass and source parameters remain free. The light-profile intensities will
+still be solved during each likelihood evaluation.
+
+This distinction matters: we are fixing the geometry of the foreground light, rather than subtracting a fixed image and
+assuming that its brightness can never change.
+
+Holding fitted quantities fixed is also an assumption. The second result is conditional on that choice and does not
+propagate uncertainty in the fixed lens-light geometry. Later in the tutorial, we will discuss when that approximation
+is useful and when those parameters should be allowed to vary again."""
 
 from autolens import jax_wrapper  # Sets JAX environment before other imports
 
 # from autolens import setup_notebook; setup_notebook()
 
-import numpy as np
 from pathlib import Path
+import autofit as af
 import autolens as al
 import autolens.plot as aplt
-import autofit as af
 
 """
-__Initial Setup__
+__Dataset and Mask__
 
-we'll use the same strong lensing data as tutorials 2, 3 and 4 of this chapter, where:
+We use the same `lens_sersic` imaging dataset and 3.0-arcsecond circular mask as the previous tutorial.
 
- - The lens galaxy's light is an `Sersic`.
- - The lens system uses an `Isothermal` galaxy mass profile and a separate `ExternalShear` field.
- - The source galaxy's light is an `Exponential`.
-"""
+Inspect the central lens galaxy and the surrounding arcs. The first fit must describe both: an inaccurate source or
+mass model can affect how the overlapping light is assigned to the foreground galaxy."""
+
 dataset_name = "lens_sersic"
 dataset_path = Path("dataset") / "imaging" / dataset_name
 
-"""
-__Dataset Auto-Simulation__
-
-If the dataset does not already exist on your system, it will be created by running the corresponding
-simulator script. This ensures that all example scripts can be run without manually simulating data first.
-"""
 al.util.dataset.simulate_if_needed(
-    dataset_path, simulator="scripts/simulator/lens_sersic.py"
+    dataset_path,
+    simulator="scripts/simulator/lens_sersic.py",
 )
 
 dataset = al.Imaging.from_fits(
@@ -95,7 +89,7 @@ dataset = al.Imaging.from_fits(
     pixel_scales=0.1,
 )
 
-mask_radius = 2.6
+mask_radius = 3.0
 
 mask = al.Mask2D.circular(
     shape_native=dataset.shape_native,
@@ -108,287 +102,354 @@ dataset = dataset.apply_mask(mask=mask)
 aplt.subplot_imaging_dataset(dataset=dataset)
 
 """
-__Model__
+__Multi-Gaussian Expansions__
 
-As we've eluded to before, one can look at an image and immediately identify the centre of the lens galaxy. It's 
-that bright blob of light in the middle! Given that we know we're going to make the lens model more complex in the 
-next search, lets take a more liberal approach than before and fix the lens centre to $(y,x)$ = (0.0", 0.0").
+We use the MGE construction introduced in *Linear Profiles*. Within each galaxy's Gaussian group, the profiles share a
+centre and elliptical shape. Their widths are fixed, and their intensities are solved together during the fit.
 
-Now, you might be thinking, doesn`t this prevent our search from generalizing to other strong lenses? What if the 
-centre of their lens galaxy isn't at (0.0", 0.0")?
+The lens and source have separate groups, so their centres and shapes remain independent.
 
-Well, this is true if our dataset reduction centres the lens galaxy somewhere else. But we get to choose where we 
-centre it when we make the image. Therefore, I`d recommend you always centre the lens galaxy at the same location, 
-and (0.0", 0.0") seems the best choice!
-"""
-bulge = af.Model(al.lp_linear.Sersic)
-mass = af.Model(al.mp.Isothermal)
+To avoid repeating the construction loops from Tutorial 4, we use `al.model_util.mge_model_from`. This helper builds an
+ordinary model from linear Gaussian profiles; it does not fit the data or introduce a different model-composition API.
 
-"""
-You haven't actually seen a line like this one before. By setting a parameter to a number (and not a prior) it is be 
-removed from non-linear parameter space and always fixed to that value. Pretty neat, huh?
-"""
-bulge.centre_0 = 0.0
-bulge.centre_1 = 0.0
-mass.centre_0 = 0.0
-mass.centre_1 = 0.0
+The lens uses 30 Gaussians, with widths spanning 0.01 to 3.0 arcseconds. The source uses 15 Gaussians spanning 0.0001
+to 1.0 arcseconds in the source plane. These ranges provide components on different scales; they do not imply that the
+smallest components are individually resolved by the observations.
 
-"""
-Lets use the same approach of making the ellipticity of the mass trace that of the bulge.
-"""
-mass.ell_comps = bulge.ell_comps
+In this helper, `mask_radius` sets the largest Gaussian width. The source's value of 1.0 therefore controls its
+Gaussian widths—it does not apply another mask to the image."""
 
-"""
-We also discussed that the Sersic index of most lens galaxies is around 4. Lets fix it to 4 this time.
-"""
-bulge.sersic_index = 4.0
-
-"""
-We now compose the model with these components that have had their priors customized. 
-
-We have not done anything to the source model, but use an `Exponential` which will become the more complex
-`Sersic` in the second search.
-"""
-lens = af.Model(al.Galaxy, redshift=0.5, bulge=bulge, mass=mass)
-field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
-
-source = af.Model(al.Galaxy, redshift=1.0, bulge=al.lp_linear.ExponentialCore)
-
-model_1 = af.Collection(galaxies=af.Collection(lens=lens, source=source), fields=field)
-
-"""
-The `info` attribute shows the model in a readable format.
-"""
-print(model_1.info)
-
-"""
-The same model can also be visualized as a figure, making its structure easier to understand at a glance.
-
-The figure shows how the model is organized: which parameters belong to each component, and whether they are free,
-fixed, shared, linked by an expression, solved during the fit, or not configured. `model.info` provides the
-corresponding numerical details, including the prior assigned to each free parameter and the value of each fixed
-parameter.
-
-Eleven dimensions is a deliberately crude model, and that is exactly what the first search in a chain wants: it
-needs only to be good enough to locate the lens roughly, and to do so quickly.
-"""
-af.ModelPlotter(model_1).figure()
-
-"""
-__Search + Analysis__
-
-Now lets create the search and analysis.
-"""
-search_1 = af.Nautilus(
-    path_prefix=Path("howtolens", "chapter_2"),
-    name="tutorial_9_search_chaining_1",
-    unique_tag=dataset_name,
-    n_live=100,
-    iterations_per_quick_update=2500,  # Outputs Notebook visualization of max likelihood model every N iterations
+lens_bulge = al.model_util.mge_model_from(
+    mask_radius=mask_radius,
+    total_gaussians=30,
+    centre_prior_is_uniform=True,
+    sigma_min=dataset.pixel_scales[0] / 10.0,
 )
 
-analysis_1 = al.AnalysisImaging(dataset=dataset)
-
-"""
-Lets run the search, noting that our liberal approach to reducing the lens model complexity has reduced it to just 
-11 parameters.
-"""
-print(
-    "The non-linear search has begun running - checkout the output/howtolens/chapter_2"
-    " folder for live output of the results, images and lens model."
-    " This Jupyter notebook cell with progress once search has completed - this could take some time!"
-)
-
-result_1 = search_1.fit(model=model_1, analysis=analysis_1)
-
-print("Search has finished run - you may now continue the notebook.")
-
-"""
-__Result__
-
-The results are summarised in the `info` attribute.
-"""
-print(result_1.info)
-
-"""
-And indeed, we get a reasonably good model and fit to the data, in a much shorter space of time!
-"""
-aplt.subplot_fit_imaging(fit=result_1.max_log_likelihood_fit)
-
-"""
-__Prior Passing__
-
-Now all we need to do is look at the results of search 1 and pass the results as priors for search 2. Lets setup 
-a custom search that does exactly that.
-
-`GaussianPrior`'s are a nice way to pass priors. They tell the non-linear search where to look, but leave open the 
-possibility that there might be a better solution nearby. In contrast, `UniformPrior`'s put hard limits on what values a 
-parameter can or can`t take. It makes it more likely we will accidentally cut-out the global maxima solution.
-"""
-bulge = af.Model(al.lp_linear.Sersic)
-mass = af.Model(al.mp.Isothermal)
-field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
-source_bulge = af.Model(al.lp_linear.Sersic)
-
-"""
-What I've done below is looked at the results of search 1 and manually specified a prior for every parameter. If a 
-parameter was fixed in the previous search, its prior is based around the previous value. Don't worry about the sigma 
-values for now, I've chosen values that I know will ensure reasonable sampling, but we'll cover this later.
-
-__LENS LIGHT PRIORS:__
-"""
-bulge.centre.centre_0 = af.GaussianPrior(
-    mean=0.0,
-    sigma=0.1,
-)
-bulge.centre.centre_1 = af.GaussianPrior(
-    mean=0.0,
-    sigma=0.1,
-)
-bulge.ell_comps.ell_comps_0 = af.TruncatedGaussianPrior(
-    mean=0.05, sigma=0.15, lower_limit=-1.0, upper_limit=1.0
-)
-bulge.ell_comps.ell_comps_1 = af.TruncatedGaussianPrior(
-    mean=0.0, sigma=0.2, lower_limit=-1.0, upper_limit=1.0
-)
-bulge.effective_radius = af.TruncatedGaussianPrior(
-    mean=0.72, sigma=0.2, lower_limit=0.0, upper_limit=np.inf
-)
-bulge.sersic_index = af.TruncatedGaussianPrior(
-    mean=4.0, sigma=2.0, lower_limit=0.0, upper_limit=np.inf
+source_bulge = al.model_util.mge_model_from(
+    mask_radius=1.0,
+    total_gaussians=15,
+    centre_prior_is_uniform=False,
+    sigma_min=1.0e-4,
 )
 
 """
-__LENS MASS PRIORS:__
-"""
-mass.centre.centre_0 = af.GaussianPrior(
-    mean=0.0,
-    sigma=0.1,
-)
-mass.centre.centre_1 = af.GaussianPrior(
-    mean=0.0,
-    sigma=0.1,
-)
-mass.ell_comps.ell_comps_0 = af.TruncatedGaussianPrior(
-    mean=0.05, sigma=0.15, lower_limit=-1.0, upper_limit=1.0
-)
-mass.ell_comps.ell_comps_1 = af.TruncatedGaussianPrior(
-    mean=0.0, sigma=0.2, lower_limit=-1.0, upper_limit=1.0
-)
-mass.einstein_radius = af.TruncatedGaussianPrior(
-    mean=1.6, sigma=0.1, lower_limit=0.0, upper_limit=np.inf
-)
-field.shear.gamma_1 = af.GaussianPrior(mean=0.05, sigma=0.05)
-field.shear.gamma_2 = af.GaussianPrior(mean=0.05, sigma=0.05)
+__Model 1__
 
-"""
-__SOURCE LIGHT PRIORS:__
-"""
-source_bulge.centre.centre_0 = af.GaussianPrior(
-    mean=0.0,
-    sigma=0.1,
-)
-source_bulge.centre.centre_1 = af.GaussianPrior(
-    mean=0.0,
-    sigma=0.1,
-)
-source_bulge.ell_comps.ell_comps_0 = af.TruncatedGaussianPrior(
-    mean=0.08, sigma=0.15, lower_limit=-1.0, upper_limit=1.0
-)
-source_bulge.ell_comps.ell_comps_1 = af.TruncatedGaussianPrior(
-    mean=-0.06, sigma=0.2, lower_limit=-1.0, upper_limit=1.0
-)
-source_bulge.effective_radius = af.TruncatedGaussianPrior(
-    mean=0.1, sigma=0.2, lower_limit=0.0, upper_limit=np.inf
-)
-source_bulge.sersic_index = af.TruncatedGaussianPrior(
-    mean=1.0, sigma=1.0, lower_limit=0.0, upper_limit=np.inf
-)
+Combine these light profiles with an elliptical isothermal mass profile and external shear.
 
+The isothermal profile gives the first search a mass model with a fixed radial slope. In the second search, we will
+relax this restriction using a power-law profile.
+
+We do not force the mass to share the lens light's centre or elliptical shape. The first fit must determine those
+properties independently from the image.
+
+Despite containing 45 Gaussian light profiles, this model has only 15 non-linear parameters: four describe each
+galaxy's shared light geometry, five describe the isothermal mass profile, and two describe external shear. The
+Gaussian widths are fixed and their intensities are solved linearly.
+
+Inspect `model_1.info` and its diagram to identify those independent parameters before fitting.
 """
-We now compose the model with these components that have had their priors customized. 
-"""
-lens = af.Model(al.Galaxy, redshift=0.5, bulge=bulge, mass=mass)
+
+lens = af.Model(
+    al.Galaxy,
+    redshift=0.5,
+    bulge=lens_bulge,
+    mass=al.mp.Isothermal,
+)
 
 source = af.Model(al.Galaxy, redshift=1.0, bulge=source_bulge)
 
-model_2 = af.Collection(galaxies=af.Collection(lens=lens, source=source), fields=field)
+field = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
+
+model_1 = af.Collection(
+    galaxies=af.Collection(lens=lens, source=source),
+    fields=field,
+)
+
+print(model_1.info)
+
+af.ModelPlotter(model_1).figure()
 
 """
-The `info` attribute shows the model, including the priors specified above.
+__Search 1__
+
+We begin with `MultiStartProdigy`, using the settings introduced in the optional searches tutorial: 48 starting points
+and up to 300 gradient steps per start.
+
+Multiple starting points give the optimiser opportunities to find different solutions. They do not guarantee that it
+finds the best one, so we will inspect the result before carrying any information forward.
+
+`batch_size=4` limits how many starts are processed together, reducing memory use. It does not reduce the total number
+of starts.
+
+The analysis fits the imaging data without a positions constraint. After this search, we will use the fitted model to
+estimate positions for the next analysis.
+
+Prodigy's job here is to find a good-fitting set of parameter values. It does not attempt to map out the full range of
+plausible solutions or calculate posterior uncertainty intervals—the parameter "errors".
+
+This narrower task is one reason we expect it to finish sooner than a thorough Nautilus run, alongside its use of
+gradients. It is therefore useful for our first stage, where we need a satisfactory model to build on rather than a
+final measurement of every parameter's uncertainty. The speed advantage still depends on the problem and settings."""
+
+search_1 = af.MultiStartProdigy(
+    path_prefix=Path("howtolens") / "chapter_2",
+    name="tutorial_6_search_1",
+    unique_tag=dataset_name,
+    n_starts=48,
+    n_steps=300,
+    batch_size=4,
+)
+
+analysis_1 = al.AnalysisImaging(dataset=dataset, use_jax=True)
+
+result_1 = search_1.fit(model=model_1, analysis=analysis_1)
+
 """
+JAX supplies the gradients used by Prodigy. Its initial compilation adds a setup cost; later evaluations reuse the compiled calculation. The total run time depends on the hardware, model and number of optimisation steps required.
+
+__Inspecting Search 1__
+
+Inspect the fitted image and normalised residuals before proceeding.
+
+Look first at the foreground galaxy. Does the MGE reproduce its centre, shape and extended light? Then examine the
+arcs. A poor description of the source can affect how the fit divides overlapping light between the two galaxies.
+
+Search chaining carries information forward, including mistakes. Fixing the foreground geometry from a poor fit can
+prevent the next search from correcting it.
+
+If substantial residual structure remains, investigate the first fit using the approaches from *Why Modeling Is Hard*.
+More optimisation effort may help, but the model may also need additional freedom.
+
+A satisfactory result gives us a candidate lens-light geometry for the next stage. It does not establish its
+uncertainty or prove that the solution is unique."""
+
+print(result_1.info)
+
+aplt.subplot_fit_imaging(fit=result_1.max_log_likelihood_fit)
+
+"""
+__Fixing the Lens-Light Geometry__
+
+Until now, we have mainly constructed components using `af.Model`, which leaves selected parameters free for a search
+to fit.
+
+`result_1.instance` instead contains components with numerical parameter values from the highest-likelihood solution
+stored in the first result. We can take its fitted lens-light basis and place that instance into our next model.
+
+Its Gaussian centres and elliptical shapes are then fixed. The widths were already fixed in the first search.
+
+The Gaussian profiles remain **linear light profiles**, however. Their intensities will still be solved during each
+likelihood evaluation of the second fit. We therefore preserve the fitted geometry while allowing the brightness
+assigned to the lens and source to adjust together.
+
+This differs from subtracting the first fit's lens-light image from the data. We continue to fit the original image,
+with foreground and background light included in the prediction."""
+
+lens_bulge_fixed = result_1.instance.galaxies.lens.bulge
+
+"""
+__The Power-Law Mass Model__
+
+The first search used an isothermal mass profile, whose radial density slope is fixed. We now replace it with
+`PowerLaw`, allowing the slope to vary.
+
+The slope controls how quickly the mass density falls with radius. The isothermal case corresponds to `slope=2.0`;
+allowing this parameter to vary lets the second search investigate steeper and shallower profiles.
+
+This extra freedom is scientifically useful, but it also introduces relationships with other parameters, including the
+source size. We should not assume that adding the slope makes it independently or precisely measurable.
+
+We retain free mass-centre coordinates, ellipticity and Einstein radius, alongside external shear. The lens-light
+geometry is fixed separately: we are not forcing the mass distribution to follow the light."""
+
+lens_2 = af.Model(
+    al.Galaxy,
+    redshift=0.5,
+    bulge=lens_bulge_fixed,
+    mass=al.mp.PowerLaw,
+)
+
+field_2 = af.Model(al.MassField, redshift=0.5, shear=al.mp.ExternalShear)
+
+"""
+__Model 2__
+
+The source MGE remains free to change its centre and shape. This is important because changing the mass profile changes
+how the observed arcs map back to the source plane.
+
+We construct a fresh source model with the same settings as before. Its priors are not replaced with narrow
+distributions derived from the first result.
+
+Combining it with the revised lens gives 12 non-linear parameters: six for the power-law mass profile, two for external
+shear and four for the source geometry.
+
+We have added one mass parameter but removed four lens-light geometry parameters from the search. The second model
+therefore has a more flexible mass profile and fewer non-linear parameters overall.
+
+Twelve non-linear parameters is fewer than we might expect for a model that includes foreground lens light, a flexible
+mass profile, external shear and source light. The lens light is still present, but its fitted geometry no longer
+contributes free parameters to the search, and its intensities are handled by the linear solve.
+
+This is a central benefit of the chain: we can retain a detailed description of the image while asking the second
+search to explore fewer parameters.
+
+Compare the model summary and diagram with those from the first search. The foreground Gaussian geometry should now
+have fixed numerical values, while the source geometry, mass parameters and shear remain free. The lens and source
+intensities are still solved linearly."""
+
+source_bulge_2 = al.model_util.mge_model_from(
+    mask_radius=1.0,
+    total_gaussians=15,
+    centre_prior_is_uniform=False,
+    sigma_min=1.0e-4,
+)
+
+source_2 = af.Model(al.Galaxy, redshift=1.0, bulge=source_bulge_2)
+
+model_2 = af.Collection(
+    galaxies=af.Collection(lens=lens_2, source=source_2),
+    fields=field_2,
+)
+
 print(model_2.info)
 
-"""
-The second model is the comparison worth making. The centres and the `sersic_index` are free again, the pairing
-between `bulge` and `mass` has gone with them, and the source is now a `Sersic` with a `sersic_index` of its
-own: nineteen free parameters against the eleven of `model_1`.
-
-That is search chaining: search 1 fits the small model, and what it learns buys us the priors that make the
-large model affordable.
-"""
 af.ModelPlotter(model_2).figure()
 
 """
-Lets setup and run the search. As expected, it gives us the correct lens model. However, it does so significantly 
-faster than we are used to!
-"""
-search_2 = af.Nautilus(
-    path_prefix=Path("howtolens", "chapter_2"),
-    name="tutorial_9_search_chaining_2",
-    unique_tag=dataset_name,
-    n_live=150,
-    iterations_per_quick_update=25000,  # Outputs Notebook visualization of max likelihood model every N iterations
+__Automatically Estimated Positions__
+
+In the previous tutorial, we supplied image positions explicitly. We can now estimate them from the first fitted model.
+
+The result uses its fitted source location and mass distribution to predict the corresponding multiple-image positions.
+It then constructs a `PositionsLH` constraint for the next analysis.
+
+This carries a second kind of information between searches. Alongside the fitted lens-light geometry, we use the first
+model's lensing geometry to help guide the next search.
+
+These positions are predictions from the first fit, rather than independently measured coordinates. Plot them over the
+image and check that they correspond sensibly to the observed arcs. A poor first model can generate misleading
+positions as well as an inaccurate light distribution."""
+
+positions_likelihood = result_1.positions_likelihood_from(
+    factor=3.0,
+    minimum_threshold=0.2,
 )
 
-analysis_2 = al.AnalysisImaging(dataset=dataset)
+aplt.subplot_imaging_dataset(
+    dataset=dataset,
+    positions=positions_likelihood.positions,
+)
+
+print("Source-plane threshold:", positions_likelihood.threshold)
 
 """
-__Run Time__
+The threshold is three times the source-plane separation calculated from the first model, with a minimum of 0.2 arcseconds. The minimum prevents the numerical precision of the predicted positions from imposing an unnecessarily tight constraint.
 
-Whilst the run-time of the log likelihood function is pretty much unchanged from the first search, the overall run-time
-of the search should decrease.
+As before, this is a broad consistency check rather than a positional-error measurement. Its calculation during the
+search is extremely fast compared with evaluating the full imaging likelihood.
 
-This is because via prior passing we have informed the search of where to look in parameter space, meaning it 
-should spend far fewer than ~10000 iterations per free parameter.
+__Search 2__
 
-__Model Fit__
+We now return to Nautilus because we want more than a single good-fitting solution. We want posterior samples that
+describe the range of plausible parameter values and allow us to calculate uncertainty intervals—the parameter
+"errors".
 
-Run the search.
-"""
-print(
-    "The non-linear search has begun running - checkout the output/howtolens/chapter_2"
-    " folder for live output of the results, images and lens model."
-    " This Jupyter notebook cell with progress once search has completed - this could take some time!"
+Exploring those distributions requires more work than locating one solution, so we generally expect this stage to run
+more slowly than the initial Prodigy optimisation. Fixing the lens-light geometry reduces that burden.
+
+Pass the positions constraint to a new Analysis object and fit `model_2`. We continue to use the original imaging data,
+including the foreground light.
+
+The resulting uncertainties are conditional on the geometry we fixed. Nautilus explores the free parameters of this
+second model; it cannot recover uncertainty in parameters we have removed from the search."""
+
+analysis_2 = al.AnalysisImaging(
+    dataset=dataset,
+    positions_likelihood_list=[positions_likelihood],
+    use_jax=True,
+)
+
+search_2 = af.Nautilus(
+    path_prefix=Path("howtolens") / "chapter_2",
+    name="tutorial_6_search_2",
+    unique_tag=dataset_name,
+    n_live=200,
+    n_batch=50,
+    iterations_per_quick_update=2500,
 )
 
 result_2 = search_2.fit(model=model_2, analysis=analysis_2)
 
-print("Search has finished run - you may now continue the notebook.")
-
 """
-__Result__
+__Result 2__
 
-We can again inspect the results via the `info` attribute.
-"""
+Inspect the fitted image and normalised residuals again. Check both the arcs and the foreground galaxy: the fixed
+lens-light geometry is still an assumption that the data can reveal to be inadequate.
+
+Compare the result with the first fit. The power-law slope is now free, so the mass model and reconstructed source may
+change together. A change in the inferred source size need not indicate a failure; it can reflect a relationship
+between source structure and the radial mass profile.
+
+This dataset was simulated with an isothermal mass profile, corresponding to a power-law slope of 2.0. Use that known
+value as a check, while recognising that noise, the adopted light models and the fixed lens-light geometry can affect
+the inferred result.
+
+Examine the posterior distributions as well as the highest-likelihood fit. Look for broad intervals and correlations,
+particularly between the mass slope and source parameters. Those distributions contain information that the first
+optimisation did not provide."""
+
 print(result_2.info)
 
-"""
-And a plot of the image shows we get a good model again!
-"""
 aplt.subplot_fit_imaging(fit=result_2.max_log_likelihood_fit)
 
+aplt.corner_anesthetic(samples=result_2.samples)
+
 """
-__Wrap Up__
+__Conditional Uncertainties__
 
-Chaining two searches together was a huge success. We managed to fit a complex and realistic model, but were able to 
-begin by making simplifying assumptions that eased our search of non-linear parameter space. We could apply search 1 to 
-pretty much any strong lens and therefore get ourselves a decent lens model with which to tune search 2`s priors.
+The second search answers a specific question: which mass and source parameters are consistent with the data **given
+the lens-light geometry we carried forward**?
 
-You are probably thinking though that there is one huge, giant, glaring flaw in all of this that I've not mentioned. 
-Search 2 can`t be generalized to another lens, because its priors are tuned to the image we fitted. If we had a lot 
-of lenses, we`d have to write a new search for every single one. This isn't ideal, is it?
+It allows the Gaussian intensities to adjust, but it does not explore alternative foreground centres or shapes. If
+those geometric quantities are uncertain, their uncertainty can affect how the overlapping light is divided between the
+lens and source.
 
-Fortunately, we can pass priors in **PyAutoLens** without specifying the specific values. The API for this technique,
-called prior passing, is the topic of the next tutorial.
-"""
+Fixing them can therefore make the reported mass and source uncertainties narrower than those from an analysis that
+also explores the foreground geometry. It can also shift the inferred parameters if the fixed geometry is inaccurate.
+
+Search chaining makes this trade-off useful by allowing us to investigate the model in stages. It does not make the
+trade-off disappear.
+
+For a final scientific analysis, we can test its importance by allowing the lens-light geometry to vary again,
+repeating the fit with other plausible foreground descriptions, or constructing an analysis that propagates the
+relevant uncertainty.
+
+We should also investigate whether the automatically estimated positions constraint is restrictive enough to influence
+our conclusions. It was derived from an earlier fitted model, not from an independent observation.
+
+**🤖 Ask AI:** My chained fit gives a narrow uncertainty interval on the mass slope. How could fixing the foreground light geometry affect that interval, and what comparisons would help me assess it?
+
+__Search Chaining and SLaM__
+
+Our two searches had different jobs. The first used a relatively fast optimisation to obtain a description of the
+foreground light and an initial lens model. The second fixed the foreground geometry, introduced a more flexible mass
+profile and used Nautilus to explore the remaining parameter uncertainties.
+
+The second model contained fewer non-linear parameters even though its mass profile was more flexible. This is one of
+the main benefits of fitting different parts of the system in stages.
+
+More elaborate chains follow the same principle. An initial source model can help configure a later source
+reconstruction, a foreground-light fit can support a more detailed mass analysis, and an earlier lens model can supply
+positions constraints for subsequent searches.
+
+PyAutoLens provides **SLaM**, short for **Source, Light and Mass**, to organise these stages into reusable modeling
+pipelines. The workspace's `scripts/imaging/features/multi_gaussian_expansion/slam.py` provides a concrete example.
+
+A pipeline automates the sequence, but each stage still needs a suitable model and a result worth carrying forward.
+Inspecting the intermediate fits remains essential.
+
+In Chapter 3, we will introduce pixelized source reconstructions, which describe source structure beyond the smooth
+profiles used here. Search chaining will provide a way to connect those more detailed reconstructions to the tools we
+have already learnt."""
