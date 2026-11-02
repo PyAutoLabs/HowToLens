@@ -349,21 +349,35 @@
   },
   {
     "contents": [
-      "Initial Setup",
-      "Dataset Auto-Simulation",
+      "Dataset",
+      "Circular Masks",
+      "Beyond the Bright Arcs",
       "Mask",
-      "Model + Analysis",
-      "Run Time",
-      "Search",
-      "Discussion",
-      "Positions Thresholding",
+      "Positions Constraints",
+      "Choosing Positions",
+      "The Positions Penalty",
+      "Model and Analysis",
+      "Search and Result",
+      "Contaminating Light",
+      "Extra Galaxy Dataset",
+      "Extra Galaxy Region",
+      "Noise Scaling",
+      "Interpreting the Scaled Dataset",
+      "Interferometer Data",
+      "Point-Source Data",
+      "Weak-Lensing Data",
+      "Multiple Datasets",
       "Wrap Up"
     ],
-    "cross_refs": [],
+    "cross_refs": [
+      "autolens_workspace/scripts/point_source/modeling.py",
+      "scripts/interferometer/modeling.py",
+      "scripts/weak/modeling.py"
+    ],
     "notebook": "notebooks/chapter_2_lens_modeling/tutorial_6_masking_and_positions.ipynb",
     "path": "scripts/chapter_2_lens_modeling/tutorial_6_masking_and_positions.py",
-    "summary": "We have learnt everything we need to know about non-linear searches to model a strong lens and infer a good lens model solution. Now, lets consider masking in more detail, something we have not given much consideration previously. We'll also learn a neat trick to improve the speed and accuracy of a non-linear search.",
-    "title": "Tutorial 6: Masking and Positions"
+    "summary": "Throughout this chapter, we have fitted imaging data using light and mass profiles. However, the modeling tools we have learnt are not tied to this particular type of observation. We can use the same approach to fit interferometer measurements, the positions of multiply imaged point sources, or the shapes of weakly lensed galaxies.",
+    "title": "Tutorial 5: Data and Likelihoods"
   },
   {
     "contents": [
