@@ -2,6 +2,8 @@
 Tutorial 2: Bayesian Regularization
 ===================================
 
+Explore regularization and use Bayesian evidence to choose its strength for a source reconstruction.
+
 __Contents__
 
 - Interpolation and Bayesian regularization
@@ -9,11 +11,12 @@ __Contents__
 - Reducing regularization
 - Increasing regularization
 - Bayesian evidence
+- Choosing the coefficient
 - Exploring the regularization coefficient
 - Inspecting the preferred reconstruction
 - What is linear, and what requires a search?
 - Mesh resolution and regularization belong together
-- What we have learned, and what comes next
+- Wrap Up
 
 __Interpolation and Bayesian regularization__
 
@@ -296,34 +299,28 @@ favour giving the source too much freedom.
 
 **🤖 Ask AI:** Why might a weakly regularized reconstruction have a lower chi-squared but a less trustworthy source
 than a more strongly regularized reconstruction?
+"""
 
+"""
 __Bayesian evidence__
 
-For inversions, we therefore need more than image agreement to choose an appropriate level of regularization.
+Choosing the regularization coefficient is a Goldilocks problem. Too little regularization gives the source enough freedom to fit the image’s noise. Too much regularization smooths away source structure that we need to explain the image. We want an amount of regularization that is **“just right”**.
 
-We use the **Bayesian evidence**, which accounts for both the fit to the image and the source prior. It helps us
-compare reconstructions that have different amounts of freedom, rather than simply choosing whichever one follows
-the observed pixel values most closely.
+But how do we determine what “just right” means without choosing the reconstruction that looks best by eye?
 
-There are two useful parts to this intuition.
+We use the **Bayesian evidence**, which accounts for both how accurately we reconstruct the image and the complexity of the source reconstruction.
 
-First, the reconstruction must explain the image. If strong regularization prevents it from reproducing genuine
-source structure, the resulting residuals count against that choice. Preferring a smooth source is not useful if
-that source cannot explain the observed arcs.
+With **too much regularization**, neighbouring source pixels are forced towards similar brightness values. This makes it difficult to reconstruct steep changes in brightness, such as a compact source’s bright centre. The source is too smooth, the corresponding image fit leaves residuals, and the evidence decreases.
 
-Second, allowing a more flexible source comes at a cost. Weak regularization permits many more patterns of
-brightness across neighbouring mesh points. Some of that extra freedom may be needed to describe the galaxy, but
-some may only help reproduce the particular noise fluctuations in this image.
+With **too little regularization**, neighbouring source pixels have greater freedom to vary independently. The image fit improves, but the reconstruction can use this freedom to reproduce noise as additional source structure. The evidence accounts for the extra complexity, so a closer fit to the image does not necessarily give a higher evidence.
 
-Evidence weighs the improvement in fit against the freedom allowed by the prior. An improvement must be sufficient
-to justify that additional flexibility.
+The **“just right” coefficient** balances these effects: enough freedom to reconstruct the source structure supported by the data, with sufficient smoothing to discourage fitting noise. We identify it by finding the coefficient that gives the **highest Bayesian evidence**.
 
-This is also why complexity is not simply the number of source mesh points. Our three examples have exactly the
-same mesh. Stronger regularization ties neighbouring brightnesses together more closely, reducing their freedom to
-vary independently. We can therefore change the effective flexibility of the reconstruction without changing the
-number of mesh points.
+Complexity here means more than the number of source pixels. Our examples use exactly the same mesh. Stronger regularization couples neighbouring brightness values more closely, reducing their freedom to vary independently without changing the number of pixels.
 
-Let’s compare the evidence values returned by `FitImaging`.
+In **PyAutoLens**, we obtain the natural logarithm of the evidence using `fit.log_evidence`. Taking the logarithm preserves the ranking, so choosing the largest log evidence is equivalent to choosing the largest evidence.
+
+Let’s compare our three reconstructions.
 """
 
 log_evidences = []
@@ -337,206 +334,195 @@ for label, coefficient, current_fit in fit_comparisons:
         f"log evidence={log_evidence:.3f}"
     )
 
-best_index = int(np.argmax(log_evidences))
-best_label, best_coefficient, _ = fit_comparisons[best_index]
+"""
+__Choosing the coefficient__
 
-print(
-    f"\nHighest evidence among these examples: "
-    f"{best_label}, coefficient={best_coefficient:g}"
-)
+How do we interpret these numbers?
+
+Suppose, purely as an illustration, that coefficients of `0.01`, `1.0` and `100.0` gave log evidences of `4200`, `4250` and `4100`. We would choose `1.0` from these three values because `4250` is the largest. The same rule applies if the values are negative: `-100` is larger than `-150`.
+
+There is no particular log evidence value that we are trying to reach. We compare the values obtained by fitting **the same dataset**, keeping the lens model, mesh, mask and noise map fixed while changing the regularization coefficient.
+
+The code below selects the coefficient with the highest log evidence and prints how far each alternative lies below it.
+"""
+
+log_evidences = np.asarray(log_evidences)
+
+best_index = int(np.argmax(log_evidences))
+best_label, best_coefficient, best_fit = fit_comparisons[best_index]
+
+for (label, coefficient, _), log_evidence in zip(
+    fit_comparisons, log_evidences
+):
+    print(
+        f"{label}: coefficient={coefficient:g}, "
+        f"difference from highest log evidence="
+        f"{log_evidence - log_evidences[best_index]:.3f}"
+    )
+
+print(f"\nPreferred coefficient among these examples: {best_coefficient:g}")
+
+aplt.subplot_fit_imaging(fit=best_fit)
+aplt.subplot_fit_imaging_of_planes(fit=best_fit)
 
 """
-Compare this ranking with the source plots and the chi-squared values. The highest evidence need not belong to the
-reconstruction with the lowest chi-squared, because image agreement is only part of the comparison.
+Compare this reconstruction with the weakly and strongly regularized examples. How much of the irregular source structure has been smoothed away? Are the bright components still reconstructed accurately? What remains in the image residuals?
 
-We still need to inspect the residuals ourselves. Evidence does not explicitly examine their spatial pattern or
-guarantee that a preferred model is correct. Structured residuals can reveal shortcomings in the source, lens mass,
-PSF or other assumptions that this three-coefficient comparison does not address.
+We have selected the best of **three coefficients**, rather than found the overall maximum. A coefficient between our trial values could give a higher log evidence. Next, we will evaluate a wider range and plot the evidence against the coefficient to locate its peak.
+"""
 
-For now, we have compared only three choices. The starting value of `1.0` has no special status, and the best of
-these three is not necessarily the best coefficient overall. Next, we will explore a broader range and see how this
-choice fits into the wider modelling process.
-
+"""
 __Exploring the regularization coefficient__
 
-We have compared weak, moderate and strong regularization, but those three values were chosen to illustrate
-different behaviours. They do not tell us where the evidence reaches its highest value.
+Our three examples illustrate too little, moderate and too much regularization. However, there is nothing special about the starting coefficient of `1.0`. A value of `0.5`, `2.0`, or something else entirely might give a higher log evidence.
 
-Let’s explore the coefficient more systematically. We will keep the lens mass, mesh resolution, mask and noise map
-fixed, and reconstruct the source for a sequence of coefficients.
+Let’s explore this systematically. We keep the lens mass model, source mesh and dataset fixed, and calculate the log evidence for a range of regularization coefficients.
 
-Regularization coefficients can span several orders of magnitude, so we use logarithmically spaced values. This
-gives us comparable coverage between `0.01` and `0.1`, between `0.1` and `1.0`, and so on.
+For every coefficient, we perform a new inversion. We are not taking one reconstructed source and smoothing it afterwards: changing the coefficient changes the brightness values that the inversion solves for.
 
-Every point in this experiment requires a new source reconstruction. We are not taking one reconstructed source and
-smoothing it by different amounts afterwards. The coefficient changes the problem that the inversion solves.
+Regularization coefficients can span several orders of magnitude, so we use logarithmically spaced values. This gives us evenly spaced steps between `0.01` and `0.1`, between `0.1` and `1.0`, and so on.
 """
 
 import matplotlib.pyplot as plt
 
 coefficient_grid = np.logspace(-2, 2, 13)
 
-# Reuse the three reconstructions already calculated.
-known_fits = {
+# Reuse the three reconstructions we have already calculated.
+fits_by_coefficient = {
     0.01: weak_regularization_fit,
     1.0: fit,
     100.0: strong_regularization_fit,
 }
 
 evidence_grid = []
+best_evidence = -np.inf
+preferred_fit = None
 
 for coefficient in coefficient_grid:
     coefficient = float(coefficient)
 
-    if coefficient in known_fits:
-        current_fit = known_fits[coefficient]
-    else:
+    current_fit = fits_by_coefficient.get(coefficient)
+    if current_fit is None:
         current_fit = fit_with_coefficient(coefficient=coefficient)
 
-    evidence_grid.append(float(current_fit.log_evidence))
+    evidence = float(current_fit.log_evidence)
+    evidence_grid.append(evidence)
+    if evidence > best_evidence:
+        best_evidence = evidence
+        preferred_fit = current_fit
 
 evidence_grid = np.asarray(evidence_grid)
 
 if not np.all(np.isfinite(evidence_grid)):
-    raise ValueError(
-        "Some evidence values are not finite. Inspect those fits before comparing."
-    )
+    raise ValueError("Inspect fits with non-finite evidence before comparing them.")
 
 fig, ax = plt.subplots()
+
 ax.semilogx(
     coefficient_grid,
     evidence_grid - np.max(evidence_grid),
     marker="o",
 )
+
 ax.set_xlabel("Regularization coefficient")
 ax.set_ylabel("Log evidence relative to the highest sampled value")
-ax.set_title("Choosing the Strength of Regularization")
+
 plt.show()
 
 """
-Look for the part of the curve where the evidence is highest. Moving towards weaker regularization gives the source
-more freedom; moving towards stronger regularization increasingly restricts its variations.
+We have subtracted the highest log evidence from every value. This places the highest point at zero and the other points below it, without changing their ranking.
 
-We may find a clear peak, a broad region with similar evidence, or a highest value at one end of the range. These
-outcomes mean different things. A boundary maximum tells us that this experiment has not bracketed the preferred
-coefficient—we should extend the range before claiming to have located it.
+Look for the peak of the curve. Towards small coefficients, the source has more freedom to fit noise. Towards large coefficients, smoothing increasingly prevents it from reproducing the source structure. The peak identifies our Goldilocks coefficient **among the values we have tested**.
 
-The plotted points are also discrete samples. Even an interior maximum only identifies the best coefficient we have
-tried so far.
-
-__Inspecting the preferred reconstruction__
-
-Let’s inspect the reconstruction with the highest evidence in our sampled range.
-
-It is tempting to treat the highest number as the end of the analysis. However, we should connect that number back
-to the source and image. We want to understand what this choice preserves, what it smooths away, and what the
-resulting model still fails to explain.
-
-Compare it with the weakly and strongly regularized examples. In particular, examine the distinct bright source
-components and the faint regions between them. Then look at the image residuals where those components are lensed.
+If the highest point lies at either end of the range, we should extend the range in that direction. We have not yet located a peak between weaker and stronger regularization.
 """
 
-best_index = int(np.argmax(evidence_grid))
-preferred_coefficient = float(coefficient_grid[best_index])
+"""
+__Inspecting the preferred reconstruction__
 
-if preferred_coefficient in known_fits:
-    preferred_fit = known_fits[preferred_coefficient]
-else:
-    preferred_fit = fit_with_coefficient(
-        coefficient=preferred_coefficient
-    )
+Let’s take the coefficient with the highest log evidence and look at its source reconstruction and image residuals.
 
-print("Preferred sampled coefficient:", preferred_coefficient)
+Before looking, think back to our earlier examples. Weak regularization allowed sharp variations between neighbouring source pixels, including in faint regions. Strong regularization suppressed these variations but could also flatten the bright source components.
 
-if best_index in (0, len(coefficient_grid) - 1):
-    print(
-        "The highest evidence lies at the boundary. "
-        "Extend the coefficient range before interpreting this as a peak."
-    )
+Does the evidence-preferred reconstruction provide a better balance?
+"""
+
+preferred_index = int(np.argmax(evidence_grid))
+preferred_coefficient = float(coefficient_grid[preferred_index])
+
+print(f"Preferred sampled coefficient: {preferred_coefficient:.4g}")
+print(f"Log evidence: {evidence_grid[preferred_index]:.3f}")
 
 preferred_mapper = preferred_fit.inversion.cls_list_from(al.Mapper)[0]
 
 aaplt.plot_mapper(
     mapper=preferred_mapper,
     solution_vector=preferred_fit.inversion.reconstruction,
+    vmin=0.0,
+    vmax=source_vmax,
     zoom_to_brightest=False,
-    title="Source at the Preferred Sampled Coefficient",
+    title="Source at the Preferred Regularization Coefficient",
 )
 
 aplt.subplot_fit_imaging(fit=preferred_fit)
 aplt.subplot_fit_imaging_of_planes(fit=preferred_fit)
 
 """
-A preferred coefficient does not establish that every visible feature in the source is real. The reconstruction
-remains conditional on the lens model, source mesh, noise map and telescope blurring.
+The source plot uses the same brightness limits as our earlier comparisons. Look at the bright components and the faint regions around them, then examine the corresponding image residuals.
 
-Nor does a good-looking source excuse coherent residuals in the image. The source and residual plots provide
-complementary information: one shows what we inferred, while the other shows what that inference leaves
-unexplained.
+Choosing the highest evidence does not mean the residuals must now be satisfactory. We have found the preferred coefficient for **this particular mesh and regularization scheme**. If the mesh has too few pixels across a compact source component, changing the coefficient cannot supply the missing resolution.
 
-**🤖 Ask AI:** If the evidence prefers a particular regularization coefficient but the residuals still follow the
-shape of an arc, what modelling assumptions should I investigate next?
+There is also a compromise in applying one coefficient across the whole source. The bright centre may need weaker smoothing to preserve its steep brightness gradient, while the faint outskirts benefit from stronger smoothing. A single coefficient must serve both regions.
 
+Keep these limitations in mind. Our later **Fit Problems** tutorial will show why choosing the coefficient is only part of the solution, motivating meshes and regularization that adapt to the source.
+"""
+
+"""
 __What is linear, and what requires a search?__
 
-Before going further, let’s separate two parts of the calculation that are easy to confuse.
+Our reconstruction contains hundreds of source brightness values. Does this mean we have added hundreds of parameters to the non-linear search?
 
-For each coefficient we supplied, the inversion solved for the source brightnesses. We did not give a non-linear
-search hundreds of independent source brightness parameters and ask it to explore their possible combinations.
-Instead, the source enters the predicted image linearly, allowing these brightnesses to be solved together using
-linear algebra.
+Fortunately, no! This is the same advantage we encountered with linear light profiles in Chapter 2. There, we solved for the intensities of Gaussian components. Here, we solve for the brightness values on the source mesh.
 
-Regularization is included in that solve. The source is not first reconstructed without a prior and then smoothed
-afterwards. The inferred brightnesses already reflect the balance between fitting the image and satisfying the
-smoothness prior.
+For a fixed lens model, mesh and regularization coefficient, these brightness values enter the predicted image linearly. The inversion therefore solves for them together using linear algebra, including regularization in that calculation.
 
-Choosing the regularization coefficient is a different problem. We supplied several coefficients, performed an
-inversion for each, and compared their evidence values. Our loop is a simple grid search over one quantity.
+Choosing the regularization coefficient is a separate, non-linear problem. Each coefficient produces a different reconstruction and log evidence. Our loop explored this by trying a grid of coefficients and selecting the one with the highest evidence.
 
-We can see the difference in scale directly:
+Let’s compare how many source brightness values we reconstructed with how many coefficients we tried.
 """
 
 source_brightnesses = np.asarray(
     preferred_fit.inversion.reconstruction
 )
 
-print("Number of source mesh values:", preferred_mapper.pixels)
-print("Number of reconstructed entries:", source_brightnesses.size)
-print("Number of coefficients evaluated:", coefficient_grid.size)
+print("Number of reconstructed brightness values:", source_brightnesses.size)
+print("Number of regularization coefficients tried:", coefficient_grid.size)
 
 """
-The reconstruction contains an entry for each source mesh point in this single-mapper example. Some values may be
-constrained to zero at the mesh boundary, and regularization couples neighbouring values, so the number of entries
-is not the number of independently constrained source features.
+Every coefficient in our grid required a solution for **all** those brightness values. We did not search through their possible combinations individually.
 
-During lens modelling, the search also changes the mass parameters. Each proposed mass model changes the ray
-tracing and therefore the mappings between source and image. The source must be reconstructed again for that
-proposal.
+During lens modelling, we also vary the lens mass parameters. Changing the mass model changes where the image pixels trace in the source plane, so we must perform a new inversion for each proposed model.
 
-The sequence is therefore:
+The calculation follows this sequence:
 
-1. Propose the non-linear parameters, including the lens mass and regularization coefficient.
-2. Construct the corresponding mappings.
-3. Solve for the source brightnesses.
-4. Evaluate how well that model explains the data, accounting for the source prior.
+1. The non-linear search proposes a lens mass model and regularization coefficient.
+2. We ray-trace the image pixels and construct their mappings to the source mesh.
+3. The inversion solves for the source brightness values.
+4. We calculate the log evidence, which the search uses to assess that proposal.
 
-This is what makes pixelized sources practical: the search explores the non-linear model choices, while the
-inversion handles the many source brightness values.
+This is what makes pixelized sources practical. We can reconstruct hundreds of source brightness values without asking the non-linear search to explore hundreds of additional parameters.
+"""
 
+"""
 __Mesh resolution and regularization belong together__
 
-We have held the source mesh at `(25, 25)`. The preferred coefficient we found belongs to that choice of mesh.
+We have found a preferred regularization coefficient for our current mesh. Would the same coefficient still be preferred if we changed its resolution?
 
-Changing the mesh changes the locations and number of source brightness values, their neighbours, and how they
-contribute to the image. The same numerical coefficient therefore need not give an equivalent amount of smoothing
-on another mesh.
+Not necessarily. A finer mesh introduces more brightness values and changes the distances between neighbouring points. It gives the source more freedom to describe small-scale structure, but also more freedom to fit noise. The regularization coefficient must be chosen alongside that resolution.
 
-This matters when testing resolution. If we increase the number of source points but keep the coefficient fixed,
-any change in the reconstruction reflects both the new resolution and its interaction with the prior. We cannot
-assume that we have made a fair comparison of the best reconstructions available at each resolution.
+Think of our Goldilocks analogy again: changing the mesh changes the problem for which we are finding the “just right” amount of smoothing.
 
-Let’s repeat the coefficient experiment for `(15, 15)` and `(35, 35)`, alongside our existing `(25, 25)` results.
-We extend our helper so the mesh shape is an explicit input.
+Let’s repeat our coefficient scan with coarser and finer meshes. We first extend our helper function so that we can specify the mesh shape.
 """
 
 def fit_with_coefficient(coefficient, mesh_shape=mesh_shape):
@@ -554,10 +540,13 @@ def fit_with_coefficient(coefficient, mesh_shape=mesh_shape):
 
     return al.FitImaging(dataset=dataset, tracer=tracer)
 
+"""
+We reuse the evidence values for our existing mesh and calculate two additional curves. This takes longer than the previous experiment because each additional mesh requires another complete coefficient scan.
+"""
 
 evidence_by_shape = {mesh_shape: evidence_grid}
 
-for shape in ([(6, 6), (10, 10)] if mesh_shape == (8, 8) else [(15, 15), (35, 35)]):
+for shape in [(15, 15), (35, 35)]:
     values = []
 
     for coefficient in coefficient_grid:
@@ -592,39 +581,28 @@ for shape, values in sorted(evidence_by_shape.items()):
 
 ax.set_xlabel("Regularization coefficient")
 ax.set_ylabel("Log evidence relative to the highest sampled value")
-ax.set_title("Mesh Resolution and Regularization")
 ax.legend()
+
 plt.show()
 
 """
-This experiment performs 26 additional reconstructions, so it takes longer than our earlier three-way comparison.
+Look at **where each curve peaks** and **how high that peak is**.
 
-Look at both the locations and heights of the curves’ maxima. The preferred coefficient may shift as the mesh
-changes. A finer mesh may help describe source structure, but adding points does not guarantee a higher evidence.
+The position tells us which coefficient is preferred for that mesh. The height lets us compare the best sampled reconstructions across the different resolutions. We subtract the same reference value from every curve so that these differences remain visible.
 
-All three curves use the same image pixels and noise model. We also subtract one common reference evidence,
-preserving differences between the meshes. Subtracting each curve’s own maximum would hide those differences.
+A finer mesh may increase the evidence by resolving source structure that the coarser mesh cannot describe. However, more source pixels do not automatically mean a better reconstruction: the additional freedom must be justified by the image data.
 
-As before, a boundary maximum means that the coefficient range needs extending. These are controlled resolution
-checks, not a demonstration that mesh dimensions should become free parameters in every lens-model search.
+Before drawing a conclusion, check that each peak lies inside the coefficient range. If a curve is still rising at either end, extend its range. Once a peak is bracketed, try more closely spaced coefficients around it to refine the comparison.
+"""
 
+"""
 __Wrap Up__
 
-We can now give the regularization input a more meaningful interpretation.
+We can now explain the regularization coefficient that we first supplied without much discussion in tutorial 1.
 
-The source mesh supplies brightness values that can vary to explain the image. Interpolation defines the brightness
-between those values. Regularization places a prior on their variation, discouraging unnecessary differences
-between neighbours.
+It controls how strongly we discourage differences between neighbouring source brightness values. Too little regularization allows the reconstruction to fit noise; too much smooths away structure needed to explain the image. We find the Goldilocks balance by maximizing the Bayesian evidence.
 
-Too little regularization can allow the reconstruction to explain noise through spurious source structure. Too much
-can suppress real structure and leave it visible in the image residuals. Evidence helps compare these choices by
-accounting for both image agreement and the freedom allowed by the source prior.
-
-We also saw that the coefficient is not a universal setting. Its appropriate value depends on the dataset, lens
-model, mesh and regularization scheme. A value that works for one reconstruction should not simply be carried into
-another analysis without checking it.
-
-For a final comparison, print the preferred sampled coefficient for each mesh:
+For a final comparison, let’s print the preferred sampled coefficient for each mesh.
 """
 
 for shape, values in sorted(evidence_by_shape.items()):
@@ -635,22 +613,19 @@ for shape, values in sorted(evidence_by_shape.items()):
     print(
         f"Mesh {shape}: coefficient={coefficient:.4g}, "
         f"log evidence={values[index]:.3f}"
-        + (" — boundary maximum; extend the range" if boundary else "")
+        + (" — extend the coefficient range" if boundary else "")
     )
 
-# Retain the original mesh's preferred fit for subsequent inspection.
-fit = preferred_fit
+"""
+The preferred coefficient depends on the mesh, as well as the data and lens model. We should therefore infer it as part of an analysis, rather than assume that a value which worked for one reconstruction will work for another.
+
+Throughout this tutorial, we fixed the lens mass model to the values used to simulate the image. Later, we will fit the mass parameters alongside the regularization coefficient, performing an inversion for every model proposed by the non-linear search.
+
+Before that, we need to examine another practical issue. Choosing the number of source pixels does not, by itself, determine our source resolution. We also need to consider **how much area those pixels cover**.
+
+---
+"""
 
 """
-Throughout this tutorial, we fixed the lens mass to the simulation values. We have selected source-reconstruction
-settings under that assumption; we have not inferred the mass or its uncertainty.
-
-Later, these source reconstructions will sit inside a lens-model search. Before that, the next tutorial examines
-another practical issue: how the source mesh covers the ray-traced image coordinates, and why a small number of
-extreme coordinates can affect the resolution available to reconstruct the source.
-
-For readers who want the underlying equations, the workspace’s [pixelization likelihood
-guide](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/imaging/features/pixelization/likelihood_function.py)
-follows the mapping, blurring, regularization and evidence calculations step by step. That derivation complements
-the experiments here; it is not required to continue using pixelizations.
+For the underlying equations, the workspace’s [pixelization likelihood guide](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/imaging/features/pixelization/likelihood_function.py) follows the mapping, blurring, regularization and evidence calculations step by step.
 """

@@ -2,6 +2,8 @@
 Tutorial 1: Pixelizations, Mappers and Inversions
 =================================================
 
+Reconstruct a complex source using pixelizations, image-to-source mappings and a linear inversion.
+
 __Contents__
 
 - Opening — Pixelized source reconstruction
@@ -14,6 +16,8 @@ __Contents__
 - Reconstructing the source
 - A first look at regularization
 - From source indexes to reconstructed brightnesses
+- Keeping source brightnesses non-negative
+- Where the image weakly constrains the source
 - Turning the reconstructed source back into an image
 - Inspecting the reconstruction
 - Changing the source resolution
@@ -176,6 +180,10 @@ ray-traced image coordinates.
 The mesh also defines how brightness is interpolated between its points. We will examine this more closely in the
 next tutorial. For now, the important distinction is that the mesh specifies where we represent the source; it does
 not yet tell us how bright the source is.
+
+The image mask also affects the extent of this mesh, because it determines which image coordinates are traced.
+Tutorial 3, **Borders**, compares masks and shows how distant traced coordinates can spread the mesh over regions
+with little useful source information.
 
 
 
@@ -364,6 +372,10 @@ Try changing `(0.3, 0.3)` to another source position and follow how its image re
 coloured patches is not necessarily the physical image multiplicity: masking and pixel sampling can split or hide
 regions.
 
+Tutorial 4, **Lens modelling**, returns to this picture in **Seeing how the mass model changes the mappings**.
+There we change the Einstein radius and see why an incorrect mass model changes which image regions can share
+the same reconstructed source.
+
 
 
 __Reconstructing the source__
@@ -443,6 +455,48 @@ aaplt.plot_mapper(
 """
 These brightnesses are inferred jointly. We do not independently fit each coloured image region: shared source
 values must explain their contributions across the image, while regularization connects neighbouring source values.
+
+
+
+__Keeping source brightnesses non-negative__
+
+By default, the inversion uses a positive-only solver: reconstructed source brightnesses are constrained to be
+non-negative, so zero is allowed. This prevents the model from explaining the image by adding negative source light.
+
+Positivity and regularization impose different constraints. Positivity restricts the allowed brightness values;
+regularization discourages large differences between neighbours. A non-negative reconstruction can still contain
+isolated bright values and fit noise, so positivity does not remove the need for regularization.
+
+__Where the image weakly constrains the source__
+
+Not every mesh point contributes equally to the image. Some receive many ray-traced image coordinates, while
+others receive little support or none at all. We can inspect this using the mapping matrix we already introduced.
+
+The next cell sums the absolute mapping weights for each source mesh point, then prints the least-supported points
+alongside their reconstructed brightnesses. It also counts points whose total weight is effectively zero; there
+may be none for this particular mesh and mask.
+"""
+
+mapping_support = np.sum(np.abs(np.asarray(mapper.mapping_matrix)), axis=0)
+unsupported = np.flatnonzero(mapping_support <= 1.0e-12)
+least_supported = np.argsort(mapping_support)[:5]
+
+print("Source mesh points with effectively zero mapping weight:", len(unsupported))
+for source_index in least_supported:
+    print(
+        f"Source mesh index {source_index}: "
+        f"total mapping weight={mapping_support[source_index]:.6g}, "
+        f"reconstructed brightness={reconstruction[source_index]:.6g}"
+    )
+
+"""
+A point with no direct image contribution cannot have its brightness determined directly by the data. Its inferred
+value can instead be influenced by regularization linking it to neighbouring source values, together with the
+non-negativity constraint and any boundary constraints used by the inversion.
+
+For a weakly supported point, both the data and these constraints can matter. The total mapping weight is a
+geometric diagnostic, not a brightness uncertainty: it does not account for image noise, telescope blurring or
+correlations between source values. Ask how much confidence you should place in faint structure at these points.
 
 
 

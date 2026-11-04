@@ -30,8 +30,5 @@ defaults:
 # `multi/start_here` and `guides/results/` are all autolens_workspace paths
 # copied in from that repo's profile_smoke.yaml. HowToLens contains only
 # chapter_*/tutorial_*.py, so none of them ever matched a file here.
-# Do not copy override patterns between repos; a pattern that matches nothing
-# is silently inert, not an override. The list is now empty, and `overrides: []`
-# is written explicitly because env_config.py reads `.get("overrides", [])` —
-# a bare `overrides:` key would load as None and raise on iteration.
+# Tutorials requiring full-size datasets declare this in their __Env__ sections.
 overrides: []
