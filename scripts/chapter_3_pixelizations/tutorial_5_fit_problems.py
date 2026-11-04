@@ -706,4 +706,11 @@ We will finish by using these methods in a lens-model fit, with the search-chain
 
 """
 **🤖 Ask AI:** How would you distinguish insufficient source-mesh resolution from over-smoothing when compact-source residuals remain at the evidence-preferred coefficient?
+
+__Env__
+
+Keep full-size datasets during automated runs so compact sources remain resolved
+and the evidence scans test the same examples as the lesson.
+
+ENV: full_datasets
 """

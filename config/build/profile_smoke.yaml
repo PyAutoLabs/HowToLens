@@ -30,11 +30,5 @@ defaults:
 # `multi/start_here` and `guides/results/` are all autolens_workspace paths
 # copied in from that repo's profile_smoke.yaml. HowToLens contains only
 # chapter_*/tutorial_*.py, so none of them ever matched a file here.
-# These two morphology experiments require resolved compact sources. Capping their
-# grids moves evidence peaks outside the teaching scans, rather than testing the
-# examples readers run. Keep their full datasets while retaining sampler bypass.
-overrides:
-  - pattern: tutorial_5_fit_problems
-    unset: [PYAUTO_SMALL_DATASETS]
-  - pattern: tutorial_6_adaptive_reconstruction
-    unset: [PYAUTO_SMALL_DATASETS]
+# Tutorials requiring full-size datasets declare this in their __Env__ sections.
+overrides: []

@@ -1583,4 +1583,11 @@ We now have the tools to use both together—and to investigate why a reconstruc
 
 """
 **🤖 Ask AI:** How do Hilbert mesh weighting and adaptive Split regularization address different limitations of a compact-source reconstruction?
+
+__Env__
+
+Keep full-size datasets during automated runs so compact sources remain resolved
+and the evidence scans test the same examples as the lesson.
+
+ENV: full_datasets
 """
