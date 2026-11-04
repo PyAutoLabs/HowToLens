@@ -174,9 +174,7 @@ expressed in arcseconds. They are the displacement we subtract
 from an image-plane position to obtain its source-plane position,
 as we did in tutorial 2. We will continue to call them
 "deflection angles" throughout this tutorial.
-"""
 
-r"""
 __Convergence__
 
 Imagine adding up the lens galaxy's mass along our line of sight.
@@ -248,9 +246,7 @@ $\Sigma_{\mathrm{cr}}$.
 This is an average over the enclosed area, rather than the
 convergence at its edge. We will return to this connection
 when we use the Einstein radius to measure the lens's mass.
-"""
 
-r"""
 __Deflection Angles__
 
 The convergence describes the projected mass distribution.
@@ -299,13 +295,11 @@ aplt.plot_array(
     array=deflections_x, title="Deflection Angles (x component)", cb_unit=" arcsec"
 )
 
-"""
+r"""
 Each component changes sign across the lens centre. Together,
 they describe the displacement we subtract from each
 image-plane coordinate when tracing it to the source plane.
-"""
 
-r"""
 __The Lensing Potential__
 
 We can describe the same lens using a single scalar field:
@@ -353,13 +347,11 @@ potential = tracer.potential_2d_from(grid=grid)
 
 aplt.plot_array(array=potential, title="Lensing Potential", cb_unit=r" arcsec$^2$")
 
-"""
+r"""
 For this spherical lens, the potential has circular contours.
 Its slope points radially outwards, matching the direction
 of the deflection vectors used in our lens equation.
-"""
 
-r"""
 We can check $\boldsymbol{\alpha} = \nabla\psi$ directly.
 
 First, we calculate the deflections using the mass profile's
@@ -791,14 +783,12 @@ einstein_radius_kpc = einstein_radius * kpc_per_arcsec_lens
 print(f"Einstein radius: {einstein_radius:.4f} arcsec")
 print(f"Einstein radius: {einstein_radius_kpc:.4f} kpc")
 
-"""
+r"""
 The recovered angular radius should be close to the
 1.6 arcseconds specified in our spherical mass profile.
 Small differences arise from locating the critical curve
 on a finite grid.
-"""
 
-r"""
 Two simple mass distributions have useful expressions
 for the Einstein radius.
 
@@ -831,9 +821,7 @@ They show how the Einstein radius connects the lens's mass
 or velocity dispersion to the observer–lens–source geometry.
 Our `IsothermalSph` profile specifies this angular scale
 directly through its `einstein_radius` parameter.
-"""
 
-r"""
 For a circular lens, the mean convergence inside the Einstein
 radius equals one. Its enclosed projected mass is therefore
 
@@ -857,7 +845,7 @@ print(
     f"{einstein_mass_solar:.3e} solar masses"
 )
 
-"""
+r"""
 This is one of strong lensing's most useful measurements.
 The image positions constrain the Einstein scale, often
 giving a tighter constraint on the enclosed projected mass
@@ -867,9 +855,7 @@ For non-circular lenses, the effective Einstein radius remains
 a useful summary of the lensing scale, but the circular
 enclosed-mass relation is not generally exact. The detailed
 mass model and surrounding matter still matter.
-"""
 
-r"""
 __Time Delays__
 
 Different images of the same source follow different paths
@@ -934,9 +920,7 @@ same brightness variation can appear in different images
 at different times. Measuring those delays provides
 information about cosmological distances as well as
 the lens's mass distribution.
-"""
 
-"""
 __Wrap Up__
 
 The quantities in this tutorial describe different aspects
@@ -972,9 +956,7 @@ uncertainty about the mass profile's slope?
 
 In tutorial 4, we turn to point sources, whose individual
 lensed images provide another way to study a lens.
-"""
 
-"""
 __Env__
 
 Keep the full 250-by-250 grid during automated runs so that

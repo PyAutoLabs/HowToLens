@@ -135,9 +135,7 @@ You can also set `colormap="gray"` to display the image in greyscale. For persis
 
 **🤖 Ask AI:** Why can logarithmic colour scaling make faint structure easier to see without increasing its
 signal-to-noise ratio?
-"""
 
-"""
 __Overlays__
 
 Overlays place reference curves or positions on an image. The `lines=` argument draws curves, while

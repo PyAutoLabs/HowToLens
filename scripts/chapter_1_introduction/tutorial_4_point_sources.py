@@ -112,9 +112,7 @@ between the appearances of the same variation in different images.
 
 A quasar or supernova can also sit inside a visible host galaxy. Such a lens may therefore contain both
 unresolved point images and extended arcs.
-"""
 
-"""
 __Point Source Tracer__
 
 PyAutoLens represents a point source using the `Point` profile in `al.ps`. This profile specifies its
@@ -132,16 +130,14 @@ source_galaxy = al.Galaxy(
 
 tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
 
-"""
+r"""
 The name `point_0` identifies this source within the galaxy. When fitting observations, PyAutoLens uses it to
 match the source to the dataset containing its multiple images. This becomes particularly useful when a lens
 contains several background sources.
 
 This tracer now contains the lens mass and the point-source position. Next, we will find the multiple image
 positions that this combination predicts.
-"""
 
-r"""
 __The Lens Equation__
 
 In Tutorial 2, we used the lens equation to map an image-plane coordinate $\theta$ to a source-plane coordinate
@@ -160,9 +156,7 @@ solution is a separate image of the same source.
 Finding these solutions is harder than evaluating the equation at a known coordinate. The deflection
 $\alpha(\theta)$ changes with position, and several different coordinates can map to the same source. Simple
 mass profiles have analytic solutions, but more general models require a numerical search.
-"""
 
-"""
 __Point Solver__
 
 The `PointSolver` divides the image-plane into triangles and ray-traces their corners to the source-plane. It
@@ -213,9 +207,7 @@ the lens mass distribution and the source position.
 Some mass profiles also produce a faint image near the lens centre. Our singular isothermal profile does not
 produce a finite central image, so we should not interpret the magnification threshold as removing a fifth
 image in this example.
-"""
 
-"""
 __Multiple Images and Critical Curves__
 
 Let's overlay the solved positions on the compact extended source's image. The markers show where a point
@@ -236,16 +228,14 @@ aplt.plot_array(
     title="Multiple Images and Critical Curve",
 )
 
-"""
+r"""
 Compare the markers with the bright regions of the extended image. Both calculations use the same lens mass
 and source centre: one evaluates an extended light profile across a grid, while the other finds the discrete
 image positions of a point source.
 
 **🤖 Ask AI:** For a fixed elliptical lens mass profile, why can moving a point source across a caustic change
 the number of its multiple images?
-"""
 
-r"""
 __Magnifications__
 
 Each multiple image has its own magnification. For an unresolved image, we measure this through its total

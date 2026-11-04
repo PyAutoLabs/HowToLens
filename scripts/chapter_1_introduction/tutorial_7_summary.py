@@ -150,9 +150,7 @@ aplt.plot_array(
 """
 **🤖 Ask AI:** Why does evaluating a source light profile on ray-traced source-plane coordinates produce a lensed image,
 whereas evaluating it on a uniform source-plane grid produces an unlensed image?
-"""
 
-"""
 __Visualization__
 
 We can combine the lensed image with other quantities calculated from the same tracer.
@@ -189,9 +187,7 @@ component, while `tracer.image_2d_from(grid=grid)` calculates the image of the c
 
 As your analyses become more complex, this same structure lets you add components and inspect their individual
 contributions.
-"""
 
-"""
 __Source Code__
 
 The tools used in **HowToLens** are provided by four related projects:
@@ -210,9 +206,7 @@ Start with a familiar operation, such as calculating a light-profile image, and 
 [Installation from source](https://pyautolens.readthedocs.io/en/latest/installation/source.html) is described in the
 documentation. This is useful if you want to modify or contribute to the libraries; it is optional for continuing
 **HowToLens**.
-"""
 
-"""
 __Wrap Up__
 
 You have now followed the path from a mathematical description of a lens system to a predicted observation and a

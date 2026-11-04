@@ -16,9 +16,7 @@ __Contents__
 - What relocation changes
 - The mask still needs to cover the lensed source
 - Wrap Up
-"""
 
-"""
 __Why the extent of the source mesh matters__
 
 Imagine spreading a `(25, 25)` rectangular mesh across a source-plane region one arcsecond wide. Now spread the same mesh across a region ten arcseconds wide. We still have the same number of brightness values, but the spacing between them is ten times larger. Small source components that the first mesh could resolve may be poorly represented by the second.
@@ -67,9 +65,7 @@ aplt.subplot_imaging_dataset(dataset=dataset_unmasked)
 We will compare two masks with the same outer radius. One includes the central image pixels; the other removes them. This lets us isolate how including the centre changes the area covered by the source mesh.
 
 ---
-"""
 
-"""
 __What we mean by a border__
 
 Here, the **border** means the outermost boundary of the unmasked image region: the ring of image pixels just inside the mask’s outer edge.
@@ -113,9 +109,7 @@ Both masks have the same outer border because their outer radii are identical. T
 We can ray-trace the marked border pixels just as we ray-trace any other image pixels. Their traced positions define a border in the **source plane**, which we will use to identify coordinates that land beyond it.
 
 Keep these two operations separate. **Masking** determines which image pixels we fit. **Border relocation** changes how coordinates beyond the traced border enter the source reconstruction; it does not remove those image pixels from the fit.
-"""
 
-"""
 __Starting without border relocation__
 
 Let’s first reconstruct the source using the annular mask, which excludes the central image pixels. We explicitly switch border relocation off so that we can inspect the original ray-traced coordinates.
@@ -202,9 +196,7 @@ The first plot shows where the unmasked image pixels trace in the source plane. 
 Pay attention to the axis ranges and the spacing of the mesh points. These provide our reference for the next comparison.
 
 ---
-"""
 
-"""
 __Including the central image pixels__
 
 Now repeat the reconstruction with the circular mask.
@@ -258,9 +250,7 @@ Adding more image pixels has changed the resolution available to reconstruct the
 The masks contain different sets of image pixels, so we should not rank these two fits by their absolute log evidences. For now, compare their geometry and source reconstructions.
 
 ---
-"""
 
-"""
 __Following the central pixels into the source plane__
 
 Let’s identify exactly where those distant source-plane coordinates came from.
@@ -334,9 +324,7 @@ These central pixels contain no bright source emission in our simulated image, y
 There is another potential problem: assigning source brightness at these distant positions may predict additional images outside our mask. Those predictions would not be checked against the excluded image data.
 
 Next, we will trace the outer image border into the source plane and use it to control these distant coordinates.
-"""
 
-"""
 __Tracing the outer border__
 
 We have seen that pixels near the image centre can trace far beyond the source galaxy. To decide which coordinates to relocate, we first need a boundary in the source plane.
@@ -368,9 +356,7 @@ This is possible because the lens mapping does not preserve the ordering of dist
 The border relocator uses the traced border to estimate a source-plane boundary. Coordinates beyond that boundary are moved inward for the reconstruction, preventing them from forcing the mesh to extend far beyond the region we want to reconstruct.
 
 ---
-"""
 
-"""
 __Switching border relocation on__
 
 Let’s repeat the circular-mask fit with border relocation enabled.
@@ -444,9 +430,7 @@ if moved_indexes:
 These coordinates still correspond to the same image pixels and measured brightnesses. We have changed where they map within the source reconstruction. We have not moved any observed image pixels or excluded them from the fit.
 
 ---
-"""
 
-"""
 __What relocation changes__
 
 Does relocating these coordinates mean we have changed the lens model?
@@ -522,9 +506,7 @@ Compare the spacing of the mesh points across the source. Does the smaller exten
 We have kept the regularization coefficient fixed to show the effect of switching relocation on. As we learned in tutorial 2, changing the mesh geometry can also change the preferred coefficient. A full comparison would therefore repeat the regularization search for each setup.
 
 Next, we will examine why border relocation still requires a mask that covers the lensed source.
-"""
 
-"""
 __The mask still needs to cover the lensed source__
 
 Border relocation helps us control the source mesh, but it cannot compensate for an image mask that excludes part of the lensed source.
@@ -588,9 +570,7 @@ These masks contain different image pixels, so their absolute log evidences shou
 A larger mask can also spread the fixed number of mesh points over a larger source-plane region. If the reconstruction changes, inspect the mesh spacing as well as the newly included data.
 
 ---
-"""
 
-"""
 __Wrap Up__
 
 The resolution of a rectangular source mesh depends on both its number of points and the area they cover.
@@ -626,8 +606,6 @@ So far, we have investigated the source mesh, interpolation, regularization and 
 Next, we will let the mass model vary. This introduces another challenge: a flexible source reconstruction can sometimes produce a close image fit even when the lens mass model is wrong.
 
 ---
-"""
 
-"""
 **🤖 Ask AI:** Why can adding central image pixels reduce the useful resolution of a rectangular source mesh, and what does border relocation change?
 """

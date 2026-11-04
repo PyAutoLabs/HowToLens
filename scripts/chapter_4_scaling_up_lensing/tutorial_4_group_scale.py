@@ -462,10 +462,7 @@ print(f"Total free parameters: {model.prior_count}")
 """
 Adaptive over-sampling was configured around every galaxy centre before the initial fit evaluations. The same
 configuration is retained for the non-linear search.
-"""
 
-
-"""
 We first fit the galaxy-only model using `Nautilus` and the familiar `AnalysisImaging` object.
 
 The likelihood calculation uses the same imaging framework as in earlier chapters, now with the central galaxy
