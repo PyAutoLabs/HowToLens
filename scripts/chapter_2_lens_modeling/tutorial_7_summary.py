@@ -2,6 +2,8 @@
 Tutorial 7: Summary
 ===================
 
+__Summary__
+
 You have now fitted a lens model by searching through its possible parameter values, rather than choosing those
 values by hand.
 

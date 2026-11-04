@@ -37,6 +37,7 @@ __Contents__
 - **Result 2:** Inspect residuals and posterior distributions.
 - **Conditional Uncertainties:** Understand the consequences of fixed geometry.
 - **Search Chaining and SLaM:** Connect this example to reusable pipelines.
+- **Wrap Up:** Inspecting chained fits and continuing to Chapter 3.
 
 __The Search Chain__
 
@@ -65,6 +66,7 @@ from pathlib import Path
 import autofit as af
 import autolens as al
 import autolens.plot as aplt
+
 
 """
 __Dataset and Mask__
@@ -446,6 +448,8 @@ positions constraints for subsequent searches.
 
 PyAutoLens provides **SLaM**, short for **Source, Light and Mass**, to organise these stages into reusable modeling
 pipelines. The workspace's `scripts/imaging/features/multi_gaussian_expansion/slam.py` provides a concrete example.
+
+__Wrap Up__
 
 A pipeline automates the sequence, but each stage still needs a suitable model and a result worth carrying forward.
 Inspecting the intermediate fits remains essential.
