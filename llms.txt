@@ -25,8 +25,8 @@ analysis?" below).
 ## The learning path (chapters in order)
 
 - **Chapter 1 — Introduction** → [scripts/chapter_1_introduction/](scripts/chapter_1_introduction/): Lensing from first principles: grids & galaxies, ray tracing, simulating data, and fitting data. The conceptual foundation everything else builds on.
-- **Chapter 2 — Lens Modeling** → [scripts/chapter_2_lens_modeling/](scripts/chapter_2_lens_modeling/): How to fit a lens model to data with a non-linear search — parameter spaces, priors, dealing with failure, linear light profiles, masking, and reading results.
-- **Chapter 3 — Pixelizations** → [scripts/chapter_3_pixelizations/](scripts/chapter_3_pixelizations/): Reconstructing the source on a pixel-grid instead of with light profiles — mappers, inversions, Bayesian regularization, the Bayesian formalism, borders, and adaptive meshes.
+- **Chapter 2 — Lens Modeling** → [scripts/chapter_2_lens_modeling/](scripts/chapter_2_lens_modeling/): How to fit a lens model to data with a non-linear search — parameter spaces, priors, difficult fits, linear light profiles, data and likelihoods, and component-based search chaining.
+- **Chapter 3 — Pixelizations** → [scripts/chapter_3_pixelizations/](scripts/chapter_3_pixelizations/): Reconstructing the source on a pixel-grid instead of with light profiles — mappers, inversions, evidence-guided regularization, borders, lens modeling, fit problems and adaptive reconstruction.
 - **Chapter 4 — Scaling Up Lensing** → [scripts/chapter_4_scaling_up_lensing/](scripts/chapter_4_scaling_up_lensing/): Beyond a single lens galaxy — extra galaxies, multi-galaxy lenses, scaling relations, group and cluster scales, and weak lensing.
 
 ## I want to understand…
@@ -39,6 +39,10 @@ analysis?" below).
 - **What are linear light profiles / MGE?** → [scripts/chapter_2_lens_modeling/tutorial_4_linear_profiles.py](scripts/chapter_2_lens_modeling/tutorial_4_linear_profiles.py): Solving intensities linearly; the Multi-Gaussian Expansion basis.
 - **How do I chain searches / what is SLaM?** → [scripts/chapter_2_lens_modeling/tutorial_6_search_chaining.py](scripts/chapter_2_lens_modeling/tutorial_6_search_chaining.py), including its SLaM introduction.
 - **How do I reconstruct a complex source on a pixel grid?** → [scripts/chapter_3_pixelizations/tutorial_1_pixelizations.py](scripts/chapter_3_pixelizations/tutorial_1_pixelizations.py) through [tutorial_2_bayesian_regularization.py](scripts/chapter_3_pixelizations/tutorial_2_bayesian_regularization.py).
+- **How do I choose the regularization strength?** → [tutorial_2_bayesian_regularization.py](scripts/chapter_3_pixelizations/tutorial_2_bayesian_regularization.py): Compare log evidences and inspect how mesh resolution affects the preferred coefficient.
+- **Why does a regularized reconstruction still leave residuals?** → [tutorial_5_fit_problems.py](scripts/chapter_3_pixelizations/tutorial_5_fit_problems.py): Compact sources expose limitations of mesh resolution and constant regularization, even with the correct mass model.
+- **How can the mesh and smoothing follow source brightness?** → [tutorial_6_adaptive_reconstruction.py](scripts/chapter_3_pixelizations/tutorial_6_adaptive_reconstruction.py): Delaunay meshes, Hilbert brightness adaptation and adaptive Split regularization.
+- **How do I fit lens mass with a pixelized source?** → [tutorial_4_lens_modeling.py](scripts/chapter_3_pixelizations/tutorial_4_lens_modeling.py): Search chaining and the positions likelihood penalty introduced in chapter 2 tutorial 5.
 - **How do I model lenses with many galaxies, groups, clusters or weak lensing?** → [scripts/chapter_4_scaling_up_lensing/tutorial_1_extra_galaxies.py](scripts/chapter_4_scaling_up_lensing/tutorial_1_extra_galaxies.py) through [tutorial_6_weak_lensing.py](scripts/chapter_4_scaling_up_lensing/tutorial_6_weak_lensing.py).
 
 ## Ready for real analysis?

@@ -6,10 +6,11 @@ a strong lens.
 - `chapter_1_introduction`: An introduction to strong gravitational lensing and **PyAutolens**.
 - `chapter_2_lens_modeling`: How to model strong lenses, including a primer on Bayesian non-linear analysis
   and non-linear search chaining.
-- `chapter_3_pixelizations`: How to perform pixelized reconstructions of the source-galaxy.
+- `chapter_3_pixelizations`: Reconstruct complex source light, choose regularization using Bayesian
+  evidence, diagnose fit problems and adapt the mesh and smoothing.
 - `chapter_4_scaling_up_lensing`: How to scale lens modeling up to extra galaxies, multi-galaxy lenses,
   scaling relations, groups, clusters and weak lensing.
-- `chapter_optional`: Optional tutorials.
+- `chapter_optional`: Alternative searches, runtime and historical prior passing.
 - `simulator`: Scripts used to simulate the strong lens datasets fitted throughout the **HowToLens** lectures.
 
 # Full Explanation
@@ -110,18 +111,16 @@ fit CCD imaging data of a strong gravitational lens with a lens model. At the en
 
 **Using an inversion to perform a pixelized source reconstruction**
 
-In chapter 3, we'll learn how to reconstruct the lensed source galaxy using a pixel-grid, ensuring that we can fit an
-accurate lens model to sources with complex and irregular morphologies. You'll learn how to:
+In chapter 3, we'll reconstruct complex source light using a pixel-grid, compare reconstructions using Bayesian
+evidence, and investigate where the mesh and smoothing limit the fit. You'll learn how to:
 
-1. Pixelize a source-plane into a set of source-plane pixels defined by mappings to image pixels.
-2. Perform a linear inversion on this source-plane pixelization to reconstruct the source's light.
-3. Apply a smoothness prior on the source reconstruction, called regularization.
-4. Apply smoothing within a Bayesian framework to objectively quantify the source reconstruction's complexity.
-5. Write down the linear algebra and Bayesian evidence equations that underpin the whole framework.
-6. Define a border in the source-plane to prevent pixels tracing outside the source reconstruction.
-7. Use alternative pixelizations, for example a Voronoi mesh whose pixels adapt to the lens's mass model
-   or to the source's own brightness, alongside adaptive regularization schemes.
-8. Use these features to fit a lens model via non-linear searches.
+1. Connect reconstruction mesh points to image pixels through mappings.
+2. Solve for the source's brightness using a linear inversion.
+3. Apply regularization and compare log evidences to choose its strength.
+4. Explore how masks and border relocation affect source-mesh extent and resolution.
+5. Fit lens mass and foreground light with a pixelized source using search chaining and a positions likelihood penalty.
+6. Diagnose compact-source fit problems that remain after choosing the regularization coefficient.
+7. Combine Delaunay meshes, Hilbert brightness adaptation and adaptive Split regularization in a chained lens fit.
 
 # OVERVIEW OF CHAPTER 4 (Advanced)
 

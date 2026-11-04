@@ -8,15 +8,14 @@ canonical, agent-agnostic instructions for this repo.
 ## Repository Structure
 
 - `scripts/` — Runnable Python tutorial scripts:
-  - `chapter_1_introduction/` — Grids, profiles, galaxies, ray-tracing, point sources, the lensing
-    formalism, data, fitting
-  - `chapter_2_lens_modeling/` — Non-linear searches, Bayesian inference, lens modeling, search
-    chaining, prior passing, automated pipelines
-  - `chapter_3_pixelizations/` — Pixelized source reconstruction, inversions, regularization, the
-    Bayesian formalism
+  - `chapter_1_introduction/` — Grids, profiles, galaxies, ray-tracing, point sources, data, fitting
+  - `chapter_2_lens_modeling/` — Non-linear searches, practicalities, difficult fits, linear profiles,
+    data and likelihoods, component-based search chaining and an introduction to SLaM
+  - `chapter_3_pixelizations/` — Pixelized source reconstruction, mappings, inversions, evidence-guided
+    regularization, borders, lens modeling, fit problems and adaptive reconstruction
   - `chapter_4_scaling_up_lensing/` — Extra galaxies, multi-galaxy lenses, scaling relations, group
     and cluster scales, weak lensing
-  - `chapter_optional/` — Alternative searches and advanced topics
+  - `chapter_optional/` — Alternative searches, runtime and historical prior passing
   - `simulator/` — Simulator scripts that generate the tutorial datasets at runtime
 - `notebooks/` — Jupyter versions, generated from `scripts/` (do not edit directly)
 - `config/` — PyAutoLens configuration YAML
