@@ -425,9 +425,7 @@ lens_sigmas = np.logspace(
     30,
 )
 
-lens_gaussians = af.Collection(
-    af.Model(al.lp_linear.Gaussian) for _ in range(30)
-)
+lens_gaussians = af.Collection(af.Model(al.lp_linear.Gaussian) for _ in range(30))
 
 for i, gaussian in enumerate(lens_gaussians):
     gaussian.centre.centre_0 = lens_centre_0
@@ -463,9 +461,7 @@ source_centre_1 = af.UniformPrior(lower_limit=-0.1, upper_limit=0.1)
 
 source_sigmas = np.logspace(-4, 0, 15)
 
-source_gaussians = af.Collection(
-    af.Model(al.lp_linear.Gaussian) for _ in range(15)
-)
+source_gaussians = af.Collection(af.Model(al.lp_linear.Gaussian) for _ in range(15))
 
 for i, gaussian in enumerate(source_gaussians):
     gaussian.centre.centre_0 = source_centre_0

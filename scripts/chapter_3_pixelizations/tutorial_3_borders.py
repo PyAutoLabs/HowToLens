@@ -158,6 +158,7 @@ tracer = al.Tracer(
 The helper below lets us change the mask and switch relocation on or off. We keep the mesh dimensions and regularization coefficient fixed throughout these comparisons. We are investigating the mesh geometry here, rather than finding the preferred coefficient for each setup.
 """
 
+
 def fit_with_mask_and_border(mask, use_border_relocator):
     dataset = dataset_unmasked.apply_mask(mask=mask)
 
@@ -237,10 +238,7 @@ for label, mapper in [
     coordinates = np.asarray(mapper.source_plane_mesh_grid)
     span_y, span_x = np.ptp(coordinates, axis=0)
 
-    print(
-        f"{label} mesh spans: "
-        f"y={span_y:.3f} arcsec, x={span_x:.3f} arcsec"
-    )
+    print(f"{label} mesh spans: " f"y={span_y:.3f} arcsec, x={span_x:.3f} arcsec")
 
 """
 Both meshes still contain `25 × 25` points. When their extent increases, the points become more widely spaced. We therefore have fewer points across the source galaxy itself, reducing our ability to resolve its structure.
@@ -258,13 +256,9 @@ Let’s identify exactly where those distant source-plane coordinates came from.
 We select two groups of image pixels: twelve close to the lens centre and twelve near the arc. We highlight the same index groups in both planes, so that each colour follows the same pixels through the ray tracing.
 """
 
-image_coordinates = np.asarray(
-    mapper_circular.image_plane_data_grid
-)
+image_coordinates = np.asarray(mapper_circular.image_plane_data_grid)
 
-central_indexes = np.argsort(
-    np.sum(image_coordinates**2, axis=1)
-)[:12].tolist()
+central_indexes = np.argsort(np.sum(image_coordinates**2, axis=1))[:12].tolist()
 
 arc_indexes = np.argsort(
     np.sum(
@@ -307,9 +301,7 @@ Near the centre of our singular isothermal lens, a small image region can corres
 We can inspect a few of these coordinate pairs directly.
 """
 
-source_coordinates = np.asarray(
-    mapper_circular.source_plane_data_grid
-)
+source_coordinates = np.asarray(mapper_circular.source_plane_data_grid)
 
 for index in central_indexes[:4]:
     print(
@@ -384,10 +376,7 @@ for label, mapper in [
     mesh_coordinates = np.asarray(mapper.source_plane_mesh_grid)
     span_y, span_x = np.ptp(mesh_coordinates, axis=0)
 
-    print(
-        f"{label}: mesh spans "
-        f"y={span_y:.3f} arcsec, x={span_x:.3f} arcsec"
-    )
+    print(f"{label}: mesh spans " f"y={span_y:.3f} arcsec, x={span_x:.3f} arcsec")
 
 """
 Follow the coloured groups between the plots. The distant coordinates move inward, while coordinates inside the relocation boundary retain their positions.
@@ -397,12 +386,8 @@ When this reduces the mesh’s extent, our `25 × 25` points cover a smaller are
 Let’s identify every coordinate that moved.
 """
 
-coordinates_before = np.asarray(
-    mapper_circular.source_plane_data_grid
-)
-coordinates_after = np.asarray(
-    mapper_relocated.source_plane_data_grid
-)
+coordinates_before = np.asarray(mapper_circular.source_plane_data_grid)
+coordinates_after = np.asarray(mapper_relocated.source_plane_data_grid)
 
 displacements = np.linalg.norm(
     coordinates_after - coordinates_before,
@@ -494,9 +479,8 @@ for label, current_fit in [
     )
 
     aplt.plot_array(
-        array=(
-            dataset_circular.data - current_fit.model_data
-        ) / dataset_circular.noise_map,
+        array=(dataset_circular.data - current_fit.model_data)
+        / dataset_circular.noise_map,
         title=f"{label}: Normalized Residuals",
     )
 

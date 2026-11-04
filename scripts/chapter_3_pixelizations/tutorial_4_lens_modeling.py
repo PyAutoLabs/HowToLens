@@ -244,9 +244,7 @@ for label, current_fit in [
     ("Einstein Radius 0.8 Arcsec", incorrect_fit),
     ("Einstein Radius 1.6 Arcsec", correct_fit),
 ]:
-    traced_grid = current_fit.tracer.traced_grid_2d_list_from(
-        grid=image_grid
-    )[1]
+    traced_grid = current_fit.tracer.traced_grid_2d_list_from(grid=image_grid)[1]
 
     aaplt.plot_grid(
         grid=traced_grid,
@@ -282,9 +280,7 @@ Efficiently solving the source brightnesses does not solve this search problem. 
 Let’s explore this by varying the Einstein radius while holding the other parameters fixed. At every radius, we reconstruct the source again and calculate the log evidence.
 """
 
-einstein_radii = np.array(
-    [0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
-)
+einstein_radii = np.array([0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0])
 
 known_fits = {
     0.8: incorrect_fit,
@@ -299,9 +295,7 @@ for einstein_radius in einstein_radii:
     if einstein_radius in known_fits:
         current_fit = known_fits[einstein_radius]
     else:
-        current_fit = fit_at_einstein_radius(
-            einstein_radius=einstein_radius
-        )
+        current_fit = fit_at_einstein_radius(einstein_radius=einstein_radius)
 
     log_evidences.append(float(current_fit.log_evidence))
 
@@ -472,9 +466,7 @@ aplt.plot_array(
     title="Multiple-Image Positions Predicted by the Initial Fit",
 )
 
-traced_positions = initial_fit.tracer.traced_grid_2d_list_from(
-    grid=positions
-)[1]
+traced_positions = initial_fit.tracer.traced_grid_2d_list_from(grid=positions)[1]
 
 aaplt.plot_grid(
     grid=traced_positions,
@@ -583,9 +575,9 @@ Our simulated source is smooth, so the MGE may already describe it well. We shou
 Let’s also check whether the displayed model brings our selected image positions within the source-plane threshold.
 """
 
-final_source_positions = pixelized_fit.tracer.traced_grid_2d_list_from(
-    grid=positions
-)[1]
+final_source_positions = pixelized_fit.tracer.traced_grid_2d_list_from(grid=positions)[
+    1
+]
 
 coordinates = np.asarray(final_source_positions)
 
@@ -788,11 +780,9 @@ print(foreground_model_2.info)
 As in Chapter 2, Tutorial 5, we use the initial result to construct the **positions likelihood penalty**. This helps discourage the unphysical mass-and-source solutions discussed earlier.
 """
 
-foreground_positions_likelihood = (
-    foreground_result_1.positions_likelihood_from(
-        factor=3.0,
-        minimum_threshold=0.2,
-    )
+foreground_positions_likelihood = foreground_result_1.positions_likelihood_from(
+    factor=3.0,
+    minimum_threshold=0.2,
 )
 
 aplt.plot_array(

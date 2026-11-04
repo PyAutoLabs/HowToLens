@@ -582,9 +582,7 @@ move outwards. These curves show intensity at each position, not the total light
 """
 radii = np.linspace(0.0, 5.0, 101)
 
-grid_2d_projected = al.Grid2DIrregular(
-    np.column_stack((np.zeros_like(radii), radii))
-)
+grid_2d_projected = al.Grid2DIrregular(np.column_stack((np.zeros_like(radii), radii)))
 
 bulge_image_1d = galaxy.bulge.image_2d_from(grid=grid_2d_projected)
 disk_image_1d = galaxy.disk.image_2d_from(grid=grid_2d_projected)
@@ -674,9 +672,7 @@ The code below calculates how many kiloparsecs correspond to one arcsecond at ou
 """
 cosmology = al.cosmo.Planck15()
 
-kpc_per_arcsec = cosmology.kpc_per_arcsec_from(
-    redshift=galaxy.redshift
-)
+kpc_per_arcsec = cosmology.kpc_per_arcsec_from(redshift=galaxy.redshift)
 
 print("Kiloparsecs per arcsecond:", kpc_per_arcsec)
 
@@ -689,9 +685,7 @@ to that radius at the galaxy’s redshift, using the chosen cosmology.
 This is the same circularised effective radius expressed in different units. The conversion does not change
 the galaxy image or the profile parameters stored in `galaxy`.
 """
-effective_radius_kpc = (
-    galaxy.bulge.effective_radius * kpc_per_arcsec
-)
+effective_radius_kpc = galaxy.bulge.effective_radius * kpc_per_arcsec
 
 print("Bulge effective radius (arcseconds):", galaxy.bulge.effective_radius)
 print("Bulge effective radius (kiloparsecs):", effective_radius_kpc)

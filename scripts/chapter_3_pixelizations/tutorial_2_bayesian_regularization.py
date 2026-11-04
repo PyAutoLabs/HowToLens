@@ -109,7 +109,11 @@ We are going to evaluate several reconstructions, so the function below keeps th
 the regularization coefficient changes.
 """
 
-mesh_shape = (8, 8) if dataset.shape_native == al.util.dataset.SMALL_DATASETS_SHAPE_NATIVE else (25, 25)
+mesh_shape = (
+    (8, 8)
+    if dataset.shape_native == al.util.dataset.SMALL_DATASETS_SHAPE_NATIVE
+    else (25, 25)
+)
 
 
 def fit_with_coefficient(coefficient):
@@ -145,9 +149,7 @@ reconstruction = np.asarray(fit.inversion.reconstruction)
 # Select an image pixel near the right-hand side of the lens.
 image_coordinates = np.asarray(mapper.image_plane_data_grid)
 image_index = int(
-    np.argmin(
-        np.sum((image_coordinates - np.array([0.0, 1.6])) ** 2, axis=1)
-    )
+    np.argmin(np.sum((image_coordinates - np.array([0.0, 1.6])) ** 2, axis=1))
 )
 
 weights = np.asarray(mapper.mapping_matrix[image_index])
@@ -327,10 +329,7 @@ for label, coefficient, current_fit in fit_comparisons:
     log_evidence = float(current_fit.log_evidence)
     log_evidences.append(log_evidence)
 
-    print(
-        f"{label}: coefficient={coefficient:g}, "
-        f"log evidence={log_evidence:.3f}"
-    )
+    print(f"{label}: coefficient={coefficient:g}, " f"log evidence={log_evidence:.3f}")
 
 """
 __Choosing the coefficient__
@@ -349,9 +348,7 @@ log_evidences = np.asarray(log_evidences)
 best_index = int(np.argmax(log_evidences))
 best_label, best_coefficient, best_fit = fit_comparisons[best_index]
 
-for (label, coefficient, _), log_evidence in zip(
-    fit_comparisons, log_evidences
-):
+for (label, coefficient, _), log_evidence in zip(fit_comparisons, log_evidences):
     print(
         f"{label}: coefficient={coefficient:g}, "
         f"difference from highest log evidence="
@@ -483,9 +480,7 @@ Choosing the regularization coefficient is a separate, non-linear problem. Each 
 Let’s compare how many source brightness values we reconstructed with how many coefficients we tried.
 """
 
-source_brightnesses = np.asarray(
-    preferred_fit.inversion.reconstruction
-)
+source_brightnesses = np.asarray(preferred_fit.inversion.reconstruction)
 
 print("Number of reconstructed brightness values:", source_brightnesses.size)
 print("Number of regularization coefficients tried:", coefficient_grid.size)
@@ -515,6 +510,7 @@ Think of our Goldilocks analogy again: changing the mesh changes the problem for
 Let’s repeat our coefficient scan with coarser and finer meshes. We first extend our helper function so that we can specify the mesh shape.
 """
 
+
 def fit_with_coefficient(coefficient, mesh_shape=mesh_shape):
     pixelization = al.Pixelization(
         mesh=al.mesh.RectangularUniform(shape=mesh_shape),
@@ -529,6 +525,7 @@ def fit_with_coefficient(coefficient, mesh_shape=mesh_shape):
     tracer = al.Tracer(galaxies=[lens_galaxy, source_galaxy])
 
     return al.FitImaging(dataset=dataset, tracer=tracer)
+
 
 """
 We reuse the evidence values for our existing mesh and calculate two additional curves. This takes longer than the previous experiment because each additional mesh requires another complete coefficient scan.
@@ -548,16 +545,10 @@ for shape in [(15, 15), (35, 35)]:
 
     evidence_by_shape[shape] = np.asarray(values)
 
-if not all(
-    np.all(np.isfinite(values))
-    for values in evidence_by_shape.values()
-):
+if not all(np.all(np.isfinite(values)) for values in evidence_by_shape.values()):
     raise ValueError("Inspect non-finite evidence values before comparing meshes.")
 
-reference_evidence = max(
-    float(np.max(values))
-    for values in evidence_by_shape.values()
-)
+reference_evidence = max(float(np.max(values)) for values in evidence_by_shape.values())
 
 fig, ax = plt.subplots()
 

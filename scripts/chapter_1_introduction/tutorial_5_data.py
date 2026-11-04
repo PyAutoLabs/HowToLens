@@ -218,8 +218,7 @@ exposure_time = 300.0  # Seconds.
 blurred_image_counts = blurred_image * exposure_time
 
 blurred_image_with_poisson_noise = (
-    np.random.poisson(blurred_image_counts, blurred_image_counts.shape)
-    / exposure_time
+    np.random.poisson(blurred_image_counts, blurred_image_counts.shape) / exposure_time
 )
 
 """

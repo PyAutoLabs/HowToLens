@@ -538,9 +538,7 @@ halo_mass.centre = tuple(main_lens_centres[0])
 halo_mass.kappa_s = af.UniformPrior(lower_limit=0.0, upper_limit=0.5)
 halo_mass.scale_radius = af.UniformPrior(lower_limit=5.0, upper_limit=50.0)
 
-model_with_halo.galaxies.group_halo = af.Model(
-    al.Galaxy, redshift=0.5, mass=halo_mass
-)
+model_with_halo.galaxies.group_halo = af.Model(al.Galaxy, redshift=0.5, mass=halo_mass)
 
 print(model_with_halo.info)
 
@@ -591,7 +589,9 @@ if (
         f"{log_evidence_with_halo - log_evidence_galaxies_only:.3f}"
     )
 else:
-    print("Finite evidences are unavailable; complete both nested-sampling fits before comparing the models.")
+    print(
+        "Finite evidences are unavailable; complete both nested-sampling fits before comparing the models."
+    )
 
 r"""
 __Scaling Relation Members__

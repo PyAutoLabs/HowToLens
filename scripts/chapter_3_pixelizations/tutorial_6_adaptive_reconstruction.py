@@ -202,9 +202,7 @@ The overlay’s shape describes the grid before masking. Its retained number of 
 Now trace those mesh coordinates into the source plane.
 """
 
-traced_mesh_grid = true_tracer.traced_grid_2d_list_from(
-    grid=image_plane_mesh_grid
-)[1]
+traced_mesh_grid = true_tracer.traced_grid_2d_list_from(grid=image_plane_mesh_grid)[1]
 
 aaplt.plot_grid(
     grid=traced_mesh_grid,
@@ -306,21 +304,13 @@ The brightness therefore varies continuously across each triangle. It is not a c
 We can inspect the mapping weights for an image pixel, using the same approach as tutorial 1.
 """
 
-image_index = int(
-    np.argmax(np.asarray(dataset.data.slim))
-)
+image_index = int(np.argmax(np.asarray(dataset.data.slim)))
 
-mapping_weights = np.asarray(
-    overlay_mapper.mapping_matrix[image_index]
-)
+mapping_weights = np.asarray(overlay_mapper.mapping_matrix[image_index])
 
-source_indexes = np.flatnonzero(
-    np.abs(mapping_weights) > 1.0e-12
-)
+source_indexes = np.flatnonzero(np.abs(mapping_weights) > 1.0e-12)
 
-reconstruction = np.asarray(
-    overlay_fit.inversion.reconstruction
-)
+reconstruction = np.asarray(overlay_fit.inversion.reconstruction)
 
 for source_index in source_indexes:
     weight = mapping_weights[source_index]
@@ -457,11 +447,9 @@ hilbert_image_mesh = al.image_mesh.Hilbert(
     weight_floor=0.05,
 )
 
-hilbert_image_plane_mesh_grid = (
-    hilbert_image_mesh.image_plane_mesh_grid_from(
-        mask=dataset.mask,
-        adapt_data=adapt_image,
-    )
+hilbert_image_plane_mesh_grid = hilbert_image_mesh.image_plane_mesh_grid_from(
+    mask=dataset.mask,
+    adapt_data=adapt_image,
 )
 
 for label, mesh_grid in [
@@ -628,6 +616,7 @@ The reconstruction proceeds as before: ray-trace the image-mesh points, construc
 
 We retain `Constant` regularization for now, so that we can investigate brightness-based mesh placement before introducing adaptive smoothing.
 """
+
 
 def fit_delaunay_hilbert(coefficient):
     pixelization = al.Pixelization(
@@ -802,6 +791,7 @@ Let’s keep the Hilbert mesh and adapt image fixed and change the regularizatio
 We generalize our fitting helper so that it accepts a regularization object. This will let us use the same reconstruction setup for both constant and adaptive Split regularization.
 """
 
+
 def fit_hilbert_with_regularization(regularization):
     pixelization = al.Pixelization(
         mesh=al.mesh.Delaunay(
@@ -835,6 +825,7 @@ def fit_hilbert_with_regularization(regularization):
         settings=al.Settings(use_border_relocator=True),
     )
 
+
 """
 The coefficient preferred by neighbour-based regularization need not be preferred by Split regularization. We therefore repeat the coefficient scan.
 """
@@ -845,7 +836,9 @@ best_evidence = -np.inf
 # Keep only the preferred full fit; other scan entries are scalar evidences.
 for coefficient in overlay_coefficients:
     coefficient = float(coefficient)
-    current_fit = fit_hilbert_with_regularization(regularization=al.reg.ConstantSplit(coefficient=coefficient))
+    current_fit = fit_hilbert_with_regularization(
+        regularization=al.reg.ConstantSplit(coefficient=coefficient)
+    )
     evidence = float(current_fit.log_evidence)
     split_evidences.append(evidence)
     if evidence > best_evidence:
@@ -914,10 +907,8 @@ adaptive_fit = fit_hilbert_with_regularization(
 
 adaptive_mapper = adaptive_fit.inversion.cls_list_from(al.Mapper)[0]
 
-adaptive_weights = (
-    adaptive_mapper.regularization.regularization_weights_from(
-        linear_obj=adaptive_mapper,
-    )
+adaptive_weights = adaptive_mapper.regularization.regularization_weights_from(
+    linear_obj=adaptive_mapper,
 )
 
 aaplt.plot_inversion_reconstruction(
@@ -974,9 +965,8 @@ fig, ax = plt.subplots()
 for signal_scale in [0.5, 1.0, 3.0]:
     scaled_signal = normalized_signal**signal_scale
 
-    weights = (
-        inner_coefficient * scaled_signal
-        + outer_coefficient * (1.0 - scaled_signal)
+    weights = inner_coefficient * scaled_signal + outer_coefficient * (
+        1.0 - scaled_signal
     )
 
     ax.plot(
@@ -1012,9 +1002,7 @@ We centre the coefficient grid on the preferred `ConstantSplit` value. The grid 
 We also allow either coefficient to be larger. Although weaker smoothing in bright regions motivates the scheme, we should inspect what the evidence actually prefers.
 """
 
-adaptive_coefficient_grid = (
-    split_coefficient * np.logspace(-1, 1, 5)
-)
+adaptive_coefficient_grid = split_coefficient * np.logspace(-1, 1, 5)
 signal_scales = [0.5, 1.0, 3.0]
 
 adaptive_trials = []
@@ -1118,14 +1106,10 @@ At the bright centre, does the adaptive reconstruction preserve a sharper bright
 Inspect the preferred regularization weights alongside those changes.
 """
 
-best_adaptive_mapper = best_adaptive_fit.inversion.cls_list_from(
-    al.Mapper
-)[0]
+best_adaptive_mapper = best_adaptive_fit.inversion.cls_list_from(al.Mapper)[0]
 
-best_adaptive_weights = (
-    best_adaptive_mapper.regularization.regularization_weights_from(
-        linear_obj=best_adaptive_mapper,
-    )
+best_adaptive_weights = best_adaptive_mapper.regularization.regularization_weights_from(
+    linear_obj=best_adaptive_mapper,
 )
 
 aaplt.plot_inversion_reconstruction(
@@ -1230,13 +1214,9 @@ The cap affects only the image used to guide adaptation. It does not change the 
 Our example contains no foreground light, so the full model image is the source contribution.
 """
 
-source_model_image = np.asarray(
-    initial_model_fit.model_data.slim
-)
+source_model_image = np.asarray(initial_model_fit.model_data.slim)
 
-source_model_snr = (
-    source_model_image / np.asarray(dataset.noise_map.slim)
-)
+source_model_snr = source_model_image / np.asarray(dataset.noise_map.slim)
 
 search_adapt_image = al.Array2D(
     values=np.clip(source_model_snr, a_min=0.0, a_max=3.0),
@@ -1258,11 +1238,9 @@ search_image_mesh = al.image_mesh.Hilbert(
     weight_floor=0.05,
 )
 
-search_image_plane_mesh_grid = (
-    search_image_mesh.image_plane_mesh_grid_from(
-        mask=dataset.mask,
-        adapt_data=search_adapt_image,
-    )
+search_image_plane_mesh_grid = search_image_mesh.image_plane_mesh_grid_from(
+    mask=dataset.mask,
+    adapt_data=search_adapt_image,
 )
 
 search_adapt_images = al.AdaptImages(
@@ -1421,10 +1399,8 @@ Let’s look more closely at where the final mesh places its vertices and how st
 
 final_mapper = final_fit.inversion.cls_list_from(al.Mapper)[0]
 
-final_regularization_weights = (
-    final_mapper.regularization.regularization_weights_from(
-        linear_obj=final_mapper,
-    )
+final_regularization_weights = final_mapper.regularization.regularization_weights_from(
+    linear_obj=final_mapper,
 )
 
 aaplt.plot_mapper(
@@ -1461,8 +1437,7 @@ final_positions = final_fit.tracer.traced_grid_2d_list_from(
 position_coordinates = np.asarray(final_positions)
 
 position_separations = np.linalg.norm(
-    position_coordinates[:, None, :]
-    - position_coordinates[None, :, :],
+    position_coordinates[:, None, :] - position_coordinates[None, :, :],
     axis=-1,
 )
 

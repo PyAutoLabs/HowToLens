@@ -112,7 +112,11 @@ dataset = dataset.apply_mask(mask=mask)
 dataset = dataset.apply_over_sampling(over_sample_size_pixelization=1)
 
 # Match mesh size to capped smoke data; normal tutorial runs retain 25 x 25.
-mesh_shape = (8, 8) if dataset.shape_native == al.util.dataset.SMALL_DATASETS_SHAPE_NATIVE else (25, 25)
+mesh_shape = (
+    (8, 8)
+    if dataset.shape_native == al.util.dataset.SMALL_DATASETS_SHAPE_NATIVE
+    else (25, 25)
+)
 
 lens_galaxy = al.Galaxy(
     redshift=0.5,
@@ -155,10 +159,12 @@ gaussians = [
     for sigma in np.logspace(-2, np.log10(2.0), 20)
 ]
 analytic_source = al.Galaxy(
-    redshift=1.0, bulge=al.lp_basis.Basis(profile_list=gaussians),
+    redshift=1.0,
+    bulge=al.lp_basis.Basis(profile_list=gaussians),
 )
 analytic_fit = al.FitImaging(
-    dataset=dataset, tracer=al.Tracer(galaxies=[lens_galaxy, analytic_source]),
+    dataset=dataset,
+    tracer=al.Tracer(galaxies=[lens_galaxy, analytic_source]),
 )
 aplt.subplot_fit_imaging(fit=analytic_fit)
 
@@ -217,9 +223,7 @@ lens_galaxy = al.Galaxy(
     ),
 )
 
-tracer = al.Tracer(
-    galaxies=[lens_galaxy, al.Galaxy(redshift=1.0)]
-)
+tracer = al.Tracer(galaxies=[lens_galaxy, al.Galaxy(redshift=1.0)])
 
 image_grid = dataset.grids.pixelization
 source_grid = tracer.traced_grid_2d_list_from(grid=image_grid)[1]
@@ -227,9 +231,7 @@ source_grid = tracer.traced_grid_2d_list_from(grid=image_grid)[1]
 # Select small groups near two opposite sides of the lens.
 image_coordinates = np.asarray(image_grid)
 indexes = [
-    np.argsort(
-        np.sum((image_coordinates - position) ** 2, axis=1)
-    )[:5].tolist()
+    np.argsort(np.sum((image_coordinates - position) ** 2, axis=1))[:5].tolist()
     for position in [(0.0, 1.6), (0.0, -1.6)]
 ]
 
@@ -324,9 +326,7 @@ falls inside the coloured source cell.
 source_coordinates = np.asarray(mapper.source_plane_mesh_grid)
 
 # Find the mesh point nearest the source-plane origin.
-central_index = int(
-    np.argmin(np.sum(source_coordinates**2, axis=1))
-)
+central_index = int(np.argmin(np.sum(source_coordinates**2, axis=1)))
 
 pix_indexes = [[central_index]]
 mappings = mapper.mappings_from(pix_indexes=pix_indexes)
@@ -411,7 +411,8 @@ pixelization = al.Pixelization(
 )
 source_galaxy = al.Galaxy(redshift=1.0, pixelization=pixelization)
 fit = al.FitImaging(
-    dataset=dataset, tracer=al.Tracer(galaxies=[lens_galaxy, source_galaxy]),
+    dataset=dataset,
+    tracer=al.Tracer(galaxies=[lens_galaxy, source_galaxy]),
 )
 aplt.subplot_fit_imaging(fit=fit)
 aplt.subplot_fit_imaging_of_planes(fit=fit)
@@ -583,7 +584,11 @@ appropriate reconstruction requires considering resolution and smoothing togethe
 from extra freedom being used to fit noise?
 """
 
-for shape in ([(6, 6), (8, 8), (10, 10)] if mesh_shape == (8, 8) else [(15, 15), (25, 25), (35, 35)]):
+for shape in (
+    [(6, 6), (8, 8), (10, 10)]
+    if mesh_shape == (8, 8)
+    else [(15, 15), (25, 25), (35, 35)]
+):
     source_galaxy = al.Galaxy(
         redshift=1.0,
         pixelization=al.Pixelization(
@@ -592,7 +597,8 @@ for shape in ([(6, 6), (8, 8), (10, 10)] if mesh_shape == (8, 8) else [(15, 15),
         ),
     )
     resolution_fit = al.FitImaging(
-        dataset=dataset, tracer=al.Tracer(galaxies=[lens_galaxy, source_galaxy]),
+        dataset=dataset,
+        tracer=al.Tracer(galaxies=[lens_galaxy, source_galaxy]),
     )
     aplt.subplot_fit_imaging_of_planes(fit=resolution_fit)
     aplt.subplot_fit_imaging(fit=resolution_fit)

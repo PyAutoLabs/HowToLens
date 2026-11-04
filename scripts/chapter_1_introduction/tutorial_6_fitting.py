@@ -509,9 +509,7 @@ the probability density, not a test of whether the noise is Gaussian.
 For our fixed dataset, mask and noise map, this term stays constant as we
 change the lens and source parameters.
 """
-noise_normalization = np.sum(
-    np.log(2 * np.pi * dataset.noise_map.slim**2)
-)
+noise_normalization = np.sum(np.log(2 * np.pi * dataset.noise_map.slim**2))
 
 print("Noise Normalization = ", noise_normalization)
 print("Noise Normalization via fit = ", fit.noise_normalization)
@@ -826,6 +824,8 @@ explicitly using the unmasked pixels.
 
 The redshifts and source break radius remain fixed, as in the exercise.
 """
+
+
 def log_likelihood_function(
     dataset,
     lens_centre,
@@ -860,9 +860,7 @@ def log_likelihood_function(
     normalized_residuals = residuals / dataset.noise_map.slim
 
     chi_squared = np.sum(normalized_residuals**2)
-    noise_normalization = np.sum(
-        np.log(2 * np.pi * dataset.noise_map.slim**2)
-    )
+    noise_normalization = np.sum(np.log(2 * np.pi * dataset.noise_map.slim**2))
 
     return -0.5 * (chi_squared + noise_normalization)
 

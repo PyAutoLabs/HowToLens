@@ -463,9 +463,7 @@ model_per_galaxy = af.Collection(
     galaxies=af.Collection(**per_galaxy_lens_dict, source=source),
 )
 
-print(
-    f"Free parameters, independent elliptical masses: {model_per_galaxy.prior_count}"
-)
+print(f"Free parameters, independent elliptical masses: {model_per_galaxy.prior_count}")
 print(f"Free parameters, scaling-relation model:               {model.prior_count}")
 
 """

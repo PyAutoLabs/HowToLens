@@ -370,13 +370,9 @@ difference across the grid.
 """
 
 deflections_analytic = mass_profile.deflections_yx_2d_from(grid=grid)
-deflections_via_potential = mass_profile.deflections_2d_via_potential_2d_from(
-    grid=grid
-)
+deflections_via_potential = mass_profile.deflections_2d_via_potential_2d_from(grid=grid)
 
-difference_yx = (
-    np.asarray(deflections_analytic) - np.asarray(deflections_via_potential)
-)
+difference_yx = np.asarray(deflections_analytic) - np.asarray(deflections_via_potential)
 
 difference_magnitude = np.sqrt(np.sum(difference_yx**2, axis=1))
 
@@ -491,10 +487,7 @@ first grid point.
 
 shear = lens_calc.shear_yx_2d_via_hessian_from(grid=grid)
 
-print(
-    "Shear magnitude at the first grid point: "
-    f"{shear.magnitudes[0]:.4f}"
-)
+print("Shear magnitude at the first grid point: " f"{shear.magnitudes[0]:.4f}")
 
 r"""
 The **magnification**, $\mu$, describes the change in area
@@ -562,10 +555,7 @@ print(
     "Tangential eigenvalue at the first grid point: "
     f"{tangential_eigen_values[0]:.4f}"
 )
-print(
-    "Radial eigenvalue at the first grid point: "
-    f"{radial_eigen_values[0]:.4f}"
-)
+print("Radial eigenvalue at the first grid point: " f"{radial_eigen_values[0]:.4f}")
 
 r"""
 __Critical Curves and Caustics__
@@ -592,15 +582,11 @@ curve but no radial critical curve. The plot below should
 therefore show one circle, at a radius of 1.6 arcseconds.
 """
 
-tangential_critical_curves = (
-    lens_calc.tangential_critical_curve_list_from(
-        grid=grid, pixel_scale=grid.pixel_scale
-    )
+tangential_critical_curves = lens_calc.tangential_critical_curve_list_from(
+    grid=grid, pixel_scale=grid.pixel_scale
 )
-radial_critical_curves = (
-    lens_calc.radial_critical_curve_list_from(
-        grid=grid, pixel_scale=grid.pixel_scale
-    )
+radial_critical_curves = lens_calc.radial_critical_curve_list_from(
+    grid=grid, pixel_scale=grid.pixel_scale
 )
 
 fig, ax = plt.subplots(figsize=(6, 6))
@@ -775,9 +761,7 @@ einstein_radius = lens_calc.einstein_radius_from(
     grid=grid, pixel_scale=grid.pixel_scale
 )
 
-kpc_per_arcsec_lens = cosmology.kpc_per_arcsec_from(
-    redshift=lens.redshift
-)
+kpc_per_arcsec_lens = cosmology.kpc_per_arcsec_from(redshift=lens.redshift)
 einstein_radius_kpc = einstein_radius * kpc_per_arcsec_lens
 
 print(f"Einstein radius: {einstein_radius:.4f} arcsec")

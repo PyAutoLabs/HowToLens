@@ -85,7 +85,6 @@ import autoarray as aa
 import autoarray.plot as aaplt
 import autolens.plot as aplt
 
-
 """
 __Grid__
 
@@ -106,9 +105,7 @@ in the source plane. Although our starting grid is uniform, the mapped
 source-plane coordinates will generally not be evenly spaced.
 """
 
-image_plane_grid = al.Grid2D.uniform(
-    shape_native=(101, 101), pixel_scales=0.1
-)
+image_plane_grid = al.Grid2D.uniform(shape_native=(101, 101), pixel_scales=0.1)
 
 """
 __Mass Profiles__
@@ -158,9 +155,7 @@ The following calculation gives us one deflection vector for every
 coordinate in `image_plane_grid`.
 """
 
-deflections = sis_mass_profile.deflections_yx_2d_from(
-    grid=image_plane_grid
-)
+deflections = sis_mass_profile.deflections_yx_2d_from(grid=image_plane_grid)
 
 """
 As with the grids in the previous tutorial, we can access the deflections
@@ -289,13 +284,9 @@ For magnification, we use `LensCalc`, which calculates it from the way
 the deflections vary across the grid. Each result is an `Array2D`.
 """
 
-convergence = sis_mass_profile.convergence_2d_from(
-    grid=image_plane_grid
-)
+convergence = sis_mass_profile.convergence_2d_from(grid=image_plane_grid)
 
-potential_2d = sis_mass_profile.potential_2d_from(
-    grid=image_plane_grid
-)
+potential_2d = sis_mass_profile.potential_2d_from(grid=image_plane_grid)
 
 magnification_2d = al.LensCalc.from_mass_obj(
     mass_obj=sis_mass_profile
@@ -409,9 +400,7 @@ For example, at image-plane position (0.0, 2.0), the deflection is
 The method below performs this subtraction for every grid coordinate.
 """
 
-deflections = sis_mass_profile.deflections_yx_2d_from(
-    grid=image_plane_grid
-)
+deflections = sis_mass_profile.deflections_yx_2d_from(grid=image_plane_grid)
 
 source_plane_grid = image_plane_grid.grid_2d_via_deflection_grid_from(
     deflection_grid=deflections
@@ -545,9 +534,7 @@ source_light_profile = al.lp.ExponentialCore(
     effective_radius=0.2,
 )
 
-lensed_image = source_light_profile.image_2d_from(
-    grid=source_plane_grid
-)
+lensed_image = source_light_profile.image_2d_from(grid=source_plane_grid)
 
 """
 Let's plot the lensed source. Look for its light stretched around
@@ -663,9 +650,7 @@ image-plane grid and the second is the ray-traced source-plane
 grid. These correspond to the two grids we calculated manually.
 """
 
-traced_grid_list = tracer.traced_grid_2d_list_from(
-    grid=image_plane_grid
-)
+traced_grid_list = tracer.traced_grid_2d_list_from(grid=image_plane_grid)
 
 image_plane_grid_traced = traced_grid_list[0]
 source_plane_grid_traced = traced_grid_list[1]
@@ -694,19 +679,11 @@ at the redshifts of our lens and source.
 
 cosmology = tracer.cosmology
 
-kpc_per_arcsec_lens = cosmology.kpc_per_arcsec_from(
-    redshift=lens_galaxy.redshift
-)
-kpc_per_arcsec_source = cosmology.kpc_per_arcsec_from(
-    redshift=source_galaxy.redshift
-)
+kpc_per_arcsec_lens = cosmology.kpc_per_arcsec_from(redshift=lens_galaxy.redshift)
+kpc_per_arcsec_source = cosmology.kpc_per_arcsec_from(redshift=source_galaxy.redshift)
 
-print(
-    f"Lens plane: {kpc_per_arcsec_lens:.3f} kpc per arcsecond"
-)
-print(
-    f"Source plane: {kpc_per_arcsec_source:.3f} kpc per arcsecond"
-)
+print(f"Lens plane: {kpc_per_arcsec_lens:.3f} kpc per arcsecond")
+print(f"Source plane: {kpc_per_arcsec_source:.3f} kpc per arcsecond")
 
 """
 The conversion differs between the two planes because the
@@ -717,9 +694,7 @@ arcseconds by the lens-plane conversion to express it in
 kiloparsecs.
 """
 
-einstein_radius_kpc = (
-    sis_mass_profile.einstein_radius * kpc_per_arcsec_lens
-)
+einstein_radius_kpc = sis_mass_profile.einstein_radius * kpc_per_arcsec_lens
 
 print(f"Einstein radius: {einstein_radius_kpc:.3f} kpc")
 

@@ -505,9 +505,7 @@ need more thorough exploration. Both outcomes are useful evidence for deciding w
 
 print(result_custom_priors.info)
 
-aplt.subplot_fit_imaging(
-    fit=result_custom_priors.max_log_likelihood_fit
-)
+aplt.subplot_fit_imaging(fit=result_custom_priors.max_log_likelihood_fit)
 
 """
 __Prior Tuning: Benefits and Limitations__

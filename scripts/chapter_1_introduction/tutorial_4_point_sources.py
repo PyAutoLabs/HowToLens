@@ -75,9 +75,7 @@ source_galaxy_extended = al.Galaxy(
     ),
 )
 
-tracer_extended = al.Tracer(
-    galaxies=[lens_galaxy, source_galaxy_extended]
-)
+tracer_extended = al.Tracer(galaxies=[lens_galaxy, source_galaxy_extended])
 
 """
 __Seeing the Compact Source__
@@ -261,10 +259,7 @@ print("Magnification of each multiple image:")
 print(magnifications)
 
 flux = 1.0
-fluxes = [
-    flux * np.abs(magnification)
-    for magnification in magnifications
-]
+fluxes = [flux * np.abs(magnification) for magnification in magnifications]
 
 print("Predicted image fluxes for an unlensed source flux of 1.0:")
 print(fluxes)
