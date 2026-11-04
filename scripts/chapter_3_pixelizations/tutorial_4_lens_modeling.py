@@ -2,6 +2,8 @@
 Tutorial 4: Lens Modeling
 =========================
 
+Fit lens mass and foreground light alongside a pixelized source using search chaining and a positions likelihood penalty.
+
 __Contents__
 
 - Lens modelling with a pixelized source
@@ -16,43 +18,34 @@ __Contents__
 - Running the pixelized-source search
 - Establishing the foreground light model
 - Using that result in the pixelized-source fit
+- Wrap Up
+"""
 
+"""
 __Lens modelling with a pixelized source__
 
-So far, we have reconstructed sources while keeping the lens mass fixed. We could therefore concentrate on the
-mesh, mappings and regularization without worrying about whether the lens model itself was correct.
+In the previous tutorials, we supplied the mass model used to simulate the image. This let us concentrate on reconstructing the source.
 
-In a scientific analysis, the mass distribution is usually one of the things we want to measure. Changing it
-changes the ray tracing, which changes how the source must be reconstructed to explain the image.
+For an observed lens, we usually do not know the mass distribution. Measuring it is one of the main reasons we perform lens modelling!
 
-Pixelizations are powerful here because they can describe complicated source structure without requiring us to
-specify a separate analytic profile for every bright component. The non-linear search explores the lens parameters
-and regularization settings, while the inversion solves for the source brightnesses.
+Changing the mass model changes where the image pixels trace in the source plane. For every proposed mass model, we must therefore reconstruct the source again and calculate the corresponding log evidence.
 
-However, this flexibility comes with a difficulty. An incorrect mass model can sometimes be compensated for by an
-unusual source reconstruction. A close fit to the image does not, by itself, establish that we have found the right
-mass distribution.
+Pixelizations are useful because they can describe complicated source structure without requiring us to choose a separate light profile for every component. However, this flexibility also creates a difficulty: **an incorrect mass model can sometimes fit the image by reconstructing an unusual source**.
 
-We will investigate this using the familiar simulated lens with no foreground light. Its true Einstein radius is
-`1.6` arcsec, giving us a reference against which to compare deliberately incorrect models.
+For example, instead of tracing several arcs back to a common source component, an incorrect model may reconstruct separate source features to explain them. The image fit can look convincing even though the inferred source and lens mass are wrong.
 
-The published example below makes this ambiguity visible before we explore it in code. Compare the reconstructed
-source structures with their corresponding image fits: a model can describe much of the observed image while
-assigning it a very different source morphology.
+This problem is illustrated by Figure 1 from [Maresca et al. (2021)](https://arxiv.org/abs/2012.04665).
 
-![Demagnified source solutions, Figure 1 of Maresca et
-al.](https://raw.githubusercontent.com/PyAutoLabs/HowToLens/main/scripts/chapter_3_pixelizations/images/maresca_fig1.png)
+![Demagnified source reconstructions, Figure 1 of Maresca et al. (2021)](https://raw.githubusercontent.com/PyAutoLabs/HowToLens/main/scripts/chapter_3_pixelizations/images/maresca_fig1.png)
 
-Figure 1 from [Maresca et al. (2021)](https://arxiv.org/abs/2012.04665), also discussed in the [PyAutoLens
-demagnified-solutions guide](https://pyautolens.readthedocs.io/en/latest/general/demagnified_solutions.html). We
-reproduce this figure to illustrate the ambiguity; the experiments below use our own simulated dataset.
+Figure 1 from Maresca et al. (2021). Compare the reconstructed sources with their corresponding image fits. The experiments below use our own simulated dataset. See also the [PyAutoLens demagnified-solutions guide](https://pyautolens.readthedocs.io/en/latest/general/demagnified_solutions.html).
+
+We return to the familiar lens with no foreground light. Its true Einstein radius is `1.6` arcsec, giving us a reference against which to compare deliberately incorrect models.
 """
 
 from autolens import jax_wrapper
 
 from pathlib import Path
-import subprocess
-import sys
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -63,7 +56,8 @@ import autoarray.plot as aaplt
 dataset_path = Path("dataset") / "imaging" / "simple__no_lens_light"
 
 al.util.dataset.simulate_if_needed(
-    dataset_path, simulator="scripts/simulator/no_lens_light.py"
+    dataset_path,
+    simulator="scripts/simulator/no_lens_light.py",
 )
 
 dataset = al.Imaging.from_fits(
@@ -85,23 +79,23 @@ dataset = dataset.apply_over_sampling(over_sample_size_pixelization=1)
 aplt.subplot_imaging_dataset(dataset=dataset)
 
 """
-We retain one sample per image pixel for the indexed mapping demonstration below. As before, the sampling accuracy
-would need checking before interpreting a scientific fit.
+We use one sample per image pixel to make the mapping demonstrations easy to follow. Before interpreting a scientific fit, we would check that finer sampling does not materially change the result.
 
-__Giving the inversion an incorrect mass model__
-
-Let’s begin with a mass model whose Einstein radius is `0.8` arcsec—half the value used in the simulation.
-
-Everything else remains fixed, including the mass ellipticity, external shear, mesh dimensions and regularization
-coefficient. We then ask the inversion to reconstruct whatever source best satisfies this model’s mappings and
-smoothness prior.
-
-This is the kind of incorrect mass model that a non-linear search could encounter while exploring a broad parameter
-range.
+First, we will deliberately give the inversion the wrong Einstein radius and inspect how it attempts to explain the image.
 """
 
-# Match mesh size to capped smoke data; normal tutorial runs retain 25 x 25.
-mesh_shape = (8, 8) if dataset.shape_native == al.util.dataset.SMALL_DATASETS_SHAPE_NATIVE else (25, 25)
+"""
+__Giving the inversion an incorrect mass model__
+
+Let’s deliberately give the inversion an Einstein radius of `0.8` arcsec—half the value used to simulate the image.
+
+We keep the mass ellipticity and external shear at their simulation values. We also fix the mesh dimensions and regularization coefficient. This lets us investigate what happens when just the Einstein radius is wrong.
+
+The helper below reconstructs the source for whichever Einstein radius we supply.
+"""
+
+mesh_shape = (25, 25)
+
 
 def fit_at_einstein_radius(einstein_radius, coefficient=1.0):
     lens_galaxy = al.Galaxy(
@@ -150,26 +144,23 @@ aplt.subplot_fit_imaging(fit=incorrect_fit)
 aplt.subplot_fit_imaging_of_planes(fit=incorrect_fit)
 
 """
-Inspect both the image residuals and the reconstructed source. The experiment is designed to show how an inversion
-can explain some of the observed structure even when the lens mass is substantially wrong.
+Inspect the reconstructed source alongside the model image and residuals. How much of the observed image can the inversion reproduce despite using the wrong mass model?
 
-Under insufficient deflection, parts of the observed arcs can remain separated in the source plane. Instead of
-reconstructing one compact galaxy whose light produces multiple images, the inversion can assign brightness to
-those separate source regions. The source may begin to resemble a less strongly lensed version of the observed
-image.
+With insufficient deflection, the observed arcs do not trace back towards one compact source. They remain more widely separated in the source plane. The inversion can nevertheless assign brightness to those separate regions, reconstructing a source that begins to resemble a less strongly lensed version of the image.
 
-Such solutions are often called **demagnified solutions**. This is a different issue from the demagnified central
-image coordinates discussed in the borders tutorial: here, the problem concerns an alternative mass-and-source
-interpretation of the image.
+This type of incorrect mass-and-source reconstruction is called a **demagnified solution**. The inversion uses its freedom to describe the source to compensate for an incorrect mass model.
 
-Border relocation does not remove this modelling ambiguity.
+This differs from the demagnified central pixels in the borders tutorial. There, we investigated individual coordinates that stretched the mesh. Here, we have an alternative interpretation of the whole lens system. Border relocation is enabled, but it does not prevent this solution.
 
+---
+"""
+
+"""
 __Comparing with the correct mass model__
 
-Now repeat the reconstruction with the Einstein radius restored to `1.6` arcsec.
+Now restore the Einstein radius to `1.6` arcsec and reconstruct the source again.
 
-The inversion still has the same mesh dimensions and regularization coefficient. Only the Einstein radius changes.
-This gives us a controlled comparison of how the mass model affects the source required to explain the image.
+Only the Einstein radius changes. We use the same mesh dimensions and regularization coefficient, and display both reconstructions with a common brightness scale.
 """
 
 correct_fit = fit_at_einstein_radius(einstein_radius=1.6)
@@ -201,15 +192,11 @@ for label, current_fit in [
     )
 
 """
-Compare the source morphology and its coordinate extent. With the correct mass model, the different images of the
-source should be brought into a mutually consistent source reconstruction. With an incorrect mass model, the
-inversion may need more extended or fragmented structure to account for them.
+Compare the size and structure of the two sources. With the correct mass model, the multiple images can be explained by a common compact source. With the incorrect mass model, the inversion may need a more extended or fragmented brightness distribution.
 
-This is where regularization and evidence become important. The inversion’s flexibility does not mean that all
-source reconstructions are equally preferred. A reconstruction requiring large variations between neighbouring
-brightnesses is treated differently from one that explains the data with a smoother source.
+Recall our discussion of Bayesian evidence. A close image fit is only part of the comparison: the evidence also accounts for the source reconstruction and its regularization prior.
 
-Let’s compare image agreement and evidence directly.
+Let’s compare both chi-squared and log evidence.
 """
 
 for label, current_fit in [
@@ -225,22 +212,21 @@ for label, current_fit in [
     print("  Log evidence:", float(current_fit.log_evidence))
 
 """
-The expected lesson is that image agreement and source plausibility must be considered together. We should inspect
-the calculated evidence values rather than assume that the correct model wins by a particular amount.
+Which model gives the closer image fit? Which gives the higher evidence? Connect these numbers back to the source and residual plots.
 
-We have also held the coefficient fixed. A full model search would allow regularization to change, so these two
-evaluations do not establish the final relative preference after all model parameters have been explored.
+We have evaluated only two mass models at one regularization coefficient. As tutorial 2 showed, the preferred coefficient can change when the reconstruction changes. These numbers are therefore a first comparison, rather than the outcome of a full search over the mass and regularization parameters.
 
+---
+"""
+
+"""
 __Seeing how the mass model changes the mappings__
 
-The source plots show the outcome, but the mappings help explain why it happens.
+The source reconstructions show the result. Let’s now inspect the mappings that produce it.
 
-Let’s select two small image regions on opposite sides of the lens and follow them into the source plane under each
-mass model. The image indexes stay the same: we are examining the same measured pixels through two different
-ray-tracing calculations.
+We select two small groups of image pixels on opposite sides of the lens. We then trace the **same pixels** through each mass model, keeping their colours consistent between plots.
 
-To isolate the physical ray tracing, we use the tracer directly. These plots show the coordinates before border
-relocation.
+Here we use the tracer directly, so the plots show the ray-traced coordinates before border relocation.
 """
 
 image_grid = dataset.grids.pixelization
@@ -259,7 +245,7 @@ index_groups = [
 aaplt.plot_grid(
     grid=image_grid,
     indexes=index_groups,
-    title="The Same Two Image Regions",
+    title="Two Selected Image Regions",
 )
 
 for label, current_fit in [
@@ -277,30 +263,33 @@ for label, current_fit in [
     )
 
 """
-Look at the relative positions of the coloured groups. Changing the mass model changes whether image regions can be
-explained by nearby parts of the source or require brightness in more widely separated regions.
+Follow the coloured groups. The mass model determines whether these image regions trace to nearby parts of the source or require brightness in widely separated regions.
 
-These groups were chosen to illustrate the geometry, not identified as exact images of the same source feature. We
-should therefore not expect their traced coordinates to coincide perfectly, even for the correct model.
+The inversion must work with whichever mappings we give it. It cannot change the mass model to bring the groups closer together; it can only change the source brightness values. Exploring different mass models is the job of the non-linear search.
 
-For a stronger constraint, we can identify image positions that genuinely correspond to the same source feature and
-require them to trace close together. We will introduce that idea when preparing the model search.
+We selected these groups by their image positions, rather than identifying exact multiple images of the same source feature. Their traced coordinates therefore need not coincide perfectly, even under the correct model.
 
-**🤖 Ask AI:** How can an incorrect mass model still fit an arc if the source reconstruction is allowed to place
-light in several separate source regions?
+Later, we will identify positions that **do** correspond to the same source feature and require them to trace close together. That gives us a way to steer the search away from demagnified solutions.
 
+First, we will examine why calculating the evidence does not, by itself, ensure that a search finds the correct mass model.
+"""
+
+"""
 __Why evidence does not remove the search difficulty__
 
-Even if the correct mass model has higher evidence than our deliberately incorrect example, the non-linear search
-still has to find it.
+Suppose the correct mass model gives a higher log evidence than our incorrect example. Does that mean a non-linear search will automatically find it?
 
-A pixelized source can provide tolerable image fits across a broad range of incorrect mass models. This can create
-competing regions of parameter space that require substantial exploration. Solving the source brightnesses
-efficiently does not make the remaining non-linear problem trivial or guarantee that a search finds the relevant
-solution.
+Unfortunately, no. The physically meaningful solution can occupy a very small region of the non-linear parameter space. The search must find a combination of mass parameters that traces the different arcs back to a common source.
 
-Let’s examine a simple slice through this problem by changing only the Einstein radius. At every value, we
-reconstruct a new source and calculate its evidence.
+Incorrect mass models occupy a much larger volume of parameter space. With a pixelized source, many of these models can still reproduce much of the image: the inversion compensates for the incorrect deflections by placing source light in separate regions.
+
+This creates a huge landscape of competing local maxima. There are many ways to obtain a reasonably good image fit with an incorrect mass model and an unphysical source reconstruction, while the region containing the correct solution can be narrow and difficult to discover.
+
+A search started with broad priors can therefore spend most of its effort exploring these incorrect solutions and converge on one of them without finding the physically meaningful solution—even when that solution has a higher evidence. For difficult systems, this can happen repeatedly across independent searches.
+
+Efficiently solving the source brightnesses does not solve this search problem. We need to help the non-linear search reach the relevant region of mass-model parameter space before giving the source the full flexibility of a pixelization.
+
+Let’s explore this by varying the Einstein radius while holding the other parameters fixed. At every radius, we reconstruct the source again and calculate the log evidence.
 """
 
 einstein_radii = np.array(
@@ -329,11 +318,10 @@ for einstein_radius in einstein_radii:
 log_evidences = np.asarray(log_evidences)
 
 if not np.all(np.isfinite(log_evidences)):
-    raise ValueError(
-        "Inspect the non-finite evidence values before interpreting this scan."
-    )
+    raise ValueError("Inspect non-finite evidence values before interpreting the scan.")
 
 fig, ax = plt.subplots()
+
 ax.plot(
     einstein_radii,
     log_evidences - np.max(log_evidences),
@@ -345,56 +333,35 @@ ax.axvline(
     linestyle="--",
     label="Simulation Einstein radius",
 )
+
 ax.set_xlabel("Einstein radius (arcsec)")
 ax.set_ylabel("Log evidence relative to the highest sampled value")
-ax.set_title("A Fixed-Parameter Slice Through Lens-Model Space")
 ax.legend()
+
 plt.show()
 
 """
-This scan shows how the evidence behaves along one restricted direction. It is not a posterior distribution or an
-uncertainty measurement: the other mass parameters and regularization coefficient remain fixed, and we have sampled
-only a few radii.
+This one-dimensional scan greatly understates the difficulty of the full search. We have fixed the mass ellipticity, shear and regularization coefficient, whereas a real search varies them together. The resulting parameter space can contain many competing maxima that are absent from this simple slice.
 
-In a full search, those other parameters can vary together. An incorrect Einstein radius may be partly compensated
-for by changes in ellipticity, shear or source regularization, creating possibilities that this one-dimensional
-experiment cannot show.
+This is why we begin with an MGE source and use search chaining. Its restricted geometry makes it harder to compensate for an incorrect mass model by reconstructing arbitrary source structure. We first establish a plausible lensing geometry, then introduce the pixelization and additional constraints to help keep the search away from unphysical solutions.
+"""
 
-A useful strategy is therefore **search chaining**. We begin with a simpler source model to find a plausible region
-of lens parameter space, then introduce the pixelized source so that the detailed source structure can be
-reconstructed.
-
-The initial analytic source is a starting point, not the final description of the galaxy. Its purpose is to help
-establish the lensing geometry without giving the source enough freedom to reproduce almost any image arrangement.
-
-In the next blocks, we will turn that idea into a model-search setup and explain how corresponding image positions
-can help reject misleading solutions. We will also introduce foreground lens light, which must be modelled
-alongside the pixelized source.
-
+"""
 __Starting with a simpler source model__
 
-The misleading reconstructions we have just examined arise because a pixelized source has enough freedom to
-compensate for some incorrect mass models.
+We will begin with the multi-Gaussian expansion (MGE) from Chapter 2.
 
-A useful starting point is therefore a source model with less freedom. We first fit an analytic light profile,
-using it to establish a plausible lensing geometry. Once that fit has identified a useful region of parameter
-space, we replace the analytic source with a pixelization.
+The Gaussians have different fixed widths, allowing their combined light to describe a flexible radial brightness distribution. Their intensities are solved linearly. However, they share a common centre and elliptical shape, so they cannot independently place source components wherever an incorrect mass model requires them.
 
-This is search chaining, introduced in chapter 2. Here, the reason for chaining is particularly important: we want
-the pixelized reconstruction to improve the description of the source without beginning its search among a wide
-range of unrelated mass-and-source configurations.
+This makes the MGE a useful starting point for establishing the lensing geometry. It may leave some complicated source structure unexplained, but we can introduce the pixelization once we have inspected the initial fit.
 
-We use the multi-Gaussian expansion (MGE) from Chapter 2 as our baseline analytic source. Its fixed Gaussian widths
-and linearly solved intensities provide radial flexibility while a common centre and elliptical shape keep the
-geometry manageable. For a more complex galaxy, this first model may leave source structure unexplained. We would
-inspect those residuals and the inferred geometry before using it to initialize the next search.
+Let’s construct the model.
 """
 
 import autofit as af
 
 mass = af.Model(al.mp.Isothermal)
 
-# Keep the mass centre fixed for this introductory experiment.
 mass.centre = (0.0, 0.0)
 mass.einstein_radius = af.UniformPrior(
     lower_limit=0.5,
@@ -417,7 +384,9 @@ source = af.Model(
     al.Galaxy,
     redshift=1.0,
     bulge=al.model_util.mge_model_from(
-        mask_radius=2.5, total_gaussians=20, centre_prior_is_uniform=False,
+        mask_radius=2.5,
+        total_gaussians=20,
+        centre_prior_is_uniform=False,
     ),
 )
 
@@ -432,20 +401,21 @@ model_1 = af.Collection(
 print(model_1.info)
 
 """
-Unlike our earlier experiments, the Einstein radius, mass ellipticity and external shear are now free. The MGE
-group’s common centre and elliptical shape are also free. Its Gaussian widths are fixed, and all Gaussian
-intensities are solved linearly.
+Unlike the earlier experiments, the Einstein radius, mass ellipticity and external shear are now free parameters. We keep the mass centre fixed for this introductory example.
 
-Inspect `model_1.info` to see the complete set of free parameters and their priors. The known simulation values
-provide a check on the result; they are not supplied as the answer to the search.
+The MGE’s common centre and elliptical shape are also free. Its Gaussian widths remain fixed, and the inversion solves for the Gaussian intensities at every non-linear proposal.
 
+Inspect `model_1.info` to see these parameters and their priors. Although we know the simulated Einstein radius is `1.6` arcsec, we have not supplied that answer to the search: it must infer the radius from the image.
+
+---
+"""
+
+"""
 __Running and inspecting the initial search__
 
-We now perform a model fit. For each proposal, the search changes the non-linear parameters, predicts the image and
-evaluates its agreement with the data.
+We are now ready to run the first search.
 
-This is different from calling `FitImaging` with specified parameter values. The search explores alternatives and
-produces samples that describe the inferred parameter distribution.
+Previously, we supplied parameter values directly to `FitImaging`. Here, Nautilus proposes different combinations of mass and source parameters. For each proposal, the Gaussian intensities are solved linearly and the resulting image is compared with the data.
 """
 
 search_1 = af.Nautilus(
@@ -470,34 +440,31 @@ aplt.subplot_fit_imaging(fit=initial_fit)
 aplt.subplot_fit_imaging_of_planes(fit=initial_fit)
 
 """
-Before continuing, inspect the model image, residuals and source. The purpose of this first fit is to establish a
-credible starting geometry, so a poor or clearly misleading solution should not simply be passed to the next
-search.
+Inspect the model image, residuals and reconstructed source before continuing.
 
-For this simulated example, we can also compare the recovered Einstein radius with the input value of `1.6` arcsec.
-In an observed system, that answer would not be available; we would rely on the fit diagnostics, image
-configuration and parameter constraints.
+Does the model reproduce the positions and overall shapes of the arcs? Does the source look like a compact galaxy whose multiple images explain the observed configuration? Or has the search found a misleading arrangement?
 
-The maximum-likelihood fit is useful for visualization, but it is only one model. The result summary and samples
-are needed to assess uncertainty and whether the search adequately explored the parameters.
+For this simulated example, we can also compare the inferred Einstein radius with `1.6` arcsec. In an observed lens, we would not have that answer available.
 
+The initial MGE need not reproduce every detail of a complicated source. However, a fit that misses an arc or gives a clearly incorrect lensing configuration is not a suitable starting point for the next search. Passing its parameters forward could steer the pixelized fit towards the same problem.
+
+Finally, remember that the plotted maximum-likelihood fit is one model. Use the result summary and parameter distributions, as in Chapter 2, to assess the constraints and whether further exploration is needed.
+
+Next, we will use corresponding image positions to help the pixelized-source search avoid demagnified solutions.
+"""
+
+"""
 __Requiring corresponding images to trace together__
 
-Search chaining gives us a useful starting point, but we can also impose a simple geometric check.
+In Chapter 2, Tutorial 5, we introduced positions resampling and the **positions likelihood penalty**. We now use that same approach to help the pixelized-source search avoid the unphysical solutions discussed above.
 
-If several image positions represent the same source feature, a plausible mass model should trace them close
-together in the source plane. An incorrect model that reconstructs them as unrelated pieces of source light fails
-this check.
+Recall the underlying idea: image positions corresponding to the same source feature should trace close together in the source plane. An incorrect mass model may leave them widely separated, allowing a pixelized reconstruction to explain them by placing unrelated source features in different locations.
 
-The `PositionsLH` object applies a penalty when the traced positions are separated by more than a chosen threshold.
-Models that bring them within the threshold receive no positions penalty.
+The positions likelihood penalty discourages these solutions. When the maximum separation between the traced positions exceeds our threshold, the model receives a likelihood penalty. Models that bring the positions within the threshold receive no positions penalty.
 
-`PositionsLH` penalizes demagnified solutions whose corresponding image positions fail to trace sufficiently close
-together.
+Search chaining provides informed starting priors, while this penalty helps prevent the search from wandering into the much larger regions of parameter space occupied by unphysical reconstructions.
 
-We can identify corresponding positions manually, but our initial fit also provides a way to estimate them. The
-following method uses the fitted source centre and mass model to predict its multiple-image positions and
-constructs a positions constraint for the next search.
+Following Chapter 2, Tutorial 5, we use the initial fit to generate the positions and threshold for the next search. Here, those positions are predicted from the fitted MGE source centre and mass model.
 """
 
 positions_likelihood = result_1.positions_likelihood_from(
@@ -527,34 +494,35 @@ traced_positions = initial_fit.tracer.traced_grid_2d_list_from(
 
 aaplt.plot_grid(
     grid=traced_positions,
-    title="Predicted Image Positions Traced to the Source Plane",
+    title="Predicted Positions Traced to the Source Plane",
 )
 
 """
-These positions are predictions from the initial model, not independent measurements. Check that they correspond
-sensibly to the observed image configuration before using them.
+Inspect the marked positions on the image. They come from our fitted model, so we should check that they sensibly follow the observed multiple-image configuration before using them.
 
-The threshold should be loose enough to allow the mass model to improve. We are trying to reject grossly
-inconsistent mappings, not force every subsequent model to reproduce the initial solution exactly. Here, `factor`
-enlarges the separation estimated from the initial result, while `minimum_threshold` prevents the returned
-threshold from becoming smaller than `0.2` arcsec.
+We allow some source-plane separation because the initial mass model is approximate. The next search must have room to improve it.
 
-This positions penalty is a modelling aid rather than a replacement for the image likelihood. It does not by itself
-establish that the mass model is correct, and an inappropriate set of positions or an overly restrictive threshold
-can exclude useful solutions.
+The `factor` enlarges the separation used to set the threshold from the initial result. The `minimum_threshold` prevents that threshold from becoming smaller than `0.2` arcsec. These are source-plane distances, not distances between the observed images.
 
+The purpose is to exclude grossly inconsistent mappings while allowing useful changes to the mass model. An excessively tight threshold could instead force the second search to remain too close to an imperfect initial fit.
+
+---
+"""
+
+"""
 __Replacing the analytic source with a pixelization__
 
 We are ready to construct the second model.
 
-The lens mass and shear remain free, but their priors are initialized from the first result using the prior-passing
-machinery introduced in chapter 2. The source profile is replaced by a rectangular mesh and a regularization model.
+We retain the lens mass and external shear from the initial result, using the prior-passing machinery introduced in Chapter 2. We then replace the MGE source with a rectangular pixelization.
 
-The distinction between `result_1.model` and `result_1.instance` matters here. Using the model carries free
-parameters into the next search. Using the instance would instead fix those components to particular fitted values.
+The mass parameters remain free. We want the first fit to guide the second search towards the relevant region of parameter space, while allowing the improved source description to change the inferred mass model.
+
+This is why we use `result_1.model`, rather than `result_1.instance`. The model carries free parameters and their updated priors into the next search; the instance would fix them to particular fitted values.
 """
 
 regularization = af.Model(al.reg.Constant)
+
 regularization.coefficient = af.LogUniformPrior(
     lower_limit=1.0e-3,
     upper_limit=1.0e3,
@@ -583,23 +551,23 @@ model_2 = af.Collection(
 print(model_2.info)
 
 """
-Inspect the resulting priors rather than assuming that they are suitable simply because they came from an earlier
-fit. In particular, a restrictive analytic source can bias an initial mass estimate; its result should guide the
-next search without preventing the mass model from changing.
+The regularization coefficient is now a non-linear parameter, explored alongside the mass and shear parameters. Its logarithmic prior allows the search to explore several orders of magnitude in smoothing strength.
 
-The mesh shape stays fixed. The regularization coefficient is now a non-linear parameter, explored alongside the
-mass and shear parameters.
+The mesh dimensions remain fixed. Its hundreds of source brightness values are solved by the inversion at every proposal; they do not become hundreds of additional non-linear parameters.
 
-The hundreds of source brightnesses do not appear as hundreds of additional search parameters. For each proposal,
-the inversion reconstructs those values using the proposed mass model and coefficient.
+Inspect the priors printed by `model_2.info`. The initial MGE may have left source structure unexplained, potentially shifting its preferred mass model. Prior passing should guide the pixelized search without restricting it so tightly that it cannot correct that initial estimate.
 
+---
+"""
+
+"""
 __Running the pixelized-source search__
 
-The second search combines the pixelized model with the positions constraint.
+We now combine the pixelized model with the **positions likelihood penalty**, following the same procedure as Chapter 2, Tutorial 5.
 
-For each proposed mass model, the analysis checks the positions condition and evaluates the source reconstruction
-as appropriate. The search can adjust the lens parameters and regularization coefficient, while each inversion
-solves for the source brightnesses.
+Search chaining and the penalty serve complementary purposes. Prior passing guides the search towards the initial mass solution. The positions likelihood penalty discourages proposals that trace corresponding image positions too far apart.
+
+For proposals within the threshold, no positions penalty is applied, and the pixelized imaging log evidence determines their fit statistic. The inversion reconstructs the source using each proposed mass model and regularization coefficient.
 """
 
 analysis_2 = al.AnalysisImaging(
@@ -628,15 +596,11 @@ aplt.subplot_fit_imaging(fit=pixelized_fit)
 aplt.subplot_fit_imaging_of_planes(fit=pixelized_fit)
 
 """
-Compare this result with the analytic-source fit. Inspect the source structure and image residuals, then examine
-how the inferred mass parameters and their uncertainties have changed.
+Compare the source reconstruction and residuals with the initial MGE fit. Then inspect the inferred mass parameters and their uncertainties.
 
-For this simple simulated source, an MGE can already describe its smooth light distribution, so a pixelization need
-not produce a dramatic improvement. Its value becomes clearer for irregular sources that cannot be described
-adequately by the initial profile. This example teaches the modelling procedure without requiring that extra
-complication.
+Our simulated source is smooth, so the MGE may already describe it well. We should not expect a dramatic improvement simply because we introduced a pixelization. For irregular sources, its additional spatial freedom becomes more useful.
 
-We can also check whether the displayed pixelized model satisfies the positions threshold.
+Let’s also check whether the displayed model brings our selected image positions within the source-plane threshold.
 """
 
 final_source_positions = pixelized_fit.tracer.traced_grid_2d_list_from(
@@ -644,64 +608,46 @@ final_source_positions = pixelized_fit.tracer.traced_grid_2d_list_from(
 )[1]
 
 coordinates = np.asarray(final_source_positions)
+
 separations = np.linalg.norm(
     coordinates[:, None, :] - coordinates[None, :, :],
     axis=-1,
 )
+
 maximum_separation = float(np.max(separations))
 
-print(
-    "Maximum source-plane separation:",
-    maximum_separation,
-    "arcsec",
-)
-print(
-    "Positions threshold:",
-    positions_likelihood.threshold,
-    "arcsec",
-)
+print("Maximum source-plane separation:", maximum_separation, "arcsec")
+print("Positions threshold:", positions_likelihood.threshold, "arcsec")
 print(
     "Within threshold:",
     maximum_separation <= positions_likelihood.threshold,
 )
 
 """
-Passing this check means the selected positions trace sufficiently close together under this model. It does not
-replace inspecting the residuals, uncertainties or search behaviour.
+Passing this check confirms that these selected positions trace sufficiently close together. We still need to inspect the image residuals, parameter constraints and search behaviour to assess the overall fit.
 
-We have now performed a chained fit with a pixelized source and a free mass model. The next blocks introduce
-foreground lens light, explaining how its analytic profiles are fitted alongside the source reconstruction and why
-errors in that light model can affect the inferred source.
-
-__Establishing the foreground light model__
-
-We can model the foreground lens galaxy’s light and reconstruct a pixelized background source within the same fit.
-The foreground light profile and the lensed source contribute together to the predicted image.
-
-However, fitting everything from the outset gives the search several problems to solve at once. It must establish
-the mass distribution, separate foreground light from source light, and choose an appropriate source
-reconstruction.
-
-Search chaining helps us approach these problems in stages. We begin with MGE light models for both galaxies,
-following Chapter 2. This simpler source description provides a useful starting lens geometry and lets us establish
-the foreground light model before introducing a pixelization.
-
-Let’s perform that initial fit using a simulated dataset containing foreground lens light. This is a new dataset,
-so we run a new search rather than reuse the result from our earlier no-lens-light example.
+We have now fitted a free mass model and a pixelized source using search chaining. Next, we will include the foreground lens galaxy’s light and examine how it is fitted alongside the source reconstruction.
 """
 
-from pathlib import Path
-import subprocess
-import sys
+"""
+__Establishing the foreground light model__
 
-import autofit as af
-import autolens as al
-import autolens.plot as aplt
+So far, our images have contained only the lensed source. In most observed systems, the foreground lens galaxy also contributes light, often overlapping the arcs.
+
+We can fit both contributions together. The predicted image is the sum of the foreground galaxy’s light and the lensed background source, including telescope blurring.
+
+However, this gives the search several things to determine at once: the mass distribution, the foreground light, and the background source. An error in the foreground light model can leave residuals that the pixelized source attempts to explain.
+
+We therefore use search chaining again. Following Chapter 2, we first fit MGEs for both the foreground galaxy and source. This establishes an initial lens-light model and lensing geometry before we introduce a pixelization.
+
+We use a new simulated dataset containing foreground light, so this requires a new initial search.
+"""
 
 foreground_dataset_path = Path("dataset") / "imaging" / "lens_sersic"
 
 al.util.dataset.simulate_if_needed(
-    foreground_dataset_path, simulator="scripts/simulator/lens_sersic.py"
+    foreground_dataset_path,
+    simulator="scripts/simulator/lens_sersic.py",
 )
 
 foreground_dataset = al.Imaging.from_fits(
@@ -716,6 +662,7 @@ mask = al.Mask2D.circular(
     pixel_scales=foreground_dataset.pixel_scales,
     radius=2.5,
 )
+
 foreground_dataset = foreground_dataset.apply_mask(mask=mask)
 
 over_sample_size = al.util.over_sample.over_sample_size_via_radial_bins_from(
@@ -724,6 +671,7 @@ over_sample_size = al.util.over_sample.over_sample_size_via_radial_bins_from(
     radial_list=[0.3, 0.6],
     centre_list=[(0.0, 0.0)],
 )
+
 foreground_dataset = foreground_dataset.apply_over_sampling(
     over_sample_size_lp=over_sample_size,
     over_sample_size_pixelization=2,
@@ -731,11 +679,20 @@ foreground_dataset = foreground_dataset.apply_over_sampling(
 
 aplt.subplot_imaging_dataset(dataset=foreground_dataset)
 
+"""
+The foreground galaxy has a bright centre where its light changes rapidly across individual image pixels. We use finer sampling there when evaluating the light profiles, following the oversampling approach introduced earlier.
+
+For the foreground MGE, we use two Gaussian groups that can have different elliptical shapes. This allows more flexibility than a single group. We fix their centres and the mass centre to the simulation’s origin for this introductory example.
+"""
+
 lens_bulge = al.model_util.mge_model_from(
-    mask_radius=2.5, total_gaussians=20, gaussian_per_basis=2,
+    mask_radius=2.5,
+    total_gaussians=20,
+    gaussian_per_basis=2,
     centre_prior_is_uniform=True,
     sigma_min=foreground_dataset.pixel_scales[0] / 10.0,
 )
+
 for gaussian in lens_bulge.profile_list:
     gaussian.centre = (0.0, 0.0)
 
@@ -757,7 +714,9 @@ source = af.Model(
     al.Galaxy,
     redshift=1.0,
     bulge=al.model_util.mge_model_from(
-        mask_radius=2.5, total_gaussians=20, centre_prior_is_uniform=False,
+        mask_radius=2.5,
+        total_gaussians=20,
+        centre_prior_is_uniform=False,
     ),
 )
 
@@ -771,6 +730,8 @@ foreground_model_1 = af.Collection(
     galaxies=af.Collection(lens=lens, source=source),
     fields=field,
 )
+
+print(foreground_model_1.info)
 
 foreground_search_1 = af.Nautilus(
     path_prefix=Path("howtolens") / "chapter_3" / "tutorial_4",
@@ -798,31 +759,23 @@ aplt.subplot_fit_imaging_of_planes(
 )
 
 """
-We fix the foreground light and mass centres for this introductory example, while allowing their other parameters
-to vary. The foreground MGE uses two Gaussian groups, which can have different elliptical shapes; the source uses
-one. Their Gaussian widths are fixed and all Gaussian intensities are solved linearly.
+The Gaussian widths are fixed, while their intensities are solved linearly. The search explores the remaining free geometry, mass and shear parameters.
 
-Before continuing, inspect the foreground model and residuals. We want a satisfactory description of the lens light
-and a plausible source geometry. For an irregular source, the analytic profile may leave structure unexplained, but
-obvious foreground residuals should not simply be passed into the next stage.
+Inspect the foreground light model, source and residuals. We want the initial model to separate the foreground galaxy from the arcs sensibly. Significant foreground residuals should be investigated before introducing a more flexible source that might absorb them.
 
-This is a genuine non-linear search, so it will take longer than evaluating a single `FitImaging`.
+---
+"""
 
+"""
 __Using that result in the pixelized-source fit__
 
-We now replace the analytic source with a pixelization and carry the foreground model into the second search.
+Now replace the analytic source with a pixelization.
 
-The distinction between `.model` and `.instance` is useful here. We use `.instance` to hold the foreground
-profile’s fitted shape fixed, reducing the number of non-linear parameters the next search must explore. We use
-`.model` for the mass and shear so that they remain free, with priors passed from the first result.
+We hold the fitted **foreground MGE geometry** fixed using `.instance`, while keeping the mass and shear free using `.model` and its updated priors.
 
-Because the foreground MGE uses linear Gaussian profiles, fixing its geometry does **not** fix its intensities. The
-second fit solves all Gaussian intensities alongside the pixelized source brightnesses. The foreground subtraction
-can therefore adjust without reopening the non-linear Gaussian geometry.
+There is an important distinction here. The MGE contains **linear** Gaussian profiles, so fixing their geometry does not fix their intensities. The next fit solves those intensities together with the pixelized source brightnesses.
 
-Search chaining also supplies the initial geometry from which we construct the positions constraint.
-**`PositionsLH` penalizes demagnified solutions whose corresponding image positions fail to trace sufficiently
-close together.**
+We therefore continue to fit the foreground and background light simultaneously. We are not subtracting a fixed foreground image and treating that subtraction as exact.
 """
 
 lens = af.Model(
@@ -853,6 +806,12 @@ foreground_model_2 = af.Collection(
     fields=foreground_result_1.model.fields,
 )
 
+print(foreground_model_2.info)
+
+"""
+As in Chapter 2, Tutorial 5, we use the initial result to construct the **positions likelihood penalty**. This helps discourage the unphysical mass-and-source solutions discussed earlier.
+"""
+
 foreground_positions_likelihood = (
     foreground_result_1.positions_likelihood_from(
         factor=3.0,
@@ -863,10 +822,12 @@ foreground_positions_likelihood = (
 aplt.plot_array(
     array=foreground_dataset.data,
     positions=foreground_positions_likelihood.positions,
-    title="Positions Predicted by the Initial Foreground-Light Fit",
+    title="Positions Predicted by the Initial Fit",
 )
 
-print(foreground_model_2.info)
+"""
+Check these positions against the observed arcs before running the second search. They are predictions from the initial model, so their usefulness depends on that model having found a sensible lensing geometry.
+"""
 
 foreground_analysis_2 = al.AnalysisImaging(
     dataset=foreground_dataset,
@@ -896,20 +857,37 @@ aplt.subplot_fit_imaging_of_planes(
 )
 
 """
-Inspect the predicted positions before running the second search, as we did earlier. They come from the initial
-model and should sensibly represent the multiple-image configuration.
+Compare the foreground subtraction, reconstructed source and residuals with the initial fit. The mass parameters, regularization coefficient and linearly solved foreground intensities can all respond to the new source description.
 
-The second search now starts with an established foreground light shape and lens geometry. It can refine the mass
-and regularization while reconstructing the source, rather than solving the entire problem from broad initial
-priors.
+If the fixed foreground geometry leaves significant residuals, we can free its parameters in a later chained search. Holding it fixed is a useful intermediate step, rather than a requirement for the final analysis.
 
-Compare the two results, paying attention to the foreground subtraction, source reconstruction and residuals. If
-the fixed foreground shape leaves significant residuals, a later chained search can free its parameters again.
-Fixing it is a useful intermediate step, not a requirement that the initial light model must remain unchanged
-throughout the analysis.
+---
+"""
 
+"""
 __Wrap Up__
 
-This completes the practical chain: fit MGE lens and source light, carry forward the foreground geometry and mass
-priors, then fit a pixelized source with the positions constraint.
+We have now fitted a lens mass model alongside a pixelized source, both with and without foreground lens light.
+
+The main difficulty was not solving for the source brightnesses. The inversion does that efficiently for every proposed model. The difficulty was finding the physically meaningful mass model among the many incorrect models that a flexible source can partly compensate for.
+
+We addressed this using the tools introduced in Chapter 2:
+
+- **Search chaining:** begin with an MGE source to establish the lensing geometry, then introduce a pixelization.
+- **Prior passing:** keep the mass parameters free while using the initial result to guide the next search.
+- **The positions likelihood penalty:** discourage models that trace corresponding image positions too far apart.
+
+When foreground light is present, we also establish its geometry in the initial fit. Its linear intensities can then be solved alongside the pixelized source, allowing both contributions to adjust together.
+
+However, finding the appropriate mass model does not guarantee that our source reconstruction can describe all the observed structure.
+
+What happens if the source has a very compact bright centre, but our mesh places too few pixels there? What if that centre needs weak smoothing while the faint outskirts need strong smoothing?
+
+Even the evidence-preferred constant regularization coefficient must compromise between these demands.
+
+In the next tutorial, **Fit Problems**, we will deliberately make the source more compact while keeping the true mass model fixed. This will reveal limitations of the mesh and regularization themselves, and motivate the adaptive methods that follow.
+"""
+
+"""
+**🤖 Ask AI:** Why can an incorrect mass model fit the arcs with a pixelized source, and how do search chaining and the positions likelihood penalty address this?
 """

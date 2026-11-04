@@ -376,34 +376,6 @@
   },
   {
     "contents": [
-      "Initial Setup",
-      "Adapt Image",
-      "Adaption",
-      "Hilbert",
-      "Weight Map",
-      "Wrap Up"
-    ],
-    "cross_refs": [],
-    "notebook": "notebooks/chapter_3_pixelizations/tutorial_11_brightness_adaption.ipynb",
-    "path": "scripts/chapter_3_pixelizations/tutorial_11_brightness_adaption.py",
-    "summary": "In the previous tutorial we motivated our need to adapt the pixelization to the source's morphology, such that source pixels congregates in the source's brightest regions regardless of where the source is located in the source-plane.",
-    "title": "Tutorial 11: Brightness Adaption"
-  },
-  {
-    "contents": [
-      "Initial Setup",
-      "Convenience Function",
-      "Adaptive Regularization",
-      "Wrap Up"
-    ],
-    "cross_refs": [],
-    "notebook": "notebooks/chapter_3_pixelizations/tutorial_12_adaptive_regularization.ipynb",
-    "path": "scripts/chapter_3_pixelizations/tutorial_12_adaptive_regularization.py",
-    "summary": "Tutorial 2 introduced `Constant` regularization. Different regions of the source can favour different levels of regularization, motivating a scheme which adapts to the reconstructed source's surface brightness.",
-    "title": "Tutorial 12: Adaptive Regularization"
-  },
-  {
-    "contents": [
       "Opening \u2014 Pixelized source reconstruction",
       "A complex source",
       "Why a simple source model falls short",
@@ -414,6 +386,8 @@
       "Reconstructing the source",
       "A first look at regularization",
       "From source indexes to reconstructed brightnesses",
+      "Keeping source brightnesses non-negative",
+      "Where the image weakly constrains the source",
       "Turning the reconstructed source back into an image",
       "Inspecting the reconstruction",
       "Changing the source resolution",
@@ -422,7 +396,7 @@
     "cross_refs": [],
     "notebook": "notebooks/chapter_3_pixelizations/tutorial_1_pixelizations.ipynb",
     "path": "scripts/chapter_3_pixelizations/tutorial_1_pixelizations.py",
-    "summary": "(no summary in script docstring)",
+    "summary": "Reconstruct a complex source using pixelizations, image-to-source mappings and a linear inversion.",
     "title": "Tutorial 1: Pixelizations, Mappers and Inversions"
   },
   {
@@ -432,18 +406,19 @@
       "Reducing regularization",
       "Increasing regularization",
       "Bayesian evidence",
+      "Choosing the coefficient",
       "Exploring the regularization coefficient",
       "Inspecting the preferred reconstruction",
       "What is linear, and what requires a search?",
       "Mesh resolution and regularization belong together",
-      "What we have learned, and what comes next"
+      "Wrap Up"
     ],
     "cross_refs": [
       "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/imaging/features/pixelization/likelihood_function.py"
     ],
     "notebook": "notebooks/chapter_3_pixelizations/tutorial_2_bayesian_regularization.ipynb",
     "path": "scripts/chapter_3_pixelizations/tutorial_2_bayesian_regularization.py",
-    "summary": "(no summary in script docstring)",
+    "summary": "Explore regularization and use Bayesian evidence to choose its strength for a source reconstruction.",
     "title": "Tutorial 2: Bayesian Regularization"
   },
   {
@@ -455,14 +430,14 @@
       "Following the central pixels into the source plane",
       "Tracing the outer border",
       "Switching border relocation on",
-      "What relocation changes\u2014and what it does not",
+      "What relocation changes",
       "The mask still needs to cover the lensed source",
-      "Wrap up"
+      "Wrap Up"
     ],
     "cross_refs": [],
     "notebook": "notebooks/chapter_3_pixelizations/tutorial_3_borders.ipynb",
     "path": "scripts/chapter_3_pixelizations/tutorial_3_borders.py",
-    "summary": "(no summary in script docstring)",
+    "summary": "Explore how masks and border relocation affect the extent and resolution of a source mesh.",
     "title": "Tutorial 3: Borders"
   },
   {
@@ -478,28 +453,68 @@
       "Replacing the analytic source with a pixelization",
       "Running the pixelized-source search",
       "Establishing the foreground light model",
-      "Using that result in the pixelized-source fit"
+      "Using that result in the pixelized-source fit",
+      "Wrap Up"
     ],
     "cross_refs": [],
     "notebook": "notebooks/chapter_3_pixelizations/tutorial_4_lens_modeling.ipynb",
     "path": "scripts/chapter_3_pixelizations/tutorial_4_lens_modeling.py",
-    "summary": "(no summary in script docstring)",
+    "summary": "Fit lens mass and foreground light alongside a pixelized source using search chaining and a positions likelihood penalty.",
     "title": "Tutorial 4: Lens Modeling"
   },
   {
     "contents": [
-      "Initial Setup",
-      "Advantages and Disadvantages",
-      "Image Mesh",
-      "Regularization",
-      "Source Compactness",
+      "When the best coefficient is not enough",
+      "Three progressively compact sources",
+      "Simulating the images",
+      "Reconstructing the sources",
+      "Finding the preferred regularization",
+      "Starting with the extended source",
+      "Making the source more compact",
+      "A very compact source",
+      "Why the mesh becomes a limitation",
+      "Why one regularization coefficient becomes a compromise",
+      "Why maximizing the evidence does not remove the compromise",
       "Wrap Up"
     ],
     "cross_refs": [],
-    "notebook": "notebooks/chapter_3_pixelizations/tutorial_8_adaptive_pixelization.ipynb",
-    "path": "scripts/chapter_3_pixelizations/tutorial_8_adaptive_pixelization.py",
-    "summary": "In this tutorial we will introduce a new `Pixelization` object, which uses an `Overlay` image-mesh and a `Delaunay` mesh.",
-    "title": "Tutorial 8: Adaptive Pixelization"
+    "notebook": "notebooks/chapter_3_pixelizations/tutorial_5_fit_problems.ipynb",
+    "path": "scripts/chapter_3_pixelizations/tutorial_5_fit_problems.py",
+    "summary": "Investigate why compact sources can challenge mesh resolution and constant regularization even when the mass model is correct.",
+    "title": "Tutorial 5: Fit Problems"
+  },
+  {
+    "contents": [
+      "Adaptive source reconstruction",
+      "Returning to the compact-source problem",
+      "From an image mesh to a source mesh",
+      "Constructing the Delaunay source mesh",
+      "Interpolating within a triangle",
+      "Regularization on an irregular mesh",
+      "Building an adapt image",
+      "Placing points with a Hilbert image mesh",
+      "Controlling the brightness weighting",
+      "Keeping resolution in the faint regions",
+      "Reconstructing with the Hilbert mesh",
+      "Comparing overlay and Hilbert reconstructions",
+      "Smoothing on an irregular mesh",
+      "Reconstructing with ConstantSplit",
+      "Allowing different smoothing strengths",
+      "Controlling the transition with `signal_scale`",
+      "Exploring the adaptive coefficients",
+      "Does adaptive regularization address the fit problem?",
+      "Starting the final modelling chain",
+      "Preparing adaptation and the positions likelihood penalty",
+      "Defining the adaptive Delaunay model",
+      "Running the adaptive Delaunay fit",
+      "Inspecting the source and smoothing pattern",
+      "Wrap Up"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_3_pixelizations/tutorial_6_adaptive_reconstruction.ipynb",
+    "path": "scripts/chapter_3_pixelizations/tutorial_6_adaptive_reconstruction.py",
+    "summary": "Combine Delaunay meshes, Hilbert brightness adaptation and adaptive Split regularization in a chained lens-model fit.",
+    "title": "Tutorial 6: Adaptive Reconstruction"
   },
   {
     "contents": [

@@ -21,8 +21,5 @@ MGE remains valuable, especially for foreground lens light and initial source fi
 - [Borders](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_3_borders.ipynb)
 - [Lens Modeling](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_4_lens_modeling.ipynb)
 
-The following tutorials explore adaptive meshes and regularization:
-
-- [Adaptive Pixelization](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_8_adaptive_pixelization.ipynb)
-- [Brightness Adaption](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_11_brightness_adaption.ipynb)
-- [Adaptive Regularization](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_12_adaptive_regularization.ipynb)
+- [Fit Problems](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_5_fit_problems.ipynb)
+- [Adaptive Reconstruction](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_6_adaptive_reconstruction.ipynb)

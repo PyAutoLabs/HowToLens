@@ -98,14 +98,13 @@ for the chapter 1 tutorials listed with a `markdown` link below; every other tut
   - [Tutorial 5: Data and Likelihoods](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_5_data_and_likelihoods.ipynb) — Separating datasets, models and likelihoods, including positions penalties.
   - [Tutorial 6: Search Chaining](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_6_search_chaining.ipynb) — Combining searches and introducing the SLaM pipelines.
   - [Tutorial 7: Summary](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_7_summary.ipynb) — Bringing the chapter together and continuing to pixelized sources.
-- **[Chapter 3: Pixelizations](scripts/chapter_3_pixelizations/README.md)** — From MGE to pixelized sources: mappings, inversions, Bayesian regularization, borders and chained lens fits.
+- **[Chapter 3: Pixelizations](scripts/chapter_3_pixelizations/README.md)** — From MGE to pixelized sources: mappings, inversions, Bayesian regularization, borders, fit problems, adaptive reconstruction and chained lens fits.
   - Tutorial 1 Pixelizations — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_1_pixelizations.ipynb))
   - Tutorial 2 Bayesian Regularization — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_2_bayesian_regularization.ipynb))
   - Tutorial 3 Borders — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_3_borders.ipynb))
   - Tutorial 4 Lens Modeling — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_4_lens_modeling.ipynb))
-  - Tutorial 8 Adaptive Pixelization — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_8_adaptive_pixelization.ipynb))
-  - Tutorial 11 Brightness Adaption — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_11_brightness_adaption.ipynb))
-  - Tutorial 12 Adaptive Regularization — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_12_adaptive_regularization.ipynb))
+  - Tutorial 5 Fit Problems — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_5_fit_problems.ipynb))
+  - Tutorial 6 Adaptive Reconstruction — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_6_adaptive_reconstruction.ipynb))
 - **[Chapter 4: Scaling Up Lensing](scripts/chapter_4_scaling_up_lensing/README.md)** — Extra galaxies, multi-galaxy lenses, scaling relations, group and cluster scales, and weak lensing.
   - Tutorial 1: Extra Galaxies — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_4_scaling_up_lensing/tutorial_1_extra_galaxies.ipynb))
   - Tutorial 2: Multi Galaxy — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_4_scaling_up_lensing/tutorial_2_multi_galaxy.ipynb))
