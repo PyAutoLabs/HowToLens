@@ -664,11 +664,16 @@
   },
   {
     "contents": [
-      "Passing a Model",
-      "Changing the Model",
-      "Prior Widths",
-      "Fixed Instances",
-      "Wrap Up"
+      "Initial Setup",
+      "Dataset Auto-Simulation",
+      "Model",
+      "Search",
+      "Result (Search 1)",
+      "Prior Passing",
+      "Result",
+      "Wrap Up",
+      "Detailed Explanation Of Prior Passing",
+      "EXAMPLE"
     ],
     "cross_refs": [],
     "notebook": "notebooks/chapter_optional/tutorial_prior_passing.ipynb",

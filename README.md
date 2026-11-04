@@ -115,7 +115,7 @@ for the chapter 1 tutorials listed with a `markdown` link below; every other tut
   - Tutorial 6: Weak Lensing — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_4_scaling_up_lensing/tutorial_6_weak_lensing.ipynb))
 - **[Optional Tutorials](scripts/chapter_optional/README.md)** — Search methods, runtime and historical workflows.
   - [Need for Speed](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_optional/tutorial_need_for_speed.ipynb) — Computation, batching and estimating runtime.
-  - [Historical Prior Passing](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_optional/tutorial_prior_passing.ipynb) — A reading guide to older analyses; not a required or executable modelling exercise.
+  - [Historical Prior Passing](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_optional/tutorial_prior_passing.ipynb) — An optional runnable example of prior passing using model_centred, a technique central to older workflows.
   - [Searches](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_optional/tutorial_searches.ipynb) — Alternative non-linear search methods.
 
 Model-fits can run faster on a GPU. In Colab, enable one via *Runtime* → *Change runtime type*
