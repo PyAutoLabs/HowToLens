@@ -90,17 +90,14 @@ for the chapter 1 tutorials listed with a `markdown` link below; every other tut
   - Tutorial 5: Data — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_1_introduction/tutorial_5_data.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_5_data.md))
   - Tutorial 6: Fitting — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_1_introduction/tutorial_6_fitting.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_6_fitting.md))
   - Tutorial 7: Summary — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_1_introduction/tutorial_7_summary.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_7_summary.md))
-- **[Chapter 2: Lens Modeling](scripts/chapter_2_lens_modeling/README.md)** — Bayesian inference, non-linear searches, lens modeling, search chaining, prior passing, and SLaM pipelines.
-  - Tutorial 1: Non-linear Search — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_1_non_linear_search.ipynb))
-  - Tutorial 2: Practicalities — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_2_practicalities.ipynb))
-  - Tutorial 3: Why Modeling Is Hard — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_3_why_modeling_is_hard.ipynb))
-  - Tutorial 4: Linear Profiles — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_4_linear_profiles.ipynb))
-  - Tutorial 6: Masking and Positions — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_2_lens_modeling/tutorial_6_masking_and_positions.ipynb))
-  - Tutorial 7: Results — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_2_lens_modeling/tutorial_7_results.ipynb))
-  - Tutorial 8: Need for Speed — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_2_lens_modeling/tutorial_8_need_for_speed.ipynb))
-  - Tutorial 9: Search Chaining — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_2_lens_modeling/tutorial_9_search_chaining.ipynb))
-  - Tutorial 10: Prior Passing — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_2_lens_modeling/tutorial_10_prior_passing.ipynb))
-  - Tutorial 11: SLaM — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_2_lens_modeling/tutorial_11_slam.ipynb))
+- **[Chapter 2: Lens Modeling](scripts/chapter_2_lens_modeling/README.md)** — Non-linear searches, linear profiles, datasets and likelihoods, and search chaining.
+  - [Tutorial 1: Non-linear Search](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_1_non_linear_search.ipynb) — Parameter space, priors and fitting a lens model.
+  - [Tutorial 2: Practicalities](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_2_practicalities.ipynb) — Running fits and inspecting their results.
+  - [Tutorial 3: Why Modeling Is Hard](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_3_why_modeling_is_hard.ipynb) — Local maxima, degeneracies and investigating difficult fits.
+  - [Tutorial 4: Linear Profiles](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_4_linear_profiles.ipynb) — Solving light-profile intensities and using multi-Gaussian expansions.
+  - [Tutorial 5: Data and Likelihoods](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_5_data_and_likelihoods.ipynb) — Separating datasets, models and likelihoods, including positions penalties.
+  - [Tutorial 6: Search Chaining](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_6_search_chaining.ipynb) — Combining searches and introducing the SLaM pipelines.
+  - [Tutorial 7: Summary](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_7_summary.ipynb) — Bringing the chapter together and continuing to pixelized sources.
 - **[Chapter 3: Pixelizations](scripts/chapter_3_pixelizations/README.md)** — From MGE to pixelized sources: mappings, inversions, Bayesian regularization, borders and chained lens fits.
   - Tutorial 1 Pixelizations — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_1_pixelizations.ipynb))
   - Tutorial 2 Bayesian Regularization — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_2_bayesian_regularization.ipynb))
@@ -116,8 +113,10 @@ for the chapter 1 tutorials listed with a `markdown` link below; every other tut
   - Tutorial 4: Group Scale — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_4_scaling_up_lensing/tutorial_4_group_scale.ipynb))
   - Tutorial 5: Cluster Scale — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_4_scaling_up_lensing/tutorial_5_cluster_scale.ipynb))
   - Tutorial 6: Weak Lensing — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_4_scaling_up_lensing/tutorial_6_weak_lensing.ipynb))
-- **[Optional Tutorials](scripts/chapter_optional/)** — Alternative non-linear searches and advanced topics.
-  - Tutorial Optional: Searches — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.1.1/notebooks/chapter_optional/tutorial_searches.ipynb))
+- **[Optional Tutorials](scripts/chapter_optional/README.md)** — Search methods, runtime and historical workflows.
+  - [Need for Speed](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_optional/tutorial_need_for_speed.ipynb) — Computation, batching and estimating runtime.
+  - [Historical Prior Passing](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_optional/tutorial_prior_passing.ipynb) — An optional runnable example of prior passing using model_centred, a technique central to older workflows.
+  - [Searches](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_optional/tutorial_searches.ipynb) — Alternative non-linear search methods.
 
 Model-fits can run faster on a GPU. In Colab, enable one via *Runtime* → *Change runtime type*
 → *Hardware accelerator* before running a notebook.

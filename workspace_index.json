@@ -167,47 +167,9 @@
   },
   {
     "contents": [
-      "Initial Setup",
-      "Dataset Auto-Simulation",
-      "Model",
-      "Search",
-      "Result (Search 1)",
-      "Prior Passing",
-      "Result",
-      "Wrap Up",
-      "Detailed Explanation Of Prior Passing",
-      "EXAMPLE"
-    ],
-    "cross_refs": [
-      "autolens_workspace/scripts/guides/modeling/chaining.py"
-    ],
-    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_10_prior_passing.ipynb",
-    "path": "scripts/chapter_2_lens_modeling/tutorial_10_prior_passing.py",
-    "summary": "In the previous tutorial, we used non-linear search chaining to break the model-fitting procedure down into two non-linear searches. This used an initial search to fit a simple lens model, whose results were used to tune and initialize the priors of a more complex lens model that was fitted by the second search.",
-    "title": "Tutorial 10: Prior Passing"
-  },
-  {
-    "contents": [
-      "Search Chaining In The Workspace",
-      "SLaM (Source, Light and Mass)",
-      "Wrap Up"
-    ],
-    "cross_refs": [
-      "autolens_workspace/scripts/guides/modeling/chaining.py",
-      "autolens_workspace/scripts/guides/modeling/slam_start_here.py",
-      "autolens_workspace/scripts/imaging/features/multi_gaussian_expansion/slam.py",
-      "autolens_workspace/scripts/imaging/features/pixelization/slam.py",
-      "slam.py"
-    ],
-    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_11_slam.ipynb",
-    "path": "scripts/chapter_2_lens_modeling/tutorial_11_slam.py",
-    "summary": "In the previous two tutorials, we learnt how search chaining breaks a lens model-fit into a sequence of simpler non-linear searches, and how prior passing carries the results of each search into the next. Together, they give us the flexibility to juggle the dimensionality, priors and settings of each search \u2014 the three drivers of run-time we met in tutorial 8 \u2014 whilst still fitting a complex and realistic lens model at the end.",
-    "title": "Tutorial 11: SLaM"
-  },
-  {
-    "contents": [
       "Overview",
       "Parameter Space",
+      "More Dimensions",
       "Automated Exploration",
       "Deeper Background",
       "PyAutoFit",
@@ -302,7 +264,9 @@
       "Model Mismatch",
       "Wrap Up"
     ],
-    "cross_refs": [],
+    "cross_refs": [
+      "chapter_optional/tutorial_searches.py"
+    ],
     "notebook": "notebooks/chapter_2_lens_modeling/tutorial_3_why_modeling_is_hard.ipynb",
     "path": "scripts/chapter_2_lens_modeling/tutorial_3_why_modeling_is_hard.py",
     "summary": "We now have the tools to build a lens model, run a search and inspect its results. However, a search finishing does not necessarily mean that it has found a satisfactory fit.",
@@ -346,73 +310,69 @@
   },
   {
     "contents": [
-      "Initial Setup",
-      "Dataset Auto-Simulation",
+      "Dataset",
+      "Circular Masks",
+      "Beyond the Bright Arcs",
       "Mask",
-      "Model + Analysis",
-      "Run Time",
-      "Search",
-      "Discussion",
-      "Positions Thresholding",
-      "Wrap Up"
-    ],
-    "cross_refs": [],
-    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_6_masking_and_positions.ipynb",
-    "path": "scripts/chapter_2_lens_modeling/tutorial_6_masking_and_positions.py",
-    "summary": "We have learnt everything we need to know about non-linear searches to model a strong lens and infer a good lens model solution. Now, lets consider masking in more detail, something we have not given much consideration previously. We'll also learn a neat trick to improve the speed and accuracy of a non-linear search.",
-    "title": "Tutorial 6: Masking and Positions"
-  },
-  {
-    "contents": [
-      "Initial Setup",
-      "Dataset Auto-Simulation",
-      "Tracer & Fit",
-      "Samples",
-      "Workspace",
-      "Database",
-      "Wrap Up"
-    ],
-    "cross_refs": [],
-    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_7_results.ipynb",
-    "path": "scripts/chapter_2_lens_modeling/tutorial_7_results.py",
-    "summary": "In the previous tutorials, each search returned a `Result` object, which we used to plot the maximum log likelihood fit each model-fit. In this tutorial, we'll take a look at the result object in a little more detail.",
-    "title": "Tutorial 7: Results"
-  },
-  {
-    "contents": [
-      "Searching Non-linear Parameter Space",
-      "Cost Per Evaluation",
-      "JAX",
-      "Run Time Estimation",
-      "Data Quantity",
+      "Positions Constraints",
+      "Choosing Positions",
+      "The Positions Penalty",
+      "Model and Analysis",
+      "Search and Result",
+      "Contaminating Light",
+      "Extra Galaxy Dataset",
+      "Extra Galaxy Region",
+      "Noise Scaling",
+      "Interpreting the Scaled Dataset",
+      "Interferometer Data",
+      "Point-Source Data",
+      "Weak-Lensing Data",
+      "Multiple Datasets",
       "Wrap Up"
     ],
     "cross_refs": [
-      "autolens_workspace/scripts/imaging/features/pixelization/cpu_fast_modeling.py",
-      "chapter_optional/tutorial_searches.py"
+      "autolens_workspace/scripts/point_source/modeling.py",
+      "scripts/interferometer/modeling.py",
+      "scripts/weak/modeling.py"
     ],
-    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_8_need_for_speed.ipynb",
-    "path": "scripts/chapter_2_lens_modeling/tutorial_8_need_for_speed.py",
-    "summary": "In this chapter, we have learnt how to model strong lenses and how to balance complexity and realism to ensure that we infer a good lens model.",
-    "title": "Tutorial 8: Need For Speed"
+    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_5_data_and_likelihoods.ipynb",
+    "path": "scripts/chapter_2_lens_modeling/tutorial_5_data_and_likelihoods.py",
+    "summary": "Throughout this chapter, we have fitted imaging data using light and mass profiles. However, the modeling tools we have learnt are not tied to this particular type of observation. We can use the same approach to fit interferometer measurements, the positions of multiply imaged point sources, or the shapes of weakly lensed galaxies.",
+    "title": "Tutorial 5: Data and Likelihoods"
   },
   {
     "contents": [
-      "Initial Setup",
-      "Dataset Auto-Simulation",
-      "Model",
-      "Search + Analysis",
-      "Result",
-      "Prior Passing",
-      "Run Time",
-      "Model Fit",
+      "The Search Chain",
+      "Dataset and Mask",
+      "Multi-Gaussian Expansions",
+      "Model 1",
+      "Search 1",
+      "Inspecting Search 1",
+      "Fixing the Lens-Light Geometry",
+      "The Power-Law Mass Model",
+      "Model 2",
+      "Automatically Estimated Positions",
+      "Search 2",
+      "Result 2",
+      "Conditional Uncertainties",
+      "Search Chaining and SLaM",
       "Wrap Up"
     ],
+    "cross_refs": [
+      "scripts/imaging/features/multi_gaussian_expansion/slam.py"
+    ],
+    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_6_search_chaining.ipynb",
+    "path": "scripts/chapter_2_lens_modeling/tutorial_6_search_chaining.py",
+    "summary": "Look again at our lens image. The foreground galaxy's light, its gravitational deflection and the background source all contribute to what we observe. Fitting them together requires the search to explore several connected parts of the model.",
+    "title": "Tutorial 6: Search Chaining"
+  },
+  {
+    "contents": [],
     "cross_refs": [],
-    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_9_search_chaining.ipynb",
-    "path": "scripts/chapter_2_lens_modeling/tutorial_9_search_chaining.py",
-    "summary": "Throughout this chapter, we have fitted the data using just one non-linear search. The previous tutorial discussed the run-time cost of doing this: with a single search, the dimensionality of the model, the priors on its parameters and the search settings must all be juggled at once, leaving us little flexibility to trade them off against one another.",
-    "title": "Tutorial 9: Search Chaining"
+    "notebook": "notebooks/chapter_2_lens_modeling/tutorial_7_summary.ipynb",
+    "path": "scripts/chapter_2_lens_modeling/tutorial_7_summary.py",
+    "summary": "(no summary in script docstring)",
+    "title": "Tutorial 7: Summary"
   },
   {
     "contents": [
@@ -684,6 +644,43 @@
     "path": "scripts/chapter_4_scaling_up_lensing/tutorial_6_weak_lensing.py",
     "summary": "Our modeling tutorials have concentrated on **strong lensing**: the multiple images, arcs and Einstein rings produced by galaxy, group and cluster lenses.",
     "title": "Tutorial 6: Weak Lensing"
+  },
+  {
+    "contents": [
+      "Searching Parameter Space",
+      "Cost Per Evaluation",
+      "JAX",
+      "Batches and GPU Memory",
+      "Run Time Estimation",
+      "Data Quantity",
+      "Wrap Up"
+    ],
+    "cross_refs": [
+      "chapter_optional/tutorial_searches.py"
+    ],
+    "notebook": "notebooks/chapter_optional/tutorial_need_for_speed.ipynb",
+    "path": "scripts/chapter_optional/tutorial_need_for_speed.py",
+    "summary": "Two fits to the same image can take very different amounts of time. Finding a good fit with a simple model may be quick, whereas exploring the uncertainties of a more flexible model can take much longer. Both the calculation performed for each model and the search through parameter space contribute to this difference.",
+    "title": "Optional Tutorial: Need for Speed"
+  },
+  {
+    "contents": [
+      "Initial Setup",
+      "Dataset Auto-Simulation",
+      "Model",
+      "Search",
+      "Result (Search 1)",
+      "Prior Passing",
+      "Result",
+      "Wrap Up",
+      "Detailed Explanation Of Prior Passing",
+      "EXAMPLE"
+    ],
+    "cross_refs": [],
+    "notebook": "notebooks/chapter_optional/tutorial_prior_passing.ipynb",
+    "path": "scripts/chapter_optional/tutorial_prior_passing.py",
+    "summary": "This optional tutorial preserves a technique used in earlier **PyAutoLens** modelling workflows, up to around 2025: passing parameter constraints from one search into the priors of a later search.",
+    "title": "Optional Tutorial: Historical Prior Passing"
   },
   {
     "contents": [

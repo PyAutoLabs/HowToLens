@@ -229,22 +229,19 @@ aplt.subplot_fit_imaging(fit=result_reference.max_log_likelihood_fit)
 """
 __Why Modeling Is Hard__
 
-A lens image can sometimes be reproduced approximately by several different combinations of lens light, mass and source
-light. These combinations occupy different regions of parameter space.
+Our example deliberately makes the search less thorough by reducing the number of live points from 200 to 21. This is a somewhat contrived way to expose a difficulty within a short tutorial: your particular run may still find a good solution.
 
-A **local maximum** is a point whose likelihood is higher than that of nearby points, even though a better solution
-exists elsewhere. The **global maximum** is the highest likelihood available within the chosen model and parameter
-ranges.
+The underlying problem, however, is common in modeling real lenses. Different combinations of lens light, mass and source light can reproduce parts of an image, creating several promising regions of parameter space. A search may explore one region thoroughly while missing a better solution elsewhere.
 
-A search can spend its effort exploring one promising region and miss another. With only 21 live points, there is
-little opportunity to represent all the important regions of this model’s parameter space.
+A **local maximum** has a likelihood at least as high as nearby parameter values. There may still be another peak with a higher likelihood elsewhere. The **global maximum** is the highest likelihood available within the chosen model and parameter ranges.
 
-More free parameters can make exploration harder, but the parameter count is only part of the problem. Strong
-relationships between parameters, narrow regions of good solutions and separated peaks also matter.
+In a real analysis, it can be difficult to establish whether the best solution we have found is a local or global maximum. We do not know the true parameters, and a plausible-looking fit does not prove that every important region has been explored.
 
-A poor fit can therefore result from incomplete exploration. However, residuals alone do not establish that the search
-has reached a local maximum: the physical model or the assumptions about the data may also be inadequate. We return to
-this distinction under *Model Mismatch*.
+Finding a higher-likelihood solution demonstrates that an earlier result was not the global maximum. Repeatedly recovering a similar solution increases our confidence, but does not prove that no better solution exists.
+
+The approaches in this tutorial are therefore tools for investigation. By changing justified priors, simplifying selected parts of the model and exploring more thoroughly, we can investigate suspicious fits and understand what makes the modeling difficult.
+
+Residuals also require interpretation: they can arise because the search missed a good solution, or because the model cannot describe the data adequately. We will return to this distinction under *Model Mismatch*.
 
 __Three Ways Forward__
 
@@ -656,17 +653,15 @@ its restrictions are relaxed.
 
 __Search More Thoroughly__
 
-Our first two approaches changed the priors or reduced the freedom of the model. We now return to the original model
-and ask Nautilus to explore it more thoroughly.
+Our first two approaches changed the priors or reduced the freedom of the model. We now return to the original model and ask Nautilus to explore it more thoroughly.
 
-This retains separate centres and shapes for the lens light and mass, allowing the image to constrain them without the
-links introduced above.
+We increase the number of live points to 300. A larger population gives the search more opportunity to represent different promising regions of parameter space, although this generally requires more computation and does not guarantee that every important region will be found.
 
-We increase the number of live points to 300. A larger population gives the search more opportunity to represent
-different promising regions of parameter space.
+Increasing the number of live points is only one option. There are many different non-linear search methods, and they explore parameter space in different ways. Trying another method can make a substantial difference when a particular search struggles with a model.
 
-This approach requires no estimates of the lens shape or size by eye beyond the original modeling choices. Its main
-cost is computation: exploring more thoroughly generally takes longer.
+The optional tutorial, `chapter_optional/tutorial_searches.py`, introduces alternative searches, including optimisation and MCMC. Their outputs serve different purposes: finding a high-likelihood solution and characterising parameter uncertainty are related but distinct tasks.
+
+When investigating a difficult fit, compare repeated runs and, where appropriate, different search methods using the same model, priors and likelihood. Examine the fitted images and residuals alongside the likelihood values. Agreement provides useful evidence; disagreement tells us that further investigation is needed.
 
 __Original Model__
 
@@ -857,7 +852,5 @@ model realism, reliable fitting and manageable run times, drawing on the strengt
 
 Later in this chapter, we will see how search chaining brings these ideas together for more complex lens models.
 
-First, *Linear Profiles* introduces another way to make fitting easier: solving light-profile intensities separately
-from the non-linear search. This will let us describe more detailed light distributions without adding a separate
-non-linear parameter for every intensity.
+The next tutorial introduces another way to simplify the search while describing more detailed light distributions.
 """
