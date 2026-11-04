@@ -733,9 +733,7 @@ physical units when needed.
 
 Tutorial 3 explains the cosmological distances behind this
 conversion, as part of its optional mathematical discussion.
-"""
 
-"""
 __More Complexity__
 
 Our tracer currently contains one spherical lens and one source.
@@ -962,9 +960,7 @@ including convergence, shear, magnification, critical curves
 and caustics. You can follow its physical explanations and
 figures without working through every equation, and return
 to the mathematics when you need it.
-"""
 
-"""
 __Env__
 
 Keep the full 101-by-101 grid during automated runs so that the

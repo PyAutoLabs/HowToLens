@@ -349,7 +349,7 @@ print(fit.residual_map.slim[0])
 
 aplt.plot_array(array=fit.residual_map, title="Residual Map")
 
-"""
+r"""
 Because we used the parameters that generated the simulation, we expect
 the residuals to be dominated by the noise in the data.
 
@@ -362,9 +362,7 @@ the noise expected in that pixel. This is our next step.
 
 **🤖 Ask AI:** Why can a correct lens model leave larger absolute residuals
 in bright arcs than in the faint background?
-"""
 
-r"""
 The size of a residual only becomes informative when compared with the
 uncertainty in that pixel. A difference of 0.1 electrons per second could
 be small in a noisy pixel but substantial in a precisely measured one.
@@ -663,9 +661,7 @@ cells in the Fitting section.
 
 **🤖 Ask AI:** Why might the parameters that maximise the likelihood of a
 noisy simulated image differ slightly from those used to generate it?
-"""
 
-"""
 __Model Fitting__
 
 So far, we have compared parameter choices with a known reference model.
@@ -740,7 +736,7 @@ aplt.subplot_fit_imaging(fit=fit)
 print("Log Likelihood:")
 print(fit.log_likelihood)
 
-"""
+r"""
 Try changing one parameter at a time and rerunning the cell above. Record
 the log likelihood for each choice and use the residual plots to understand
 what changed.
@@ -770,9 +766,7 @@ may need revisiting after another parameter changes.
 To restore the original starting point, set both centres to `(1.0, 1.0)`,
 and set `einstein_radius`, `effective_radius` and `intensity` to 1.0, then
 rerun the cell.
-"""
 
-"""
 You have now performed a simple manual search: choose parameters, predict
 an image, compare it with the data, then use that comparison to choose
 another set of parameters.
@@ -791,9 +785,7 @@ and quantify what we can infer from the data.
 
 **🤖 Ask AI:** How could changing both the source size and its intensity
 make it difficult to determine either parameter by adjusting them manually?
-"""
 
-r"""
 __Likelihood Function__
 
 Everything we have learned can now be put into a single sequence:

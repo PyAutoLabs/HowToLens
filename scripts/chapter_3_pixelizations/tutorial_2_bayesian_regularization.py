@@ -299,9 +299,7 @@ favour giving the source too much freedom.
 
 **🤖 Ask AI:** Why might a weakly regularized reconstruction have a lower chi-squared but a less trustworthy source
 than a more strongly regularized reconstruction?
-"""
 
-"""
 __Bayesian evidence__
 
 Choosing the regularization coefficient is a Goldilocks problem. Too little regularization gives the source enough freedom to fit the image’s noise. Too much regularization smooths away source structure that we need to explain the image. We want an amount of regularization that is **“just right”**.
@@ -369,9 +367,7 @@ aplt.subplot_fit_imaging_of_planes(fit=best_fit)
 Compare this reconstruction with the weakly and strongly regularized examples. How much of the irregular source structure has been smoothed away? Are the bright components still reconstructed accurately? What remains in the image residuals?
 
 We have selected the best of **three coefficients**, rather than found the overall maximum. A coefficient between our trial values could give a higher log evidence. Next, we will evaluate a wider range and plot the evidence against the coefficient to locate its peak.
-"""
 
-"""
 __Exploring the regularization coefficient__
 
 Our three examples illustrate too little, moderate and too much regularization. However, there is nothing special about the starting coefficient of `1.0`. A value of `0.5`, `2.0`, or something else entirely might give a higher log evidence.
@@ -435,9 +431,7 @@ We have subtracted the highest log evidence from every value. This places the hi
 Look for the peak of the curve. Towards small coefficients, the source has more freedom to fit noise. Towards large coefficients, smoothing increasingly prevents it from reproducing the source structure. The peak identifies our Goldilocks coefficient **among the values we have tested**.
 
 If the highest point lies at either end of the range, we should extend the range in that direction. We have not yet located a peak between weaker and stronger regularization.
-"""
 
-"""
 __Inspecting the preferred reconstruction__
 
 Let’s take the coefficient with the highest log evidence and look at its source reconstruction and image residuals.
@@ -475,9 +469,7 @@ Choosing the highest evidence does not mean the residuals must now be satisfacto
 There is also a compromise in applying one coefficient across the whole source. The bright centre may need weaker smoothing to preserve its steep brightness gradient, while the faint outskirts benefit from stronger smoothing. A single coefficient must serve both regions.
 
 Keep these limitations in mind. Our later **Fit Problems** tutorial will show why choosing the coefficient is only part of the solution, motivating meshes and regularization that adapt to the source.
-"""
 
-"""
 __What is linear, and what requires a search?__
 
 Our reconstruction contains hundreds of source brightness values. Does this mean we have added hundreds of parameters to the non-linear search?
@@ -511,9 +503,7 @@ The calculation follows this sequence:
 4. We calculate the log evidence, which the search uses to assess that proposal.
 
 This is what makes pixelized sources practical. We can reconstruct hundreds of source brightness values without asking the non-linear search to explore hundreds of additional parameters.
-"""
 
-"""
 __Mesh resolution and regularization belong together__
 
 We have found a preferred regularization coefficient for our current mesh. Would the same coefficient still be preferred if we changed its resolution?
@@ -593,9 +583,7 @@ The position tells us which coefficient is preferred for that mesh. The height l
 A finer mesh may increase the evidence by resolving source structure that the coarser mesh cannot describe. However, more source pixels do not automatically mean a better reconstruction: the additional freedom must be justified by the image data.
 
 Before drawing a conclusion, check that each peak lies inside the coefficient range. If a curve is still rising at either end, extend its range. Once a peak is bracketed, try more closely spaced coefficients around it to refine the comparison.
-"""
 
-"""
 __Wrap Up__
 
 We can now explain the regularization coefficient that we first supplied without much discussion in tutorial 1.
@@ -624,8 +612,6 @@ Throughout this tutorial, we fixed the lens mass model to the values used to sim
 Before that, we need to examine another practical issue. Choosing the number of source pixels does not, by itself, determine our source resolution. We also need to consider **how much area those pixels cover**.
 
 ---
-"""
 
-"""
 For the underlying equations, the workspace’s [pixelization likelihood guide](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/imaging/features/pixelization/likelihood_function.py) follows the mapping, blurring, regularization and evidence calculations step by step.
 """

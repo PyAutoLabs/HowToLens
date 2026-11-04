@@ -30,9 +30,7 @@ __Contents__
 - Running the adaptive Delaunay fit
 - Inspecting the source and smoothing pattern
 - Wrap Up
-"""
 
-"""
 __Adaptive source reconstruction__
 
 In **Fit Problems**, we identified two limitations of our reconstruction: too few mesh points across compact source structure, and a single regularization coefficient that must compromise between the bright centre and faint outskirts.
@@ -63,9 +61,7 @@ We will proceed through:
 - Performing a lens-model fit with an adaptive pixelization.
 
 ---
-"""
 
-"""
 __Returning to the compact-source problem__
 
 We return to the very compact source from **Fit Problems**. Keeping the same example lets us examine whether the adaptive methods address the difficulties we have just investigated.
@@ -169,9 +165,7 @@ Initially, we keep the true mass model fixed. This lets us inspect how changing 
 We know the simulated source profile, but we will not use its brightness distribution to tell the adaptive mesh where to place its points. Brightness adaptation will use a fitted model image, as it would for observed data.
 
 ---
-"""
 
-"""
 __From an image mesh to a source mesh__
 
 Previously, we constructed a rectangular mesh directly in the source plane.
@@ -227,9 +221,7 @@ This lets the source mesh respond to the lensing geometry. However, the overlay 
 That is why magnification-based sampling is useful but does not completely address the problem from the previous tutorial.
 
 Next, we will connect the traced points into a Delaunay triangulation and use it to reconstruct the source. Border relocation will remain enabled when constructing the fit; the plot above shows the direct ray tracing before that treatment.
-"""
 
-"""
 __Constructing the Delaunay source mesh__
 
 We now connect the traced mesh points into a **Delaunay triangulation**.
@@ -298,9 +290,7 @@ Inspect the mesh points around the reconstructed source. Their spacing follows t
 The coefficient of `1.0` is only a starting value. We should not judge whether this mesh improves the fit until we have explored its regularization.
 
 ---
-"""
 
-"""
 __Interpolating within a triangle__
 
 How does a triangular mesh predict the brightness at a ray-traced coordinate?
@@ -356,9 +346,7 @@ The PSF then redistributes the predicted light between image pixels, as in our r
 Interpolation still does not determine the vertex brightnesses. Those are solved by the inversion, with regularization controlling how freely they can vary.
 
 ---
-"""
 
-"""
 __Regularization on an irregular mesh__
 
 We begin with the same `Constant` regularization scheme used earlier.
@@ -420,9 +408,7 @@ Now examine the source centre and bright arc residuals. Has the overlay placed e
 We have changed the mesh geometry, but two limitations remain. The overlay does not respond to the source brightness, and one coefficient still controls regularization everywhere.
 
 Next, we will use a fitted image to guide where the image-mesh points are placed, concentrating more sampling on the source emission.
-"""
 
-"""
 __Building an adapt image__
 
 Our overlay responds to the lensing geometry, but it does not distinguish bright arcs from regions containing only background noise.
@@ -451,9 +437,7 @@ Our dataset contains no foreground lens light, so the complete model image repre
 We will keep this adapt image fixed while comparing mesh settings. It guides the placement of points; it does not fix the brightness values reconstructed on the new mesh.
 
 ---
-"""
 
-"""
 __Placing points with a Hilbert image mesh__
 
 We now replace the evenly spaced overlay with a **Hilbert image mesh**.
@@ -517,9 +501,7 @@ This addresses the distinction raised in **Fit Problems**: the magnification fie
 Next, let’s examine how its weights are calculated.
 
 ---
-"""
 
-"""
 __Controlling the brightness weighting__
 
 Two parameters control how the adapt image becomes a weight map: `weight_power` and `weight_floor`.
@@ -581,9 +563,7 @@ A higher power is not automatically better. Concentrating too many points on the
 The weight floor helps moderate this effect. Here, every location has a weight of at least `0.05`. This is a minimum weight, not a statement that five per cent of the mesh points must lie in the background.
 
 Next, we will vary that floor and reconstruct the source with the Hilbert mesh, checking the residuals and evidence rather than judging the mesh by its appearance alone.
-"""
 
-"""
 __Keeping resolution in the faint regions__
 
 Increasing `weight_power` concentrates points on the brightest parts of the adapt image. However, the source may also have faint extended emission that needs to be reconstructed.
@@ -639,9 +619,7 @@ Because the background can cover much more area than the arcs, even a modest flo
 For our first reconstruction, we return to the mesh already constructed with `weight_power=1.0` and `weight_floor=0.05`. These are starting choices to investigate, rather than settings we have established as optimal.
 
 ---
-"""
 
-"""
 __Reconstructing with the Hilbert mesh__
 
 We now use the Hilbert coordinates to build a Delaunay source mesh.
@@ -711,9 +689,7 @@ Then inspect the residuals around the bright arcs. Additional resolution gives t
 We have initially reused the overlay’s preferred coefficient. As tutorial 2 showed, changing the mesh can change the preferred smoothing strength. We therefore need to explore regularization again before comparing the two reconstructions.
 
 ---
-"""
 
-"""
 __Comparing overlay and Hilbert reconstructions__
 
 Let’s scan the regularization coefficient for the Hilbert mesh, using the same range as the overlay.
@@ -795,9 +771,7 @@ Connect the evidence comparison to the residuals. Does the brightness-adaptive m
 This tests one Hilbert weighting choice, using a fixed adapt image. It does not establish that every Hilbert mesh outperforms every overlay.
 
 We have now addressed where the source points are placed. Next, we will address how to regularize their brightnesses on an irregular mesh, before allowing the smoothing strength to vary between bright and faint regions.
-"""
 
-"""
 __Smoothing on an irregular mesh__
 
 Our Delaunay mesh has vertices with different neighbour counts, edge lengths and directions.
@@ -820,9 +794,7 @@ It is also important to distinguish **Split** from **adaptive** regularization:
 We will first examine `ConstantSplit`, then introduce the brightness-dependent coefficients.
 
 ---
-"""
 
-"""
 __Reconstructing with ConstantSplit__
 
 Let’s keep the Hilbert mesh and adapt image fixed and change the regularization scheme.
@@ -908,9 +880,7 @@ As before, refine the coefficient sampling around the peaks before interpreting 
 Split changes how local brightness variations are penalized, but `ConstantSplit` still applies one coefficient everywhere. It therefore retains the centre-versus-outskirts compromise identified in **Fit Problems**.
 
 ---
-"""
 
-"""
 __Allowing different smoothing strengths__
 
 We now let the regularization strength depend on the source brightness.
@@ -969,15 +939,13 @@ aaplt.plot_mapper(
 
 aplt.subplot_fit_imaging(fit=adaptive_fit)
 
-"""
+r"""
 Compare the regularization-weight map with the reconstructed source. Smaller weights should occur where the adapt image indicates stronger source emission, allowing greater local brightness variation. Larger weights encourage more smoothing in low-signal regions.
 
 These weights control the regularization penalty; they are not uncertainties on the reconstructed brightnesses.
 
 The trial coefficients were chosen to illustrate the mechanism. We have not yet established that they improve the fit or maximize the evidence. Next, we will examine the transition controlled by `signal_scale` and explore the adaptive coefficients systematically.
-"""
 
-r"""
 __Controlling the transition with `signal_scale`__
 
 The inner and outer coefficients set the smoothing strengths at the high- and low-signal ends of the source. How do we assign a strength to the regions between them?
@@ -1032,9 +1000,7 @@ These weights are based on the fixed adapt image and its mappings. They are not 
 Also distinguish `signal_scale` from the Hilbert mesh’s `weight_power`. Both transform brightness-derived information, but they control different things: `weight_power` changes **where mesh points are placed**, whereas `signal_scale` changes **how their brightnesses are regularized**.
 
 ---
-"""
 
-"""
 __Exploring the adaptive coefficients__
 
 We now have three regularization parameters: the inner coefficient, outer coefficient and signal scale.
@@ -1106,9 +1072,7 @@ If the preferred inner and outer coefficients are equal, changing `signal_scale`
 For a complete modelling analysis, these parameters can be explored by a non-linear search alongside the lens parameters. We will use that approach in the final fit.
 
 ---
-"""
 
-"""
 __Does adaptive regularization address the fit problem?__
 
 Let’s inspect the highest-evidence adaptive reconstruction we have evaluated and compare it with `ConstantSplit`.
@@ -1179,9 +1143,7 @@ A higher log evidence shows that this adaptive setting improves the reconstructi
 If substantial residuals remain, inspect where they occur. Adaptive regularization still cannot supply resolution missing from the mesh, and both adaptive steps depend on the initial adapt image.
 
 We have now explored the mesh placement and smoothing separately. Next, we will bring them together in an actual lens-model search, using an initial MGE fit, prior passing and the positions likelihood penalty.
-"""
 
-"""
 __Starting the final modelling chain__
 
 So far, we have supplied the true lens mass model to isolate the effects of mesh placement and regularization.
@@ -1256,9 +1218,7 @@ The narrow Gaussian components allow the MGE to describe the compact source cent
 Inspect this result before continuing. Does it explain the multiple-image configuration, and does it recover a sensible compact source? We should not use a misleading initial solution to guide the adaptive fit.
 
 ---
-"""
 
-"""
 __Preparing adaptation and the positions likelihood penalty__
 
 We now derive a new adapt image from the fitted MGE result. This replaces the image used in our fixed-mass experiments.
@@ -1347,9 +1307,7 @@ print(
 Inspect both the mesh placement and predicted image positions. They should follow the source emission and multiple-image configuration before we use them in the next fit.
 
 ---
-"""
 
-"""
 __Defining the adaptive Delaunay model__
 
 We now replace the MGE source with a Delaunay pixelization and adaptive Split regularization.
@@ -1411,9 +1369,7 @@ The `power` setting remains fixed at `1.0`; it specifies the coefficient convent
 The regularization priors are starting ranges. After fitting, we will check whether the inferred parameters approach their boundaries and whether broader ranges or further exploration are needed.
 
 We are now ready to run the adaptive Delaunay fit and inspect the resulting mass model, source reconstruction and smoothing pattern.
-"""
 
-"""
 __Running the adaptive Delaunay fit__
 
 The second search combines our Delaunay model, adaptation inputs and positions likelihood penalty.
@@ -1457,9 +1413,7 @@ Inspect the image residuals first. Are there coherent patches around the bright 
 Then examine the parameter distributions. A satisfactory-looking best fit does not establish that the search has explored the relevant solutions or measured reliable uncertainties. Check for parameters approaching prior boundaries and use the search diagnostics introduced in Chapter 2.
 
 ---
-"""
 
-"""
 __Inspecting the source and smoothing pattern__
 
 Let’s look more closely at where the final mesh places its vertices and how strongly those vertices are regularized.
@@ -1549,9 +1503,7 @@ Our simulated source is a smooth Sérsic profile, which an MGE can describe well
 The additional spatial freedom becomes particularly useful for irregular sources whose structure is difficult to describe using a prescribed arrangement of analytic components.
 
 ---
-"""
 
-"""
 __Wrap Up__
 
 We began this chapter by replacing an analytic source profile with brightness values on a mesh.
@@ -1579,9 +1531,7 @@ When assessing a result, connect three views:
 MGE models remain valuable for initial fits, foreground light and sources well described by analytic components. Pixelizations complement them when we need greater freedom to reconstruct the source.
 
 We now have the tools to use both together—and to investigate why a reconstruction succeeds or struggles, rather than relying only on how its source plot looks.
-"""
 
-"""
 **🤖 Ask AI:** How do Hilbert mesh weighting and adaptive Split regularization address different limitations of a compact-source reconstruction?
 
 __Env__

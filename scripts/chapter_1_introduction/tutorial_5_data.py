@@ -191,9 +191,7 @@ aplt.plot_array(array=blurred_image, title="Tracer Image After PSF")
 """
 **🤖 Ask AI:** How does blurring by a telescope's PSF affect our ability to
 distinguish two nearby features in a gravitationally lensed arc?
-"""
 
-"""
 __Poisson Noise__
 
 Even if a galaxy's brightness remains constant, repeated observations do not
@@ -360,9 +358,7 @@ aplt.plot_array(array=dataset.data, title="Simulated Imaging Data")
 """
 **🤖 Ask AI:** Why does subtracting the mean background sky from an astronomical
 image leave the sky's Poisson noise behind?
-"""
 
-"""
 The dataset also stores the PSF used to simulate the observation.
 
 For real observations, we need an estimate of the PSF, which can come from
@@ -530,9 +526,7 @@ Fluxes and time delays are optional: a dataset can contain only positions
 and their uncertainties. For further examples of working with these data,
 see the workspace's
 [point-source examples](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/point_source/start_here.py).
-"""
 
-"""
 __Interferometer Data__
 
 We can also observe strong lenses at radio and submillimetre wavelengths using
@@ -591,9 +585,7 @@ need not correspond to additional emission on the sky.
 The dataset retains the visibilities for analysis. For further examples of
 working with these data, see the workspace's
 [interferometer examples](https://github.com/PyAutoLabs/autolens_workspace/tree/main/scripts/interferometer).
-"""
 
-"""
 __Weak Lensing Data__
 
 Away from the prominent arcs and rings, gravitational lensing can produce
@@ -634,9 +626,7 @@ added shape noise.
 Chapter 4 returns to weak lensing in more detail. For further examples of
 working with these data, see the workspace's
 [weak-lensing examples](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/weak/start_here.py).
-"""
 
-"""
 __Group and Cluster Lenses__
 
 Strong lensing also occurs around groups and clusters of galaxies. Their

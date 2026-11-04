@@ -18,9 +18,7 @@ __Contents__
 - Why one regularization coefficient becomes a compromise
 - Why maximizing the evidence does not remove the compromise
 - Wrap Up
-"""
 
-"""
 __When the best coefficient is not enough__
 
 We have learned how to reconstruct a source, choose its regularization coefficient using Bayesian evidence, and fit the lens mass model.
@@ -53,9 +51,7 @@ We will work through:
 - Motivating adaptation to the source’s brightness distribution.
 
 ---
-"""
 
-"""
 __Three progressively compact sources__
 
 We use three Sérsic profiles with the same centre and elliptical shape.
@@ -119,9 +115,7 @@ The lens produces exactly the same deflection and magnification fields in all th
 This distinction will become important: the lensing geometry stays the same, but the spatial resolution needed to describe the source’s light changes.
 
 ---
-"""
 
-"""
 __Simulating the images__
 
 We now simulate the three lensed images using the same image grid and telescope blurring.
@@ -218,9 +212,7 @@ We now have three datasets with a common lens model, image sampling, PSF, mask a
 Next, we will reconstruct them using the same rectangular mesh and constant regularization scheme. For each dataset, we will scan the coefficient and inspect its evidence-preferred reconstruction.
 
 We will compare alternative reconstructions **within each dataset**. We will not rank the three different simulated galaxies against one another using their absolute evidence values.
-"""
 
-"""
 __Reconstructing the sources__
 
 We will reconstruct all three sources using a `25 × 25` rectangular mesh and `Constant` regularization.
@@ -262,9 +254,7 @@ This is the limitation we want to explore. The source can become smaller and mor
 For now, the only reconstruction setting we vary is the regularization coefficient.
 
 ---
-"""
 
-"""
 __Finding the preferred regularization__
 
 As in tutorial 2, we evaluate a range of coefficients and compare their log evidences. We do this separately for each dataset: a coefficient suitable for the extended source need not be suitable for either compact source.
@@ -348,9 +338,7 @@ Each plot has its own maximum subtracted. We are examining how regularization af
 We can now inspect the reconstructions knowing that we have selected their smoothing strengths systematically.
 
 ---
-"""
 
-"""
 __Starting with the extended source__
 
 Let’s begin with the extended source.
@@ -402,9 +390,7 @@ print(
 A value around one is a useful reference for noise-level residuals, but it does not tell us whether those residuals form a spatial pattern. Keep the residual map alongside this number.
 
 This extended-source fit provides our baseline. Next, we will make the source more compact without giving the mesh any additional resolution, and examine where the reconstruction begins to struggle.
-"""
 
-"""
 __Making the source more compact__
 
 Now inspect the compact source.
@@ -454,9 +440,7 @@ If structured residuals remain, remember what we have already controlled: the ma
 The question is therefore no longer simply “Have we chosen the wrong coefficient?” We need to ask whether our mesh and regularization scheme can represent this source adequately.
 
 ---
-"""
 
-"""
 __A very compact source__
 
 Our final source has an effective radius of just `0.1` arcsec and a Sérsic index of `4.0`. Its light rises steeply towards the centre, placing a greater demand on the reconstruction.
@@ -514,9 +498,7 @@ Use these numbers alongside the maps. They summarize the overall residual amplit
 These galaxies also have different brightness distributions and signal-to-noise ratios. We should not interpret the comparison as a measurement of source-size effects alone. Its purpose is to expose the practical difficulty of reconstructing increasingly concentrated light with an unchanged mesh and one smoothing coefficient.
 
 ---
-"""
 
-"""
 __Why the mesh becomes a limitation__
 
 Let’s examine the first problem: where our source pixels are placed.
@@ -559,9 +541,7 @@ Magnification offers one useful guide because it tells us where lensing provides
 This motivates adapting the mesh to the **source’s brightness distribution**, which we will explore in the next tutorial.
 
 First, there is a second limitation to understand. Even with enough mesh points, should we apply the same regularization coefficient to the bright centre and faint outskirts?
-"""
 
-"""
 __Why one regularization coefficient becomes a compromise__
 
 Suppose we had enough mesh points to resolve the source’s bright centre. Would that solve the problem?
@@ -635,9 +615,7 @@ Does weaker regularization help reproduce the central peak? Does it also introdu
 These changes need not be equally visible in every dataset. The important point is that changing one coefficient changes the smoothing preference everywhere, even though different source regions may benefit from different strengths.
 
 ---
-"""
 
-"""
 __Why maximizing the evidence does not remove the compromise__
 
 Why does the Bayesian evidence not simply select a coefficient that fixes both regions?
@@ -677,9 +655,7 @@ An **adaptive regularization scheme** gives us more control. It can allow weaker
 The evidence still decides whether that additional flexibility is useful. We compare the constant and adaptive schemes on the same dataset, allowing their parameters to vary appropriately. Adaptation is a way to improve the available reconstructions, rather than a guarantee that every fit will improve.
 
 ---
-"""
 
-"""
 __Wrap Up__
 
 We began with three sources whose light became progressively more concentrated, while keeping the lens mass model fixed to its true values.
@@ -702,9 +678,7 @@ We will then use a fitted brightness distribution to guide a Hilbert image mesh,
 At each stage, we will return to the questions raised here: does the mesh resolve the source’s bright structure, and does regularization preserve that structure while controlling fluctuations elsewhere?
 
 We will finish by using these methods in a lens-model fit, with the search-chaining procedure and positions likelihood penalty already introduced.
-"""
 
-"""
 **🤖 Ask AI:** How would you distinguish insufficient source-mesh resolution from over-smoothing when compact-source residuals remain at the evidence-preferred coefficient?
 
 __Env__
