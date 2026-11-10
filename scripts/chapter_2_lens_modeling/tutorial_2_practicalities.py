@@ -315,9 +315,24 @@ follow how the predicted image improves, but wait for completion before interpre
 
 The output is organised beneath `output/howtolens/chapter_2/lens_sersic/tutorial_2_practicalities`. The dataset tag and
 automatically generated identifier distinguish this particular fit within that folder.
+
+__Stored Results__
+
+HowToLens comes with the completed output of this fit already in that folder. When you run the next cell, PyAutoFit
+recognises it, prints `Fit Already Completed: skipping non-linear search` and loads the result in seconds, rather than
+repeating a search that takes tens of minutes.
+
+This is deliberate. Every fit in the rest of this chapter is stored in the same way, so you can work through the
+tutorials without waiting for searches to finish. The stored results are the genuine output of these searches, recorded
+when the tutorials were prepared, and the cell after the fit prints how long this one took.
+
+To run the search yourself, delete the `tutorial_2_practicalities` folder in `output/howtolens/chapter_2/lens_sersic`
+and rerun the cell. **Resuming and Loading** below explains how PyAutoFit decides whether to load a fit or run it.
 """
 
 result = search.fit(model=model, analysis=analysis)
+
+print(f"Recorded run time of this search: {float(result.samples.time) / 60:.1f} minutes")
 
 """
 __Result Info__

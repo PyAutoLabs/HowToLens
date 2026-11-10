@@ -161,6 +161,9 @@ Inspect the resulting fit and residuals. Your run may still succeed because the 
 successful run does not make this a reliable setting.
 
 We give this fit its own name so its output is kept separate from the *Practicalities* result.
+
+As in *Practicalities*, this fit and every other fit in this tutorial are stored with HowToLens, so each cell loads its
+result in seconds. Delete a fit's folder in `output/howtolens/chapter_2/lens_sersic` to run it yourself.
 """
 
 search = af.Nautilus(

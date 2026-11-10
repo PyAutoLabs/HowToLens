@@ -202,6 +202,9 @@ larger collections of profiles.
 
 This example changes both the treatment of intensities and the live-point count, so it is a practical demonstration
 rather than a controlled timing comparison.
+
+Both fits in this tutorial are stored with HowToLens, as explained in *Practicalities*, so their results load in
+seconds. Delete a fit's folder in `output/howtolens/chapter_2/lens_sersic` to run it yourself.
 """
 
 search = af.Nautilus(
