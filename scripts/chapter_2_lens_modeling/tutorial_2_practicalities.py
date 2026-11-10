@@ -200,6 +200,7 @@ search = af.Nautilus(
     name="tutorial_2_practicalities",
     unique_tag=dataset_name,
     n_live=200,
+    seed=1,
     n_batch=50,
     iterations_per_quick_update=2500,
 )
@@ -210,6 +211,9 @@ __Search Settings__
 We increase `n_live` from 100 in Tutorial 1 to 200 for this more complex model. More live points generally allow a more
 thorough exploration, at the cost of additional computation. We must still inspect the result rather than assume this
 setting guarantees a successful fit.
+
+`seed=1` fixes the random choices Nautilus makes while it explores. Rerunning the search with the same seed reproduces
+the stored result described below; a different seed explores differently and may reach a different answer.
 
 `n_batch=50` allows likelihood evaluations to be processed in batches. Evaluating several models together can improve
 performance, particularly on a GPU, but also requires more memory.

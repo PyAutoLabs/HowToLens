@@ -172,6 +172,11 @@ def check() -> int:
     env = {key: value for key, value in os.environ.items() if key != "PYAUTO_TEST_MODE"}
     env.setdefault("MPLBACKEND", "Agg")
 
+    # A refused search still writes its setup files first; remove those folders
+    # afterwards so a failed check leaves no half-made results behind.
+    stored = REPO / STORED_ROOT
+    before = {path for path in stored.glob("*/*/*")} if stored.exists() else set()
+
     failures = []
     for name in CHECKED_TUTORIALS:
         script = Path("scripts") / "chapter_2_lens_modeling" / name
@@ -188,6 +193,11 @@ def check() -> int:
             tail = (completed.stdout + completed.stderr).strip().splitlines()[-1:]
             print(f"FAILED  {name}: {tail[0] if tail else completed.returncode}")
             failures.append(name)
+
+    for path in (set(stored.glob("*/*/*")) - before) if stored.exists() else ():
+        shutil.rmtree(path)
+        if not any(path.parent.iterdir()):
+            path.parent.rmdir()
 
     if failures:
         print(
