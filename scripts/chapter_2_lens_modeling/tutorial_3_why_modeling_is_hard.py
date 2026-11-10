@@ -151,11 +151,13 @@ analysis = al.AnalysisImaging(dataset=dataset)
 """
 __A Less Thorough Search__
 
-We deliberately reduce `n_live` from 200 to just 21. This gives Nautilus very few live points with which to explore
+We deliberately reduce `n_live` from 200 to just 50. This gives Nautilus far fewer live points with which to explore
 this complex model, making it more likely to miss a good solution.
 
-Nautilus requires at least one more live point than the number of non-linear parameters. This model has 20, so 21 is
-the smallest valid setting; a value of 10 would raise an error rather than produce a fit.
+Nautilus requires more live points than the model has non-linear parameters. This model has 20, so a value of 10 would
+raise an error rather than produce a fit. A setting just above that limit, such as 21, is accepted, but it leaves
+Nautilus too few points to build the boundaries it uses to explore parameter space, and the search then stops with a
+numerical error. Fifty keeps the search sparse while leaving it able to run.
 
 Inspect the resulting fit and residuals. Your run may still succeed because the search includes random sampling; a
 successful run does not make this a reliable setting.
@@ -170,7 +172,7 @@ search = af.Nautilus(
     path_prefix=Path("howtolens") / "chapter_2",
     name="tutorial_3_less_thorough",
     unique_tag=dataset_name,
-    n_live=21,
+    n_live=50,
     n_batch=50,
     iterations_per_quick_update=2500,
 )
@@ -232,7 +234,7 @@ aplt.subplot_fit_imaging(fit=result_reference.max_log_likelihood_fit)
 """
 __Why Modeling Is Hard__
 
-Our example deliberately makes the search less thorough by reducing the number of live points from 200 to 21. This is a somewhat contrived way to expose a difficulty within a short tutorial: your particular run may still find a good solution.
+Our example deliberately makes the search less thorough by reducing the number of live points from 200 to 50. This is a somewhat contrived way to expose a difficulty within a short tutorial: your particular run may still find a good solution.
 
 The underlying problem, however, is common in modeling real lenses. Different combinations of lens light, mass and source light can reproduce parts of an image, creating several promising regions of parameter space. A search may explore one region thoroughly while missing a better solution elsewhere.
 
@@ -471,7 +473,7 @@ We now repeat the fit using our revised priors.
 We use 75 live points for the prior-tuned fit. Our aim is to see whether image-informed priors help us obtain a
 satisfactory fit with less search effort than the 200-live-point setup in Practicalities.
 
-This changes both the priors and the live-point count relative to the 21-live-point experiment, so any improvement
+This changes both the priors and the live-point count relative to the 50-live-point experiment, so any improvement
 cannot be attributed to prior tuning alone.
 
 Give this search a separate name so its output can be compared with the original broad-prior fit.
@@ -491,7 +493,7 @@ result_custom_priors = search.fit(model=model, analysis=analysis)
 """
 __Assessing the Improvement__
 
-Plot the new fit and compare it with the original 21-live-point result.
+Plot the new fit and compare it with the original 50-live-point result.
 
 Look first at the lens centre and the lensed arcs. Has the model reproduced their brightness and structure more
 closely? Have coherent patterns in the residuals become smaller?
@@ -745,7 +747,7 @@ Keep the changes made in each experiment in mind:
 
 | Fit | Priors and model | Live points |
 |---|---|---:|
-| Deliberately under-resourced | Original priors and independent parameters | 21 |
+| Deliberately under-resourced | Original priors and independent parameters | 50 |
 | Prior tuning | Image-informed priors; parameters remain independent | 75 |
 | Reduced complexity | Default priors; linked light and mass geometry | 75 |
 | More thorough search | Original priors and independent parameters | 300 |
