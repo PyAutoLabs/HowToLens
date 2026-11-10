@@ -18,7 +18,7 @@ Each stored fit keeps only the files PyAutoFit needs to rebuild the result:
 * ``files/samples.csv``, thinned to a few equal-weight draws so that
   ``result.samples`` exists for the cells that use it (``CORNER_PLOT_SAMPLES``
   keeps more for the fits whose corner plots the tutorials interpret);
-* ``search.summary`` (the human-readable timing summary).
+* ``search.summary`` (the human-readable timing summary, when the search wrote one).
 
 Tutorial 2 walks the reader through a real output folder, so its fit keeps
 the full folder instead, minus the large search corner-plot images.
@@ -61,6 +61,10 @@ MINIMAL_FILES = (
     "files/samples_info.json",
     "files/samples_summary.json",
 )
+
+# Not every completed search writes its summary; the run time is also in
+# samples_info.json, which is always kept.
+OPTIONAL_FILES = ("search.summary",)
 
 ILLUSTRATED_FIT = "tutorial_2_practicalities"
 ILLUSTRATION_EXCLUDES = ("image/search", "files/search_internal")
@@ -108,6 +112,19 @@ def thin_samples(source: Path, destination: Path, size: int) -> None:
     samples = pd.read_csv(source, skipinitialspace=True)
     samples.columns = [column.strip() for column in samples.columns]
 
+    # A failed search can put most of its weight on elliptical components of
+    # magnitude >= 1, which the model refuses to rebuild. PyAutoFit then falls
+    # back through the stored samples, so keep only rows it can rebuild, and
+    # always the best of them.
+    valid = np.ones(len(samples), dtype=bool)
+    for column in samples.columns:
+        if column.endswith("ell_comps_0"):
+            other = column[: -len("0")] + "1"
+            valid &= np.hypot(samples[column], samples[other]).to_numpy() < 1.0
+    if valid.any():
+        samples = samples[valid].reset_index(drop=True)
+    best = int(samples["log_likelihood"].to_numpy().argmax())
+
     weights = samples["weight"].to_numpy() if "weight" in samples else np.zeros(1)
     if np.isfinite(weights).all() and weights.sum() > 0:
         weights = weights / weights.sum()
@@ -118,6 +135,7 @@ def thin_samples(source: Path, destination: Path, size: int) -> None:
     else:
         rows = samples["log_likelihood"].to_numpy().argsort()[-size:]
 
+    rows = np.union1d(rows, [best])
     thinned = samples.iloc[np.sort(rows)].copy()
     thinned["weight"] = 1.0 / len(thinned)
     thinned.to_csv(destination, index=False)
@@ -140,6 +158,8 @@ def harvest_fit(fit: Path, destination: Path) -> None:
         )
     else:
         for name in MINIMAL_FILES:
+            if name in OPTIONAL_FILES and not (fit / name).exists():
+                continue
             (destination / name).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(fit / name, destination / name)
 
@@ -195,7 +215,10 @@ def check() -> int:
             failures.append(name)
 
     for path in (set(stored.glob("*/*/*")) - before) if stored.exists() else ():
-        shutil.rmtree(path)
+        if path.is_dir():
+            shutil.rmtree(path)
+        else:
+            path.unlink()
         if not any(path.parent.iterdir()):
             path.parent.rmdir()
 

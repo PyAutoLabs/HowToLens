@@ -1,0 +1,25 @@
+{
+    "type": "instance",
+    "class_path": "autoarray.settings.Settings",
+    "arguments": {
+        "nnls_solver_tol": null,
+        "use_edge_zeroed_pixels": true,
+        "nnls_preconditioning_no_mapper": "raw",
+        "positive_only_solver": "pdip",
+        "log_det_method": "cholesky",
+        "interferometer_direct_conv_symmetric_max_work_fraction": 0.7,
+        "interferometer_numba_nnz_per_source_max": null,
+        "regularization_term_method": "matmul",
+        "certified_pass_budget": 16,
+        "use_border_relocator": true,
+        "nnls_warm_start_error_tolerance": 1.5,
+        "interferometer_route": null,
+        "certified_fallback": "pdip",
+        "use_positive_only_solver": true,
+        "nnls_warm_start_memo": true,
+        "certified_tau_rel": 1e-09,
+        "nnls_max_iter": null,
+        "no_regularization_add_to_curvature_diag_value": 0.001,
+        "use_mixed_precision": false
+    }
+}

@@ -1,0 +1,386 @@
+{
+    "type": "instance",
+    "class_path": "autofit.non_linear.samples.summary.SamplesSummary",
+    "arguments": {
+        "values_at_sigma_3": {
+            "type": "dict",
+            "arguments": {
+                "total_lens_flux": {
+                    "type": "tuple",
+                    "values": [
+                        1142.8127818813505,
+                        1154.2725223377147
+                    ]
+                },
+                "total_lensed_source_flux": {
+                    "type": "tuple",
+                    "values": [
+                        492.81422645403967,
+                        500.4250516710613
+                    ]
+                },
+                "total_source_flux": {
+                    "type": "tuple",
+                    "values": [
+                        13.950216035314451,
+                        14.599334342522894
+                    ]
+                },
+                "fields.shear.magnitude": {
+                    "type": "tuple",
+                    "values": [
+                        0.06845296705454727,
+                        0.07258431152588261
+                    ]
+                },
+                "fields.shear.angle": {
+                    "type": "tuple",
+                    "values": [
+                        21.76874689819522,
+                        23.704012545239465
+                    ]
+                },
+                "galaxies.lens.bulge.axis_ratio": {
+                    "type": "tuple",
+                    "values": [
+                        0.897934564802,
+                        0.9118252020586134
+                    ]
+                },
+                "galaxies.lens.bulge.angle": {
+                    "type": "tuple",
+                    "values": [
+                        44.53387436162873,
+                        48.965183785272956
+                    ]
+                },
+                "galaxies.lens.mass.axis_ratio": {
+                    "type": "tuple",
+                    "values": [
+                        0.8912810439543312,
+                        0.9062709419062353
+                    ]
+                },
+                "galaxies.lens.mass.angle": {
+                    "type": "tuple",
+                    "values": [
+                        43.1879570140057,
+                        48.27812645160226
+                    ]
+                },
+                "galaxies.source.bulge.axis_ratio": {
+                    "type": "tuple",
+                    "values": [
+                        0.7879663810616411,
+                        0.8488848270096624
+                    ]
+                },
+                "galaxies.source.bulge.angle": {
+                    "type": "tuple",
+                    "values": [
+                        53.59380082607087,
+                        60.75529300775054
+                    ]
+                }
+            }
+        },
+        "errors_at_sigma_1": {
+            "type": "dict",
+            "arguments": {
+                "total_lens_flux": {
+                    "type": "tuple",
+                    "values": [
+                        2.766103812532947,
+                        2.3254352926280717
+                    ]
+                },
+                "total_lensed_source_flux": {
+                    "type": "tuple",
+                    "values": [
+                        1.9891482399467577,
+                        1.2405808384996249
+                    ]
+                },
+                "total_source_flux": {
+                    "type": "tuple",
+                    "values": [
+                        0.20420751143866234,
+                        0.14346652543156857
+                    ]
+                },
+                "fields.shear.magnitude": {
+                    "type": "tuple",
+                    "values": [
+                        0.0010793390016809595,
+                        0.0008375622692536888
+                    ]
+                },
+                "fields.shear.angle": {
+                    "type": "tuple",
+                    "values": [
+                        0.4095228054447624,
+                        0.3973422999218421
+                    ]
+                },
+                "galaxies.lens.bulge.axis_ratio": {
+                    "type": "tuple",
+                    "values": [
+                        0.00432112646731031,
+                        0.0023495314661921007
+                    ]
+                },
+                "galaxies.lens.bulge.angle": {
+                    "type": "tuple",
+                    "values": [
+                        1.6056934750711278,
+                        0.9937587289821437
+                    ]
+                },
+                "galaxies.lens.mass.axis_ratio": {
+                    "type": "tuple",
+                    "values": [
+                        0.002665360960888097,
+                        0.0032168051255379027
+                    ]
+                },
+                "galaxies.lens.mass.angle": {
+                    "type": "tuple",
+                    "values": [
+                        1.2829735847373058,
+                        0.727802188288095
+                    ]
+                },
+                "galaxies.source.bulge.axis_ratio": {
+                    "type": "tuple",
+                    "values": [
+                        0.014022135486853604,
+                        0.01014694297705987
+                    ]
+                },
+                "galaxies.source.bulge.angle": {
+                    "type": "tuple",
+                    "values": [
+                        1.8121548465708344,
+                        1.398755600454784
+                    ]
+                }
+            }
+        },
+        "errors_at_sigma_3": {
+            "type": "dict",
+            "arguments": {
+                "total_lens_flux": {
+                    "type": "tuple",
+                    "values": [
+                        7.11128001630027,
+                        4.3484604400639455
+                    ]
+                },
+                "total_lensed_source_flux": {
+                    "type": "tuple",
+                    "values": [
+                        3.73799280901261,
+                        3.8728324080090033
+                    ]
+                },
+                "total_source_flux": {
+                    "type": "tuple",
+                    "values": [
+                        0.3271283059922663,
+                        0.32199000121617694
+                    ]
+                },
+                "fields.shear.magnitude": {
+                    "type": "tuple",
+                    "values": [
+                        0.002055355940464687,
+                        0.002075988530870654
+                    ]
+                },
+                "fields.shear.angle": {
+                    "type": "tuple",
+                    "values": [
+                        1.0879893360768662,
+                        0.8472763109673771
+                    ]
+                },
+                "galaxies.lens.bulge.axis_ratio": {
+                    "type": "tuple",
+                    "values": [
+                        0.0057784789476307274,
+                        0.008112158308982709
+                    ]
+                },
+                "galaxies.lens.bulge.angle": {
+                    "type": "tuple",
+                    "values": [
+                        2.140432549607027,
+                        2.2908768740371954
+                    ]
+                },
+                "galaxies.lens.mass.axis_ratio": {
+                    "type": "tuple",
+                    "values": [
+                        0.007638930997323379,
+                        0.007350966954580707
+                    ]
+                },
+                "galaxies.lens.mass.angle": {
+                    "type": "tuple",
+                    "values": [
+                        2.8214214565131925,
+                        2.268747981083372
+                    ]
+                },
+                "galaxies.source.bulge.axis_ratio": {
+                    "type": "tuple",
+                    "values": [
+                        0.038000957476346464,
+                        0.02291748847167485
+                    ]
+                },
+                "galaxies.source.bulge.angle": {
+                    "type": "tuple",
+                    "values": [
+                        4.106220091832242,
+                        3.0552720898474277
+                    ]
+                }
+            }
+        },
+        "median_pdf_sample": {
+            "type": "instance",
+            "class_path": "autofit.non_linear.samples.sample.Sample",
+            "arguments": {
+                "log_likelihood": 3443.34456487761,
+                "log_prior": -1.5272227099443734,
+                "weight": 9.291809911771709e-05,
+                "kwargs": {
+                    "type": "dict",
+                    "arguments": {
+                        "total_lens_flux": 1149.9240618976507,
+                        "total_lensed_source_flux": 496.5522192630523,
+                        "total_source_flux": 14.277344341306717,
+                        "fields.shear.magnitude": 0.07050832299501196,
+                        "fields.shear.angle": 22.856736234272088,
+                        "galaxies.lens.bulge.axis_ratio": 0.9037130437496307,
+                        "galaxies.lens.bulge.angle": 46.67430691123576,
+                        "galaxies.lens.mass.axis_ratio": 0.8989199749516545,
+                        "galaxies.lens.mass.angle": 46.00937847051889,
+                        "galaxies.source.bulge.axis_ratio": 0.8259673385379875,
+                        "galaxies.source.bulge.angle": 57.70002091790311
+                    }
+                }
+            }
+        },
+        "log_evidence": 3322.1706047604175,
+        "max_log_likelihood_sample": {
+            "type": "instance",
+            "class_path": "autofit.non_linear.samples.sample.Sample",
+            "arguments": {
+                "log_likelihood": 3443.34456487761,
+                "log_prior": -1.5272227099443734,
+                "weight": 9.291809911771709e-05,
+                "kwargs": {
+                    "type": "dict",
+                    "arguments": {
+                        "total_lens_flux": 1148.939663118451,
+                        "total_lensed_source_flux": 495.8378536835712,
+                        "total_source_flux": 14.253770143492929,
+                        "fields.shear.magnitude": 0.06918652495281548,
+                        "fields.shear.angle": 22.6578702268357,
+                        "galaxies.lens.bulge.axis_ratio": 0.8994626489908467,
+                        "galaxies.lens.bulge.angle": 46.85352431951742,
+                        "galaxies.lens.mass.axis_ratio": 0.9025825291093289,
+                        "galaxies.lens.mass.angle": 46.41248149975111,
+                        "galaxies.source.bulge.axis_ratio": 0.8179196708512518,
+                        "galaxies.source.bulge.angle": 56.52658023483395
+                    }
+                }
+            }
+        },
+        "values_at_sigma_1": {
+            "type": "dict",
+            "arguments": {
+                "total_lens_flux": {
+                    "type": "tuple",
+                    "values": [
+                        1147.1579580851178,
+                        1152.2494971902788
+                    ]
+                },
+                "total_lensed_source_flux": {
+                    "type": "tuple",
+                    "values": [
+                        494.5630710231055,
+                        497.7928001015519
+                    ]
+                },
+                "total_source_flux": {
+                    "type": "tuple",
+                    "values": [
+                        14.073136829868055,
+                        14.420810866738286
+                    ]
+                },
+                "fields.shear.magnitude": {
+                    "type": "tuple",
+                    "values": [
+                        0.069428983993331,
+                        0.07134588526426565
+                    ]
+                },
+                "fields.shear.angle": {
+                    "type": "tuple",
+                    "values": [
+                        22.447213428827325,
+                        23.25407853419393
+                    ]
+                },
+                "galaxies.lens.bulge.axis_ratio": {
+                    "type": "tuple",
+                    "values": [
+                        0.8993919172823204,
+                        0.9060625752158228
+                    ]
+                },
+                "galaxies.lens.bulge.angle": {
+                    "type": "tuple",
+                    "values": [
+                        45.06861343616463,
+                        47.668065640217904
+                    ]
+                },
+                "galaxies.lens.mass.axis_ratio": {
+                    "type": "tuple",
+                    "values": [
+                        0.8962546139907664,
+                        0.9021367800771924
+                    ]
+                },
+                "galaxies.lens.mass.angle": {
+                    "type": "tuple",
+                    "values": [
+                        44.726404885781584,
+                        46.737180658806984
+                    ]
+                },
+                "galaxies.source.bulge.axis_ratio": {
+                    "type": "tuple",
+                    "values": [
+                        0.8119452030511339,
+                        0.8361142815150474
+                    ]
+                },
+                "galaxies.source.bulge.angle": {
+                    "type": "tuple",
+                    "values": [
+                        55.887866071332276,
+                        59.098776518357894
+                    ]
+                }
+            }
+        },
+        "model": null
+    }
+}

@@ -1,0 +1,62 @@
+{
+    "type": "instance",
+    "class_path": "autofit.non_linear.search.nest.nautilus.search.Nautilus",
+    "arguments": {
+        "enlarge_per_dim": 1.1,
+        "name": "probe_tutorial_3_less_thorough_n50_s1",
+        "initial_values": {
+            "type": "dict",
+            "arguments": {}
+        },
+        "number_of_cores": 1,
+        "live_visual_update": false,
+        "vectorized": false,
+        "n_batch": 50,
+        "unique_tag": "lens_sersic",
+        "f_live": 0.01,
+        "n_eff": 500,
+        "n_networks": 4,
+        "force_x1_cpu": false,
+        "path_prefix": {
+            "type": "path",
+            "path": "howtolens/chapter_2"
+        },
+        "n_live": 50,
+        "paths": {
+            "type": "instance",
+            "class_path": "autofit.non_linear.paths.directory.DirectoryPaths",
+            "arguments": {
+                "path_prefix": {
+                    "type": "path",
+                    "path": "howtolens/chapter_2"
+                },
+                "name": "probe_tutorial_3_less_thorough_n50_s1",
+                "unique_tag": "lens_sersic",
+                "image_path_suffix": "",
+                "parent": null,
+                "identifier": "22c6dff7a8ccba72f3f0ab2eef707c08",
+                "is_identifier_in_paths": true
+            }
+        },
+        "use_jax_vmap": null,
+        "split_threshold": 100,
+        "silence": false,
+        "n_shell": 1,
+        "n_like_max": Infinity,
+        "inplace": false,
+        "n_update": null,
+        "iterations_per_full_update": 1e+99,
+        "seed": 1,
+        "checkpoint": true,
+        "n_points_min": null,
+        "initializer": {
+            "type": "instance",
+            "class_path": "autofit.non_linear.initializer.InitializerPrior",
+            "arguments": {}
+        },
+        "discard_exploration": false,
+        "iterations_per_quick_update": 2500.0,
+        "n_like_new_bound": null,
+        "verbose": true
+    }
+}

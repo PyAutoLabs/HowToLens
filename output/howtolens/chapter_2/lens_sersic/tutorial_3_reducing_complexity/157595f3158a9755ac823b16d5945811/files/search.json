@@ -1,0 +1,62 @@
+{
+    "type": "instance",
+    "class_path": "autofit.non_linear.search.nest.nautilus.search.Nautilus",
+    "arguments": {
+        "paths": {
+            "type": "instance",
+            "class_path": "autofit.non_linear.paths.directory.DirectoryPaths",
+            "arguments": {
+                "is_identifier_in_paths": true,
+                "name": "probe_tutorial_3_reducing_complexity_n300_s1",
+                "identifier": "157595f3158a9755ac823b16d5945811",
+                "image_path_suffix": "",
+                "unique_tag": "lens_sersic",
+                "parent": null,
+                "path_prefix": {
+                    "type": "path",
+                    "path": "howtolens/chapter_2"
+                }
+            }
+        },
+        "n_networks": 4,
+        "discard_exploration": false,
+        "silence": false,
+        "n_like_new_bound": null,
+        "initial_values": {
+            "type": "dict",
+            "arguments": {}
+        },
+        "n_batch": 50,
+        "iterations_per_full_update": 1e+99,
+        "n_points_min": null,
+        "use_jax_vmap": null,
+        "name": "probe_tutorial_3_reducing_complexity_n300_s1",
+        "number_of_cores": 1,
+        "n_update": null,
+        "vectorized": false,
+        "force_x1_cpu": false,
+        "split_threshold": 100,
+        "n_like_max": Infinity,
+        "n_eff": 500,
+        "path_prefix": {
+            "type": "path",
+            "path": "howtolens/chapter_2"
+        },
+        "inplace": false,
+        "n_shell": 1,
+        "iterations_per_quick_update": 2500.0,
+        "verbose": true,
+        "initializer": {
+            "type": "instance",
+            "class_path": "autofit.non_linear.initializer.InitializerPrior",
+            "arguments": {}
+        },
+        "live_visual_update": false,
+        "enlarge_per_dim": 1.1,
+        "f_live": 0.01,
+        "checkpoint": true,
+        "unique_tag": "lens_sersic",
+        "seed": 1,
+        "n_live": 300
+    }
+}
