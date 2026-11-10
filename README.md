@@ -1,189 +1,59 @@
 # HowToLens
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/start_here.ipynb)
-
-[Start Here on Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/start_here.ipynb) |
-[Installation Guide](https://pyautolens.readthedocs.io/en/latest/installation/overview.html) |
-[PyAutoLens readthedocs](https://pyautolens.readthedocs.io/en/latest/index.html) |
-[Browse Chapter 1 With Images](markdown/README.md) |
-[autolens_workspace](https://github.com/PyAutoLabs/autolens_workspace)
-
 <img src="https://github.com/Jammy2211/PyAutoLogo/blob/main/gifs/pyautolens.gif?raw=true" width="900" />
 
-Welcome to **HowToLens** — the tutorial lecture series for [PyAutoLens](https://github.com/PyAutoLabs/PyAutoLens),
-an open-source library for strong gravitational lens modeling.
+Learn gravitational lensing and Bayesian inference through worked examples with **PyAutoLens**. HowToLens starts from first principles and guides you from tracing light through a galaxy to fitting lens models and reconstructing distant sources.
 
-**PyAutoLens** can be used with an AI coding agent to compose lens models, fit data and explore results
-**using natural language**. **HowToLens** teaches the core principles behind this workflow, so you
-understand the science and inference being performed rather than treating them as a black box.
-
-The tutorials assume minimal prior knowledge of astronomy or statistics. They start from first principles:
-grids, light and mass profiles, and ray-tracing, then progress to Bayesian lens modeling, pixelized
-source reconstructions and group- and cluster-scale lenses.
-
-For experienced scientists who already know the fundamentals of strong lensing and Bayesian modeling, the
-[autolens_workspace](https://github.com/PyAutoLabs/autolens_workspace) examples will be more appropriate —
-they are concise and assume the concepts taught in **HowToLens** as background.
-
-## Chapters
-
-- `chapter_1_introduction` — An introduction to strong gravitational lensing and **PyAutoLens**: grids, light
-  and mass profiles, galaxies, ray-tracing, point sources, the lensing formalism, simulated imaging data,
-  and fitting.
-- `chapter_2_lens_modeling` — Bayesian inference, non-linear searches, and how to fit a lens model to CCD
-  imaging data with **PyAutoLens**, ending with search chaining and automated pipelines.
-- `chapter_3_pixelizations` — Pixelized source reconstructions (inversions) for sources with irregular
-  morphologies, with practical explanations of mappings, regularization and model fitting.
-- `chapter_4_scaling_up_lensing` — Scaling lens modeling up beyond a single lens galaxy: extra galaxies,
-  multi-galaxy lenses, scaling relations, group and cluster scales, and weak lensing.
-- `chapter_optional` — Optional tutorials on alternative non-linear searches and other advanced topics.
-
-**HowToLens** currently sits at four chapters. Each chapter will take around a day to work through.
-We recommend completing chapters 1 and 2, then applying what you've learned to real lens modeling in the
-`autolens_workspace` before returning for the more advanced material in chapters 3 and 4.
+You don’t need prior experience with lensing or Bayesian statistics. If you already know the fundamentals, head to the [PyAutoLens workspace](https://github.com/PyAutoLabs/autolens_workspace#find-your-examples) for concise examples.
 
 ## Getting Started
 
-### Study with the assistant
+### Explore It Yourself
 
-Use the [Jupyter notebooks](notebooks/) to run the code (recommended), or read the
-available [Markdown lectures](markdown/README.md) directly on GitHub.
+- **[Start in your browser](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/start_here.ipynb)** — open the series introduction in Google Colab without installing anything locally.
+- **[Run it locally](https://pyautolens.readthedocs.io/en/latest/installation/overview.html)** — install PyAutoLens, download this repository and open the Jupyter notebooks in `notebooks/`.
+- **[Read Chapter 1 with images](https://github.com/PyAutoLabs/HowToLens/blob/main/markdown/README.md)** — browse the available lectures and their results directly on GitHub.
 
-For help alongside the lectures, study with the [PyAutoLens AI Assistant](https://github.com/PyAutoLabs/autolens_assistant)
-in teacher mode. Open Claude Code, Codex or another AI coding agent and paste the prompt below. The agent downloads
-the assistant and installs **PyAutoLens** for you:
+Begin with [Tutorial 0: Visualization](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_1_introduction/tutorial_0_visualization.ipynb) to check your setup and learn how to display figures.
+
+### Study with AI
+
+The [**PyAutoLens AI Assistant**](https://github.com/PyAutoLabs/autolens_assistant) can explain concepts, equations and code, help with notebook errors, and discuss your results. Paste this prompt into your AI coding agent:
 
 ```text
-I want to work through the HowToLens lectures (https://github.com/PyAutoLabs/HowToLens) with the
-PyAutoLens Assistant: https://github.com/PyAutoLabs/autolens_assistant
-First clone that repository, cd into it and follow its AGENTS.md.
+I want to work through HowToLens
+(https://github.com/PyAutoLabs/HowToLens) with the
+PyAutoLens Assistant (https://github.com/PyAutoLabs/autolens_assistant).
 
-Enter teacher mode. Show me where to find the lectures and how to use Jupyter Notebook or
-Markdown, then help me with questions as I go.
+First clone the assistant repository, cd into it and follow its AGENTS.md.
+Enter teacher mode. Help me find the lectures and get started,
+then answer questions as I work through them at my own pace.
 ```
 
-The assistant can answer questions about concepts, equations, code and results as you study, and help with
-notebook errors. Share the lecture link and section or the cell you are working on; you choose when to move on.
+See [AI Options](https://github.com/PyAutoLabs/PyAutoScientist/blob/main/AI_OPTIONS.md) for tools and setup guidance.
 
-### Run in Google Colab (nothing to install)
+## Choose Your Chapter
 
-Every tutorial opens in Google Colab in one click. There is nothing to install on your own machine and
-no local Python environment to set up — **PyAutoLens** installs itself in the notebook's first cell.
-In Colab you *run* the tutorial: edit the code, change the model, and see the output for yourself.
+| Chapter | What you’ll learn |
+|---|---|
+| [1. Introduction](https://github.com/PyAutoLabs/HowToLens/blob/main/scripts/chapter_1_introduction/README.md) | Grids, galaxies, ray tracing, simulated observations and fitting |
+| [2. Lens Modeling](https://github.com/PyAutoLabs/HowToLens/blob/main/scripts/chapter_2_lens_modeling/README.md) | Bayesian inference, fitting lens models and combining searches |
+| [3. Pixelizations](https://github.com/PyAutoLabs/HowToLens/blob/main/scripts/chapter_3_pixelizations/README.md) | Reconstructing irregular sources with pixels and regularization |
+| [4. Scaling Up Lensing](https://github.com/PyAutoLabs/HowToLens/blob/main/scripts/chapter_4_scaling_up_lensing/README.md) | Multiple lens galaxies, groups, clusters and weak lensing |
+| [Optional tutorials](https://github.com/PyAutoLabs/HowToLens/blob/main/scripts/chapter_optional/README.md) | Search methods, runtime and additional modeling techniques |
 
-Whilst in Colab, you can use **Gemini** as a study assistant alongside the lecture: ask it to explain an
-equation, unpack what a cell is doing, or help interpret the output of a fit.
+Start with Chapters 1 and 2, then try the [workspace examples](https://github.com/PyAutoLabs/autolens_workspace) before returning for Chapters 3 and 4.
 
-The `markdown` links are the same tutorial already executed and rendered on GitHub, with its real
-output figures inline. Nothing runs and nothing installs — you just read it. They are good for
-skimming a tutorial before running it, or for reading on a phone. Markdown pages currently exist only
-for the chapter 1 tutorials listed with a `markdown` link below; every other tutorial is Colab-only.
+## Community and Contributing
 
-**[Start Here](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/start_here.ipynb)** — a one-page overview of the whole series.
+Ask questions, suggest improvements and share your work in [PyAutoLabs Discussions](https://github.com/orgs/PyAutoLabs/discussions), or chat with us on [Slack](https://join.slack.com/t/pyautolens/shared_invite/zt-2cufp4eyf-fXfgMxRGuvg~bMrI3uOAxg).
 
-- **[Chapter 1: Introduction](scripts/chapter_1_introduction/README.md)** — Grids, light and mass profiles, galaxies, ray-tracing, point sources, the lensing formalism, data, and fitting.
-  - Tutorial 0: Visualization — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_1_introduction/tutorial_0_visualization.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_0_visualization.md))
-  - Tutorial 1: Grids and Galaxies — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_1_introduction/tutorial_1_grids_and_galaxies.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_1_grids_and_galaxies.md))
-  - Tutorial 2: Ray Tracing — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_1_introduction/tutorial_2_ray_tracing.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_2_ray_tracing.md))
-  - Tutorial 3: More Ray Tracing — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_1_introduction/tutorial_3_more_ray_tracing.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_3_more_ray_tracing.md))
-  - Tutorial 4: Point Sources — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_1_introduction/tutorial_4_point_sources.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_4_point_sources.md))
-  - Tutorial 5: Data — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_1_introduction/tutorial_5_data.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_5_data.md))
-  - Tutorial 6: Fitting — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_1_introduction/tutorial_6_fitting.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_6_fitting.md))
-  - Tutorial 7: Summary — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_1_introduction/tutorial_7_summary.ipynb) / [markdown](markdown/chapter_1_introduction/tutorial_7_summary.md))
-- **[Chapter 2: Lens Modeling](scripts/chapter_2_lens_modeling/README.md)** — Non-linear searches, linear profiles, datasets and likelihoods, and search chaining.
-  - [Tutorial 1: Non-linear Search](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_1_non_linear_search.ipynb) — Parameter space, priors and fitting a lens model.
-  - [Tutorial 2: Practicalities](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_2_practicalities.ipynb) — Running fits and inspecting their results.
-  - [Tutorial 3: Why Modeling Is Hard](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_3_why_modeling_is_hard.ipynb) — Local maxima, degeneracies and investigating difficult fits.
-  - [Tutorial 4: Linear Profiles](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_4_linear_profiles.ipynb) — Solving light-profile intensities and using multi-Gaussian expansions.
-  - [Tutorial 5: Data and Likelihoods](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_5_data_and_likelihoods.ipynb) — Separating datasets, models and likelihoods, including positions penalties.
-  - [Tutorial 6: Search Chaining](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_6_search_chaining.ipynb) — Combining searches and introducing the SLaM pipelines.
-  - [Tutorial 7: Summary](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_2_lens_modeling/tutorial_7_summary.ipynb) — Bringing the chapter together and continuing to pixelized sources.
-- **[Chapter 3: Pixelizations](scripts/chapter_3_pixelizations/README.md)** — From MGE to pixelized sources: mappings, inversions, Bayesian regularization, borders, fit problems, adaptive reconstruction and chained lens fits.
-  - Tutorial 1 Pixelizations — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_1_pixelizations.ipynb))
-  - Tutorial 2 Bayesian Regularization — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_2_bayesian_regularization.ipynb))
-  - Tutorial 3 Borders — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_3_borders.ipynb))
-  - Tutorial 4 Lens Modeling — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_4_lens_modeling.ipynb))
-  - Tutorial 5 Fit Problems — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_5_fit_problems.ipynb))
-  - Tutorial 6 Adaptive Reconstruction — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_3_pixelizations/tutorial_6_adaptive_reconstruction.ipynb))
-- **[Chapter 4: Scaling Up Lensing](scripts/chapter_4_scaling_up_lensing/README.md)** — Extra galaxies, multi-galaxy lenses, scaling relations, group and cluster scales, and weak lensing.
-  - Tutorial 1: Extra Galaxies — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_4_scaling_up_lensing/tutorial_1_extra_galaxies.ipynb))
-  - Tutorial 2: Multi Galaxy — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_4_scaling_up_lensing/tutorial_2_multi_galaxy.ipynb))
-  - Tutorial 3: Scaling Relation — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_4_scaling_up_lensing/tutorial_3_scaling_relation.ipynb))
-  - Tutorial 4: Group Scale — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_4_scaling_up_lensing/tutorial_4_group_scale.ipynb))
-  - Tutorial 5: Cluster Scale — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_4_scaling_up_lensing/tutorial_5_cluster_scale.ipynb))
-  - Tutorial 6: Weak Lensing — ([Colab](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_4_scaling_up_lensing/tutorial_6_weak_lensing.ipynb))
-- **[Optional Tutorials](scripts/chapter_optional/README.md)** — Search methods, runtime and historical workflows.
-  - [Need for Speed](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_optional/tutorial_need_for_speed.ipynb) — Computation, batching and estimating runtime.
-  - [Historical Prior Passing](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_optional/tutorial_prior_passing.ipynb) — An optional runnable example of prior passing using model_centred, a technique central to older workflows.
-  - [Searches](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_optional/tutorial_searches.ipynb) — Alternative non-linear search methods.
-
-Model-fits can run faster on a GPU. In Colab, enable one via *Runtime* → *Change runtime type*
-→ *Hardware accelerator* before running a notebook.
-
-### Run on your own machine
-
-Follow the
-[PyAutoLens installation guide](https://pyautolens.readthedocs.io/en/latest/installation/overview.html),
-then clone this repository:
-
-```bash
-git clone https://github.com/PyAutoLabs/HowToLens.git
-cd HowToLens
-```
-
-The tutorials are distributed as both Jupyter notebooks (`notebooks/`) and Python scripts (`scripts/`).
-We recommend the notebooks for reading — images and plots render inline, and you can step through small
-code blocks interactively. Use the Python scripts for actual **PyAutoLens** use, which is the workflow
-chapter 3 onwards transitions you to.
-
-## Before Chapter 1
-
-Before starting chapter 1, complete `scripts/chapter_1_introduction/tutorial_0_visualization.py`
-(or the equivalent notebook). This confirms your **PyAutoLens** installation, walks you through how images
-and figures display in Jupyter, and configures matplotlib for the rest of the tutorial series.
-
-## Lensing Theory
-
-**HowToLens** assumes minimal previous knowledge of gravitational lensing. It is helpful to have the following
-lecture course on gravitational lensing by Massimo Meneghetti open as you go through the tutorials:
-
-<http://www.ita.uni-heidelberg.de/~massimo/sub/Lectures/gl_all.pdf>
-
-## Repository Structure
-
-- `scripts/` — Runnable Python tutorial scripts, one subfolder per chapter.
-- `notebooks/` — Jupyter notebook versions of the scripts (auto-generated; see below).
-- `config/` — **PyAutoLens** configuration YAML files used by the tutorials.
-- `dataset/` — Tutorial datasets are generated at runtime by scripts in `scripts/simulator/` —
-  no `.fits` files are committed.
-- `output/` — Model-fit results (generated at runtime, not committed).
-
-## Notebooks vs Scripts
-
-Notebooks in `notebooks/` are generated from the Python files in `scripts/`. **Always edit the \`\`.py\`\`
-scripts, never the notebooks directly.** The `# %%` markers in each script alternate between code and
-markdown cells, which [PyAutoHands](https://github.com/PyAutoLabs/PyAutoHands) uses to produce the
-`.ipynb` files.
-
-## Relationship to autolens_workspace
-
-[autolens_workspace](https://github.com/PyAutoLabs/autolens_workspace) is the main user-facing workspace
-for **PyAutoLens** — concise examples, guides, and science templates aimed at users who have a working
-understanding of strong lensing. **HowToLens** is the teaching companion. Many tutorials in chapters 2–4
-reference `autolens_workspace` scripts as the next place to go after the relevant concept has been
-introduced.
+To contribute, see the [contribution guide](https://github.com/PyAutoLabs/HowToLens/blob/main/CONTRIBUTING.md).
 
 ## Citations
 
-If you use **HowToLens** or **PyAutoLens** in your research, please cite the references listed in
-`CITATIONS.rst`.
+If you use HowToLens or PyAutoLens in your research, see the [citation guide](https://github.com/PyAutoLabs/HowToLens/blob/main/CITATIONS.md).
 
-## Community & Contributing
+## License
 
-**PyAutoLens** is built in the open by its users: everyone is welcome to ask questions,
-share what they have made with it, and contribute.
-
-Questions, ideas and bug reports: the [PyAutoLabs Discussions](https://github.com/orgs/PyAutoLabs/discussions).
-Chat with us on [Slack](https://join.slack.com/t/pyautolens/shared_invite/zt-2cufp4eyf-fXfgMxRGuvg~bMrI3uOAxg).
-
-Community-built tools and tutorials, and how to contribute: the [**PyAutoLens** community page](https://pyautolens.readthedocs.io/en/latest/general/community.html).
+See the [license](https://github.com/PyAutoLabs/HowToLens/blob/main/LICENSE).
