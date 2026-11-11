@@ -192,7 +192,10 @@ plausible solutions or calculate posterior uncertainty intervals—the parameter
 
 This narrower task is one reason we expect it to finish sooner than a thorough Nautilus run, alongside its use of
 gradients. It is therefore useful for our first stage, where we need a satisfactory model to build on rather than a
-final measurement of every parameter's uncertainty. The speed advantage still depends on the problem and settings."""
+final measurement of every parameter's uncertainty. The speed advantage still depends on the problem and settings.
+
+Both searches in this tutorial are stored with HowToLens, as explained in *Practicalities*, so their results load in
+seconds. Delete a search's folder in `output/howtolens/chapter_2/lens_sersic` to run it yourself."""
 
 search_1 = af.MultiStartProdigy(
     path_prefix=Path("howtolens") / "chapter_2",

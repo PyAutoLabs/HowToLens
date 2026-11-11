@@ -1,0 +1,42 @@
+{
+    "type": "instance",
+    "class_path": "autofit.non_linear.samples.summary.SamplesSummary",
+    "arguments": {
+        "max_log_likelihood_sample": {
+            "type": "instance",
+            "class_path": "autofit.non_linear.samples.sample.Sample",
+            "arguments": {
+                "log_likelihood": 5462.688054982353,
+                "log_prior": -0.0809230230701929,
+                "weight": 1.0,
+                "kwargs": {
+                    "type": "dict",
+                    "arguments": {
+                        "galaxies.lens.bulge.profile_list.29.centre.centre_0": -0.0007699173661455556,
+                        "galaxies.lens.bulge.profile_list.29.centre.centre_1": -0.000628644929832696,
+                        "galaxies.lens.bulge.profile_list.29.ell_comps.ell_comps_0": 0.04972628264140923,
+                        "galaxies.lens.bulge.profile_list.29.ell_comps.ell_comps_1": -0.0032629338497026763,
+                        "galaxies.source.bulge.profile_list.14.centre.centre_0": -0.0005216373039724894,
+                        "galaxies.source.bulge.profile_list.14.centre.centre_1": -0.0003979189046438303,
+                        "galaxies.source.bulge.profile_list.14.ell_comps.ell_comps_0": 0.08734358365629341,
+                        "galaxies.source.bulge.profile_list.14.ell_comps.ell_comps_1": -0.040360800787734616,
+                        "galaxies.lens.mass.centre.centre_0": -0.0005828661941640957,
+                        "galaxies.lens.mass.centre.centre_1": -0.0005572791999406656,
+                        "galaxies.lens.mass.ell_comps.ell_comps_0": 0.05307580945087592,
+                        "galaxies.lens.mass.ell_comps.ell_comps_1": -0.0012544927590903158,
+                        "galaxies.lens.mass.einstein_radius": 1.6005267240347487,
+                        "fields.shear.gamma_1": 0.049225540332856275,
+                        "fields.shear.gamma_2": 0.050389458694998515
+                    }
+                }
+            }
+        },
+        "log_evidence": null,
+        "errors_at_sigma_3": null,
+        "values_at_sigma_1": null,
+        "model": null,
+        "values_at_sigma_3": null,
+        "median_pdf_sample": null,
+        "errors_at_sigma_1": null
+    }
+}

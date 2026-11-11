@@ -20,7 +20,8 @@ canonical, agent-agnostic instructions for this repo.
 - `notebooks/` — Jupyter versions, generated from `scripts/` (do not edit directly)
 - `config/` — PyAutoLens configuration YAML
 - `dataset/` — Empty in the repo; written at runtime by the simulator scripts
-- `output/` — Model-fit results (generated at runtime, not committed)
+- `output/` — Model-fit results, generated at runtime and gitignored, except the stored Chapter 2
+  results under `output/howtolens/chapter_2/` (see *Stored Chapter 2 Results*)
 
 ## Running Scripts
 
@@ -44,7 +45,9 @@ On CI, every PR is gated on Python **3.12 and 3.13** by `smoke_tests.yml` (runs
 `python .github/scripts/run_smoke.py`, which runs **every** script under `scripts/` except the
 exclusions in `config/build/no_run.yaml`, with per-script env from `config/build/profile_smoke.yaml` —
 the definition of green), `navigator_check.yml` (PyAutoHands's reusable navigator-catalogue check;
-see *Notebooks vs Scripts*), and `url_check.yml` (link checking). The smoke and navigator jobs check
+see *Notebooks vs Scripts*), `url_check.yml` (link checking) and `stored_results.yml` (Chapter 2
+stored results still load against the released libraries; also runs daily, see *Stored Chapter 2
+Results*). The smoke and navigator jobs check
 out **PyAutoHands** as a sibling and run the PyAuto* libraries from the **same-named branch** of each
 source repo, so a HowToLens PR is validated against matching library branches.
 
@@ -70,6 +73,30 @@ The `howtolens` project target is registered in PyAutoHands (`run_all.py`, `navi
 `config/`). The navigator catalogue — `llms-full.txt` + `workspace_index.json` — is what
 `navigator_check.yml` gates; it is rebuilt by the same PyAutoHands generate/merge flow that builds
 the notebooks. Commit regenerated notebooks and catalogue alongside the script changes.
+
+## Stored Chapter 2 Results
+
+Chapter 2 Tutorials 2-6 ship the completed output of every search, so readers load each result in
+seconds ("Fit Already Completed") instead of sampling. Tutorial 1 is not stored: its search writes
+no output and is the reader's one live fit. Only the files needed to rebuild a result are kept,
+with `samples.csv` thinned to a few equal-weight draws; Tutorial 2 keeps a fuller, illustrated
+folder because it walks the reader through the output tree.
+
+A stored result is found by an identifier hashed from the model and search settings (`n_live`,
+`seed`, priors, profile classes), not the search `name`. Changing any of those, or a library change
+that moves a profile class or default, makes that tutorial sample again. After such a change, rerun
+the affected searches for real (test mode off, ideally on a cluster) and refresh the store:
+
+```bash
+python .github/scripts/stored_results.py harvest <output-root-of-the-real-runs>
+git add -f output/howtolens/chapter_2/lens_sersic/*/*/
+python .github/scripts/stored_results.py check   # fails if any Tutorial 2-6 search would sample
+```
+
+Add the fit folders only: loading a stored fit writes a `.zip` and status files beside each folder,
+which stay gitignored. Smoke tests run in test mode and never exercise the stored results; the
+`stored_results.yml` workflow runs `check` against the released libraries on every PR, on `main` and
+daily, so a library release that invalidates the store turns it red.
 
 ## Bulk-edit safety
 

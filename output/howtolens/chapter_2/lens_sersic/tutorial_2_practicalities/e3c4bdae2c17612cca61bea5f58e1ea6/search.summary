@@ -1,0 +1,16 @@
+Search: Nautilus (autofit.non_linear.search.nest.nautilus.search.Nautilus)
+JAX use = optional, gradient = none, batched = True
+Posterior kind = weighted, produces evidence = True, resumable = True
+Objective = log_likelihood (unit_cube coordinates), invalid value = -1e+99
+Status = stable
+Number of cores = 1 (requested 1)
+
+Total Samples = 92600
+Total Accepted Samples = 92600
+Acceptance Ratio = 1.0
+Time To Run = 0:17:45.190360
+Time Per Sample (seconds) = 0.011503135637897137
+Log Likelihood Function Evaluation Time (seconds) = 1.5578956604003906
+Expected Time To Run (seconds) = 1 day, 16:04:21.138153
+Speed Up Factor (e.g. due to parallelization) = 135.43226033665752
+Visualization Time (seconds) = 999.4332165718079

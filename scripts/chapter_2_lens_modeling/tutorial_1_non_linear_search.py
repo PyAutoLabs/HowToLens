@@ -394,6 +394,9 @@ use. You may therefore see an initial pause before the search begins reporting p
 
 Let the search finish before continuing. Its completion means that it has met its stopping criteria; we must still
 inspect the result to assess whether the fit is satisfactory.
+
+This is the one search in this chapter that you run in full, so you can see a fit in progress. From *Practicalities*
+onwards, HowToLens loads stored results for each fit, so later tutorials do not keep you waiting.
 """
 
 result = search.fit(model=model, analysis=analysis)

@@ -1,0 +1,24 @@
+Search: MultiStartProdigy (autofit.non_linear.search.mle.multi_start_gradient.search.MultiStartProdigy)
+JAX use = required, gradient = uses, batched = True
+Posterior kind = point, produces evidence = False, resumable = True
+Objective = neg2_log_posterior (physical coordinates), invalid value = inf
+Status = stable
+Number of cores = 1 (requested 1)
+
+Total Samples = 49 (1 best + 48 per-start final points; not a step count)
+Total Steps = 183
+Stop Reason = converged
+Time To Run = 0:09:05.591292
+Time Per Sample (seconds) = 11.134516161315295
+Log Likelihood Function Evaluation Time (seconds) = 5.815361022949219
+Expected Time To Run (seconds) = 0:04:44.952690
+Speed Up Factor (e.g. due to parallelization) = 0.5222823278673303
+Visualization Time (seconds) = 19.10622811317444
+
+Resampling Info
+Resurrections = 0
+Value-NaN Lane-Steps = 4994
+Gradient-NaN Lane-Steps = 9
+Constrained Lane-Steps = 82
+Value-NaN Lane-Step Rate = 0.5685336976320583
+Gradient-NaN Lane-Step Rate = 0.0010245901639344263

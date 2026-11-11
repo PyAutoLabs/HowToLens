@@ -1,0 +1,2053 @@
+Warming up visualization (one-time JAX compilation)...
+Visualization warm-up complete.
+Starting new Nautilus non-linear search (no previous samples found).
+Running search with JAX vectorization (parallelization handled by JAX).
+JAX jit compiling vectorized (vmap) likelihood function, could take seconds or minutes...
+JAX jit compilation of vectorized (vmap) likelihood function: traced, lowered and compiled in 2.5 seconds; waiting for the result to materialize...
+JAX jit compilation of vectorized (vmap) likelihood function: result materialized in 0.1 seconds.
+JAX jit compilation of vectorized (vmap) likelihood function complete in 2.6 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -80131.85595389
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.259
+        gamma_2                                                                 0.052
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.051
+                centre_1                                                        0.056
+            ell_comps
+                ell_comps_0                                                     -0.273
+                ell_comps_1                                                     0.199
+            intensity                                                           0.841
+            effective_radius                                                    0.908
+            sersic_index                                                        2.744
+        mass
+            centre
+                centre_0                                                        -0.146
+                centre_1                                                        -0.010
+            ell_comps
+                ell_comps_0                                                     0.029
+                ell_comps_1                                                     -0.427
+            einstein_radius                                                     6.329
+    source
+        bulge
+            centre
+                centre_0                                                        -0.414
+                centre_1                                                        -0.037
+            ell_comps
+                ell_comps_0                                                     0.362
+                ell_comps_1                                                     -0.208
+            effective_radius                                                    20.757
+            intensity                                                           0.000
+
+Quick update complete in 3.5582258701324463 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -59889.74879638
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.030
+        gamma_2                                                                 -0.024
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.036
+                centre_1                                                        0.039
+            ell_comps
+                ell_comps_0                                                     -0.049
+                ell_comps_1                                                     0.011
+            intensity                                                           0.070
+            effective_radius                                                    4.136
+            sersic_index                                                        4.815
+        mass
+            centre
+                centre_0                                                        0.041
+                centre_1                                                        -0.089
+            ell_comps
+                ell_comps_0                                                     -0.073
+                ell_comps_1                                                     0.221
+            einstein_radius                                                     6.669
+    source
+        bulge
+            centre
+                centre_0                                                        -0.624
+                centre_1                                                        0.040
+            ell_comps
+                ell_comps_0                                                     -0.759
+                ell_comps_1                                                     -0.163
+            effective_radius                                                    19.911
+            intensity                                                           0.002
+
+Quick update complete in 3.040187358856201 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -47053.23941051
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.029
+        gamma_2                                                                 0.144
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.030
+                centre_1                                                        0.022
+            ell_comps
+                ell_comps_0                                                     0.037
+                ell_comps_1                                                     -0.011
+            intensity                                                           0.203
+            effective_radius                                                    2.104
+            sersic_index                                                        4.752
+        mass
+            centre
+                centre_0                                                        -0.181
+                centre_1                                                        -0.049
+            ell_comps
+                ell_comps_0                                                     -0.641
+                ell_comps_1                                                     -0.218
+            einstein_radius                                                     1.845
+    source
+        bulge
+            centre
+                centre_0                                                        0.488
+                centre_1                                                        0.239
+            ell_comps
+                ell_comps_0                                                     0.183
+                ell_comps_1                                                     0.204
+            effective_radius                                                    27.307
+            intensity                                                           0.001
+
+Quick update complete in 3.0066704750061035 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -42885.96540630
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.070
+        gamma_2                                                                 -0.209
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.005
+                centre_1                                                        0.004
+            ell_comps
+                ell_comps_0                                                     0.079
+                ell_comps_1                                                     -0.045
+            intensity                                                           0.389
+            effective_radius                                                    1.493
+            sersic_index                                                        4.697
+        mass
+            centre
+                centre_0                                                        -0.003
+                centre_1                                                        0.139
+            ell_comps
+                ell_comps_0                                                     0.057
+                ell_comps_1                                                     -0.011
+            einstein_radius                                                     4.971
+    source
+        bulge
+            centre
+                centre_0                                                        0.452
+                centre_1                                                        -0.397
+            ell_comps
+                ell_comps_0                                                     -0.534
+                ell_comps_1                                                     -0.008
+            effective_radius                                                    3.250
+            intensity                                                           0.012
+
+Quick update complete in 2.977356433868408 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -42248.58057891
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.253
+        gamma_2                                                                 -0.136
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.003
+                centre_1                                                        0.005
+            ell_comps
+                ell_comps_0                                                     0.050
+                ell_comps_1                                                     0.004
+            intensity                                                           0.326
+            effective_radius                                                    1.639
+            sersic_index                                                        4.959
+        mass
+            centre
+                centre_0                                                        0.109
+                centre_1                                                        0.009
+            ell_comps
+                ell_comps_0                                                     -0.440
+                ell_comps_1                                                     0.170
+            einstein_radius                                                     4.216
+    source
+        bulge
+            centre
+                centre_0                                                        -0.337
+                centre_1                                                        -0.448
+            ell_comps
+                ell_comps_0                                                     -0.163
+                ell_comps_1                                                     0.856
+            effective_radius                                                    4.039
+            intensity                                                           0.000
+
+Quick update complete in 3.005336046218872 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -41697.40811484
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 -0.116
+        gamma_2                                                                 -0.042
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.002
+                centre_1                                                        0.004
+            ell_comps
+                ell_comps_0                                                     0.046
+                ell_comps_1                                                     -0.012
+            intensity                                                           0.339
+            effective_radius                                                    1.570
+            sersic_index                                                        4.960
+        mass
+            centre
+                centre_0                                                        0.017
+                centre_1                                                        -0.230
+            ell_comps
+                ell_comps_0                                                     0.249
+                ell_comps_1                                                     0.369
+            einstein_radius                                                     1.147
+    source
+        bulge
+            centre
+                centre_0                                                        -0.027
+                centre_1                                                        0.070
+            ell_comps
+                ell_comps_0                                                     0.158
+                ell_comps_1                                                     0.192
+            effective_radius                                                    1.595
+            intensity                                                           0.066
+
+Quick update complete in 2.6836893558502197 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -41110.91258427
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.181
+        gamma_2                                                                 -0.127
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.004
+                centre_1                                                        0.004
+            ell_comps
+                ell_comps_0                                                     0.059
+                ell_comps_1                                                     -0.006
+            intensity                                                           0.370
+            effective_radius                                                    1.504
+            sersic_index                                                        4.944
+        mass
+            centre
+                centre_0                                                        0.081
+                centre_1                                                        -0.110
+            ell_comps
+                ell_comps_0                                                     -0.352
+                ell_comps_1                                                     -0.310
+            einstein_radius                                                     2.787
+    source
+        bulge
+            centre
+                centre_0                                                        -0.094
+                centre_1                                                        -0.391
+            ell_comps
+                ell_comps_0                                                     0.055
+                ell_comps_1                                                     0.549
+            effective_radius                                                    0.335
+            intensity                                                           0.388
+
+Quick update complete in 3.476400375366211 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -39547.19757582
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.244
+        gamma_2                                                                 0.198
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.002
+                centre_1                                                        0.002
+            ell_comps
+                ell_comps_0                                                     0.060
+                ell_comps_1                                                     -0.006
+            intensity                                                           0.369
+            effective_radius                                                    1.506
+            sersic_index                                                        4.953
+        mass
+            centre
+                centre_0                                                        0.009
+                centre_1                                                        0.009
+            ell_comps
+                ell_comps_0                                                     0.029
+                ell_comps_1                                                     0.049
+            einstein_radius                                                     1.788
+    source
+        bulge
+            centre
+                centre_0                                                        0.065
+                centre_1                                                        0.331
+            ell_comps
+                ell_comps_0                                                     0.266
+                ell_comps_1                                                     0.527
+            effective_radius                                                    1.093
+            intensity                                                           0.128
+
+Quick update complete in 3.073864698410034 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -35553.27255642
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 -0.090
+        gamma_2                                                                 0.046
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.005
+                centre_1                                                        0.008
+            ell_comps
+                ell_comps_0                                                     0.083
+                ell_comps_1                                                     -0.007
+            intensity                                                           0.378
+            effective_radius                                                    1.482
+            sersic_index                                                        4.986
+        mass
+            centre
+                centre_0                                                        -0.039
+                centre_1                                                        0.167
+            ell_comps
+                ell_comps_0                                                     0.065
+                ell_comps_1                                                     -0.141
+            einstein_radius                                                     1.486
+    source
+        bulge
+            centre
+                centre_0                                                        0.000
+                centre_1                                                        0.044
+            ell_comps
+                ell_comps_0                                                     -0.152
+                ell_comps_1                                                     0.297
+            effective_radius                                                    0.426
+            intensity                                                           0.240
+
+Quick update complete in 2.914741277694702 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -27270.68711451
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 -0.043
+        gamma_2                                                                 -0.065
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.002
+                centre_1                                                        0.010
+            ell_comps
+                ell_comps_0                                                     0.072
+                ell_comps_1                                                     -0.018
+            intensity                                                           0.387
+            effective_radius                                                    1.466
+            sersic_index                                                        4.985
+        mass
+            centre
+                centre_0                                                        -0.132
+                centre_1                                                        0.014
+            ell_comps
+                ell_comps_0                                                     -0.188
+                ell_comps_1                                                     -0.053
+            einstein_radius                                                     1.687
+    source
+        bulge
+            centre
+                centre_0                                                        -0.101
+                centre_1                                                        -0.061
+            ell_comps
+                ell_comps_0                                                     -0.097
+                ell_comps_1                                                     0.083
+            effective_radius                                                    0.191
+            intensity                                                           0.781
+
+Quick update complete in 2.9900643825531006 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -18077.29877830
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.115
+        gamma_2                                                                 0.028
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.004
+                centre_1                                                        0.016
+            ell_comps
+                ell_comps_0                                                     0.027
+                ell_comps_1                                                     -0.001
+            intensity                                                           0.486
+            effective_radius                                                    1.258
+            sersic_index                                                        4.920
+        mass
+            centre
+                centre_0                                                        0.026
+                centre_1                                                        -0.061
+            ell_comps
+                ell_comps_0                                                     0.033
+                ell_comps_1                                                     0.191
+            einstein_radius                                                     1.574
+    source
+        bulge
+            centre
+                centre_0                                                        -0.019
+                centre_1                                                        -0.033
+            ell_comps
+                ell_comps_0                                                     0.122
+                ell_comps_1                                                     -0.135
+            effective_radius                                                    0.297
+            intensity                                                           0.943
+
+Quick update complete in 2.622653007507324 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -13360.12839527
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.070
+        gamma_2                                                                 0.010
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.012
+                centre_1                                                        0.002
+            ell_comps
+                ell_comps_0                                                     0.027
+                ell_comps_1                                                     0.005
+            intensity                                                           0.767
+            effective_radius                                                    0.907
+            sersic_index                                                        4.963
+        mass
+            centre
+                centre_0                                                        -0.025
+                centre_1                                                        -0.075
+            ell_comps
+                ell_comps_0                                                     -0.046
+                ell_comps_1                                                     0.058
+            einstein_radius                                                     1.575
+    source
+        bulge
+            centre
+                centre_0                                                        -0.002
+                centre_1                                                        -0.077
+            ell_comps
+                ell_comps_0                                                     -0.063
+                ell_comps_1                                                     -0.249
+            effective_radius                                                    0.193
+            intensity                                                           1.296
+
+Quick update complete in 3.560835599899292 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -8898.78192765
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.030
+        gamma_2                                                                 0.028
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.006
+                centre_1                                                        0.034
+            ell_comps
+                ell_comps_0                                                     0.088
+                ell_comps_1                                                     0.049
+            intensity                                                           0.570
+            effective_radius                                                    1.059
+            sersic_index                                                        4.995
+        mass
+            centre
+                centre_0                                                        0.003
+                centre_1                                                        0.000
+            ell_comps
+                ell_comps_0                                                     0.018
+                ell_comps_1                                                     -0.024
+            einstein_radius                                                     1.596
+    source
+        bulge
+            centre
+                centre_0                                                        0.021
+                centre_1                                                        0.014
+            ell_comps
+                ell_comps_0                                                     0.144
+                ell_comps_1                                                     0.213
+            effective_radius                                                    0.175
+            intensity                                                           1.634
+
+Quick update complete in 3.050875186920166 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -5218.51220537
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.074
+        gamma_2                                                                 -0.010
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.005
+                centre_1                                                        -0.019
+            ell_comps
+                ell_comps_0                                                     0.125
+                ell_comps_1                                                     -0.006
+            intensity                                                           0.796
+            effective_radius                                                    0.884
+            sersic_index                                                        4.832
+        mass
+            centre
+                centre_0                                                        -0.034
+                centre_1                                                        -0.018
+            ell_comps
+                ell_comps_0                                                     -0.081
+                ell_comps_1                                                     0.041
+            einstein_radius                                                     1.596
+    source
+        bulge
+            centre
+                centre_0                                                        0.000
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.059
+                ell_comps_1                                                     -0.132
+            effective_radius                                                    0.181
+            intensity                                                           2.101
+
+Quick update complete in 2.7222988605499268 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          -1009.70174249
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.064
+        gamma_2                                                                 0.088
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.007
+                centre_1                                                        -0.019
+            ell_comps
+                ell_comps_0                                                     0.075
+                ell_comps_1                                                     0.018
+            intensity                                                           0.653
+            effective_radius                                                    1.004
+            sersic_index                                                        4.901
+        mass
+            centre
+                centre_0                                                        0.006
+                centre_1                                                        -0.004
+            ell_comps
+                ell_comps_0                                                     0.134
+                ell_comps_1                                                     0.017
+            einstein_radius                                                     1.601
+    source
+        bulge
+            centre
+                centre_0                                                        0.017
+                centre_1                                                        0.006
+            ell_comps
+                ell_comps_0                                                     -0.036
+                ell_comps_1                                                     -0.014
+            effective_radius                                                    0.129
+            intensity                                                           2.985
+
+Quick update complete in 3.64955997467041 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          140.05448041
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.046
+        gamma_2                                                                 0.046
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.007
+                centre_1                                                        -0.002
+            ell_comps
+                ell_comps_0                                                     0.070
+                ell_comps_1                                                     0.086
+            intensity                                                           0.776
+            effective_radius                                                    0.914
+            sersic_index                                                        4.594
+        mass
+            centre
+                centre_0                                                        0.003
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.032
+                ell_comps_1                                                     -0.007
+            einstein_radius                                                     1.605
+    source
+        bulge
+            centre
+                centre_0                                                        -0.008
+                centre_1                                                        -0.006
+            ell_comps
+                ell_comps_0                                                     -0.027
+                ell_comps_1                                                     0.093
+            effective_radius                                                    0.108
+            intensity                                                           3.467
+
+Quick update complete in 2.648987293243408 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          864.82491132
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.038
+        gamma_2                                                                 0.035
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.002
+                centre_1                                                        0.004
+            ell_comps
+                ell_comps_0                                                     0.018
+                ell_comps_1                                                     -0.094
+            intensity                                                           1.470
+            effective_radius                                                    0.647
+            sersic_index                                                        3.712
+        mass
+            centre
+                centre_0                                                        -0.015
+                centre_1                                                        0.001
+            ell_comps
+                ell_comps_0                                                     0.027
+                ell_comps_1                                                     -0.026
+            einstein_radius                                                     1.608
+    source
+        bulge
+            centre
+                centre_0                                                        -0.010
+                centre_1                                                        0.010
+            ell_comps
+                ell_comps_0                                                     0.087
+                ell_comps_1                                                     0.044
+            effective_radius                                                    0.101
+            intensity                                                           4.092
+
+Quick update complete in 3.668579339981079 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          1511.28131643
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.043
+        gamma_2                                                                 0.069
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.004
+                centre_1                                                        -0.005
+            ell_comps
+                ell_comps_0                                                     0.047
+                ell_comps_1                                                     -0.031
+            intensity                                                           1.298
+            effective_radius                                                    0.702
+            sersic_index                                                        3.766
+        mass
+            centre
+                centre_0                                                        -0.004
+                centre_1                                                        0.011
+            ell_comps
+                ell_comps_0                                                     0.089
+                ell_comps_1                                                     -0.016
+            einstein_radius                                                     1.587
+    source
+        bulge
+            centre
+                centre_0                                                        0.003
+                centre_1                                                        0.010
+            ell_comps
+                ell_comps_0                                                     0.018
+                ell_comps_1                                                     0.006
+            effective_radius                                                    0.104
+            intensity                                                           4.093
+
+Quick update complete in 3.080003023147583 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          1963.24877535
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.064
+        gamma_2                                                                 0.030
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.001
+                centre_1                                                        -0.009
+            ell_comps
+                ell_comps_0                                                     0.038
+                ell_comps_1                                                     -0.039
+            intensity                                                           1.034
+            effective_radius                                                    0.815
+            sersic_index                                                        3.633
+        mass
+            centre
+                centre_0                                                        -0.005
+                centre_1                                                        0.001
+            ell_comps
+                ell_comps_0                                                     0.024
+                ell_comps_1                                                     0.014
+            einstein_radius                                                     1.593
+    source
+        bulge
+            centre
+                centre_0                                                        0.002
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.130
+                ell_comps_1                                                     -0.068
+            effective_radius                                                    0.109
+            intensity                                                           3.790
+
+Quick update complete in 2.6764538288116455 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          2384.65299039
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.037
+        gamma_2                                                                 0.069
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.001
+                centre_1                                                        -0.000
+            ell_comps
+                ell_comps_0                                                     0.044
+                ell_comps_1                                                     0.022
+            intensity                                                           1.027
+            effective_radius                                                    0.785
+            sersic_index                                                        3.971
+        mass
+            centre
+                centre_0                                                        0.005
+                centre_1                                                        0.016
+            ell_comps
+                ell_comps_0                                                     0.075
+                ell_comps_1                                                     -0.022
+            einstein_radius                                                     1.611
+    source
+        bulge
+            centre
+                centre_0                                                        0.004
+                centre_1                                                        0.014
+            ell_comps
+                ell_comps_0                                                     -0.021
+                ell_comps_1                                                     0.028
+            effective_radius                                                    0.103
+            intensity                                                           4.112
+
+Quick update complete in 2.9983463287353516 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          2753.13284093
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.047
+        gamma_2                                                                 0.038
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.003
+                centre_1                                                        0.000
+            ell_comps
+                ell_comps_0                                                     0.050
+                ell_comps_1                                                     0.003
+            intensity                                                           0.817
+            effective_radius                                                    0.871
+            sersic_index                                                        4.608
+        mass
+            centre
+                centre_0                                                        -0.010
+                centre_1                                                        0.007
+            ell_comps
+                ell_comps_0                                                     0.032
+                ell_comps_1                                                     -0.018
+            einstein_radius                                                     1.592
+    source
+        bulge
+            centre
+                centre_0                                                        -0.011
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.141
+                ell_comps_1                                                     -0.085
+            effective_radius                                                    0.116
+            intensity                                                           3.797
+
+Quick update complete in 3.221184015274048 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3089.96333141
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.045
+        gamma_2                                                                 0.054
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.003
+                centre_1                                                        0.002
+            ell_comps
+                ell_comps_0                                                     0.046
+                ell_comps_1                                                     -0.010
+            intensity                                                           1.125
+            effective_radius                                                    0.747
+            sersic_index                                                        3.909
+        mass
+            centre
+                centre_0                                                        -0.006
+                centre_1                                                        0.006
+            ell_comps
+                ell_comps_0                                                     0.059
+                ell_comps_1                                                     -0.006
+            einstein_radius                                                     1.599
+    source
+        bulge
+            centre
+                centre_0                                                        -0.006
+                centre_1                                                        0.005
+            ell_comps
+                ell_comps_0                                                     0.124
+                ell_comps_1                                                     -0.008
+            effective_radius                                                    0.108
+            intensity                                                           3.575
+
+Quick update complete in 3.049264669418335 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3089.96333141
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.045
+        gamma_2                                                                 0.054
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.003
+                centre_1                                                        0.002
+            ell_comps
+                ell_comps_0                                                     0.046
+                ell_comps_1                                                     -0.010
+            intensity                                                           1.125
+            effective_radius                                                    0.747
+            sersic_index                                                        3.909
+        mass
+            centre
+                centre_0                                                        -0.006
+                centre_1                                                        0.006
+            ell_comps
+                ell_comps_0                                                     0.059
+                ell_comps_1                                                     -0.006
+            einstein_radius                                                     1.599
+    source
+        bulge
+            centre
+                centre_0                                                        -0.006
+                centre_1                                                        0.005
+            ell_comps
+                ell_comps_0                                                     0.124
+                ell_comps_1                                                     -0.008
+            effective_radius                                                    0.108
+            intensity                                                           3.575
+
+Quick update complete in 2.9414401054382324 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3192.14891502
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.052
+        gamma_2                                                                 0.044
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.002
+                centre_1                                                        0.004
+            ell_comps
+                ell_comps_0                                                     0.051
+                ell_comps_1                                                     0.015
+            intensity                                                           1.036
+            effective_radius                                                    0.783
+            sersic_index                                                        3.894
+        mass
+            centre
+                centre_0                                                        -0.002
+                centre_1                                                        -0.004
+            ell_comps
+                ell_comps_0                                                     0.046
+                ell_comps_1                                                     0.004
+            einstein_radius                                                     1.595
+    source
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.005
+            ell_comps
+                ell_comps_0                                                     0.100
+                ell_comps_1                                                     -0.084
+            effective_radius                                                    0.107
+            intensity                                                           3.797
+
+Quick update complete in 3.131718873977661 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3277.35366004
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.050
+        gamma_2                                                                 0.049
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        0.000
+            ell_comps
+                ell_comps_0                                                     0.062
+                ell_comps_1                                                     -0.008
+            intensity                                                           1.139
+            effective_radius                                                    0.747
+            sersic_index                                                        3.846
+        mass
+            centre
+                centre_0                                                        -0.002
+                centre_1                                                        -0.002
+            ell_comps
+                ell_comps_0                                                     0.051
+                ell_comps_1                                                     -0.001
+            einstein_radius                                                     1.598
+    source
+        bulge
+            centre
+                centre_0                                                        0.000
+                centre_1                                                        -0.000
+            ell_comps
+                ell_comps_0                                                     0.049
+                ell_comps_1                                                     -0.092
+            effective_radius                                                    0.099
+            intensity                                                           4.071
+
+Quick update complete in 3.5853731632232666 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3296.84646595
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.045
+        gamma_2                                                                 0.049
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.001
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.046
+                ell_comps_1                                                     0.002
+            intensity                                                           1.040
+            effective_radius                                                    0.785
+            sersic_index                                                        3.881
+        mass
+            centre
+                centre_0                                                        -0.006
+                centre_1                                                        0.004
+            ell_comps
+                ell_comps_0                                                     0.047
+                ell_comps_1                                                     -0.012
+            einstein_radius                                                     1.601
+    source
+        bulge
+            centre
+                centre_0                                                        -0.007
+                centre_1                                                        0.002
+            ell_comps
+                ell_comps_0                                                     0.058
+                ell_comps_1                                                     -0.034
+            effective_radius                                                    0.101
+            intensity                                                           4.103
+
+Quick update complete in 2.781139850616455 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3339.64003832
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.049
+        gamma_2                                                                 0.050
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.003
+                centre_1                                                        0.002
+            ell_comps
+                ell_comps_0                                                     0.059
+                ell_comps_1                                                     -0.006
+            intensity                                                           1.108
+            effective_radius                                                    0.759
+            sersic_index                                                        3.782
+        mass
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.003
+            ell_comps
+                ell_comps_0                                                     0.053
+                ell_comps_1                                                     -0.001
+            einstein_radius                                                     1.598
+    source
+        bulge
+            centre
+                centre_0                                                        0.001
+                centre_1                                                        -0.002
+            ell_comps
+                ell_comps_0                                                     0.104
+                ell_comps_1                                                     -0.069
+            effective_radius                                                    0.102
+            intensity                                                           3.877
+
+Quick update complete in 3.634653091430664 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3382.29644998
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.045
+        gamma_2                                                                 0.050
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        0.001
+            ell_comps
+                ell_comps_0                                                     0.051
+                ell_comps_1                                                     -0.005
+            intensity                                                           1.001
+            effective_radius                                                    0.797
+            sersic_index                                                        4.066
+        mass
+            centre
+                centre_0                                                        -0.002
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.052
+                ell_comps_1                                                     -0.009
+            einstein_radius                                                     1.601
+    source
+        bulge
+            centre
+                centre_0                                                        -0.000
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.113
+                ell_comps_1                                                     -0.033
+            effective_radius                                                    0.104
+            intensity                                                           3.896
+
+Quick update complete in 2.993114948272705 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3395.15858274
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.049
+        gamma_2                                                                 0.049
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        0.001
+                centre_1                                                        -0.002
+            ell_comps
+                ell_comps_0                                                     0.049
+                ell_comps_1                                                     0.000
+            intensity                                                           1.043
+            effective_radius                                                    0.778
+            sersic_index                                                        4.007
+        mass
+            centre
+                centre_0                                                        -0.002
+                centre_1                                                        0.000
+            ell_comps
+                ell_comps_0                                                     0.050
+                ell_comps_1                                                     -0.001
+            einstein_radius                                                     1.600
+    source
+        bulge
+            centre
+                centre_0                                                        -0.003
+                centre_1                                                        0.002
+            ell_comps
+                ell_comps_0                                                     0.121
+                ell_comps_1                                                     -0.043
+            effective_radius                                                    0.101
+            intensity                                                           3.951
+
+Quick update complete in 2.6000399589538574 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3422.70558838
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.050
+        gamma_2                                                                 0.053
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        0.001
+            ell_comps
+                ell_comps_0                                                     0.049
+                ell_comps_1                                                     -0.004
+            intensity                                                           1.047
+            effective_radius                                                    0.779
+            sersic_index                                                        3.962
+        mass
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.056
+                ell_comps_1                                                     0.000
+            einstein_radius                                                     1.601
+    source
+        bulge
+            centre
+                centre_0                                                        -0.000
+                centre_1                                                        -0.000
+            ell_comps
+                ell_comps_0                                                     0.079
+                ell_comps_1                                                     -0.037
+            effective_radius                                                    0.102
+            intensity                                                           3.921
+
+Quick update complete in 2.945176839828491 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3422.70558838
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.050
+        gamma_2                                                                 0.053
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        0.001
+            ell_comps
+                ell_comps_0                                                     0.049
+                ell_comps_1                                                     -0.004
+            intensity                                                           1.047
+            effective_radius                                                    0.779
+            sersic_index                                                        3.962
+        mass
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.056
+                ell_comps_1                                                     0.000
+            einstein_radius                                                     1.601
+    source
+        bulge
+            centre
+                centre_0                                                        -0.000
+                centre_1                                                        -0.000
+            ell_comps
+                ell_comps_0                                                     0.079
+                ell_comps_1                                                     -0.037
+            effective_radius                                                    0.102
+            intensity                                                           3.921
+
+Quick update complete in 2.560734272003174 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3429.97697032
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.047
+        gamma_2                                                                 0.049
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.055
+                ell_comps_1                                                     -0.004
+            intensity                                                           1.080
+            effective_radius                                                    0.768
+            sersic_index                                                        3.871
+        mass
+            centre
+                centre_0                                                        -0.000
+                centre_1                                                        0.001
+            ell_comps
+                ell_comps_0                                                     0.050
+                ell_comps_1                                                     -0.006
+            einstein_radius                                                     1.600
+    source
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        0.001
+            ell_comps
+                ell_comps_0                                                     0.075
+                ell_comps_1                                                     -0.035
+            effective_radius                                                    0.101
+            intensity                                                           3.969
+
+Quick update complete in 3.4268863201141357 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3436.57842770
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.050
+        gamma_2                                                                 0.050
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        0.000
+            ell_comps
+                ell_comps_0                                                     0.049
+                ell_comps_1                                                     -0.004
+            intensity                                                           1.065
+            effective_radius                                                    0.772
+            sersic_index                                                        3.948
+        mass
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.002
+            ell_comps
+                ell_comps_0                                                     0.052
+                ell_comps_1                                                     0.001
+            einstein_radius                                                     1.600
+    source
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.093
+                ell_comps_1                                                     -0.041
+            effective_radius                                                    0.100
+            intensity                                                           4.046
+
+Quick update complete in 2.6076340675354004 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3440.00281762
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.048
+        gamma_2                                                                 0.051
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.000
+            ell_comps
+                ell_comps_0                                                     0.051
+                ell_comps_1                                                     -0.002
+            intensity                                                           1.094
+            effective_radius                                                    0.761
+            sersic_index                                                        3.883
+        mass
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.002
+            ell_comps
+                ell_comps_0                                                     0.054
+                ell_comps_1                                                     -0.003
+            einstein_radius                                                     1.601
+    source
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.090
+                ell_comps_1                                                     -0.038
+            effective_radius                                                    0.102
+            intensity                                                           3.989
+
+Quick update complete in 2.6058638095855713 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3440.85950826
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.051
+        gamma_2                                                                 0.050
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.000
+            ell_comps
+                ell_comps_0                                                     0.051
+                ell_comps_1                                                     -0.003
+            intensity                                                           1.073
+            effective_radius                                                    0.769
+            sersic_index                                                        3.913
+        mass
+            centre
+                centre_0                                                        -0.000
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.053
+                ell_comps_1                                                     0.001
+            einstein_radius                                                     1.600
+    source
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.089
+                ell_comps_1                                                     -0.044
+            effective_radius                                                    0.101
+            intensity                                                           3.982
+
+Quick update complete in 3.0243382453918457 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3443.62789420
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.050
+        gamma_2                                                                 0.050
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.050
+                ell_comps_1                                                     -0.005
+            intensity                                                           1.048
+            effective_radius                                                    0.779
+            sersic_index                                                        3.947
+        mass
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.000
+            ell_comps
+                ell_comps_0                                                     0.052
+                ell_comps_1                                                     0.000
+            einstein_radius                                                     1.601
+    source
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.000
+            ell_comps
+                ell_comps_0                                                     0.089
+                ell_comps_1                                                     -0.036
+            effective_radius                                                    0.100
+            intensity                                                           4.031
+
+Quick update complete in 2.9385597705841064 seconds.
+Performing quick update of maximum log likelihood fit image and model.results
+Maximum Log Likelihood                                                          3444.00898232
+
+
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+
+Maximum Log Likelihood Model:
+
+
+fields
+    shear
+        gamma_1                                                                 0.049
+        gamma_2                                                                 0.050
+galaxies
+    lens
+        bulge
+            centre
+                centre_0                                                        -0.000
+                centre_1                                                        -0.001
+            ell_comps
+                ell_comps_0                                                     0.051
+                ell_comps_1                                                     -0.002
+            intensity                                                           1.060
+            effective_radius                                                    0.773
+            sersic_index                                                        3.956
+        mass
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.000
+            ell_comps
+                ell_comps_0                                                     0.052
+                ell_comps_1                                                     -0.003
+            einstein_radius                                                     1.600
+    source
+        bulge
+            centre
+                centre_0                                                        -0.001
+                centre_1                                                        -0.000
+            ell_comps
+                ell_comps_0                                                     0.090
+                ell_comps_1                                                     -0.043
+            effective_radius                                                    0.101
+            intensity                                                           3.992
+
+Quick update complete in 3.063744306564331 seconds.
+Fit Running: Updating results (see output folder).
+Samples with weight less than 1e-10 removed from samples.csv.
+Creating latent samples by drawing 100 from the PDF.
+latent.yaml lists 'total_galaxy_0_flux' but no such latent is registered; dropping. Known latents: ['effective_einstein_radius', 'magnification', 'total_lens_flux', 'total_lens_flux_mujy', 'total_lensed_source_flux', 'total_lensed_source_flux_mujy', 'total_source_flux', 'total_source_flux_mujy']
+JAX jit compiling latent variable function (per-sample jit), could take seconds or minutes...
+latent.yaml lists 'total_galaxy_0_flux' but no such latent is registered; dropping. Known latents: ['effective_einstein_radius', 'magnification', 'total_lens_flux', 'total_lens_flux_mujy', 'total_lensed_source_flux', 'total_lensed_source_flux_mujy', 'total_source_flux', 'total_source_flux_mujy']
+JAX jit compilation of latent variable function (per-sample jit): traced, lowered and compiled in 0.8 seconds; waiting for the result to materialize...
+JAX jit compilation of latent variable function (per-sample jit): result materialized in 0.0 seconds.
+JAX jit compilation of latent variable function (per-sample jit) complete in 0.8 seconds.
+Removing search internal folder.

@@ -1,0 +1,58 @@
+Search: Nautilus (autofit.non_linear.search.nest.nautilus.search.Nautilus)
+JAX use = optional, gradient = none, batched = True
+Posterior kind = weighted, produces evidence = True, resumable = True
+Objective = log_likelihood (unit_cube coordinates), invalid value = -1e+99
+Status = stable
+
+Total Free Parameters = 20
+
+model                                                                           Collection (N=20)
+    galaxies                                                                    Collection (N=18)
+        lens                                                                    Galaxy (N=12)
+            bulge                                                               Sersic (N=7)
+            mass                                                                Isothermal (N=5)
+        source                                                                  Galaxy (N=6)
+            bulge                                                               ExponentialCore (N=6)
+    fields                                                                      MassField (N=2)
+        shear                                                                   ExternalShear (N=2)
+
+fields
+    redshift                                                                    0.5
+    shear
+        gamma_1                                                                 UniformPrior [0], lower_limit = -0.3, upper_limit = 0.3
+        gamma_2                                                                 UniformPrior [1], lower_limit = -0.3, upper_limit = 0.3
+galaxies
+    lens
+        redshift                                                                0.5
+        bulge
+            centre
+                centre_0                                                        GaussianPrior [2], mean = 0.0, sigma = 0.3
+                centre_1                                                        GaussianPrior [3], mean = 0.0, sigma = 0.3
+            ell_comps
+                ell_comps_0                                                     TruncatedGaussianPrior [4], mean = 0.0, sigma = 0.3, lower_limit = -1.0, upper_limit = 1.0
+                ell_comps_1                                                     TruncatedGaussianPrior [5], mean = 0.0, sigma = 0.3, lower_limit = -1.0, upper_limit = 1.0
+            intensity                                                           LogUniformPrior [6], lower_limit = 1e-06, upper_limit = 1000000.0
+            effective_radius                                                    UniformPrior [7], lower_limit = 0.0, upper_limit = 30.0
+            sersic_index                                                        UniformPrior [8], lower_limit = 0.8, upper_limit = 5.0
+        mass
+            centre
+                centre_0                                                        GaussianPrior [9], mean = 0.0, sigma = 0.1
+                centre_1                                                        GaussianPrior [10], mean = 0.0, sigma = 0.1
+            ell_comps
+                ell_comps_0                                                     TruncatedGaussianPrior [11], mean = 0.0, sigma = 0.3, lower_limit = -1.0, upper_limit = 1.0
+                ell_comps_1                                                     TruncatedGaussianPrior [12], mean = 0.0, sigma = 0.3, lower_limit = -1.0, upper_limit = 1.0
+            einstein_radius                                                     UniformPrior [13], lower_limit = 0.0, upper_limit = 8.0
+    source
+        redshift                                                                1.0
+        bulge
+            centre
+                centre_0                                                        GaussianPrior [14], mean = 0.0, sigma = 0.3
+                centre_1                                                        GaussianPrior [15], mean = 0.0, sigma = 0.3
+            ell_comps
+                ell_comps_0                                                     TruncatedGaussianPrior [16], mean = 0.0, sigma = 0.3, lower_limit = -1.0, upper_limit = 1.0
+                ell_comps_1                                                     TruncatedGaussianPrior [17], mean = 0.0, sigma = 0.3, lower_limit = -1.0, upper_limit = 1.0
+            effective_radius                                                    UniformPrior [18], lower_limit = 0.0, upper_limit = 30.0
+            radius_break                                                        0.025
+            intensity                                                           LogUniformPrior [19], lower_limit = 1e-05, upper_limit = 1000.0
+            gamma                                                               0.25
+            alpha                                                               3.0

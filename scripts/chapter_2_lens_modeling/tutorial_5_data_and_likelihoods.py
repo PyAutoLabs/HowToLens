@@ -277,7 +277,10 @@ solution.
 
 Inspect the fitted image and normalised residuals after the search finishes. Check the central lens galaxy and the
 surrounding arcs, including their fainter emission. Satisfying the positions constraint is only one requirement; the
-model must also explain the light throughout the circular mask."""
+model must also explain the light throughout the circular mask.
+
+This fit is stored with HowToLens, as explained in *Practicalities*, so its result loads in seconds. Delete its
+`tutorial_5_with_positions` folder in `output/howtolens/chapter_2/lens_sersic` to run it yourself."""
 
 search = af.Nautilus(
     path_prefix=Path("howtolens") / "chapter_2",

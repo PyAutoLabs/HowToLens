@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "object_id": "lens_sersic",
+  "external_ids": {},
+  "inputs": {},
+  "centre": null,
+  "versions": {
+    "autonerves": "2026.8.17.1",
+    "autofit": "2026.8.17.1",
+    "autoarray": "2026.8.17.1",
+    "autogalaxy": "2026.8.17.1",
+    "autolens": "2026.8.17.1",
+    "numpy": "2.2.6",
+    "jax": "0.11.2"
+  },
+  "written": "2026-11-10T19:33:59+00:00"
+}

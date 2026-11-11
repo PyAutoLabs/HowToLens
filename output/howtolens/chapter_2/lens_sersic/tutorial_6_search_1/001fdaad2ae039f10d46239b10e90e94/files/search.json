@@ -1,0 +1,86 @@
+{
+    "type": "instance",
+    "class_path": "autofit.non_linear.search.mle.multi_start_gradient.search.MultiStartProdigy",
+    "arguments": {
+        "n_starts": 48,
+        "path_prefix": {
+            "type": "path",
+            "path": "howtolens/chapter_2"
+        },
+        "seed": null,
+        "bijector": {
+            "type": "instance",
+            "class_path": "autofit.non_linear.bijector.BijectorNone",
+            "arguments": {}
+        },
+        "initial_values": {
+            "type": "dict",
+            "arguments": {}
+        },
+        "iterations_per_log": 10,
+        "name": "tutorial_6_search_1",
+        "convergence": {
+            "type": "instance",
+            "class_path": "autofit.non_linear.search.mle.multi_start_gradient.convergence.MultiStartGradientConvergence",
+            "arguments": {
+                "check_for_convergence": true,
+                "atol": 0.001,
+                "min_steps": 100,
+                "window": 50,
+                "rtol": 0.0001
+            }
+        },
+        "n_steps": 300,
+        "iterations_per_full_update": 1e+99,
+        "resurrect": false,
+        "unique_tag": "lens_sersic",
+        "silence": false,
+        "clipper": {
+            "type": "instance",
+            "class_path": "autofit.non_linear.clipper.ClipperNone",
+            "arguments": {}
+        },
+        "trace_param_indices": null,
+        "paths": {
+            "type": "instance",
+            "class_path": "autofit.non_linear.paths.directory.DirectoryPaths",
+            "arguments": {
+                "is_identifier_in_paths": true,
+                "path_prefix": {
+                    "type": "path",
+                    "path": "howtolens/chapter_2"
+                },
+                "identifier": "001fdaad2ae039f10d46239b10e90e94",
+                "image_path_suffix": "",
+                "name": "tutorial_6_search_1",
+                "parent": null,
+                "unique_tag": "lens_sersic"
+            }
+        },
+        "learning_rate": null,
+        "initializer": {
+            "type": "instance",
+            "class_path": "autofit.non_linear.initializer.InitializerBall",
+            "arguments": {
+                "upper_limit": 0.51,
+                "lower_limit": 0.49
+            }
+        },
+        "batch_size": 4,
+        "start_lower_limit": 0.15,
+        "max_consecutive_nan": 8,
+        "reset_momentum_on_clip": false,
+        "record_lane_nan_history": false,
+        "inplace": false,
+        "scaler": {
+            "type": "instance",
+            "class_path": "autofit.non_linear.scaler.ScalerNone",
+            "arguments": {}
+        },
+        "gradient_mode": null,
+        "iterations_per_quick_update": 1e+99,
+        "start_upper_limit": 0.85,
+        "live_visual_update": false,
+        "number_of_cores": 1
+    }
+}

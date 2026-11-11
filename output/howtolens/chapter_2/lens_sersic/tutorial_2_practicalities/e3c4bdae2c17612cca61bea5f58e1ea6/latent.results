@@ -1,0 +1,83 @@
+Bayesian Evidence                                                               3322.17060476
+Maximum Log Likelihood                                                          3443.34456488
+
+model                                                                           Collection (N=11)
+    fields                                                                      Collection (N=2)
+        shear                                                                   Collection (N=2)
+    galaxies                                                                    Collection (N=6)
+        lens                                                                    Collection (N=4)
+            mass                                                                Collection (N=2)
+        source                                                                  Collection (N=2)
+        lens - source
+            bulge                                                               Collection (N=2)
+
+Maximum Log Likelihood Model:
+
+total_lens_flux                                                                 1148.940
+total_lensed_source_flux                                                        495.838
+total_source_flux                                                               14.254
+fields
+    shear
+        magnitude                                                               0.069
+        angle                                                                   22.658
+galaxies
+    lens
+        bulge
+            axis_ratio                                                          0.899
+            angle                                                               46.854
+        mass
+            axis_ratio                                                          0.903
+            angle                                                               46.412
+    source
+        bulge
+            axis_ratio                                                          0.818
+            angle                                                               56.527
+
+
+Summary (3.0 sigma limits):
+
+total_lens_flux                                                                 1.1499e+03 (1.1428e+03, 1.1543e+03)
+total_lensed_source_flux                                                        4.9655e+02 (4.9281e+02, 5.0043e+02)
+total_source_flux                                                               1.4277e+01 (1.3950e+01, 1.4599e+01)
+fields
+    shear
+        magnitude                                                               0.1 (0.1, 0.1)
+        angle                                                                   22.8567 (21.7687, 23.7040)
+galaxies
+    lens
+        bulge
+            axis_ratio                                                          0.9037 (0.8979, 0.9118)
+            angle                                                               46.6743 (44.5339, 48.9652)
+        mass
+            axis_ratio                                                          0.8989 (0.8913, 0.9063)
+            angle                                                               46.0094 (43.1880, 48.2781)
+    source
+        bulge
+            axis_ratio                                                          0.8260 (0.7880, 0.8489)
+            angle                                                               57.7000 (53.5938, 60.7553)
+
+
+Summary (1.0 sigma limits):
+
+total_lens_flux                                                                 1.1499e+03 (1.1472e+03, 1.1522e+03)
+total_lensed_source_flux                                                        4.9655e+02 (4.9456e+02, 4.9779e+02)
+total_source_flux                                                               1.4277e+01 (1.4073e+01, 1.4421e+01)
+fields
+    shear
+        magnitude                                                               0.1 (0.1, 0.1)
+        angle                                                                   22.8567 (22.4472, 23.2541)
+galaxies
+    lens
+        bulge
+            axis_ratio                                                          0.9037 (0.8994, 0.9061)
+            angle                                                               46.6743 (45.0686, 47.6681)
+        mass
+            axis_ratio                                                          0.8989 (0.8963, 0.9021)
+            angle                                                               46.0094 (44.7264, 46.7372)
+    source
+        bulge
+            axis_ratio                                                          0.8260 (0.8119, 0.8361)
+            angle                                                               57.7000 (55.8879, 59.0988)
+
+instances
+

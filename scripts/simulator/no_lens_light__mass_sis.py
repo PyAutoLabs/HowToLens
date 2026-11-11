@@ -74,12 +74,16 @@ psf = al.Convolver.from_gaussian(
 
 """
 Create the simulator for the imaging data, which defines the exposure time, background sky, noise levels and psf.
+
+The fixed `noise_seed` gives every reader the same noise realisation, so the stored Chapter 2 fit results
+describe exactly the data you simulate.
 """
 simulator = al.SimulatorImaging(
     exposure_time=300.0,
     psf=psf,
     background_sky_level=0.1,
     add_poisson_noise_to_data=True,
+    noise_seed=1,
 )
 
 """
