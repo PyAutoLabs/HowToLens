@@ -20,7 +20,8 @@ canonical, agent-agnostic instructions for this repo.
 - `notebooks/` — Jupyter versions, generated from `scripts/` (do not edit directly)
 - `config/` — PyAutoLens configuration YAML
 - `dataset/` — Empty in the repo; written at runtime by the simulator scripts
-- `output/` — Model-fit results (generated at runtime, not committed)
+- `output/` — Model-fit results, generated at runtime and gitignored, except the stored Chapter 2
+  results under `output/howtolens/chapter_2/` (see *Stored Chapter 2 Results*)
 
 ## Running Scripts
 
@@ -70,6 +71,29 @@ The `howtolens` project target is registered in PyAutoHands (`run_all.py`, `navi
 `config/`). The navigator catalogue — `llms-full.txt` + `workspace_index.json` — is what
 `navigator_check.yml` gates; it is rebuilt by the same PyAutoHands generate/merge flow that builds
 the notebooks. Commit regenerated notebooks and catalogue alongside the script changes.
+
+## Stored Chapter 2 Results
+
+Chapter 2 Tutorials 2-6 ship the completed output of every search, so readers load each result in
+seconds ("Fit Already Completed") instead of sampling. Tutorial 1 is not stored: its search writes
+no output and is the reader's one live fit. Only the files needed to rebuild a result are kept,
+with `samples.csv` thinned to a few equal-weight draws; Tutorial 2 keeps a fuller, illustrated
+folder because it walks the reader through the output tree.
+
+A stored result is found by an identifier hashed from the model and search settings (`n_live`,
+`seed`, priors, profile classes), not the search `name`. Changing any of those, or a library change
+that moves a profile class or default, makes that tutorial sample again. After such a change, rerun
+the affected searches for real (test mode off, ideally on a cluster) and refresh the store:
+
+```bash
+python .github/scripts/stored_results.py harvest <output-root-of-the-real-runs>
+git add -f output/howtolens/chapter_2/lens_sersic/*/*/
+python .github/scripts/stored_results.py check   # fails if any Tutorial 2-6 search would sample
+```
+
+Add the fit folders only: loading a stored fit writes a `.zip` and status files beside each folder,
+which stay gitignored. Smoke tests run in test mode and never exercise the stored results, so run
+`check` whenever Chapter 2 scripts or the libraries change.
 
 ## Bulk-edit safety
 
