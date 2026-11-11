@@ -69,17 +69,6 @@ Source redshifts are therefore essential inputs. Here they are known from the si
 redshift uncertainties must be considered when interpreting a real cluster model.
 """
 
-import importlib.util
-import sys
-
-if importlib.util.find_spec("jax") is None:
-    print(
-        "Skipping this tutorial: it requires the `jax` package (used to "
-        "accelerate the multi-plane point-source solves), which is not "
-        "installed (install with `pip install autolens[optional]`)."
-    )
-    sys.exit(0)
-
 from autolens import jax_wrapper  # Sets JAX environment before other imports
 
 # from autolens import setup_notebook; setup_notebook()
