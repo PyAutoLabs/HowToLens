@@ -45,7 +45,9 @@ On CI, every PR is gated on Python **3.12 and 3.13** by `smoke_tests.yml` (runs
 `python .github/scripts/run_smoke.py`, which runs **every** script under `scripts/` except the
 exclusions in `config/build/no_run.yaml`, with per-script env from `config/build/profile_smoke.yaml` —
 the definition of green), `navigator_check.yml` (PyAutoHands's reusable navigator-catalogue check;
-see *Notebooks vs Scripts*), and `url_check.yml` (link checking). The smoke and navigator jobs check
+see *Notebooks vs Scripts*), `url_check.yml` (link checking) and `stored_results.yml` (Chapter 2
+stored results still load against the released libraries; also runs daily, see *Stored Chapter 2
+Results*). The smoke and navigator jobs check
 out **PyAutoHands** as a sibling and run the PyAuto* libraries from the **same-named branch** of each
 source repo, so a HowToLens PR is validated against matching library branches.
 
@@ -92,8 +94,9 @@ python .github/scripts/stored_results.py check   # fails if any Tutorial 2-6 sea
 ```
 
 Add the fit folders only: loading a stored fit writes a `.zip` and status files beside each folder,
-which stay gitignored. Smoke tests run in test mode and never exercise the stored results, so run
-`check` whenever Chapter 2 scripts or the libraries change.
+which stay gitignored. Smoke tests run in test mode and never exercise the stored results; the
+`stored_results.yml` workflow runs `check` against the released libraries on every PR, on `main` and
+daily, so a library release that invalidates the store turns it red.
 
 ## Bulk-edit safety
 

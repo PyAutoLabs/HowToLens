@@ -1,0 +1,49 @@
+name: Stored Results
+
+# Chapter 2 Tutorials 2-6 load stored fit results from output/howtolens/chapter_2
+# instead of sampling. A result is found by an identifier hashed from the model
+# and search settings, so a library release that moves a profile class, a
+# default prior or a search default silently sends readers back to tens of
+# minutes of sampling. This job runs those tutorials with test mode off against
+# the released libraries readers install, and fails if any search would sample.
+# Smoke tests run in test mode and never exercise the stored results.
+# See .github/scripts/stored_results.py and AGENTS.md (Stored Chapter 2 Results).
+
+# Library releases never push to this repo, so the daily schedule is what
+# catches a release that invalidates the stored results. Superseded runs are
+# cancelled on PR refs only — a cancelled main run would read as red CI
+# (cancelled is in Heart's FAILURE_CONCLUSIONS).
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: stored_results-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+permissions:
+  contents: read
+
+jobs:
+  stored-results:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the released libraries
+        run: python -m pip install -r requirements.txt
+      - name: Check every Chapter 2 search loads a stored result
+        env:
+          MPLBACKEND: Agg
+          JAX_PLATFORMS: cpu
+          # jaxlib 0.11.2 XLA:CPU deadlock on repeated calls (PyAutoNerves#213).
+          XLA_FLAGS: --xla_cpu_multi_thread_eigen=false
+        run: |
+          python -c "import autofit, autolens, jax; print('autofit', autofit.__version__, 'autolens', autolens.__version__, 'jax', jax.__version__)"
+          python .github/scripts/stored_results.py check

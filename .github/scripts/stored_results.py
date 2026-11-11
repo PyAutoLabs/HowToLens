@@ -210,8 +210,9 @@ def check() -> int:
         if completed.returncode == 0:
             print(f"OK      {name}")
         else:
-            tail = (completed.stdout + completed.stderr).strip().splitlines()[-1:]
-            print(f"FAILED  {name}: {tail[0] if tail else completed.returncode}")
+            tail = (completed.stdout + completed.stderr).strip().splitlines()
+            print(f"FAILED  {name}: {tail[-1] if tail else completed.returncode}")
+            print("\n".join(f"        {line}" for line in tail[-20:]))
             failures.append(name)
 
     for path in (set(stored.glob("*/*/*")) - before) if stored.exists() else ():
