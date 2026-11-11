@@ -212,8 +212,12 @@ We increase `n_live` from 100 in Tutorial 1 to 200 for this more complex model. 
 thorough exploration, at the cost of additional computation. We must still inspect the result rather than assume this
 setting guarantees a successful fit.
 
-`seed=1` fixes the random choices Nautilus makes while it explores. Rerunning the search with the same seed reproduces
-the stored result described below; a different seed explores differently and may reach a different answer.
+`seed=1` fixes the random choices Nautilus makes while it explores, so rerunning this search should land on the same
+solution as the stored result described below. Small numerical differences between computers can still change how a
+search explores, and a different seed may reach a different answer.
+
+Without a fixed seed, this 200-live-point search does not always succeed: in our tests it occasionally settled on a
+poor solution. Recognising and dealing with that is the subject of *Why Modeling Is Hard*.
 
 `n_batch=50` allows likelihood evaluations to be processed in batches. Evaluating several models together can improve
 performance, particularly on a GPU, but also requires more memory.

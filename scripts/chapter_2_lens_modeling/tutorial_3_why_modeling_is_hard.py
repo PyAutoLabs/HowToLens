@@ -165,8 +165,9 @@ successful run does not make this a reliable setting.
 We give this fit its own name so its output is kept separate from the *Practicalities* result.
 
 As in *Practicalities*, this fit and every other fit in this tutorial are stored with HowToLens, so each cell loads its
-result in seconds. Every search here also uses `seed=1`, so the stored results are reproducible; changing a seed changes
-how that search explores, and can change whether it succeeds. Delete a fit's folder in `output/howtolens/chapter_2/lens_sersic` to run it yourself.
+result in seconds. Every search here also uses `seed=1`, so rerunning them should reproduce the stored outcomes, although
+small numerical differences between computers can still change how a search explores. Changing a seed changes how that
+search explores, and can change whether it succeeds. Delete a fit's folder in `output/howtolens/chapter_2/lens_sersic` to run it yourself.
 """
 
 search = af.Nautilus(
