@@ -340,7 +340,9 @@ and rerun the cell. **Resuming and Loading** below explains how PyAutoFit decide
 
 result = search.fit(model=model, analysis=analysis)
 
-print(f"Recorded run time of this search: {float(result.samples.time) / 60:.1f} minutes")
+print(
+    f"Recorded run time of this search: {float(result.samples.time) / 60:.1f} minutes"
+)
 
 """
 __Result Info__
