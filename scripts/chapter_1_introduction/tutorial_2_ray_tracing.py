@@ -709,6 +709,13 @@ physical units when needed.
 Tutorial 3 explains the cosmological distances behind this
 conversion, as part of its optional mathematical discussion.
 
+If you try changing the lens and source redshifts, you will find
+the lensed image does not change at all. That is expected: our
+lens is set by an angle, and only its physical size and mass
+depend on the redshifts. The workspace's
+[redshifts and angles guide](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/guides/units/redshifts_and_angles.py)
+explains why.
+
 __More Complexity__
 
 Our tracer currently contains one spherical lens and one source.

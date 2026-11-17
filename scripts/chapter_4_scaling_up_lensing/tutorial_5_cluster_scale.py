@@ -395,6 +395,11 @@ The dPIE `redshift_source` input specifies the reference source redshift used to
 quantities. Here, we use the highest source redshift consistently for the scaling members. The tracer then
 evaluates the lens mapping to each source's own plane; this does not place every source at that reference
 redshift.
+
+Unlike the angular `einstein_radius` we used for galaxy-scale lenses, `sigma` is a physical quantity, so here the
+redshifts do change the lensed images. The workspace's
+[redshifts and angles guide](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/guides/units/redshifts_and_angles.py)
+explains the difference between the two approaches.
 """
 scaling_sigma_ref = af.UniformPrior(lower_limit=0.0, upper_limit=200.0)
 scaling_sigma_exponent = 0.25  # alpha (Faber-Jackson)

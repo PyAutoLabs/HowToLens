@@ -806,6 +806,14 @@ or velocity dispersion to the observer–lens–source geometry.
 Our `IsothermalSph` profile specifies this angular scale
 directly through its `einstein_radius` parameter.
 
+Because we fix the angle rather than the mass or velocity
+dispersion, the distances are already absorbed into it, so
+changing the redshifts changes the physical mass but not the
+image. The workspace's
+[redshifts and angles guide](https://github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/guides/units/redshifts_and_angles.py)
+shows this with two redshift pairs, and compares it with codes
+that start from a physical mass instead.
+
 For a circular lens, the mean convergence inside the Einstein
 radius equals one. Its enclosed projected mass is therefore
 

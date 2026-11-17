@@ -55,7 +55,8 @@
       "Env"
     ],
     "cross_refs": [
-      "//github.com/PyAutoLabs/autolens_assistant/blob/main/docs/colab/cosmos_web_ring_colab.py"
+      "//github.com/PyAutoLabs/autolens_assistant/blob/main/docs/colab/cosmos_web_ring_colab.py",
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/guides/units/redshifts_and_angles.py"
     ],
     "notebook": "notebooks/chapter_1_introduction/tutorial_2_ray_tracing.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_2_ray_tracing.py",
@@ -77,7 +78,9 @@
       "Wrap Up",
       "Env"
     ],
-    "cross_refs": [],
+    "cross_refs": [
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/guides/units/redshifts_and_angles.py"
+    ],
     "notebook": "notebooks/chapter_1_introduction/tutorial_3_more_ray_tracing.ipynb",
     "path": "scripts/chapter_1_introduction/tutorial_3_more_ray_tracing.py",
     "summary": "In tutorial 2, we used the lens equation to trace coordinates from the image plane to the source plane and build an image of a strong lens.",
@@ -620,6 +623,7 @@
       "Wrap Up"
     ],
     "cross_refs": [
+      "//github.com/PyAutoLabs/autolens_workspace/blob/main/scripts/guides/units/redshifts_and_angles.py",
       "autolens_workspace/scripts/guides/point_solver/pairing.py"
     ],
     "notebook": "notebooks/chapter_4_scaling_up_lensing/tutorial_5_cluster_scale.ipynb",
