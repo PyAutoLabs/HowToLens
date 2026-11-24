@@ -10,11 +10,11 @@ You don’t need prior experience with lensing or Bayesian statistics. If you al
 
 ### Explore It Yourself
 
-- **[Start in your browser](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/start_here.ipynb)** — open the series introduction in Google Colab without installing anything locally.
+- **[Start in your browser](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.22.1/start_here.ipynb)** — open the series introduction in Google Colab without installing anything locally.
 - **[Run it locally](https://pyautolens.readthedocs.io/en/latest/installation/overview.html)** — install PyAutoLens, download this repository and open the Jupyter notebooks in `notebooks/`.
 - **[Read Chapter 1 with images](https://github.com/PyAutoLabs/HowToLens/blob/main/markdown/README.md)** — browse the available lectures and their results directly on GitHub.
 
-Begin with [Tutorial 0: Visualization](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/main/notebooks/chapter_1_introduction/tutorial_0_visualization.ipynb) to check your setup and learn how to display figures.
+Begin with [Tutorial 0: Visualization](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.22.1/notebooks/chapter_1_introduction/tutorial_0_visualization.ipynb) to check your setup and learn how to display figures.
 
 ### Study with AI
 
