@@ -294,6 +294,44 @@ just the likelihood calculation.
 Watch the progress of your first run to develop an expectation for your computer. The optional *Need for Speed*
 tutorial explains how to investigate performance in more detail.
 
+__Automatic Compute Setup__
+
+The fastest way to run a fit (JAX or NumPy, CPU or GPU, how many CPU cores) depends on the likelihood and on your
+hardware. **PyAutoLens** can make this choice for you, using timings measured when the software was profiled. When we
+fit without asking for it, as above, the terminal prints one line saying which setup it would choose:
+
+```
+Compute setup: not set (auto would choose JAX · CPU · dense · fp64; pass setup="auto")
+```
+
+To opt in, pass `setup="auto"` to the analysis and `number_of_cores="auto"` to the search:
+
+```
+analysis = al.AnalysisImaging(dataset=dataset, setup="auto")
+
+search = af.Nautilus(..., number_of_cores="auto")
+```
+
+When the fit starts, the terminal then prints a short header. On an 8-core laptop, this tutorial's fit gives:
+
+```
+Automatic compute setup (CPU/GPU choice from setup="auto"; override with PYAUTO_SETUP or setup=...):
+Setup:    JAX · CPU · dense · fp64   (rule imaging/mge · extrapolated: 8 cores, rules measured on ≥16-core nodes)
+Parallel: 1 worker (JAX on CPU)
+Estimate: ~47 min on this hardware   (7.1 ms/eval, euclid cell · Nautilus n_live=200 ≈ 1.3e5 evals, heuristic · 1 worker (JAX))
+```
+
+- `Setup` is the chosen backend, device, operator and numerical precision, and the rule that picked them. "extrapolated"
+  means your computer does not match the machines the rules were measured on, with the reason given.
+- `Parallel` is how many CPU processes run the search. A JAX setup uses one process and lets JAX use the device.
+- `Estimate` is the expected wall time: the time per likelihood evaluation from profiling, multiplied by a rough
+  count of how many evaluations Nautilus needs. Treat it as a guide to whether a fit takes minutes or hours, not a
+  promise.
+
+To override the choice, pass a named setup instead (for example `setup="jax_gpu_dense_fp64"` on a GPU) or set the
+`PYAUTO_SETUP` environment variable. The guide `scripts/guides/advanced/auto_setup.py` in the `autolens_workspace`
+explains the setups in full.
+
 __Notebooks and Scripts__
 
 In a notebook, the cell containing `search.fit` remains busy until the search finishes. You can inspect files already

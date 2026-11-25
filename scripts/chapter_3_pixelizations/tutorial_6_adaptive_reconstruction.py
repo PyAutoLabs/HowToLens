@@ -229,6 +229,8 @@ Unlike a rectangular mesh, the triangles can have different sizes and orientatio
 The source brightness values are assigned to the **vertices**, rather than one constant brightness being assigned to each triangle. We will examine how brightness is calculated between the vertices in the next block.
 
 The helper below constructs a Delaunay reconstruction using our image-plane overlay. It also lets us vary the regularization coefficient.
+
+Before defining it, we call `apply_sparse_operator()` on the dataset. This precomputes a sparse operator that the many fits below reuse, which makes each reconstruction faster. Alternatively, passing `al.Settings(lazy_sparse_operator="auto")` to the fit builds this operator automatically the first time a pixelized fit needs it.
 """
 
 dataset = dataset.apply_sparse_operator()
