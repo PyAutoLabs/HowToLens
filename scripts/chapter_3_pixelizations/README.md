@@ -16,10 +16,10 @@ This additional freedom also allows the reconstruction to fit noise. We therefor
 
 MGE remains valuable, especially for foreground lens light and initial source fits. Pixelization is the next tool when the source requires more spatial freedom. We will learn how to use these tools together, inspect their reconstructions and recognise when their assumptions need revisiting.
 
-- [Pixelizations, Mappers and Inversions](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.22.1/notebooks/chapter_3_pixelizations/tutorial_1_pixelizations.ipynb)
-- [Bayesian Regularization](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.22.1/notebooks/chapter_3_pixelizations/tutorial_2_bayesian_regularization.ipynb)
-- [Borders](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.22.1/notebooks/chapter_3_pixelizations/tutorial_3_borders.ipynb)
-- [Lens Modeling](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.22.1/notebooks/chapter_3_pixelizations/tutorial_4_lens_modeling.ipynb)
+- [Pixelizations, Mappers and Inversions](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.25.1/notebooks/chapter_3_pixelizations/tutorial_1_pixelizations.ipynb)
+- [Bayesian Regularization](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.25.1/notebooks/chapter_3_pixelizations/tutorial_2_bayesian_regularization.ipynb)
+- [Borders](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.25.1/notebooks/chapter_3_pixelizations/tutorial_3_borders.ipynb)
+- [Lens Modeling](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.25.1/notebooks/chapter_3_pixelizations/tutorial_4_lens_modeling.ipynb)
 
-- [Fit Problems](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.22.1/notebooks/chapter_3_pixelizations/tutorial_5_fit_problems.ipynb)
-- [Adaptive Reconstruction](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.22.1/notebooks/chapter_3_pixelizations/tutorial_6_adaptive_reconstruction.ipynb)
+- [Fit Problems](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.25.1/notebooks/chapter_3_pixelizations/tutorial_5_fit_problems.ipynb)
+- [Adaptive Reconstruction](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.25.1/notebooks/chapter_3_pixelizations/tutorial_6_adaptive_reconstruction.ipynb)
