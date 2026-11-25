@@ -79,6 +79,18 @@ The imaging analyses in this chapter use JAX by default. Setting `use_jax=False`
 NumPy path, which can be useful when diagnosing a calculation or comparing implementations. This does not make a
 gradient-based search independent of derivatives: such a search still needs a supported differentiable calculation.
 
+__Automatic Compute Setup__
+
+Rather than choosing between JAX and NumPy, CPU and GPU yourself, you can pass `setup="auto"` to the analysis (and
+`number_of_cores="auto"` to a Nautilus search). **PyAutoLens** then picks the setup for this likelihood on this
+hardware from timings measured when the software was profiled, and prints the choice, the number of CPU workers and
+a run-time estimate when the fit starts. Tutorial 2 of Chapter 2 shows and explains these lines.
+
+The measurements show that JAX is not always the fastest choice. On a CPU, a pixelized source is usually fitted
+fastest with the NumPy path and a numba sparse operator, run across several CPU cores, while a GPU favours JAX.
+You can override the choice by passing a named setup or setting the `PYAUTO_SETUP` environment variable; the guide
+`scripts/guides/advanced/auto_setup.py` in the `autolens_workspace` describes the options.
+
 __Batches and GPU Memory__
 
 Instead of evaluating one model at a time, a search can evaluate a batch of models together. This can increase the
@@ -94,12 +106,27 @@ the available GPU memory. The largest possible batch is not automatically the be
 
 A GPU is also not guaranteed to outperform a CPU for every fit. The outcome depends on the model, dataset, batch
 size, numerical precision and hardware. Compilation and moving data to the device contribute to elapsed time too.
-Compare the same analysis on the hardware available to you, including the costs relevant to your use: a short
+The automatic setup accounts for this using measured timings, but they come from reference machines; if yours differs,
+compare the same analysis on the hardware available to you, including the costs relevant to your use: a short
 interactive calculation and a long modelling campaign can favour different choices.
 
 __Run Time Estimation__
 
-To estimate how long a fit will take, start with a representative analysis: the model, dataset, search settings and
+For a first estimate without running anything, `al.estimate_runtime` combines the profiled time per evaluation for
+a named setup with a rough count of the evaluations a Nautilus search needs:
+
+```
+estimate = al.estimate_runtime(
+    dataset=dataset, model=model, search=search, setup="jax_cpu_dense_fp64", number_of_cores=1
+)
+print(estimate.line())
+```
+
+This prints a line in the same form as the `Estimate:` line shown when a fit with `setup="auto"` starts, so you can
+compare setups before choosing one. It returns `None` when no profiling measurement matches the setup. The
+evaluation count is a heuristic, so the estimate tells you whether to expect minutes or hours, not the exact duration.
+
+To estimate more carefully, start with a representative analysis: the model, dataset, search settings and
 hardware should resemble those you intend to use. A timing measured with a simpler model or a smaller image may
 give a misleading impression of the work ahead.
 

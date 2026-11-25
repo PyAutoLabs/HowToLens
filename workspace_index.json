@@ -224,6 +224,7 @@
     ],
     "cross_refs": [
       "scripts/chapter_2_lens_modeling/tutorial_2_practicalities.py",
+      "scripts/guides/advanced/auto_setup.py",
       "scripts/guides/results/start_here.py"
     ],
     "notebook": "notebooks/chapter_2_lens_modeling/tutorial_2_practicalities.ipynb",
@@ -675,7 +676,8 @@
       "Wrap Up"
     ],
     "cross_refs": [
-      "chapter_optional/tutorial_searches.py"
+      "chapter_optional/tutorial_searches.py",
+      "scripts/guides/advanced/auto_setup.py"
     ],
     "notebook": "notebooks/chapter_optional/tutorial_need_for_speed.ipynb",
     "path": "scripts/chapter_optional/tutorial_need_for_speed.py",
