@@ -495,7 +495,6 @@ analysis_list = [
         dataset=dataset,
         solver=solver,
         fit_positions_cls=al.FitPositionsSourceSolved,
-        use_jax=True,
     )
     for dataset in dataset_list
 ]

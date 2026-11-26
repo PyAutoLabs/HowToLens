@@ -81,10 +81,11 @@ gradient-based search independent of derivatives: such a search still needs a su
 
 __Automatic Compute Setup__
 
-Rather than choosing between JAX and NumPy, CPU and GPU yourself, you can pass `setup="auto"` to the analysis (and
-`number_of_cores="auto"` to a Nautilus search). **PyAutoLens** then picks the setup for this likelihood on this
-hardware from timings measured when the software was profiled, and prints the choice, the number of CPU workers and
-a run-time estimate when the fit starts. Tutorial 2 of Chapter 2 shows and explains these lines.
+Rather than choosing between JAX and NumPy, CPU and GPU yourself, you can pass `setup="auto"` to the analysis (the
+default from the next release) and `number_of_cores="auto"` to a Nautilus search. **PyAutoLens** then picks the setup
+for this likelihood on this hardware from timings measured when the software was profiled, and prints the choice, the
+number of CPU workers and a run-time estimate when the fit starts. Tutorial 2 of Chapter 2 shows and explains these
+lines.
 
 The measurements show that JAX is not always the fastest choice. On a CPU, a pixelized source is usually fitted
 fastest with the NumPy path and a numba sparse operator, run across several CPU cores, while a GPU favours JAX.
