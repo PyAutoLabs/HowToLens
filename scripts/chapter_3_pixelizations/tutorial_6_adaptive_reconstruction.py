@@ -16,6 +16,7 @@ __Contents__
 - Placing points with a Hilbert image mesh
 - Controlling the brightness weighting
 - Keeping resolution in the faint regions
+- The default image mesh: `HilbertSNR`
 - Reconstructing with the Hilbert mesh
 - Comparing overlay and Hilbert reconstructions
 - Smoothing on an irregular mesh
@@ -601,6 +602,57 @@ Compare the points around the brightest peaks, along the fainter arcs, and in th
 Increasing the floor reduces the contrast between their weights. This retains more sampling away from the brightest emission, but leaves fewer points available to concentrate on its peaks.
 
 Because the background can cover much more area than the arcs, even a modest floor can affect the allocation substantially. We should inspect the resulting mesh rather than interpret the floor as a fixed fraction of points assigned to faint regions.
+
+Both `weight_power` and `weight_floor` act on weights divided by the **brightest** value in the adapt image. How the rest of the source is sampled therefore depends on how bright that single peak is.
+
+---
+
+__The default image mesh: `HilbertSNR`__
+
+That dependence on the peak is a problem for real data. Suppose the source contains a compact clump with a signal-to-noise (S/N) of 250, next to an arc at S/N 30. With `weight_power=3.5` and `weight_floor=0.01`, any pixel below S/N ~67 receives the floor weight, so the well-detected arc is weighted like empty sky and receives few points. Lowering the power or raising the floor spreads points more evenly, but then the mesh stops concentrating on the source at all.
+
+The default image mesh, `HilbertSNR`, keeps the Hilbert path but shares out the points differently:
+
+- 25% are spread evenly over the mask, so the background is always covered.
+- 70% follow the source's **absolute** S/N through a soft curve: zero at or below S/N 2, which is noise, rising through S/N 5 and flattening out for bright pixels. Faint detected emission always receives points, and the brightest regions cannot take them all.
+- 5% go to the region near the brightest S/N, giving a compact bright feature extra resolution.
+- No image pixel receives more than 8 points, so a faint source does not have its points piled onto a few pixels.
+
+Because the weighting uses absolute S/N, it expects an S/N map rather than an image in flux units. S/N is the natural input: it is unit-free and comparable between datasets, whereas an image's values depend on its brightness units and exposure. Our dataset contains no foreground light, so its S/N map is simply the data divided by the noise map. In a lens-model fit, the S/N map of each galaxy is the data with every other galaxy's model subtracted, divided by the noise map, as we will use below.
+"""
+
+snr_map = al.Array2D(
+    values=np.asarray(dataset.data.slim) / np.asarray(dataset.noise_map.slim),
+    mask=dataset.mask,
+)
+
+snr_image_mesh = al.image_mesh.HilbertSNR(pixels=hilbert_pixels)
+
+snr_image_plane_mesh_grid = snr_image_mesh.image_plane_mesh_grid_from(
+    mask=dataset.mask,
+    adapt_data=snr_map,
+)
+
+aplt.plot_array(array=snr_map, title="Signal-to-Noise Map")
+
+for label, mesh_grid in [
+    ("Hilbert: weight_power=1.0, weight_floor=0.05", hilbert_image_plane_mesh_grid),
+    ("HilbertSNR (default)", snr_image_plane_mesh_grid),
+]:
+    aplt.plot_array(
+        array=dataset.data,
+        grid=mesh_grid,
+        title=label,
+    )
+
+"""
+Compare where the two meshes place their points across the arcs, the compact centre and the background.
+
+`HilbertSNR` has no `weight_power` or `weight_floor`. Its defaults were chosen on fits of HST and JWST lenses and checked on sources from a peak S/N of 5 to 1000. They can be changed (for example `background`, the evenly spread share), but in most fits they should not need to be.
+
+Two limits are worth knowing. A very faint source, with only a few pixels above S/N 2, receives most of its points on those pixels. A very bright source, whose detected emission is almost all past the flattening of the soft curve, receives an even spread of points across it.
+
+For the fixed-mass experiments in the rest of this tutorial we keep the `weight_power` mesh, so the effect of each setting stays easy to see. The modelling chain at the end uses `HilbertSNR`, as the workspace examples do.
 
 For our first reconstruction, we return to the mesh already constructed with `weight_power=1.0` and `weight_floor=0.05`. These are starting choices to investigate, rather than settings we have established as optimal.
 
@@ -1190,61 +1242,37 @@ Inspect this result before continuing. Does it explain the multiple-image config
 
 __Preparing adaptation and the positions likelihood penalty__
 
-We now derive a new adapt image from the fitted MGE result. This replaces the image used in our fixed-mass experiments.
+We now derive the adaptation inputs from the fitted MGE result. They replace the adapt image used in our fixed-mass experiments.
 
-For the modelling chain, we express the fitted source image in signal-to-noise units and cap it at `3.0`. This reduces the dominance of the very brightest peaks, retaining more weight for fainter detected emission.
+`AdaptImages.from_result` does this in one call. It computes each galaxy's S/N map from the result (the data with every other galaxy's model subtracted, divided by the noise map), draws the image mesh of the galaxy we name from its S/N map, and gives the adaptive regularization a soft version of the same S/N map, so the mesh and the regularization adapt to one signal.
 
-The cap affects only the image used to guide adaptation. It does not change the observed data, noise map or image likelihood.
-
-Our example contains no foreground light, so the full model image is the source contribution.
+The S/N maps affect only how the mesh and regularization adapt. They do not change the observed data, noise map or image likelihood.
 """
 
-source_model_image = np.asarray(initial_model_fit.model_data.slim)
+search_image_mesh = al.image_mesh.HilbertSNR(pixels=hilbert_pixels)
 
-source_model_snr = source_model_image / np.asarray(dataset.noise_map.slim)
+search_adapt_images = al.AdaptImages.from_result(
+    result=initial_result,
+    image_mesh={"source": search_image_mesh},
+)
 
-search_adapt_image = al.Array2D(
-    values=np.clip(source_model_snr, a_min=0.0, a_max=3.0),
-    mask=dataset.mask,
+search_image_plane_mesh_grid = (
+    search_adapt_images.galaxy_name_image_plane_mesh_grid_dict["('galaxies', 'source')"]
 )
 
 aplt.plot_array(
-    array=search_adapt_image,
-    title="Adapt Image for the Search: Capped Model Signal-to-Noise",
-)
-
-"""
-We construct the Hilbert image mesh from this image. Its image-plane coordinates remain fixed during the next search, while their source-plane positions change as the proposed mass model changes.
-"""
-
-search_image_mesh = al.image_mesh.Hilbert(
-    pixels=hilbert_pixels,
-    weight_power=1.0,
-    weight_floor=0.05,
-)
-
-search_image_plane_mesh_grid = search_image_mesh.image_plane_mesh_grid_from(
-    mask=dataset.mask,
-    adapt_data=search_adapt_image,
-)
-
-search_adapt_images = al.AdaptImages(
-    galaxy_name_image_dict={
-        "('galaxies', 'source')": search_adapt_image,
-    },
-    galaxy_name_image_plane_mesh_grid_dict={
-        "('galaxies', 'source')": search_image_plane_mesh_grid,
-    },
+    array=search_adapt_images.galaxy_name_image_dict["('galaxies', 'source')"],
+    title="Adaptive Regularization Signal: Soft S/N Map",
 )
 
 aplt.plot_array(
     array=dataset.data,
     grid=search_image_plane_mesh_grid,
-    title="Hilbert Image Mesh for the Model Search",
+    title="HilbertSNR Image Mesh for the Model Search",
 )
 
 """
-The dictionaries identify the source by its path in the model, `galaxies.source`. This lets the analysis associate the fixed adaptation inputs with each new source-galaxy instance proposed by the search.
+We named the source by its galaxy name, `"source"`; its full path in the model is `('galaxies', 'source')`, which is how the dictionaries store it. This lets the analysis associate the fixed adaptation inputs with each new source-galaxy instance proposed by the search. The image-mesh coordinates remain fixed during the search, while their source-plane positions change as the proposed mass model changes.
 
 Following Chapter 2, Tutorial 5, we also prepare the **positions likelihood penalty** from the initial result.
 """
@@ -1474,7 +1502,7 @@ In **Fit Problems**, we saw why selecting a constant regularization coefficient 
 
 This tutorial addressed those limitations in stages.
 
-An image-plane overlay gave us source sampling that responds to the lens magnification. A Hilbert image mesh then used a fitted brightness distribution to concentrate more sampling on the source emission. Delaunay triangulation connected the traced points and provided interpolation between their brightness values.
+An image-plane overlay gave us source sampling that responds to the lens magnification. A Hilbert image mesh then used a fitted brightness distribution to concentrate more sampling on the source emission, and the default `HilbertSNR` mesh did so in absolute signal-to-noise, so that a bright peak cannot starve the rest of the source. Delaunay triangulation connected the traced points and provided interpolation between their brightness values.
 
 Split regularization supplied local smoothing comparisons on that irregular mesh. Adaptive Split regularization allowed the strength of those comparisons to vary with the source signal.
 
