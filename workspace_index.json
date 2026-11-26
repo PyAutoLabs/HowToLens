@@ -499,6 +499,7 @@
       "Placing points with a Hilbert image mesh",
       "Controlling the brightness weighting",
       "Keeping resolution in the faint regions",
+      "The default image mesh: `HilbertSNR`",
       "Reconstructing with the Hilbert mesh",
       "Comparing overlay and Hilbert reconstructions",
       "Smoothing on an irregular mesh",
