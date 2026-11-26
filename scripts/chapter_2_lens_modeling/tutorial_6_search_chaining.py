@@ -206,7 +206,7 @@ search_1 = af.MultiStartProdigy(
     batch_size=4,
 )
 
-analysis_1 = al.AnalysisImaging(dataset=dataset, use_jax=True)
+analysis_1 = al.AnalysisImaging(dataset=dataset)
 
 result_1 = search_1.fit(model=model_1, analysis=analysis_1)
 
@@ -372,7 +372,6 @@ second model; it cannot recover uncertainty in parameters we have removed from t
 analysis_2 = al.AnalysisImaging(
     dataset=dataset,
     positions_likelihood_list=[positions_likelihood],
-    use_jax=True,
 )
 
 search_2 = af.Nautilus(
