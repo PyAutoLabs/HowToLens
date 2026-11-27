@@ -4,18 +4,18 @@ In chapter 1, we introduce you to strong gravitational lensing and the core **Py
 
 # Files
 
-- [Tutorial 0: Visualization](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.26.1/notebooks/chapter_1_introduction/tutorial_0_visualization.ipynb) — Setting up **PyAutoLens**'s visualization library.
+- [Tutorial 0: Visualization](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.27.1/notebooks/chapter_1_introduction/tutorial_0_visualization.ipynb) — Setting up **PyAutoLens**'s visualization library.
 
-- [Tutorial 1: Grids And Galaxies](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.26.1/notebooks/chapter_1_introduction/tutorial_1_grids_and_galaxies.ipynb) — Using grids of (y,x) coordinates with galaxies made up of light profiles.
+- [Tutorial 1: Grids And Galaxies](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.27.1/notebooks/chapter_1_introduction/tutorial_1_grids_and_galaxies.ipynb) — Using grids of (y,x) coordinates with galaxies made up of light profiles.
 
-- [Tutorial 2: Ray Tracing](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.26.1/notebooks/chapter_1_introduction/tutorial_2_ray_tracing.ipynb) — Using grids, galaxies and mass profiles to perform strong lens ray-tracing.
+- [Tutorial 2: Ray Tracing](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.27.1/notebooks/chapter_1_introduction/tutorial_2_ray_tracing.ipynb) — Using grids, galaxies and mass profiles to perform strong lens ray-tracing.
 
-- [Tutorial 3: More Ray Tracing](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.26.1/notebooks/chapter_1_introduction/tutorial_3_more_ray_tracing.ipynb) — The optional mathematics of ray tracing, magnification, critical curves and time delays.
+- [Tutorial 3: More Ray Tracing](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.27.1/notebooks/chapter_1_introduction/tutorial_3_more_ray_tracing.ipynb) — The optional mathematics of ray tracing, magnification, critical curves and time delays.
 
-- [Tutorial 4: Point Sources](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.26.1/notebooks/chapter_1_introduction/tutorial_4_point_sources.ipynb) — How lensing calculations change when the source galaxy is a point source (e.g. a quasar).
+- [Tutorial 4: Point Sources](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.27.1/notebooks/chapter_1_introduction/tutorial_4_point_sources.ipynb) — How lensing calculations change when the source galaxy is a point source (e.g. a quasar).
 
-- [Tutorial 5: Data](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.26.1/notebooks/chapter_1_introduction/tutorial_5_data.ipynb) — Loading and inspecting telescope imaging data of a strong lens.
+- [Tutorial 5: Data](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.27.1/notebooks/chapter_1_introduction/tutorial_5_data.ipynb) — Loading and inspecting telescope imaging data of a strong lens.
 
-- [Tutorial 6: Fitting](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.26.1/notebooks/chapter_1_introduction/tutorial_6_fitting.ipynb) — Fitting data with a strong lens model.
+- [Tutorial 6: Fitting](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.27.1/notebooks/chapter_1_introduction/tutorial_6_fitting.ipynb) — Fitting data with a strong lens model.
 
-- [Tutorial 7: Summary](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.26.1/notebooks/chapter_1_introduction/tutorial_7_summary.ipynb) — A summary of the chapter.
+- [Tutorial 7: Summary](https://colab.research.google.com/github/PyAutoLabs/HowToLens/blob/2026.11.27.1/notebooks/chapter_1_introduction/tutorial_7_summary.ipynb) — A summary of the chapter.
